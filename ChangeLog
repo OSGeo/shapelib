@@ -1,3 +1,8 @@
+2001-05-28  Frank Warmerdam  <warmerdam@pobox.com>
+
+	* shpopen.c: add some checking on the record count to ensure it
+	is reasonable.
+
 2001-05-23  Frank Warmerdam  <warmerdam@pobox.com>
 
 	* shapefile.h, shpopen.c, dbfopen.c, shptree.c: added the SHPAPI_CALL
