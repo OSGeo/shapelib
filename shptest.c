@@ -4,7 +4,10 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.1  1998-11-09 20:18:42  warmerda
+ * Revision 1.2  1998-12-16 05:15:20  warmerda
+ * Added support for writing multipatch.
+ *
+ * Revision 1.1  1998/11/09 20:18:42  warmerda
  * Initial revision
  *
  */
@@ -98,9 +101,15 @@ static void Test_WriteArcPoly( int nSHPType, const char *pszFilename )
     SHPObject	*psShape;
     double	x[100], y[100], z[100], m[100];
     int		anPartStart[100];
+    int		anPartType[100], *panPartType;
     int		i, iShape;
 
     hSHPHandle = SHPCreate( pszFilename, nSHPType );
+
+    if( nSHPType == SHPT_MULTIPATCH )
+        panPartType = anPartType;
+    else
+        panPartType = NULL;
 
     for( iShape = 0; iShape < 3; iShape++ )
     {
@@ -133,12 +142,12 @@ static void Test_WriteArcPoly( int nSHPType, const char *pszFilename )
 /* -------------------------------------------------------------------- */
     x[0] = 0.0;
     y[0] = 0.0;
-    x[1] = 100;
-    y[1] = 0;
+    x[1] = 0;
+    y[1] = 100;
     x[2] = 100;
     y[2] = 100;
-    x[3] = 0;
-    y[3] = 100;
+    x[3] = 100;
+    y[3] = 0;
     x[4] = 0;
     y[4] = 0;
 
@@ -173,8 +182,12 @@ static void Test_WriteArcPoly( int nSHPType, const char *pszFilename )
     anPartStart[0] = 0;
     anPartStart[1] = 5;
     anPartStart[2] = 10;
+
+    anPartType[0] = SHPP_RING;
+    anPartType[1] = SHPP_INNERRING;
+    anPartType[2] = SHPP_INNERRING;
     
-    psShape = SHPCreateObject( nSHPType, -1, 3, anPartStart, NULL,
+    psShape = SHPCreateObject( nSHPType, -1, 3, anPartStart, panPartType,
                                15, x, y, z, m );
     SHPWriteObject( hSHPHandle, -1, psShape );
     SHPDestroyObject( psShape );
@@ -233,6 +246,9 @@ int main( int argc, char ** argv )
         Test_WriteArcPoly( SHPT_POLYGONZ, "test11.shp" );
     else if( atoi(argv[1]) == 12 )
         Test_WriteArcPoly( SHPT_POLYGONM, "test12.shp" );
+    
+    else if( atoi(argv[1]) == 13 )
+        Test_WriteArcPoly( SHPT_MULTIPATCH, "test13.shp" );
     else
     {
         printf( "Test `%s' not recognised.\n", argv[1] );
