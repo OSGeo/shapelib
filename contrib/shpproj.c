@@ -33,7 +33,10 @@
  * SHPGeo must be compiled with -DPROJ4 support
  *
  * $Log$
- * Revision 1.7  2002-01-11 15:23:28  warmerda
+ * Revision 1.8  2002-01-11 15:47:26  warmerda
+ * several fixes
+ *
+ * Revision 1.7  2002/01/11 15:23:28  warmerda
  * use text mode reading and writing .prj files
  *
  * Revision 1.6  1999/05/26 02:56:31  candrsn
@@ -110,19 +113,27 @@ int main( int argc, char ** argv )
 /* if shapefile has a prj component then use that 
    else try for a file then read args as list */
 
-    strcpy( prjFileName, argv[1] );
-    ifp = fopen( asFileName ( prjFileName, "prj" ),"rt");
-
-    if ( !ifp && inarg > 0 )  
-      { ifp = fopen( asFileName ( argv[inarg] + 3, ".prj" ),"rt");  }
+    if( inarg == 0 )
+    {
+        strcpy( prjFileName, argv[1] );
+        ifp = fopen( asFileName ( prjFileName, "prj" ),"rt");
+    }
+    else
+    {
+        ifp = fopen( asFileName ( argv[inarg] + 3, "prj" ),"rt");
+    }
 
     i = 0;
     if ( ifp ) {
-       printf ("using default file proj params from <- %s\n",
-         asFileName ( prjFileName, "prj"  ) ); 
+        if( inarg == 0 )
+            printf ("using default file proj params from <- %s\n",
+                    asFileName ( prjFileName, "prj"  ) );
+        else
+            printf ("using file proj params from <- %s\n",
+                    asFileName ( argv[inarg] + 3, "prj" ) );
 
        while( fscanf( ifp, "%s", parg) != EOF ) {
-         in_args[i] = malloc ( strlen(parg));
+         in_args[i] = malloc ( strlen(parg)+1 );
          strcpy ( in_args[i], parg);
          i++;
        }
