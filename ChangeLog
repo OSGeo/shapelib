@@ -1,3 +1,8 @@
+2000-05-24  Frank Warmerdam  <warmerda@cs46980-c>
+
+	* Added logic to shpadd to grow vertex lists at the suggestion of 
+	Santiago Nullo <sn@softhome.net>.
+	
 2000-05-23  Frank Warmerdam  <warmerda@cs46980-c>
 
 	* Added checks in dbfopen.c on return result of fseek() and fread().
