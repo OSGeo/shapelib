@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.30  2000-12-05 14:43:38  warmerda
+ * Revision 1.31  2001-05-23 13:36:52  warmerda
+ * added use of SHPAPI_CALL
+ *
+ * Revision 1.30  2000/12/05 14:43:38  warmerda
  * DBReadAttribute() white space trimming bug fix
  *
  * Revision 1.29  2000/10/05 14:36:44  warmerda
@@ -249,7 +252,8 @@ static void DBFFlushRecord( DBFHandle psDBF )
 /*      Open a .dbf file.                                               */
 /************************************************************************/
    
-DBFHandle DBFOpen( const char * pszFilename, const char * pszAccess )
+DBFHandle SHPAPI_CALL
+DBFOpen( const char * pszFilename, const char * pszAccess )
 
 {
     DBFHandle		psDBF;
@@ -367,7 +371,8 @@ DBFHandle DBFOpen( const char * pszFilename, const char * pszAccess )
 /*                              DBFClose()                              */
 /************************************************************************/
 
-void	DBFClose(DBFHandle psDBF)
+void SHPAPI_CALL
+DBFClose(DBFHandle psDBF)
 {
 /* -------------------------------------------------------------------- */
 /*      Write out header if not already written.                        */
@@ -433,7 +438,8 @@ void	DBFClose(DBFHandle psDBF)
 /*      Create a new .dbf file.                                         */
 /************************************************************************/
 
-DBFHandle DBFCreate( const char * pszFilename )
+DBFHandle SHPAPI_CALL
+DBFCreate( const char * pszFilename )
 
 {
     DBFHandle	psDBF;
@@ -508,8 +514,9 @@ DBFHandle DBFCreate( const char * pszFilename )
 /*      are written.                                                    */
 /************************************************************************/
 
-int	DBFAddField(DBFHandle psDBF, const char * pszFieldName, 
-		    DBFFieldType eType, int nWidth, int nDecimals )
+int SHPAPI_CALL
+DBFAddField(DBFHandle psDBF, const char * pszFieldName, 
+            DBFFieldType eType, int nWidth, int nDecimals )
 
 {
     char	*pszFInfo;
@@ -711,7 +718,8 @@ static void *DBFReadAttribute(DBFHandle psDBF, int hEntity, int iField,
 /*      Read an integer attribute.                                      */
 /************************************************************************/
 
-int	DBFReadIntegerAttribute( DBFHandle psDBF, int iRecord, int iField )
+int SHPAPI_CALL
+DBFReadIntegerAttribute( DBFHandle psDBF, int iRecord, int iField )
 
 {
     double	*pdValue;
@@ -730,7 +738,8 @@ int	DBFReadIntegerAttribute( DBFHandle psDBF, int iRecord, int iField )
 /*      Read a double attribute.                                        */
 /************************************************************************/
 
-double	DBFReadDoubleAttribute( DBFHandle psDBF, int iRecord, int iField )
+double SHPAPI_CALL
+DBFReadDoubleAttribute( DBFHandle psDBF, int iRecord, int iField )
 
 {
     double	*pdValue;
@@ -749,7 +758,8 @@ double	DBFReadDoubleAttribute( DBFHandle psDBF, int iRecord, int iField )
 /*      Read a string attribute.                                        */
 /************************************************************************/
 
-const char *DBFReadStringAttribute( DBFHandle psDBF, int iRecord, int iField )
+const char SHPAPI_CALL1(*)
+DBFReadStringAttribute( DBFHandle psDBF, int iRecord, int iField )
 
 {
     return( (const char *) DBFReadAttribute( psDBF, iRecord, iField, 'C' ) );
@@ -761,7 +771,8 @@ const char *DBFReadStringAttribute( DBFHandle psDBF, int iRecord, int iField )
 /*      Return the number of fields in this table.                      */
 /************************************************************************/
 
-int	DBFGetFieldCount( DBFHandle psDBF )
+int SHPAPI_CALL
+DBFGetFieldCount( DBFHandle psDBF )
 
 {
     return( psDBF->nFields );
@@ -773,7 +784,8 @@ int	DBFGetFieldCount( DBFHandle psDBF )
 /*      Return the number of records in this table.                     */
 /************************************************************************/
 
-int	DBFGetRecordCount( DBFHandle psDBF )
+int SHPAPI_CALL
+DBFGetRecordCount( DBFHandle psDBF )
 
 {
     return( psDBF->nRecords );
@@ -785,8 +797,9 @@ int	DBFGetRecordCount( DBFHandle psDBF )
 /*      Return any requested information about the field.               */
 /************************************************************************/
 
-DBFFieldType DBFGetFieldInfo( DBFHandle psDBF, int iField, char * pszFieldName,
-			      int * pnWidth, int * pnDecimals )
+DBFFieldType SHPAPI_CALL
+DBFGetFieldInfo( DBFHandle psDBF, int iField, char * pszFieldName,
+                 int * pnWidth, int * pnDecimals )
 
 {
     if( iField < 0 || iField >= psDBF->nFields )
@@ -945,8 +958,9 @@ static int DBFWriteAttribute(DBFHandle psDBF, int hEntity, int iField,
 /*      Write a double attribute.                                       */
 /************************************************************************/
 
-int DBFWriteDoubleAttribute( DBFHandle psDBF, int iRecord, int iField,
-			     double dValue )
+int SHPAPI_CALL
+DBFWriteDoubleAttribute( DBFHandle psDBF, int iRecord, int iField,
+                         double dValue )
 
 {
     return( DBFWriteAttribute( psDBF, iRecord, iField, (void *) &dValue ) );
@@ -958,8 +972,9 @@ int DBFWriteDoubleAttribute( DBFHandle psDBF, int iRecord, int iField,
 /*      Write a integer attribute.                                      */
 /************************************************************************/
 
-int DBFWriteIntegerAttribute( DBFHandle psDBF, int iRecord, int iField,
-			      int nValue )
+int SHPAPI_CALL
+DBFWriteIntegerAttribute( DBFHandle psDBF, int iRecord, int iField,
+                          int nValue )
 
 {
     double	dValue = nValue;
@@ -973,8 +988,9 @@ int DBFWriteIntegerAttribute( DBFHandle psDBF, int iRecord, int iField,
 /*      Write a string attribute.                                       */
 /************************************************************************/
 
-int DBFWriteStringAttribute( DBFHandle psDBF, int iRecord, int iField,
-			     const char * pszValue )
+int SHPAPI_CALL
+DBFWriteStringAttribute( DBFHandle psDBF, int iRecord, int iField,
+                         const char * pszValue )
 
 {
     return( DBFWriteAttribute( psDBF, iRecord, iField, (void *) pszValue ) );
@@ -986,7 +1002,8 @@ int DBFWriteStringAttribute( DBFHandle psDBF, int iRecord, int iField,
 /*	Write an attribute record to the file.				*/
 /************************************************************************/
 
-int DBFWriteTuple(DBFHandle psDBF, int hEntity, void * pRawTuple )
+int SHPAPI_CALL
+DBFWriteTuple(DBFHandle psDBF, int hEntity, void * pRawTuple )
 
 {
     int	       	nRecordOffset, i;
@@ -1047,7 +1064,8 @@ int DBFWriteTuple(DBFHandle psDBF, int hEntity, void * pRawTuple )
 /*      Read one of the attribute fields of a record.                   */
 /************************************************************************/
 
-const char *DBFReadTuple(DBFHandle psDBF, int hEntity )
+const char SHPAPI_CALL1(*)
+DBFReadTuple(DBFHandle psDBF, int hEntity )
 
 {
     int	       	nRecordOffset;
@@ -1092,7 +1110,8 @@ const char *DBFReadTuple(DBFHandle psDBF, int hEntity )
 /*      Read one of the attribute fields of a record.                   */
 /************************************************************************/
 
-DBFHandle DBFCloneEmpty(DBFHandle psDBF, const char * pszFilename ) 
+DBFHandle SHPAPI_CALL
+DBFCloneEmpty(DBFHandle psDBF, const char * pszFilename ) 
 {
     DBFHandle	newDBF;
 
@@ -1137,7 +1156,8 @@ DBFHandle DBFCloneEmpty(DBFHandle psDBF, const char * pszFilename )
 /*                           'M' (Memo: 10 digits .DBT block ptr)       */
 /************************************************************************/
 
-char DBFGetNativeFieldType( DBFHandle psDBF, int iField )
+char SHPAPI_CALL
+DBFGetNativeFieldType( DBFHandle psDBF, int iField )
 
 {
     if( iField >=0 && iField < psDBF->nFields )

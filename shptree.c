@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.5  1999-11-05 14:12:05  warmerda
+ * Revision 1.6  2001-05-23 13:36:52  warmerda
+ * added use of SHPAPI_CALL
+ *
+ * Revision 1.5  1999/11/05 14:12:05  warmerda
  * updated license terms
  *
  * Revision 1.4  1999/06/02 18:24:21  warmerda
@@ -125,8 +128,9 @@ static SHPTreeNode *SHPTreeNodeCreate( double * padfBoundsMin,
 /*                           SHPCreateTree()                            */
 /************************************************************************/
 
-SHPTree *SHPCreateTree( SHPHandle hSHP, int nDimension, int nMaxDepth,
-                        double *padfBoundsMin, double *padfBoundsMax )
+SHPTree SHPAPI_CALL1(*)
+SHPCreateTree( SHPHandle hSHP, int nDimension, int nMaxDepth,
+               double *padfBoundsMin, double *padfBoundsMax )
 
 {
     SHPTree	*psTree;
@@ -235,7 +239,8 @@ static void SHPDestroyTreeNode( SHPTreeNode * psTreeNode )
 /*                           SHPDestroyTree()                           */
 /************************************************************************/
 
-void SHPDestroyTree( SHPTree * psTree )
+void SHPAPI_CALL
+SHPDestroyTree( SHPTree * psTree )
 
 {
     SHPDestroyTreeNode( psTree->psRoot );
@@ -248,9 +253,10 @@ void SHPDestroyTree( SHPTree * psTree )
 /*      Do the given boxes overlap at all?                              */
 /************************************************************************/
 
-int SHPCheckBoundsOverlap( double * padfBox1Min, double * padfBox1Max,
-                           double * padfBox2Min, double * padfBox2Max,
-                           int nDimension )
+int SHPAPI_CALL
+SHPCheckBoundsOverlap( double * padfBox1Min, double * padfBox1Max,
+                       double * padfBox2Min, double * padfBox2Max,
+                       int nDimension )
 
 {
     int		iDim;
@@ -309,9 +315,10 @@ static int SHPCheckObjectContained( SHPObject * psObject, int nDimension,
 /*      longest dimension.                                              */
 /************************************************************************/
 
-void SHPTreeSplitBounds( double *padfBoundsMinIn, double *padfBoundsMaxIn,
-                         double *padfBoundsMin1, double * padfBoundsMax1,
-                         double *padfBoundsMin2, double * padfBoundsMax2 )
+void SHPAPI_CALL
+SHPTreeSplitBounds( double *padfBoundsMinIn, double *padfBoundsMaxIn,
+                    double *padfBoundsMin1, double * padfBoundsMax1,
+                    double *padfBoundsMin2, double * padfBoundsMax2 )
 
 {
 /* -------------------------------------------------------------------- */
@@ -499,7 +506,8 @@ SHPTreeNodeAddShapeId( SHPTreeNode * psTreeNode, SHPObject * psObject,
 /*      object data, just keep the shapeid.                             */
 /************************************************************************/
 
-int SHPTreeAddShapeId( SHPTree * psTree, SHPObject * psObject )
+int SHPAPI_CALL
+SHPTreeAddShapeId( SHPTree * psTree, SHPObject * psObject )
 
 {
     return( SHPTreeNodeAddShapeId( psTree->psRoot, psObject,
@@ -513,10 +521,11 @@ int SHPTreeAddShapeId( SHPTree * psTree, SHPObject * psObject )
 /*      tree node by tree node basis.                                   */
 /************************************************************************/
 
-void SHPTreeCollectShapeIds( SHPTree *hTree, SHPTreeNode * psTreeNode,
-                             double * padfBoundsMin, double * padfBoundsMax,
-                             int * pnShapeCount, int * pnMaxShapes,
-                             int ** ppanShapeList )
+void SHPAPI_CALL
+SHPTreeCollectShapeIds( SHPTree *hTree, SHPTreeNode * psTreeNode,
+                        double * padfBoundsMin, double * padfBoundsMax,
+                        int * pnShapeCount, int * pnMaxShapes,
+                        int ** ppanShapeList )
 
 {
     int		i;
@@ -574,9 +583,10 @@ void SHPTreeCollectShapeIds( SHPTree *hTree, SHPTreeNode * psTreeNode,
 /************************************************************************/
 
 
-int *SHPTreeFindLikelyShapes( SHPTree * hTree,
-                              double * padfBoundsMin, double * padfBoundsMax,
-                              int * pnShapeCount )
+int SHPAPI_CALL1(*)
+SHPTreeFindLikelyShapes( SHPTree * hTree,
+                         double * padfBoundsMin, double * padfBoundsMax,
+                         int * pnShapeCount )
 
 {
     int	*panShapeList=NULL, nMaxShapes = 0;
@@ -657,7 +667,8 @@ static int SHPTreeNodeTrim( SHPTreeNode * psTreeNode )
 /*      empty root node.                                                */
 /************************************************************************/
 
-void SHPTreeTrimExtraNodes( SHPTree * hTree )
+void SHPAPI_CALL
+SHPTreeTrimExtraNodes( SHPTree * hTree )
 
 {
     SHPTreeNodeTrim( hTree->psRoot );

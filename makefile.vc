@@ -1,4 +1,6 @@
 
+#CFLAGS	=	/DSHPAPI_CALL=__stdcall
+
 default:	all
 
 all:	shpcreate.exe shpadd.exe shpdump.exe dbfcreate.exe dbfadd.exe dbfdump.exe shptest.exe shptreedump.exe shapelib.dll

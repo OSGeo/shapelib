@@ -3,10 +3,10 @@
  *
  * Project:  Shapelib
  * Purpose:  Implementation of core Shapefile read/write functions.
- * Author:   Frank Warmerdam, warmerda@home.com
+ * Author:   Frank Warmerdam, warmerdam@pobox.com
  *
  ******************************************************************************
- * Copyright (c) 1999, Frank Warmerdam
+ * Copyright (c) 1999, 2001, Frank Warmerdam
  *
  * This software is available under the following "MIT Style" license,
  * or at the option of the licensee under the LGPL (see LICENSE.LGPL).  This
@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.28  2001-02-06 22:25:06  warmerda
+ * Revision 1.29  2001-05-23 13:36:52  warmerda
+ * added use of SHPAPI_CALL
+ *
+ * Revision 1.28  2001/02/06 22:25:06  warmerda
  * fixed memory leaks when SHPOpen() fails
  *
  * Revision 1.27  2000/07/18 15:21:33  warmerda
@@ -305,7 +308,8 @@ static void SHPWriteHeader( SHPHandle psSHP )
 /*      files or either file name.                                      */
 /************************************************************************/
    
-SHPHandle SHPOpen( const char * pszLayer, const char * pszAccess )
+SHPHandle SHPAPI_CALL
+SHPOpen( const char * pszLayer, const char * pszAccess )
 
 {
     char		*pszFullname, *pszBasename;
@@ -500,7 +504,8 @@ SHPHandle SHPOpen( const char * pszLayer, const char * pszAccess )
 /*	Close the .shp and .shx files.					*/
 /************************************************************************/
 
-void	SHPClose(SHPHandle psSHP )
+void SHPAPI_CALL
+SHPClose(SHPHandle psSHP )
 
 {
 /* -------------------------------------------------------------------- */
@@ -536,8 +541,9 @@ void	SHPClose(SHPHandle psSHP )
 /*      Fetch general information about the shape file.                 */
 /************************************************************************/
 
-void SHPGetInfo(SHPHandle psSHP, int * pnEntities, int * pnShapeType,
-                double * padfMinBound, double * padfMaxBound )
+void SHPAPI_CALL
+SHPGetInfo(SHPHandle psSHP, int * pnEntities, int * pnShapeType,
+           double * padfMinBound, double * padfMaxBound )
 
 {
     int		i;
@@ -564,7 +570,8 @@ void SHPGetInfo(SHPHandle psSHP, int * pnEntities, int * pnShapeType,
 /*      shape file with read/write access.                              */
 /************************************************************************/
 
-SHPHandle SHPCreate( const char * pszLayer, int nShapeType )
+SHPHandle SHPAPI_CALL
+SHPCreate( const char * pszLayer, int nShapeType )
 
 {
     char	*pszBasename, *pszFullname;
@@ -695,7 +702,8 @@ static void	_SHPSetBounds( uchar * pabyRec, SHPObject * psShape )
 /*      SHPCreateObject().                                              */
 /************************************************************************/
 
-void SHPComputeExtents( SHPObject * psObject )
+void SHPAPI_CALL
+SHPComputeExtents( SHPObject * psObject )
 
 {
     int		i;
@@ -732,10 +740,11 @@ void SHPComputeExtents( SHPObject * psObject )
 /*      SHPDestroyObject().                                             */
 /************************************************************************/
 
-SHPObject *SHPCreateObject( int nSHPType, int nShapeId, int nParts,
-                            int * panPartStart, int * panPartType,
-                            int nVertices, double * padfX, double * padfY,
-                            double * padfZ, double * padfM )
+SHPObject SHPAPI_CALL1(*)
+SHPCreateObject( int nSHPType, int nShapeId, int nParts,
+                 int * panPartStart, int * panPartType,
+                 int nVertices, double * padfX, double * padfY,
+                 double * padfZ, double * padfM )
 
 {
     SHPObject	*psObject;
@@ -839,9 +848,10 @@ SHPObject *SHPCreateObject( int nSHPType, int nShapeId, int nParts,
 /*      SHPDestroyObject().                                             */
 /************************************************************************/
 
-SHPObject *SHPCreateSimpleObject( int nSHPType, int nVertices,
-                                  double * padfX, double * padfY,
-                                  double * padfZ )
+SHPObject SHPAPI_CALL1(*)
+SHPCreateSimpleObject( int nSHPType, int nVertices,
+                       double * padfX, double * padfY,
+                       double * padfZ )
 
 {
     return( SHPCreateObject( nSHPType, -1, 0, NULL, NULL,
@@ -855,7 +865,8 @@ SHPObject *SHPCreateSimpleObject( int nSHPType, int nVertices,
 /*      only possible to write vertices at the end of the file.         */
 /************************************************************************/
 
-int SHPWriteObject(SHPHandle psSHP, int nShapeId, SHPObject * psObject )
+int SHPAPI_CALL
+SHPWriteObject(SHPHandle psSHP, int nShapeId, SHPObject * psObject )
 		      
 {
     int	       	nRecordOffset, i, nRecordSize;
@@ -1203,7 +1214,8 @@ int SHPWriteObject(SHPHandle psSHP, int nShapeId, SHPObject * psObject )
 /*	for one shape.							*/
 /************************************************************************/
 
-SHPObject *SHPReadObject( SHPHandle psSHP, int hEntity )
+SHPObject SHPAPI_CALL1(*)
+SHPReadObject( SHPHandle psSHP, int hEntity )
 
 {
     SHPObject		*psShape;
@@ -1530,7 +1542,8 @@ SHPObject *SHPReadObject( SHPHandle psSHP, int hEntity )
 /*                            SHPTypeName()                             */
 /************************************************************************/
 
-const char *SHPTypeName( int nSHPType )
+const char SHPAPI_CALL1(*)
+SHPTypeName( int nSHPType )
 
 {
     switch( nSHPType )
@@ -1586,7 +1599,8 @@ const char *SHPTypeName( int nSHPType )
 /*                          SHPPartTypeName()                           */
 /************************************************************************/
 
-const char *SHPPartTypeName( int nPartType )
+const char SHPAPI_CALL1(*)
+SHPPartTypeName( int nPartType )
 
 {
     switch( nPartType )
@@ -1618,7 +1632,8 @@ const char *SHPPartTypeName( int nPartType )
 /*                          SHPDestroyObject()                          */
 /************************************************************************/
 
-void SHPDestroyObject( SHPObject * psShape )
+void SHPAPI_CALL
+SHPDestroyObject( SHPObject * psShape )
 
 {
     if( psShape == NULL )
