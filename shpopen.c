@@ -21,7 +21,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.17  1998-12-31 15:29:39  warmerda
+ * Revision 1.18  1999-04-01 18:48:07  warmerda
+ * Try upper case extensions if lower case doesn't work.
+ *
+ * Revision 1.17  1998/12/31 15:29:39  warmerda
  * Disable writing measure values to multipatch objects if
  * DISABLE_MULTIPATCH_MEASURE is defined.
  *
@@ -309,10 +312,22 @@ SHPHandle SHPOpen( const char * pszLayer, const char * pszAccess )
     sprintf( pszFullname, "%s.shp", pszBasename );
     psSHP->fpSHP = fopen(pszFullname, pszAccess );
     if( psSHP->fpSHP == NULL )
+    {
+        sprintf( pszFullname, "%s.SHP", pszBasename );
+        psSHP->fpSHP = fopen(pszFullname, pszAccess );
+    }
+    
+    if( psSHP->fpSHP == NULL )
         return( NULL );
 
     sprintf( pszFullname, "%s.shx", pszBasename );
     psSHP->fpSHX = fopen(pszFullname, pszAccess );
+    if( psSHP->fpSHX == NULL )
+    {
+        sprintf( pszFullname, "%s.SHX", pszBasename );
+        psSHP->fpSHX = fopen(pszFullname, pszAccess );
+    }
+    
     if( psSHP->fpSHX == NULL )
         return( NULL );
 
