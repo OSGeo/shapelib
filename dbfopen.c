@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.19  1999-11-05 14:12:04  warmerda
+ * Revision 1.20  1999-11-30 16:32:11  warmerda
+ * Use atof() instead of sscanf().
+ *
+ * Revision 1.19  1999/11/05 14:12:04  warmerda
  * updated license terms
  *
  * Revision 1.18  1999/07/27 00:53:28  warmerda
@@ -612,7 +615,7 @@ static void *DBFReadAttribute(DBFHandle psDBF, int hEntity, int iField,
 /* -------------------------------------------------------------------- */
     if( chReqType == 'N' )
     {
-        sscanf( pszStringField, "%lf", &dDoubleField );
+        dDoubleField = atof(pszStringField);
 
 	pReturnField = &dDoubleField;
     }
