@@ -1,6 +1,6 @@
 #!/bin/sh
 	
-EG_DATA=/home/warmerda/www/projects/shapelib/eg_data
+EG_DATA=/u/www/projects/shapelib/eg_data
 
 echo -------------------------------------------------------------------------
 echo Test 1: dump anno.shp
@@ -21,6 +21,11 @@ echo -------------------------------------------------------------------------
 echo Test 4: dump pline.dbf - uses new F field type
 echo -------------------------------------------------------------------------
 dbfdump -m -h $EG_DATA/pline.dbf | head -50
+
+echo -------------------------------------------------------------------------
+echo Test 5: NULL Shapes.
+echo -------------------------------------------------------------------------
+shpdump $EG_DATA/csah.dbf | head -150
 
 
 
