@@ -21,7 +21,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.20  1999-04-19 21:04:17  warmerda
+ * Revision 1.21  1999-06-02 14:57:56  kshih
+ * Remove unused variables
+ *
+ * Revision 1.20  1999/04/19 21:04:17  warmerda
  * Fixed syntax error.
  *
  * Revision 1.19  1999/04/19 21:01:57  warmerda
@@ -270,7 +273,7 @@ SHPHandle SHPOpen( const char * pszLayer, const char * pszAccess )
     SHPHandle		psSHP;
     
     uchar		*pabyBuf;
-    int			iField, i;
+    int			i;
     double		dValue;
     
 /* -------------------------------------------------------------------- */
@@ -518,8 +521,7 @@ SHPHandle SHPCreate( const char * pszLayer, int nShapeType )
     uchar     	abyHeader[100];
     int32	i32;
     double	dValue;
-    int32	*panSHX;
-
+    
 /* -------------------------------------------------------------------- */
 /*      Establish the byte order on this system.                        */
 /* -------------------------------------------------------------------- */
@@ -804,7 +806,7 @@ SHPObject *SHPCreateSimpleObject( int nSHPType, int nVertices,
 int SHPWriteObject(SHPHandle psSHP, int nShapeId, SHPObject * psObject )
 		      
 {
-    int	       	nRecordOffset, i, j, nRecordSize;
+    int	       	nRecordOffset, i, nRecordSize;
     uchar	*pabyRec;
     int32	i32;
 
@@ -818,7 +820,7 @@ int SHPWriteObject(SHPHandle psSHP, int nShapeId, SHPObject * psObject )
     psSHP->nRecords++;
     if( psSHP->nRecords > psSHP->nMaxRecords )
     {
-	psSHP->nMaxRecords = psSHP->nMaxRecords * 1.3 + 100;
+	psSHP->nMaxRecords =(int) ( psSHP->nMaxRecords * 1.3 + 100);
 
 	psSHP->panRecOffset = (int *) 
 	  SfRealloc(psSHP->panRecOffset,sizeof(int) * psSHP->nMaxRecords );
@@ -1118,7 +1120,6 @@ int SHPWriteObject(SHPHandle psSHP, int nShapeId, SHPObject * psObject )
 SHPObject *SHPReadObject( SHPHandle psSHP, int hEntity )
 
 {
-    int	       		nRecordOffset, i, j;
     SHPObject		*psShape;
 
     static uchar	*pabyRec = NULL;
