@@ -29,7 +29,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.3  1999-05-18 19:13:13  warmerda
+ * Revision 1.4  1999-06-02 17:56:12  warmerda
+ * added quad'' subnode support for trees
+ *
+ * Revision 1.3  1999/05/18 19:13:13  warmerda
  * Use fabs() instead of abs().
  *
  * Revision 1.2  1999/05/18 19:11:11  warmerda
@@ -307,14 +310,13 @@ static void SHPTreeNodeDump( SHPTree * psTree,
 /* -------------------------------------------------------------------- */
 /*      Emit subnodes.                                                  */
 /* -------------------------------------------------------------------- */
-    if( psTreeNode->psSubNode1 != NULL )
-        SHPTreeNodeDump( psTree, psTreeNode->psSubNode1,
-                         szNextPrefix, nExpandShapes );
-
-    if( psTreeNode->psSubNode2 != NULL )
-        SHPTreeNodeDump( psTree, psTreeNode->psSubNode2,
-                         szNextPrefix, nExpandShapes );
-
+    for( i = 0; i < psTreeNode->nSubnodes; i++ )
+    {
+        if( psTreeNode->apsSubNode[i] != NULL )
+            SHPTreeNodeDump( psTree, psTreeNode->apsSubNode[i],
+                             szNextPrefix, nExpandShapes );
+    }
+    
     printf( "%s)\n", pszPrefix );
 
     return;

@@ -7,7 +7,10 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.11  1999-05-18 19:11:11  warmerda
+ * Revision 1.12  1999-06-02 17:56:12  warmerda
+ * added quad'' subnode support for trees
+ *
+ * Revision 1.11  1999/05/18 19:11:11  warmerda
  * Added example searching capability
  *
  * Revision 1.10  1999/05/18 17:49:38  warmerda
@@ -181,6 +184,9 @@ const char *SHPPartTypeName( int nPartType );
 /*      Shape quadtree indexing API.                                    */
 /* -------------------------------------------------------------------- */
 
+/* this can be two or four for binary or quad tree */
+#define MAX_SUBNODE	4
+
 typedef struct shape_tree_node
 {
     /* region covered by this node */
@@ -192,9 +198,10 @@ typedef struct shape_tree_node
     int		nShapeCount;
     int		*panShapeIds;
     SHPObject   **papsShapeObj;
-    
-    struct shape_tree_node *psSubNode1;
-    struct shape_tree_node *psSubNode2;
+
+    int		nSubnodes;
+
+    struct shape_tree_node *apsSubNode[MAX_SUBNODE];
     
 } SHPTreeNode;
 

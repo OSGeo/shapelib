@@ -28,7 +28,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.2  1999-05-18 19:11:11  warmerda
+ * Revision 1.3  1999-06-02 17:56:12  warmerda
+ * added quad'' subnode support for trees
+ *
+ * Revision 1.2  1999/05/18 19:11:11  warmerda
  * Added example searching capability
  *
  * Revision 1.1  1999/05/18 17:49:20  warmerda
@@ -93,9 +96,8 @@ static SHPTreeNode *SHPTreeNodeCreate( double * padfBoundsMin,
     psTreeNode->nShapeCount = 0;
     psTreeNode->panShapeIds = NULL;
     psTreeNode->papsShapeObj = NULL;
-    
-    psTreeNode->psSubNode1 = NULL;
-    psTreeNode->psSubNode2 = NULL;
+
+    psTreeNode->nSubnodes = 0;
 
     if( padfBoundsMin != NULL )
         memcpy( psTreeNode->adfBoundsMin, padfBoundsMin, sizeof(double) * 4 );
@@ -192,19 +194,19 @@ SHPTree *SHPCreateTree( SHPHandle hSHP, int nDimension, int nMaxDepth,
 static void SHPDestroyTreeNode( SHPTreeNode * psTreeNode )
 
 {
-    if( psTreeNode->psSubNode1 != NULL )
-        SHPDestroyTreeNode( psTreeNode->psSubNode1 );
-
-    if( psTreeNode->psSubNode2 != NULL )
-        SHPDestroyTreeNode( psTreeNode->psSubNode2 );
-
+    int		i;
+    
+    for( i = 0; i < psTreeNode->nSubnodes; i++ )
+    {
+        if( psTreeNode->apsSubNode[i] != NULL )
+            SHPDestroyTreeNode( psTreeNode->apsSubNode[i] );
+    }
+    
     if( psTreeNode->panShapeIds != NULL )
         free( psTreeNode->panShapeIds );
 
     if( psTreeNode->papsShapeObj != NULL )
     {
-        int		i;
-
         for( i = 0; i < psTreeNode->nShapeCount; i++ )
         {
             if( psTreeNode->papsShapeObj[i] != NULL )
@@ -342,34 +344,86 @@ SHPTreeNodeAddShapeId( SHPTreeNode * psTreeNode, SHPObject * psObject,
                        int nMaxDepth, int nDimension )
 
 {
+    int		i;
+    
 /* -------------------------------------------------------------------- */
 /*      If there are subnodes, then consider wiether this object        */
 /*      will fit in them.                                               */
 /* -------------------------------------------------------------------- */
-    if( nMaxDepth > 1 && psTreeNode->psSubNode1 != NULL )
+    if( nMaxDepth > 1 && psTreeNode->nSubnodes > 0 )
     {
-        if( SHPCheckObjectContained(psObject, nDimension,
-                           psTreeNode->psSubNode1->adfBoundsMin,
-                           psTreeNode->psSubNode1->adfBoundsMax))
+        for( i = 0; i < psTreeNode->nSubnodes; i++ )
         {
-            return SHPTreeNodeAddShapeId( psTreeNode->psSubNode1, psObject,
-                                          nMaxDepth-1, nDimension );
-        }
-
-        if( SHPCheckObjectContained(psObject, nDimension,
-                           psTreeNode->psSubNode2->adfBoundsMin,
-                           psTreeNode->psSubNode2->adfBoundsMax))
-        {
-            return SHPTreeNodeAddShapeId( psTreeNode->psSubNode2, psObject,
-                                          nMaxDepth-1, nDimension );
+            if( SHPCheckObjectContained(psObject, nDimension,
+                                      psTreeNode->apsSubNode[i]->adfBoundsMin,
+                                      psTreeNode->apsSubNode[i]->adfBoundsMax))
+            {
+                return SHPTreeNodeAddShapeId( psTreeNode->apsSubNode[i],
+                                              psObject, nMaxDepth-1,
+                                              nDimension );
+            }
         }
     }
 
 /* -------------------------------------------------------------------- */
-/*      Otherwise, consider creating subnodes if could fit into         */
+/*      Otherwise, consider creating four subnodes if could fit into    */
 /*      them, and adding to the appropriate subnode.                    */
 /* -------------------------------------------------------------------- */
-    else if( nMaxDepth > 1 )
+#if MAX_SUBNODE == 4
+    else if( nMaxDepth > 1 && psTreeNode->nSubnodes == 0 )
+    {
+        double	adfBoundsMinH1[4], adfBoundsMaxH1[4];
+        double	adfBoundsMinH2[4], adfBoundsMaxH2[4];
+        double	adfBoundsMin1[4], adfBoundsMax1[4];
+        double	adfBoundsMin2[4], adfBoundsMax2[4];
+        double	adfBoundsMin3[4], adfBoundsMax3[4];
+        double	adfBoundsMin4[4], adfBoundsMax4[4];
+
+        SHPTreeSplitBounds( psTreeNode->adfBoundsMin,
+                            psTreeNode->adfBoundsMax,
+                            adfBoundsMinH1, adfBoundsMaxH1,
+                            adfBoundsMinH2, adfBoundsMaxH2 );
+
+        SHPTreeSplitBounds( adfBoundsMinH1, adfBoundsMaxH1,
+                            adfBoundsMin1, adfBoundsMax1,
+                            adfBoundsMin2, adfBoundsMax2 );
+
+        SHPTreeSplitBounds( adfBoundsMinH2, adfBoundsMaxH2,
+                            adfBoundsMin3, adfBoundsMax3,
+                            adfBoundsMin4, adfBoundsMax4 );
+
+        if( SHPCheckObjectContained(psObject, nDimension,
+                                    adfBoundsMin1, adfBoundsMax1)
+            || SHPCheckObjectContained(psObject, nDimension,
+                                    adfBoundsMin2, adfBoundsMax2)
+            || SHPCheckObjectContained(psObject, nDimension,
+                                    adfBoundsMin3, adfBoundsMax3)
+            || SHPCheckObjectContained(psObject, nDimension,
+                                    adfBoundsMin4, adfBoundsMax4) )
+        {
+            psTreeNode->nSubnodes = 4;
+            psTreeNode->apsSubNode[0] = SHPTreeNodeCreate( adfBoundsMin1,
+                                                           adfBoundsMax1 );
+            psTreeNode->apsSubNode[1] = SHPTreeNodeCreate( adfBoundsMin2,
+                                                           adfBoundsMax2 );
+            psTreeNode->apsSubNode[2] = SHPTreeNodeCreate( adfBoundsMin3,
+                                                           adfBoundsMax3 );
+            psTreeNode->apsSubNode[3] = SHPTreeNodeCreate( adfBoundsMin4,
+                                                           adfBoundsMax4 );
+
+            /* recurse back on this node now that it has subnodes */
+            return( SHPTreeNodeAddShapeId( psTreeNode, psObject,
+                                           nMaxDepth, nDimension ) );
+        }
+    }
+#endif /* MAX_SUBNODE == 4 */
+
+/* -------------------------------------------------------------------- */
+/*      Otherwise, consider creating two subnodes if could fit into     */
+/*      them, and adding to the appropriate subnode.                    */
+/* -------------------------------------------------------------------- */
+#if MAX_SUBNODE == 2
+    else if( nMaxDepth > 1 && psTreeNode->nSubnodes == 0 )
     {
         double	adfBoundsMin1[4], adfBoundsMax1[4];
         double	adfBoundsMin2[4], adfBoundsMax2[4];
@@ -381,26 +435,29 @@ SHPTreeNodeAddShapeId( SHPTreeNode * psTreeNode, SHPObject * psObject,
         if( SHPCheckObjectContained(psObject, nDimension,
                                  adfBoundsMin1, adfBoundsMax1))
         {
-            psTreeNode->psSubNode1 = SHPTreeNodeCreate( adfBoundsMin1,
-                                                        adfBoundsMax1 );
-            psTreeNode->psSubNode2 = SHPTreeNodeCreate( adfBoundsMin2,
-                                                        adfBoundsMax2 );
+            psTreeNode->nSubnodes = 2;
+            psTreeNode->apsSubNode[0] = SHPTreeNodeCreate( adfBoundsMin1,
+                                                           adfBoundsMax1 );
+            psTreeNode->apsSubNode[1] = SHPTreeNodeCreate( adfBoundsMin2,
+                                                           adfBoundsMax2 );
 
-            return( SHPTreeNodeAddShapeId( psTreeNode->psSubNode1, psObject,
+            return( SHPTreeNodeAddShapeId( psTreeNode->apsSubNode[0], psObject,
                                            nMaxDepth - 1, nDimension ) );
         }
         else if( SHPCheckObjectContained(psObject, nDimension,
-                                      adfBoundsMin2, adfBoundsMax2) )
+                                         adfBoundsMin2, adfBoundsMax2) )
         {
-            psTreeNode->psSubNode1 = SHPTreeNodeCreate( adfBoundsMin1,
-                                                        adfBoundsMax1 );
-            psTreeNode->psSubNode2 = SHPTreeNodeCreate( adfBoundsMin2,
-                                                        adfBoundsMax2 );
+            psTreeNode->nSubnodes = 2;
+            psTreeNode->apsSubNode[0] = SHPTreeNodeCreate( adfBoundsMin1,
+                                                           adfBoundsMax1 );
+            psTreeNode->apsSubNode[1] = SHPTreeNodeCreate( adfBoundsMin2,
+                                                           adfBoundsMax2 );
 
-            return( SHPTreeNodeAddShapeId( psTreeNode->psSubNode2, psObject,
+            return( SHPTreeNodeAddShapeId( psTreeNode->apsSubNode[1], psObject,
                                            nMaxDepth - 1, nDimension ) );
         }
     }
+#endif /* MAX_SUBNODE == 2 */
 
 /* -------------------------------------------------------------------- */
 /*      If none of that worked, just add it to this nodes list.         */
@@ -484,17 +541,14 @@ void SHPTreeCollectShapeIds( SHPTree *hTree, SHPTreeNode * psTreeNode,
 /* -------------------------------------------------------------------- */
 /*      Recurse to subnodes if they exist.                              */
 /* -------------------------------------------------------------------- */
-    if( psTreeNode->psSubNode1 != NULL )
-        SHPTreeCollectShapeIds( hTree, psTreeNode->psSubNode1,
-                                padfBoundsMin, padfBoundsMax,
-                                pnShapeCount, pnMaxShapes,
-                                ppanShapeList );
-
-    if( psTreeNode->psSubNode2 != NULL )
-        SHPTreeCollectShapeIds( hTree, psTreeNode->psSubNode2,
-                                padfBoundsMin, padfBoundsMax,
-                                pnShapeCount, pnMaxShapes,
-                                ppanShapeList );
+    for( i = 0; i < psTreeNode->nSubnodes; i++ )
+    {
+        if( psTreeNode->apsSubNode[i] != NULL )
+            SHPTreeCollectShapeIds( hTree, psTreeNode->apsSubNode[i],
+                                    padfBoundsMin, padfBoundsMax,
+                                    pnShapeCount, pnMaxShapes,
+                                    ppanShapeList );
+    }
 }
 
 /************************************************************************/
