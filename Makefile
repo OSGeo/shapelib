@@ -31,4 +31,4 @@ shputils:	shputils.c shpopen.o dbfopen.o
 	$(CC) $(CFLAGS) shputils.c shpopen.o dbfopen.o -o shputils
 
 clean:
-	rm *.o dbfdump dbfcreate dbfadd shpdump shpcreate shpadd
+	rm *.o dbfdump dbfcreate dbfadd shpdump shpcreate shpadd shputils
