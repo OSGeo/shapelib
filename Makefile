@@ -9,7 +9,7 @@ all:	shpcreate shpadd shpdump dbfcreate dbfadd dbfdump shptest
 shpopen.o:	shpopen.c shapefil.h
 	$(CC) $(CFLAGS) -c shpopen.c
 
-dbfopen.o:	shpopen.c shapefil.h
+dbfopen.o:	dbfopen.c shapefil.h
 	$(CC) $(CFLAGS) -c dbfopen.c
 
 shpcreate:	shpcreate.c shpopen.o
