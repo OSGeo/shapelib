@@ -18,7 +18,7 @@ default:	all
 all:	shpdxf shpproj dbfinfo shpcentrd shpdata shpwkb dbfinfo dbfcat shpinfo shpfix shpcat
 
 clean:  
-	rm -f shpdxf shpproj dbfinfo shpcentrd shpdata shpwkb dbfcat dbfinfo shpinfo shpfix shpcat
+	rm -f shpdxf shpproj dbfinfo shpcentrd shpdata shpwkb dbfcat dbfinfo shpinfo shpfix shpcat *.o
 
 shpgeo.o:	shpgeo.c shpgeo.h
 	$(CC) $(CFLAGS) -c shpgeo.c
