@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.50  2003-04-21 18:58:25  warmerda
+ * Revision 1.51  2003-07-08 13:50:15  warmerda
+ * DBFIsAttributeNULL check for pszValue==NULL - bug 360
+ *
+ * Revision 1.50  2003/04/21 18:58:25  warmerda
  * ensure current record is flushed at same time as header is updated
  *
  * Revision 1.49  2003/04/21 18:30:37  warmerda
@@ -888,6 +891,9 @@ DBFIsAttributeNULL( DBFHandle psDBF, int iRecord, int iField )
     const char	*pszValue;
 
     pszValue = DBFReadStringAttribute( psDBF, iRecord, iField );
+
+    if( pszValue == NULL )
+        return TRUE;
 
     switch(psDBF->pachFieldType[iField])
     {
