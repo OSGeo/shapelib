@@ -21,7 +21,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.21  1999-06-02 14:57:56  kshih
+ * Revision 1.22  1999-06-11 19:19:11  warmerda
+ * Cleanup pabyRec static buffer on SHPClose().
+ *
+ * Revision 1.21  1999/06/02 14:57:56  kshih
  * Remove unused variables
  *
  * Revision 1.20  1999/04/19 21:04:17  warmerda
@@ -119,6 +122,9 @@ typedef int	      int32;
 #endif
 
 static int 	bBigEndian;
+static uchar	*pabyRec = NULL;
+static int	nBufSize = 0;
+
 
 /************************************************************************/
 /*                              SwapWord()                              */
@@ -476,6 +482,13 @@ void	SHPClose(SHPHandle psSHP )
     fclose( psSHP->fpSHP );
 
     free( psSHP );
+
+    if( pabyRec != NULL )
+    {
+        free( pabyRec );
+        pabyRec = NULL;
+        nBufSize = 0;
+    }
 }
 
 /************************************************************************/
@@ -1121,9 +1134,6 @@ SHPObject *SHPReadObject( SHPHandle psSHP, int hEntity )
 
 {
     SHPObject		*psShape;
-
-    static uchar	*pabyRec = NULL;
-    static int		nBufSize = 0;
 
 /* -------------------------------------------------------------------- */
 /*      Validate the record/entity number.                              */
