@@ -1,7 +1,7 @@
 
 default:	all
 
-all:	shpcreate.exe shpadd.exe shpdump.exe dbfcreate.exe dbfadd.exe dbfdump.exe shptest.exe shptreedump.exe
+all:	shpcreate.exe shpadd.exe shpdump.exe dbfcreate.exe dbfadd.exe dbfdump.exe shptest.exe shptreedump.exe shapelib.dll
 
 shpopen.obj:	shpopen.c shapefil.h
 	$(CC) $(CFLAGS) -c shpopen.c
