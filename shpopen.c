@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.36  2002-04-10 16:59:54  warmerda
+ * Revision 1.37  2002-04-10 17:35:22  warmerda
+ * fixed bug in ring reversal code
+ *
+ * Revision 1.36  2002/04/10 16:59:54  warmerda
  * added SHPRewindObject
  *
  * Revision 1.35  2001/12/07 15:10:44  warmerda
@@ -1819,7 +1822,7 @@ SHPRewindObject( SHPHandle hSHP, SHPObject * psObject )
             printf( "Reverse Ring %d of Object %d\n", 
                     iOpRing, psObject->nShapeId );
 
-            for( i = 0; i < nVertCount; i++ )
+            for( i = 0; i < nVertCount/2; i++ )
             {
                 double dfSaved;
 
