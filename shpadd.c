@@ -4,7 +4,10 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.6  1998-11-09 20:19:16  warmerda
+ * Revision 1.7  1998-11-09 20:57:04  warmerda
+ * Fixed SHPGetInfo() call.
+ *
+ * Revision 1.6  1998/11/09 20:19:16  warmerda
  * Changed to use SHPObject based API.
  *
  * Revision 1.5  1997/03/06 14:05:02  warmerda
@@ -54,7 +57,7 @@ int main( int argc, char ** argv )
 	exit( 1 );
     }
 
-    SHPGetInfo( hSHP, NULL, &nShapeType );
+    SHPGetInfo( hSHP, NULL, &nShapeType, NULL, NULL );
 
 /* -------------------------------------------------------------------- */
 /*	Build a vertex/part list from the command line arguments.	*/
