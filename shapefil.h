@@ -7,7 +7,10 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.6  1998-12-03 15:48:15  warmerda
+ * Revision 1.7  1998-12-31 15:31:07  warmerda
+ * Added the TRIM_DBF_WHITESPACE and DISABLE_MULTIPATCH_MEASURE options.
+ *
+ * Revision 1.6  1998/12/03 15:48:15  warmerda
  * Added SHPCalculateExtents().
  *
  * Revision 1.5  1998/11/09 20:57:16  warmerda
@@ -29,6 +32,23 @@
 #ifdef USE_DBMALLOC
 #include <dbmalloc.h>
 #endif
+
+/************************************************************************/
+/*                        Configuration options.                        */
+/************************************************************************/
+
+/* -------------------------------------------------------------------- */
+/*      Should the DBFReadStringAttribute() strip leading and           */
+/*      trailing white space?                                           */
+/* -------------------------------------------------------------------- */
+#define TRIM_DBF_WHITESPACE
+
+/* -------------------------------------------------------------------- */
+/*      Should we write measure values to the Multipatch object?        */
+/*      Reportedly ArcView crashes if we do write it, so for now it     */
+/*      is disabled.                                                    */
+/* -------------------------------------------------------------------- */
+#define DISABLE_MULTIPATCH_MEASURE
 
 /************************************************************************/
 /*                             SHP Support.                             */
