@@ -30,7 +30,9 @@ DBFHandle DBFOpen( const char * pszDBFFile, const char * pszAccess );
   xBase format table file.  The returned DBFHandle is passed to other 
   access functions, and DBFClose() should be invoked to recover resources, and 
   flush changes to disk when complete.  The DBFCreate() function should
-  called to create new xBase files.<p>
+  called to create new xBase files.  As a convenience, DBFOpen() can be
+  called with the name of a .shp or .shx file, and it will figure out the
+  name of the related .dbf file.<p>
 
 <!-------------------------------------------------------------------------->
 
