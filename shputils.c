@@ -5,7 +5,10 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.1  1997-05-27 20:40:27  warmerda
+ * Revision 1.2  1998-06-18 01:19:49  warmerda
+ * Made C++ compilable.
+ *
+ * Revision 1.1  1997/05/27 20:40:27  warmerda
  * Initial revision
  *
  *
@@ -62,6 +65,17 @@ char	jszFormat[32], jszField[1024];
 int	i, ti, iWidth, iDecimals, iRecord;
 int	j, tj, jWidth, jDecimals, jRecord;
 int     found, newdbf;
+
+void openfiles(void);
+void setext(char *pt, char *ext);
+int strncasecmp2(char *s1, char *s2, int n);
+void mergefields(void);
+void findselect(void);
+void showitems(void);
+int selectrec();
+int check_theme_bnd();
+int clip();
+void error();
 
 
 /* -------------------------------------------------------------------- */
@@ -361,8 +375,11 @@ int main( int argc, char ** argv )
 }
 
 
+/************************************************************************/
+/*                             openfiles()                              */
+/************************************************************************/
 
-openfiles() {
+void openfiles() {
 /* -------------------------------------------------------------------- */
 /*      Open the DBF file.                                              */
 /* -------------------------------------------------------------------- */
@@ -432,13 +449,11 @@ openfiles() {
   
 }
 
-setext(pt,ext)
 /* -------------------------------------------------------------------- */
 /*	Change the extension.  If there is any extension on the 	*/
 /*	filename, strip it off and add the new extension                */
 /* -------------------------------------------------------------------- */
-char *pt;
-char *ext;
+void setext(char *pt, char *ext)
 {
 int i;
     for( i = strlen(pt)-1; 
@@ -458,7 +473,7 @@ int i;
 /*	Find matching fields in the append file.                        */
 /*      Output file must have zero records to add any new fields.       */
 /* -------------------------------------------------------------------- */
-mergefields()
+void mergefields()
 {
     int i,j;
     ti = DBFGetFieldCount( hDBF );
@@ -520,7 +535,7 @@ mergefields()
 }
 
 
-findselect()
+void findselect()
 {
     /* Find the select field name */
     iselectitem = -1;
@@ -540,7 +555,7 @@ findselect()
     
 }
 
-showitems()
+void showitems()
 {
         printf("Available Items: ");
         for( i = 0; i < ti; i++ )
@@ -551,7 +566,7 @@ showitems()
         printf("(total=%d)\n",ti);
 }
 
-selectrec()
+int selectrec()
 {
 int value, ty;
 
@@ -577,76 +592,77 @@ int value, ty;
 }
 
 
-check_theme_bnd()
+int check_theme_bnd()
 {
-       if ( (adBounds[0] >= cxmin) && (adBounds[2] <= cxmax) &&
-            (adBounds[1] >= cymin) && (adBounds[3] <= cymax) )
-            {   /** Theme is totally inside clip area **/
-            	if (ierase) nEntities=0; /** SKIP THEME  **/
-            	     else   iclip=FALSE; /** WRITE THEME (Clip not needed) **/
-            }
+    if ( (adBounds[0] >= cxmin) && (adBounds[2] <= cxmax) &&
+         (adBounds[1] >= cymin) && (adBounds[3] <= cymax) )
+    {   /** Theme is totally inside clip area **/
+        if (ierase) nEntities=0; /** SKIP THEME  **/
+        else   iclip=FALSE; /** WRITE THEME (Clip not needed) **/
+    }
             
-       if ( ( (adBounds[0] < cxmin) && (adBounds[2] < cxmin) ) ||
-            ( (adBounds[1] < cymin) && (adBounds[3] < cymin) ) ||
-            ( (adBounds[0] > cxmax) && (adBounds[2] > cxmax) ) ||
-            ( (adBounds[1] > cymax) && (adBounds[3] > cymax) ) )
-            {   /** Theme is totally outside clip area **/
-            	if (ierase) iclip=FALSE; /** WRITE THEME (Clip not needed) **/
-            	     else   nEntities=0; /** SKIP THEME  **/
-            }
+    if ( ( (adBounds[0] < cxmin) && (adBounds[2] < cxmin) ) ||
+         ( (adBounds[1] < cymin) && (adBounds[3] < cymin) ) ||
+         ( (adBounds[0] > cxmax) && (adBounds[2] > cxmax) ) ||
+         ( (adBounds[1] > cymax) && (adBounds[3] > cymax) ) )
+    {   /** Theme is totally outside clip area **/
+        if (ierase) iclip=FALSE; /** WRITE THEME (Clip not needed) **/
+        else   nEntities=0; /** SKIP THEME  **/
+    }
             
-       if (nEntities == 0)
-            puts("WARNING: Theme is outside the clip area."); /** SKIP THEME  **/
+    if (nEntities == 0)
+        puts("WARNING: Theme is outside the clip area."); /** SKIP THEME  **/
 }
 
-clip()
+int clip()
 {
-int  outside=FALSE;
-int  j2=0, i2=0;
+    int  outside=FALSE;
+    int  j2=0, i2=0;
+
     /*** FIRST check the boundary of the feature ***/
     SHPReadBounds( hSHP, iRecord, adBounds );
 
-       if ( (adBounds[0] >= cxmin) && (adBounds[2] <= cxmax) &&
-            (adBounds[1] >= cymin) && (adBounds[3] <= cymax) )
-            {   /** Feature is totally inside clip area **/
-            	if (ierase) return(0); /** SKIP  RECORD **/
-            	     else   return(1); /** WRITE RECORD **/
-            }
+    if ( (adBounds[0] >= cxmin) && (adBounds[2] <= cxmax) &&
+         (adBounds[1] >= cymin) && (adBounds[3] <= cymax) )
+    {   /** Feature is totally inside clip area **/
+        if (ierase) return(0); /** SKIP  RECORD **/
+        else   return(1); /** WRITE RECORD **/
+    }
             
-       if ( ( (adBounds[0] < cxmin) && (adBounds[2] < cxmin) ) ||
-            ( (adBounds[1] < cymin) && (adBounds[3] < cymin) ) ||
-            ( (adBounds[0] > cxmax) && (adBounds[2] > cxmax) ) ||
-            ( (adBounds[1] > cymax) && (adBounds[3] > cymax) ) )
-            {   /** Feature is totally outside clip area **/
-            	if (ierase) return(1); /** WRITE RECORD **/
-            	     else   return(0); /** SKIP  RECORD **/
-            }
+    if ( ( (adBounds[0] < cxmin) && (adBounds[2] < cxmin) ) ||
+         ( (adBounds[1] < cymin) && (adBounds[3] < cymin) ) ||
+         ( (adBounds[0] > cxmax) && (adBounds[2] > cxmax) ) ||
+         ( (adBounds[1] > cymax) && (adBounds[3] > cymax) ) )
+    {   /** Feature is totally outside clip area **/
+        if (ierase) return(1); /** WRITE RECORD **/
+        else   return(0); /** SKIP  RECORD **/
+    }
        
-       if (itouch)
-            {
-            	if (ierase) return(0); /** SKIP  RECORD **/
-            	     else   return(1); /** WRITE RECORD  **/
-            }
+    if (itouch)
+    {
+        if (ierase) return(0); /** SKIP  RECORD **/
+        else   return(1); /** WRITE RECORD  **/
+    }
             
-       if (iinside)
-            {
-            	if (ierase) return(1); /** WRITE RECORD **/
-            	     else   return(0); /** SKIP  RECORD **/
-            }
+    if (iinside)
+    {
+        if (ierase) return(1); /** WRITE RECORD **/
+        else   return(0); /** SKIP  RECORD **/
+    }
            
     /*** SECOND check each vertex in the feature ***/
     for( j2 = 0; j2 < (nVertices*2); j2=j2+2 ) 
     {
         if (padVertices[j2] < cxmin  ||  padVertices[j2] > cxmax)
         {
-           outside=TRUE;
+            outside=TRUE;
         }
         else
         {
-           if (padVertices[j2+1] < cymin  ||  padVertices[j2+1] > cymax)
-              outside=TRUE;
-           else
-              outside=FALSE;
+            if (padVertices[j2+1] < cymin  ||  padVertices[j2+1] > cymax)
+                outside=TRUE;
+            else
+                outside=FALSE;
         }
         
         
@@ -657,29 +673,29 @@ int  j2=0, i2=0;
             } else {
                 if (i2 != j2)
                 {
-                   padVertices[i2]=padVertices[j2];     /** write vertex **/
-                   padVertices[i2+1]=padVertices[j2+1]; /** write vertex **/
+                    padVertices[i2]=padVertices[j2];     /** write vertex **/
+                    padVertices[i2+1]=padVertices[j2+1]; /** write vertex **/
                 }
                 i2=i2+2;
             }
         }
         else
-        if (outside)  /* vertex is outside boundary */
-        {
-            if (iinside)
+            if (outside)  /* vertex is outside boundary */
             {
-                if (ierase) return(1); /** WRITE RECORD **/
-                     else   return(0); /** SKIP RECORD **/
+                if (iinside)
+                {
+                    if (ierase) return(1); /** WRITE RECORD **/
+                    else   return(0); /** SKIP RECORD **/
+                }
             }
-        }
-        else         /* vertex is inside boundary */
-        {
-            if (itouch) 
+            else         /* vertex is inside boundary */
             {
-            	if (ierase) return(0); /** SKIP RECORD  **/
-            	     else   return(1); /** WRITE RECORD **/
+                if (itouch) 
+                {
+                    if (ierase) return(0); /** SKIP RECORD  **/
+                    else   return(1); /** WRITE RECORD **/
+                }
             }
-        }
     }
     
     if (icut)
@@ -688,24 +704,24 @@ int  j2=0, i2=0;
         if (i2 < 4) return(0); /** SKIP RECORD **/
         nVertices=i2/2;
         printf("Vertices:%d   OUT:%d   Number of Parts:%d  PanParts:%d   PadVertices:%d\n",
-           j2,nVertices,nParts,panParts,padVertices);
+               j2,nVertices,nParts,panParts,padVertices);
     }
     if (itouch)
     {
-         if (ierase) return(1); /** WRITE RECORD **/
-              else   return(0); /** SKIP RECORD  **/
+        if (ierase) return(1); /** WRITE RECORD **/
+        else   return(0); /** SKIP RECORD  **/
     }
     if (iinside)   
     {
-         if (ierase) return(0); /** SKIP RECORD  **/
-              else   return(1); /** WRITE RECORD **/
+        if (ierase) return(0); /** SKIP RECORD  **/
+        else   return(1); /** WRITE RECORD **/
     }
 }
 
 /* -------------------------------------------------------------------- */
 /*      Display a usage message.                                        */
 /* -------------------------------------------------------------------- */
-error()
+void error()
     {
 	puts( "USAGE: shputils  <DescribeShape>");
 	puts( "USAGE: shputils  <InputShape>  <AppendShape>" );
@@ -749,13 +765,16 @@ error()
 	puts( "    shputils in.shp out.shp  SELECT countycode 3,5,9,13,17,27");
 	exit( 1 );
     }
-    
-strncasecmp2(s1,s2,n)
-/**   Compare two strings up to n characters         **/
-/**   If n=0 then s1 and s2 must be an exact match   **/
 
-char *s1, *s2;
-int n;
+/************************************************************************/
+/*                            strncasecmp2()                            */
+/*                                                                      */
+/*      Compare two strings up to n characters                          */
+/*      If n=0 then s1 and s2 must be an exact match                    */
+/************************************************************************/
+
+int strncasecmp2(char *s1, char *s2, int n)
+
 {
 int j,i;
    if (n<1) n=strlen(s1)+1;
