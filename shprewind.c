@@ -35,7 +35,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.1  2002-04-10 16:56:36  warmerda
+ * Revision 1.2  2002-04-10 17:23:11  warmerda
+ * copy from source to destination now
+ *
+ * Revision 1.1  2002/04/10 16:56:36  warmerda
  * New
  *
  */
@@ -45,23 +48,23 @@
 int main( int argc, char ** argv )
 
 {
-    SHPHandle	hSHP;
+    SHPHandle	hSHP, hSHPOut;
     int		nShapeType, nEntities, i, nInvalidCount=0;
     double 	adfMinBound[4], adfMaxBound[4];
 
 /* -------------------------------------------------------------------- */
 /*      Display a usage message.                                        */
 /* -------------------------------------------------------------------- */
-    if( argc != 2 )
+    if( argc != 3 )
     {
-	printf( "shprewind shp_file\n" );
+	printf( "shprewind in_shp_file out_shp_file\n" );
 	exit( 1 );
     }
 
 /* -------------------------------------------------------------------- */
 /*      Open the passed shapefile.                                      */
 /* -------------------------------------------------------------------- */
-    hSHP = SHPOpen( argv[1], "rb+" );
+    hSHP = SHPOpen( argv[1], "rb" );
 
     if( hSHP == NULL )
     {
@@ -71,6 +74,17 @@ int main( int argc, char ** argv )
 
     SHPGetInfo( hSHP, &nEntities, &nShapeType, adfMinBound, adfMaxBound );
     
+/* -------------------------------------------------------------------- */
+/*      Create output shapefile.                                        */
+/* -------------------------------------------------------------------- */
+    hSHPOut = SHPCreate( argv[2], nShapeType );
+
+    if( hSHPOut == NULL )
+    {
+	printf( "Unable to create:%s\n", argv[2] );
+	exit( 1 );
+    }
+
 /* -------------------------------------------------------------------- */
 /*	Skim over the list of shapes, printing all the vertices.	*/
 /* -------------------------------------------------------------------- */
@@ -82,11 +96,12 @@ int main( int argc, char ** argv )
 	psShape = SHPReadObject( hSHP, i );
         if( SHPRewindObject( hSHP, psShape ) )
             nInvalidCount++;
-        SHPWriteObject( hSHP, i, psShape );
+        SHPWriteObject( hSHPOut, -1, psShape );
         SHPDestroyObject( psShape );
     }
 
     SHPClose( hSHP );
+    SHPClose( hSHPOut );
 
     printf( "%d objects rewound.\n", nInvalidCount );
 
