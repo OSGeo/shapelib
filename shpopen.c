@@ -4,7 +4,10 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.10  1998-11-09 20:18:51  warmerda
+ * Revision 1.11  1998-11-09 20:56:44  warmerda
+ * Fixed up handling of file wide bounds.
+ *
+ * Revision 1.10  1998/11/09 20:18:51  warmerda
  * Converted to support 3D shapefiles, and use of SHPObject.
  *
  * Revision 1.9  1998/02/24 15:09:05  warmerda
@@ -157,6 +160,22 @@ static void SHPWriteHeader( SHPHandle psSHP )
     ByteCopy( &dValue, abyHeader+60, 8 );
     if( bBigEndian ) SwapWord( 8, abyHeader+60 );
 
+    dValue = psSHP->adBoundsMin[2];			/* z */
+    ByteCopy( &dValue, abyHeader+68, 8 );
+    if( bBigEndian ) SwapWord( 8, abyHeader+68 );
+
+    dValue = psSHP->adBoundsMax[2];
+    ByteCopy( &dValue, abyHeader+76, 8 );
+    if( bBigEndian ) SwapWord( 8, abyHeader+76 );
+
+    dValue = psSHP->adBoundsMin[3];			/* m */
+    ByteCopy( &dValue, abyHeader+84, 8 );
+    if( bBigEndian ) SwapWord( 8, abyHeader+84 );
+
+    dValue = psSHP->adBoundsMax[3];
+    ByteCopy( &dValue, abyHeader+92, 8 );
+    if( bBigEndian ) SwapWord( 8, abyHeader+92 );
+
 /* -------------------------------------------------------------------- */
 /*      Write .shp file header.                                         */
 /* -------------------------------------------------------------------- */
@@ -297,6 +316,9 @@ SHPHandle SHPOpen( const char * pszLayer, const char * pszAccess )
 
     psSHP->nShapeType = pabyBuf[32];
 
+/* -------------------------------------------------------------------- */
+/*      Read the bounds.                                                */
+/* -------------------------------------------------------------------- */
     if( bBigEndian ) SwapWord( 8, pabyBuf+36 );
     memcpy( &dValue, pabyBuf+36, 8 );
     psSHP->adBoundsMin[0] = dValue;
@@ -312,6 +334,22 @@ SHPHandle SHPOpen( const char * pszLayer, const char * pszAccess )
     if( bBigEndian ) SwapWord( 8, pabyBuf+60 );
     memcpy( &dValue, pabyBuf+60, 8 );
     psSHP->adBoundsMax[1] = dValue;
+
+    if( bBigEndian ) SwapWord( 8, pabyBuf+68 );		/* z */
+    memcpy( &dValue, pabyBuf+68, 8 );
+    psSHP->adBoundsMin[2] = dValue;
+    
+    if( bBigEndian ) SwapWord( 8, pabyBuf+76 );
+    memcpy( &dValue, pabyBuf+76, 8 );
+    psSHP->adBoundsMax[2] = dValue;
+    
+    if( bBigEndian ) SwapWord( 8, pabyBuf+84 );		/* z */
+    memcpy( &dValue, pabyBuf+84, 8 );
+    psSHP->adBoundsMin[3] = dValue;
+
+    if( bBigEndian ) SwapWord( 8, pabyBuf+92 );
+    memcpy( &dValue, pabyBuf+92, 8 );
+    psSHP->adBoundsMax[3] = dValue;
 
     free( pabyBuf );
 
@@ -382,14 +420,25 @@ void	SHPClose(SHPHandle psSHP )
 /*      Fetch general information about the shape file.                 */
 /************************************************************************/
 
-void SHPGetInfo(SHPHandle psSHP, int * pnEntities, int * pnShapeType )
+void SHPGetInfo(SHPHandle psSHP, int * pnEntities, int * pnShapeType,
+                double * padfMinBound, double * padfMaxBound )
 
 {
+    int		i;
+    
     if( pnEntities != NULL )
         *pnEntities = psSHP->nRecords;
 
     if( pnShapeType != NULL )
         *pnShapeType = psSHP->nShapeType;
+
+    for( i = 0; i < 4; i++ )
+    {
+        if( padfMinBound != NULL )
+            padfMinBound[i] = psSHP->adBoundsMin[i];
+        if( padfMaxBound != NULL )
+            padfMaxBound[i] = psSHP->adBoundsMax[i];
+    }
 }
 
 /************************************************************************/
@@ -538,11 +587,38 @@ SHPObject *SHPCreateObject( int nSHPType, int nShapeId, int nParts,
 
 {
     SHPObject	*psObject;
-    int		i;
+    int		i, bHasM, bHasZ;
 
     psObject = (SHPObject *) calloc(1,sizeof(SHPObject));
     psObject->nSHPType = nSHPType;
     psObject->nShapeId = nShapeId;
+
+/* -------------------------------------------------------------------- */
+/*	Establish whether this shape type has M, and Z values.		*/
+/* -------------------------------------------------------------------- */
+    if( nSHPType == SHPT_ARCM
+        || nSHPType == SHPT_POINTM
+        || nSHPType == SHPT_POLYGONM
+        || nSHPType == SHPT_MULTIPOINTM )
+    {
+        bHasM = TRUE;
+        bHasZ = FALSE;
+    }
+    else if( nSHPType == SHPT_ARCZ
+             || nSHPType == SHPT_POINTZ
+             || nSHPType == SHPT_POLYGONZ
+             || nSHPType == SHPT_MULTIPOINTZ
+             || nSHPType == SHPT_MULTIPATCH )
+    {
+        bHasM = TRUE;
+        bHasZ = TRUE;
+    }
+    else
+    {
+        bHasM = FALSE;
+        bHasZ = FALSE;
+    }
+
 /* -------------------------------------------------------------------- */
 /*      Capture parts.  Note that part type is optional, and            */
 /*      defaults to ring.                                               */
@@ -588,9 +664,9 @@ SHPObject *SHPCreateObject( int nSHPType, int nShapeId, int nParts,
     {
         psObject->padfX[i] = padfX[i];
         psObject->padfY[i] = padfY[i];
-        if( padfZ != NULL )
+        if( padfZ != NULL && bHasZ )
             psObject->padfZ[i] = padfZ[i];
-        if( padfM != NULL )
+        if( padfM != NULL && bHasM )
             psObject->padfM[i] = padfM[i];
     }
 
