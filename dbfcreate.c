@@ -4,7 +4,10 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.2  1995-08-04 03:17:11  warmerda
+ * Revision 1.3  1999-04-01 18:47:44  warmerda
+ * Fixed DBFAddField() call convention.
+ *
+ * Revision 1.2  1995/08/04 03:17:11  warmerda
  * Added header.
  *
  */
@@ -49,7 +52,8 @@ int main( int argc, char ** argv )
     {
 	if( strcmp(argv[i],"-s") == 0 && i < argc-2 )
 	{
-	    if( !DBFAddField( hDBF, argv[i+1], FTString, atoi(argv[i+2]), 0 ))
+	    if( DBFAddField( hDBF, argv[i+1], FTString, atoi(argv[i+2]), 0 )
+                == -1 )
 	    {
 		printf( "DBFAddField(%s,FTString,%d,0) failed.\n",
 		        argv[i+1], atoi(argv[i+2]) );
@@ -59,8 +63,8 @@ int main( int argc, char ** argv )
 	}
 	else if( strcmp(argv[i],"-n") == 0 && i < argc-3 )
 	{
-	    if( !DBFAddField( hDBF, argv[i+1], FTDouble, atoi(argv[i+2]), 
-			      atoi(argv[i+3]) ) )
+	    if( DBFAddField( hDBF, argv[i+1], FTDouble, atoi(argv[i+2]), 
+			      atoi(argv[i+3]) ) == -1 )
 	    {
 		printf( "DBFAddField(%s,FTDouble,%d,%d) failed.\n",
 		        argv[i+1], atoi(argv[i+2]), atoi(argv[i+3]) );
