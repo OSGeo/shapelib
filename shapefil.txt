@@ -283,10 +283,12 @@ int SHPWriteVertices( SHPHandle hSHP, int nVCount, int nPartCount,
 Attribute (DBF) API
 -------------------
 
-Please see the shapefil.h include file, and dbfcreate.c, dbfadd.c and dbfdump.c
-example applications for hints on how to use the DBF interface.  I hope to
-document the DBP api here in the future.  Let me know (warmerda@leto.pci.on.ca)
-if you would like this to happen.
+The Attribute (DBF) API uses DBFHandle to represent a handle for access
+to one .dbf file.  The contents of the DBFHandle are visible (see shapefil.h)
+but should be ignored by the application.  It is intended that all information
+be accessed by API functions.  Note that there should be exactly one record
+in the .dbf file for each shape in the .shp/.shx files.  This constraint
+must be maintained by the application.
 
                   ------------------------------------------
 
