@@ -1,3 +1,8 @@
+2001-11-28  Frank Warmerdam  <warmerdam@pobox.com>
+
+	* dbfopen.c: two fixes for compiler warnings as suggested by
+	Richard Hash.
+
 2001-11-01  Frank Warmerdam  <warmerdam@pobox.com>
 
 	* shpopen.c/shapefil.h: Move record buffer into SHPInfo so that 
