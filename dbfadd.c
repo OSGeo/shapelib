@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.8  2004-01-09 16:39:49  fwarmerdam
+ * Revision 1.9  2004-09-26 20:09:35  fwarmerdam
+ * avoid rcsid warnings
+ *
+ * Revision 1.8  2004/01/09 16:39:49  fwarmerdam
  * include standard include files
  *
  * Revision 1.7  2002/01/15 14:36:07  warmerda
@@ -57,14 +60,13 @@
  *
  */
 
-static char rcsid[] = 
-  "$Id$";
-
 #include <string.h>
 #include <math.h>
 #include <stdlib.h>
 
 #include "shapefil.h"
+
+SHP_CVSID("$Id$")
 
 int main( int argc, char ** argv )
 

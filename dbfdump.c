@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.9  2002-01-15 14:36:07  warmerda
+ * Revision 1.10  2004-09-26 20:09:35  fwarmerdam
+ * avoid rcsid warnings
+ *
+ * Revision 1.9  2002/01/15 14:36:07  warmerda
  * updated email address
  *
  * Revision 1.8  2001/05/31 18:15:40  warmerda
@@ -60,12 +63,11 @@
  *
  */
 
-static char rcsid[] = 
-  "$Id$";
-
 #include <stdlib.h>
 #include <string.h>
 #include "shapefil.h"
+
+SHP_CVSID("$Id$")
 
 int main( int argc, char ** argv )
 
@@ -162,7 +164,7 @@ int main( int argc, char ** argv )
 	DBFFieldType	eType;
 
 	eType = DBFGetFieldInfo( hDBF, i, szTitle, &nWidth, &nDecimals );
-	if( strlen(szTitle) > nWidth )
+	if( (int) strlen(szTitle) > nWidth )
 	    panWidth[i] = strlen(szTitle);
 	else
 	    panWidth[i] = nWidth;

@@ -35,7 +35,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.3  2004-01-09 16:39:49  fwarmerdam
+ * Revision 1.4  2004-09-26 20:09:35  fwarmerdam
+ * avoid rcsid warnings
+ *
+ * Revision 1.3  2004/01/09 16:39:49  fwarmerdam
  * include standard include files
  *
  * Revision 1.2  2002/04/10 17:23:11  warmerda
@@ -95,7 +98,6 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
     for( i = 0; i < nEntities; i++ )
     {
-	int		j;
         SHPObject	*psShape;
 
 	psShape = SHPReadObject( hSHP, i );

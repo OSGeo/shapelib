@@ -37,7 +37,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.28  2003-12-29 06:02:18  fwarmerdam
+ * Revision 1.29  2004-09-26 20:09:35  fwarmerdam
+ * avoid rcsid warnings
+ *
+ * Revision 1.28  2003/12/29 06:02:18  fwarmerdam
  * added cpl_error.h option
  *
  * Revision 1.27  2003/04/21 18:30:37  warmerda
@@ -193,6 +196,17 @@ extern "C" {
 #  define SHPAPI_CALL1(x)      x SHPAPI_CALL
 #endif
     
+/* -------------------------------------------------------------------- */
+/*      Macros for controlling CVSID and ensuring they don't appear     */
+/*      as unreferenced variables resulting in lots of warnings.        */
+/* -------------------------------------------------------------------- */
+#ifndef DISABLE_CVSID
+#  define SHP_CVSID(string)     static char cpl_cvsid[] = string; \
+static char *cvsid_aw() { return( cvsid_aw() ? ((char *) NULL) : cpl_cvsid ); }
+#else
+#  define SHP_CVSID(string)
+#endif
+
 /************************************************************************/
 /*                             SHP Support.                             */
 /************************************************************************/
@@ -304,13 +318,16 @@ void SHPAPI_CALL
 void SHPAPI_CALL
       SHPComputeExtents( SHPObject * psObject );
 SHPObject SHPAPI_CALL1(*)
-      SHPCreateObject( int nSHPType, int nShapeId,
-                       int nParts, int * panPartStart, int * panPartType,
-                       int nVertices, double * padfX, double * padfY,
-                       double * padfZ, double * padfM );
+      SHPCreateObject( int nSHPType, int nShapeId, int nParts, 
+                       const int * panPartStart, const int * panPartType,
+                       int nVertices, 
+                       const double * padfX, const double * padfY,
+                       const double * padfZ, const double * padfM );
 SHPObject SHPAPI_CALL1(*)
       SHPCreateSimpleObject( int nSHPType, int nVertices,
-                             double * padfX, double * padfY, double * padfZ );
+                             const double * padfX, 
+                             const double * padfY, 
+                             const double * padfZ );
 
 int SHPAPI_CALL
       SHPRewindObject( SHPHandle hSHP, SHPObject * psObject );
