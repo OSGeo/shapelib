@@ -1,13 +1,15 @@
 /*
-** Copyright (c) 1995 Frank Warmerdam
-**
-** This code is in the public domain.
-**
-** $Log$
-** Revision 1.2  1995-08-04 03:14:43  warmerda
-** Added header.
-**
-*/
+ * Copyright (c) 1995 Frank Warmerdam
+ *
+ * This code is in the public domain.
+ *
+ * $Log$
+ * Revision 1.3  1995-08-04 03:15:16  warmerda
+ * Fixed up header.
+ *
+ * Revision 1.2  1995/08/04  03:14:43  warmerda
+ * Added header.
+ */
 
 static char rcsid[] = 
   "$Id$";
