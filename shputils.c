@@ -53,7 +53,11 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.6  2001-08-28 13:57:14  warmerda
+ * Revision 1.7  2003-02-25 17:20:22  warmerda
+ * Set psCShape to NULL after SHPDestroyObject() to avoid multi-frees of
+ * the same memory ... as submitted by Fred Fox.
+ *
+ * Revision 1.6  2001/08/28 13:57:14  warmerda
  * fixed DBFAddField return value check
  *
  * Revision 1.5  2000/11/02 13:52:48  warmerda
@@ -413,6 +417,7 @@ int main( int argc, char ** argv )
 
       SKIP_RECORD:
         SHPDestroyObject( psCShape );
+        psCShape = NULL;
         j=0;
     }
 
