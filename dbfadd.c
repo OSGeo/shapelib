@@ -4,7 +4,10 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.3  1995-10-21 03:13:23  warmerda
+ * Revision 1.4  1998-12-03 16:36:06  warmerda
+ * Added stdlib.h and math.h to get atof() prototype.
+ *
+ * Revision 1.3  1995/10/21 03:13:23  warmerda
  * Use binary mode..
  *
  * Revision 1.2  1995/08/04  03:15:59  warmerda
@@ -16,6 +19,8 @@ static char rcsid[] =
   "$Id$";
 
 #include "shapefil.h"
+#include <math.h>
+#include <stdlib.h>
 
 int main( int argc, char ** argv )
 
@@ -36,7 +41,7 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
 /*	Create the database.						*/
 /* -------------------------------------------------------------------- */
-    hDBF = DBFOpen( argv[1], "rb+" );
+    hDBF = DBFOpen( argv[1], "r+b" );
     if( hDBF == NULL )
     {
 	printf( "DBFOpen(%s,\"rb+\") failed.\n", argv[1] );
