@@ -1,10 +1,10 @@
 
 #LINKOPT	=	/usr/local/lib/libdbmalloc.a
-#CFLAGS	=	-g -DUSE_DBMALLOC
+CFLAGS	=	-g
 
 default:	all
 
-all:	shpcreate shpadd shpdump dbfcreate dbfadd dbfdump shptest
+all:	shpcreate shpadd shpdump shprewind dbfcreate dbfadd dbfdump shptest
 
 shpopen.o:	shpopen.c shapefil.h
 	$(CC) $(CFLAGS) -c shpopen.c
@@ -23,6 +23,9 @@ shpadd:		shpadd.c shpopen.o
 
 shpdump:	shpdump.c shpopen.o
 	$(CC) $(CFLAGS) shpdump.c shpopen.o $(LINKOPT) -o shpdump
+
+shprewind:	shprewind.c shpopen.o
+	$(CC) $(CFLAGS) shprewind.c shpopen.o $(LINKOPT) -o shprewind
 
 dbfcreate:	dbfcreate.c dbfopen.o
 	$(CC) $(CFLAGS) dbfcreate.c dbfopen.o $(LINKOPT) -o dbfcreate
