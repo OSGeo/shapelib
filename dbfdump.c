@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.6  2000-07-07 13:39:45  warmerda
+ * Revision 1.7  2000-09-20 13:13:55  warmerda
+ * added break after default:
+ *
+ * Revision 1.6  2000/07/07 13:39:45  warmerda
  * removed unused variables, and added system include files
  *
  * Revision 1.5  1999/11/05 14:12:04  warmerda
@@ -212,6 +215,7 @@ int main( int argc, char ** argv )
                     break;
 
                   default:
+                    break;
                 }
             }
 
