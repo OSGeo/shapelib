@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.23  2000-05-23 13:25:49  warmerda
+ * Revision 1.24  2000-05-23 13:38:27  warmerda
+ * Added error checks on return results of fread() and fseek().
+ *
+ * Revision 1.23  2000/05/23 13:25:49  warmerda
  * Avoid crashing if field or record are out of range in dbfread*attribute().
  *
  * Revision 1.22  1999/12/15 13:47:24  warmerda
@@ -611,8 +614,20 @@ static void *DBFReadAttribute(DBFHandle psDBF, int hEntity, int iField,
 
 	nRecordOffset = psDBF->nRecordLength * hEntity + psDBF->nHeaderLength;
 
-	fseek( psDBF->fp, nRecordOffset, 0 );
-	fread( psDBF->pszCurrentRecord, psDBF->nRecordLength, 1, psDBF->fp );
+	if( fseek( psDBF->fp, nRecordOffset, 0 ) != 0 )
+        {
+            fprintf( stderr, "fseek(%d) failed on DBF file.\n",
+                     nRecordOffset );
+            return NULL;
+        }
+
+	if( fread( psDBF->pszCurrentRecord, psDBF->nRecordLength, 
+                   1, psDBF->fp ) != 1 )
+        {
+            fprintf( stderr, "fread(%d) failed on DBF file.\n",
+                     psDBF->nRecordLength );
+            return NULL;
+        }
 
 	psDBF->nCurrentRecord = hEntity;
     }
