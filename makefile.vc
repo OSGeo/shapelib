@@ -44,6 +44,7 @@ shptreedump.exe:	shptreedump.c shptree.obj shpopen.obj
 clean:
 	-del *.obj dbfdump dbfcreate dbfadd shpdump shpcreate shpadd shputils
 	-del *.lib
+	-del *.dll
 
 shapelib.dll:    shpopen.obj dbfopen.obj shptree.obj shapelib.def
 	link /dll /def:shapelib.def /out:shapelib.dll /implib:shapelib.lib \
