@@ -37,7 +37,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.19  2001-05-31 19:20:13  warmerda
+ * Revision 1.20  2001-07-20 13:06:02  warmerda
+ * fixed SHPAPI attribute for SHPTreeFindLikelyShapes
+ *
+ * Revision 1.19  2001/05/31 19:20:13  warmerda
  * added DBFGetFieldIndex()
  *
  * Revision 1.18  2001/05/31 18:15:40  warmerda
@@ -305,7 +308,7 @@ int	SHPAPI_CALL
 void 	SHPAPI_CALL
       SHPTreeTrimExtraNodes( SHPTree * hTree );
 
-int    *SHPAPI_CALL
+int    SHPAPI_CALL1(*)
       SHPTreeFindLikelyShapes( SHPTree * hTree,
                                double * padfBoundsMin,
                                double * padfBoundsMax,
