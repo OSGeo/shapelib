@@ -17,9 +17,11 @@ accessed by the API functions.  <p>
 
 Shapes have types associated with them.  The following is a list of the
 different shapetypes supported by Shapefiles.  At this time all shapes in
-a Shapefile must be of the same type. <p>
+a Shapefile must be of the same type (with the exception of NULL shapes). <p>
 
 <pre>
+  #define SHPT_NULL             0
+
   2D Shape Types (pre ArcView 3.x):
 
   #define SHPT_POINT		1	Points
@@ -160,6 +162,11 @@ SHPObject *SHPReadObject( SHPHandle hSHP, int iShape );
   Note that the bounds placed into the SHPObject are those read from the
   file, and may not be correct.   For points the bounds are generated from
   the single point since bounds aren't normally provided for point types.<p>
+
+  Generally the shapes returned will be of the type of the file as a whole.
+  However, any file may also contain type SHPT_NULL shapes which will have
+  no geometry.  Generally speaking applications should skip rather than
+  preserve them, as they usually represented interactively deleted shapes.<p>
 
 <!-------------------------------------------------------------------------->
 
