@@ -37,7 +37,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.23  2002-01-15 14:36:07  warmerda
+ * Revision 1.24  2002-04-10 16:59:54  warmerda
+ * added SHPRewindObject
+ *
+ * Revision 1.23  2002/01/15 14:36:07  warmerda
  * updated email address
  *
  * Revision 1.22  2002/01/15 14:32:00  warmerda
@@ -292,6 +295,9 @@ SHPObject SHPAPI_CALL1(*)
 SHPObject SHPAPI_CALL1(*)
       SHPCreateSimpleObject( int nSHPType, int nVertices,
                              double * padfX, double * padfY, double * padfZ );
+
+int SHPAPI_CALL
+      SHPRewindObject( SHPHandle hSHP, SHPObject * psObject );
 
 void SHPAPI_CALL
       SHPClose( SHPHandle hSHP );

@@ -354,5 +354,23 @@ void SHPDestroyObject( SHPObject *psObject );
   SHPCreateSimpleObject(), SHPCreateObject() and returned from SHPReadObject().
   <p>
 
+<!-------------------------------------------------------------------------->
+
+<h2>SHPRewindObject()</h2>
+
+<pre>
+int SHPRewindObject( SHPHandle hSHP, SHPObject *psObject );
+
+  hSHP:                 The shapefile (not used at this time).
+  psObject:		The object to deallocate.
+</pre>
+
+  This function will reverse any rings necessary in order to enforce the
+  shapefile restrictions on the required order of inner and outer rings in
+  the Shapefile specification.  It returns TRUE if a change is made and FALSE
+  if no change is made.  Only polygon objects will be affected though any   
+  object may be passed.
+  <p>
+
 </body>
 </html>
