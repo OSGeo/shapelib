@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.40  2003-04-21 18:30:37  warmerda
+ * Revision 1.41  2003-07-08 15:22:43  warmerda
+ * avoid warning
+ *
+ * Revision 1.40  2003/04/21 18:30:37  warmerda
  * added header write/update public methods
  *
  * Revision 1.39  2002/08/26 06:46:56  warmerda
@@ -921,7 +924,7 @@ int SHPAPI_CALL
 SHPWriteObject(SHPHandle psSHP, int nShapeId, SHPObject * psObject )
 		      
 {
-    int	       	nRecordOffset, i, nRecordSize;
+    int	       	nRecordOffset, i, nRecordSize=0;
     uchar	*pabyRec;
     int32	i32;
 
