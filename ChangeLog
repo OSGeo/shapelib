@@ -1,4 +1,9 @@
-1999-09-15    <warmerda@CS46980-B>
+Fri Nov  5 09:12:31 1999  Frank Warmerdam  <warmerda@gdal.velocet.ca>
+
+	* Updated license headers to include the option of use of the code
+	  under the LGPL.
+	  
+1999-09-15 <warmerda@CS46980-B>
 
 	* Added shapelib.dll target to makefile.vc.
 
