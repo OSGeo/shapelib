@@ -1,0 +1,260 @@
+		Shapefile C Library V0.9
+		========================
+
+
+Purpose
+-------
+The Shapefile C Library provides the ability to write simple C programs
+for reading, writing and updating (to a limited extent) ESRI Shapefiles,
+and the associated attribute file (.dbf).
+
+
+Copyright
+---------
+The source for the Shapefile C Library is (c) 1995 Frank Warmerdam, and placed
+in the public domain.  Feel free to do anything with the source you please.
+Neither I, nor PCI assume any liability, nor express any warranty for this 
+code.  
+
+
+Manifest
+--------
+shapefil.txt	- This file ... documentation on the Shapefile C Library
+shpopen.c	- C code for access to .shp/.shx vertex files.
+dbfopen.c	- C code for access to .dbf attribute file.
+shapefil.h	- Include file defining all the services of dbfopen.c and
+                  shpopen.c.
+
+dbfcreate.c	- Simple example program for creating a new .dbf file.
+dbfadd.c	- Simple example program for adding a record to a .dbf file.
+dbfdump.c	- Simple example program for displaying the contents of
+		  a .dbf file.
+
+shpcreate.c	- Simple example program for creating a new .shp and .shx
+		  file.
+shpadd.c	- Simple example program for adding a shape to an existing
+		  shape file.
+shpdump.c	- Simple program for dumping all the vertices in a shapefile
+		  with an indicating of the parts.
+
+Makefile	- A simple makefile to compile the library and example 
+		  programs.
+
+makeshape.sh	- A simple script for running some of the example programs.
+
+
+What is a Shapefile?
+--------------------
+If you don't know, you probably don't need this library.  The Shapefile
+format is a new working and interchange format promulagated by ESRI 
+(http://www.esri.com/) for simple vector data with attributes.  It is
+apparently the only file format that can be edited in ARCView 2, and can
+also be exported and imported in ARC/Info.  
+
+An excellent white paper on the shapefile format is available from ESRI, 
+and if anyone knows how I can get this in PostScript, or flat text form
+I would love to include a copy with this distribution.
+
+The file format actually consists of three files.
+
+XXX.shp - holds the actual vertices.
+XXX.shx - hold index data pointing to the structures in the .shp file.
+XXX.dbf - holds the attributes in xBase (dBase) format.  
+
+
+Format
+------
+I would like to at least paraphrase the ESRI White Paper here eventually ...
+
+
+Release Notes
+-------------
+Release V0.9 is sort of a pre-release and hasn't been tested much.  
+
+
+Maintainer
+----------
+This library is maintained by Frank Warmerdam (http://www.pci.on.ca/~warmerda)
+of PCI (http://www.pci.on.ca/) on his own time.  Please send me bug patches
+and suggestions for the library.  Email can be sent to warmerda@leto.pci.on.ca.
+
+I am also interested in talking to knowledgable develops who can suggest
+how to get at projection information corresponding to ArcView shapefiles.
+
+
+Limitations
+-----------
+ o You can't modify the vertices of existing structures (though you 
+   can update the attributes of existing structures, and create new 
+   structures).
+
+ o Not written in such a way as to be particularly fast.
+
+ o Doesn't give access to all the bounding rectangle informaton stored in 
+   the file .shp file.
+
+ o Doesn't set the last access time properly in the .dbf files.
+
+ o Doesn't recover the working space in SHPGetVertices(), though the buffers
+   are shared among all open files.  Usually this is only a few kilobytes.
+
+ o There is now way to syncronize information to the file except to close it.
+
+ o Poor error checking and reporting.
+
+ o Poorly tested. 
+
+ o Not proffesionally supported.
+
+ o Some aspects of xBase files not supported, though I believe they are
+   not used by ESRI.
+
+
+			Shapefile Library API
+			=====================
+
+The Shapefile C Library is divided into two parts, one for accessing the
+vertex data in the shapefile itself (XXX.shp/XXX.shx) and one for access
+the attributes in the xBase file (XXX.dbf).  
+
+Vertex (SHP) API
+----------------
+
+The Vertex (SHP) API uses a SHPHandle to represent an open .shp/.shx file pair.
+The contents of the SHPHandle are visible (see shapefile.h) but should
+be ignored by the application.  It is intended that all information be
+accessed by the API functions.
+
+                  ------------------------------------------
+
+SHPHandle SHPOpen( const char * pszShapeFile, const char * pszAccess );
+
+  pszShapeFile:		The name of the layer to access.  This can be the
+			name of either the .shp or the .shx file or can
+			just be the path plus the basename of the pair.
+
+  pszAccess:		The fopen() style access string.  At this time only
+			"r" (read-only) and "r+" (read/write) should be used.
+
+  The SHPOpen() function should be used to establish access to the two files
+  for accessing vertices (.shp and .shx).  Note that both files have to 
+  be in the indicated directory, and must have the expected extensions in
+  lower case.  The returned SHPHandle is passed to other access functions, 
+  and SHPClose() should be invoked to recover resources, and flush changes 
+  to disk when complete.
+
+
+void SHPGetInfo( SHPHandle hSHP, int * pnEntities, int * pnShapeType );
+
+  hSHP:			The handle previously returned by SHPOpen() 
+			or SHPCreate().
+
+  pnEntities:		A pointer to an integer into which the number of
+			entities/structures should be placed.  May be NULL.
+
+  pnShapetype:		A pointer to an integer into which the shapetype
+			of this file should be placed.  Shapefiles may contain
+			either SHPT_POINT, SHPT_ARC, SHPT_POLYGON or 
+			SHPT_MULTIPOINT entities.
+			
+                  ------------------------------------------
+
+double *SHPReadVertices( SHPHandle hSHP, int iShape, int *pnVCount,
+	 		 int * pnPartCount, int ** ppanParts );
+
+  hSHP:			The handle previously returned by SHPOpen() 
+			or SHPCreate().
+
+  iShape:		The entity number of the shape to read.  Entity 
+			numbers are between 0 and nEntities-1 (as returned
+			by SHPGetInfo()).
+
+  pnVCount:		Pointer to an integer into which the number of 
+			vertices can be placed.  Currently must not be NULL.
+
+  pnPartCount:		Pointer to an integer into which the number of
+			``parts'' should be placed.  This may be NULL
+			for SHPT_POINT and SHPT_MULTIPOINT files which
+			don't have parts.
+
+  ppanParts:		Pointer to a pointer to integers.  This pointer will
+			be assigned to point to an internal array of parts
+			managed by SHPReadVertices().  
+
+  The SHPReadVertices() call is used to read a single structure, or entity
+  from the shapefile.  A shape may consists of multiple parts (the outline
+  and interior holes for a polygon) which will be indicated by the ppanParts
+  values returned.   The values returned in ppanParts will be the offsets
+  to the first vertex of each part.
+
+  The return value of SHPReadVertices() is a pointer to an internally managed
+  list of vertices.  Note that the values returned as ppanParts and the vertex
+  list are only valid untill the next call to SHPReadVertices() at which point
+  the internal buffers will be reused.
+
+                  ------------------------------------------
+
+void	SHPClose( SHPHandle hSHP );
+
+  hSHP:			The handle previously returned by SHPOpen() 
+			or SHPCreate().
+
+  The SHPClose() function will close the .shp and .shx files, and flush
+  all outstanding header information to the files.  It will also recover
+  resources associated with the handle.  After this call the hSHP handle
+  cannot be used again.
+
+                  ------------------------------------------
+
+SHPHandle SHPCreate( const char * pszShapeFile, int nShapeType );
+
+  pszShapeFile:		The name of the layer to access.  This can be the
+			name of either the .shp or the .shx file or can
+			just be the path plus the basename of the pair.
+
+  nShapeType:		The type of shapes to be stored in the newly created
+			file.  It may be either SHPT_POINT, SHPT_ARC, 
+		        SHPT_POLYGON or SHPT_MULTIPOINT.
+
+  The SHPCreate() function will create a new .shp and .shx file of the
+  desired type.
+
+                  ------------------------------------------
+
+int SHPWriteVertices( SHPHandle hSHP, int nVCount, int nPartCount,
+	              int * panParts, double * padVertices );
+
+  hSHP:			The handle previously returned by SHPOpen() 
+			or SHPCreate().
+
+  nVCount:		The number of vertices in padVertices.  
+
+  nPartCount:		The number of parts found in panParts.  Should
+			be zero for SHPT_POINT and SHPT_MULTIPOINT.
+
+  panParts:		List of parts, may be NULL for SHPT_POINT and
+			SHPT_MULTIPOINT.  For SHPT_ARC and SHPT_POLYGON
+			it must have at least one entry (0) indicating that
+			the first part starts at the zeroth vertex.
+
+  padVertices:		The list of vertices (nVCount * 2 doubles). 
+
+  The SHPWriteVertices() function is used to write a new entity/shape to
+  a shape file created with SHPCreate(), or opened with the "r+" access string
+  in SHPOpen().  
+
+  The return value of this function is the entity number of the newly written
+  shapefile which will always be the new number of entities less one.
+ 
+                  ------------------------------------------
+
+Attribute (DBF) API
+-------------------
+
+Please see the shapefil.h include file, and dbfcreate.c, dbfadd.c and dbfdump.c
+example applications for hints on how to use the DBF interface.  I hope to
+document the DBP api here in the future.  Let me know (warmerda@leto.pci.on.ca)
+if you would like this to happen.
+
+
+
