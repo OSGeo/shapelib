@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.7  2002-01-15 14:36:07  warmerda
+ * Revision 1.8  2004-01-09 16:39:49  fwarmerdam
+ * include standard include files
+ *
+ * Revision 1.7  2002/01/15 14:36:07  warmerda
  * updated email address
  *
  * Revision 1.6  2001/05/31 18:15:40  warmerda
@@ -57,9 +60,11 @@
 static char rcsid[] = 
   "$Id$";
 
-#include "shapefil.h"
+#include <string.h>
 #include <math.h>
 #include <stdlib.h>
+
+#include "shapefil.h"
 
 int main( int argc, char ** argv )
 

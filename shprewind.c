@@ -35,7 +35,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.2  2002-04-10 17:23:11  warmerda
+ * Revision 1.3  2004-01-09 16:39:49  fwarmerdam
+ * include standard include files
+ *
+ * Revision 1.2  2002/04/10 17:23:11  warmerda
  * copy from source to destination now
  *
  * Revision 1.1  2002/04/10 16:56:36  warmerda
@@ -43,6 +46,8 @@
  *
  */
 
+#include <string.h>
+#include <stdlib.h>
 #include "shapefil.h"
 
 int main( int argc, char ** argv )
