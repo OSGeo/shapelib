@@ -1,3 +1,9 @@
+2000-03-28  Frank Warmerdam  <warmerda@cs46980-c>
+
+	* Release as 1.2.8.
+
+	* Incorporated a -version-info fix and added mkinstalldirs from Jan.
+
 2000-03-17  Frank Warmerdam  <warmerda@cs46980-c>
 
 	* Added shared library hack to Makefile.
