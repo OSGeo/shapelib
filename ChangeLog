@@ -1,3 +1,9 @@
+2000-07-07  Frank Warmerdam  <warmerda@cs46980-c>
+
+	* Added stdlib.h and string.h where needed, and removed lots of 
+	unused variables, mainly from example mainlines at the suggestion
+	of Bill Hughes. 
+
 2000-05-24  Frank Warmerdam  <warmerda@cs46980-c>
 
 	* Added logic to shpadd to grow vertex lists at the suggestion of 
