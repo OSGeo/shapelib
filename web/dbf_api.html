@@ -291,8 +291,8 @@ int DBFWriteIntegerAttribute( DBFHandle hDBF, int iShape, int iField,
 
 The DBFWriteIntegerAttribute() function is used to write a value to a numeric
 field (FTInteger, or FTDouble).  If the write succeeds the value TRUE will
-be returned, otherwise FALSE will be returned.  The value may be truncated 
-without warning if written to a field to narrow to represent the value.<p>
+be returned, otherwise FALSE will be returned.  If the value is too large to 
+fit in the field, it will be truncated and FALSE returned.<p>
 
 <!-------------------------------------------------------------------------->
 
@@ -315,8 +315,8 @@ int DBFWriteDoubleAttribute( DBFHandle hDBF, int iShape, int iField,
 
 The DBFWriteDoubleAttribute() function is used to write a value to a numeric
 field (FTInteger, or FTDouble).  If the write succeeds the value TRUE will
-be returned, otherwise FALSE will be returned.  The value may be truncated 
-without warning if written to a field to narrow to represent the value.<p>
+be returned, otherwise FALSE will be returned.  If the value is too large to 
+fit in the field, it will be truncated and FALSE returned.<p>
 
 <!-------------------------------------------------------------------------->
 
@@ -339,8 +339,8 @@ int DBFWriteStringAttribute( DBFHandle hDBF, int iShape, int iField,
 
 The DBFWriteStringAttribute() function is used to write a value to a string
 field (FString).  If the write succeeds the value TRUE willbe returned, 
-otherwise FALSE will be returned.  The value may be truncated 
-without warning if written to a field to narrow to hold the string.<p>
+otherwise FALSE will be returned.  If the value is too large to 
+fit in the field, it will be truncated and FALSE returned.<p>
 
 <!-------------------------------------------------------------------------->
 

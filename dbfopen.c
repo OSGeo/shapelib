@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.47  2002-11-20 03:32:22  warmerda
+ * Revision 1.48  2003-03-10 14:51:27  warmerda
+ * DBFWrite* calls now return FALSE if they have to truncate
+ *
+ * Revision 1.47  2002/11/20 03:32:22  warmerda
  * Ensure field name in DBFGetFieldIndex() is properly terminated.
  *
  * Revision 1.46  2002/10/09 13:10:21  warmerda
@@ -968,7 +971,7 @@ static int DBFWriteAttribute(DBFHandle psDBF, int hEntity, int iField,
 			     void * pValue )
 
 {
-    int	       	nRecordOffset, i, j;
+    int	       	nRecordOffset, i, j, nRetResult = TRUE;
     unsigned char	*pabyRec;
     char	szSField[400], szFormat[20];
 
@@ -1071,7 +1074,10 @@ static int DBFWriteAttribute(DBFHandle psDBF, int hEntity, int iField,
 	    sprintf( szFormat, "%%%dd", nWidth );
 	    sprintf(szSField, szFormat, (int) *((double *) pValue) );
 	    if( (int)strlen(szSField) > psDBF->panFieldSize[iField] )
+            {
 	        szSField[psDBF->panFieldSize[iField]] = '\0';
+                nRetResult = FALSE;
+            }
 
 	    strncpy((char *) (pabyRec+psDBF->panFieldOffset[iField]),
 		    szSField, strlen(szSField) );
@@ -1087,7 +1093,10 @@ static int DBFWriteAttribute(DBFHandle psDBF, int hEntity, int iField,
                      nWidth, psDBF->panFieldDecimals[iField] );
 	    sprintf(szSField, szFormat, *((double *) pValue) );
 	    if( (int) strlen(szSField) > psDBF->panFieldSize[iField] )
+            {
 	        szSField[psDBF->panFieldSize[iField]] = '\0';
+                nRetResult = FALSE;
+            }
 	    strncpy((char *) (pabyRec+psDBF->panFieldOffset[iField]),
 		    szSField, strlen(szSField) );
 	}
@@ -1101,7 +1110,10 @@ static int DBFWriteAttribute(DBFHandle psDBF, int hEntity, int iField,
 
       default:
 	if( (int) strlen((char *) pValue) > psDBF->panFieldSize[iField] )
+        {
 	    j = psDBF->panFieldSize[iField];
+            nRetResult = FALSE;
+        }
 	else
         {
             memset( pabyRec+psDBF->panFieldOffset[iField], ' ',
@@ -1114,7 +1126,7 @@ static int DBFWriteAttribute(DBFHandle psDBF, int hEntity, int iField,
 	break;
     }
 
-    return( TRUE );
+    return( nRetResult );
 }
 
 /************************************************************************/
