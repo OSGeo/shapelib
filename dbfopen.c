@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.43  2002-02-13 19:39:21  warmerda
+ * Revision 1.44  2002-05-07 13:46:11  warmerda
+ * Added DBFWriteAttributeDirectly().
+ *
+ * Revision 1.43  2002/02/13 19:39:21  warmerda
  * Fix casting issues in DBFCloneEmpty().
  *
  * Revision 1.42  2002/01/15 14:36:07  warmerda
@@ -1074,6 +1077,83 @@ static int DBFWriteAttribute(DBFHandle psDBF, int hEntity, int iField,
 		(char *) pValue, j );
 	break;
     }
+
+    return( TRUE );
+}
+
+/************************************************************************/
+/*                     DBFWriteAttributeDirectly()                      */
+/*                                                                      */
+/*      Write an attribute record to the file, but without any          */
+/*      reformatting based on type.  The provided buffer is written     */
+/*      as is to the field position in the record.                      */
+/************************************************************************/
+
+int DBFWriteAttributeDirectly(DBFHandle psDBF, int hEntity, int iField,
+                              void * pValue )
+
+{
+    int	       	nRecordOffset, i, j;
+    unsigned char	*pabyRec;
+
+/* -------------------------------------------------------------------- */
+/*	Is this a valid record?						*/
+/* -------------------------------------------------------------------- */
+    if( hEntity < 0 || hEntity > psDBF->nRecords )
+        return( FALSE );
+
+    if( psDBF->bNoHeader )
+        DBFWriteHeader(psDBF);
+
+/* -------------------------------------------------------------------- */
+/*      Is this a brand new record?                                     */
+/* -------------------------------------------------------------------- */
+    if( hEntity == psDBF->nRecords )
+    {
+	DBFFlushRecord( psDBF );
+
+	psDBF->nRecords++;
+	for( i = 0; i < psDBF->nRecordLength; i++ )
+	    psDBF->pszCurrentRecord[i] = ' ';
+
+	psDBF->nCurrentRecord = hEntity;
+    }
+
+/* -------------------------------------------------------------------- */
+/*      Is this an existing record, but different than the last one     */
+/*      we accessed?                                                    */
+/* -------------------------------------------------------------------- */
+    if( psDBF->nCurrentRecord != hEntity )
+    {
+	DBFFlushRecord( psDBF );
+
+	nRecordOffset = psDBF->nRecordLength * hEntity + psDBF->nHeaderLength;
+
+	fseek( psDBF->fp, nRecordOffset, 0 );
+	fread( psDBF->pszCurrentRecord, psDBF->nRecordLength, 1, psDBF->fp );
+
+	psDBF->nCurrentRecord = hEntity;
+    }
+
+    pabyRec = (unsigned char *) psDBF->pszCurrentRecord;
+
+/* -------------------------------------------------------------------- */
+/*      Assign all the record fields.                                   */
+/* -------------------------------------------------------------------- */
+    if( (int)strlen((char *) pValue) > psDBF->panFieldSize[iField] )
+        j = psDBF->panFieldSize[iField];
+    else
+    {
+        memset( pabyRec+psDBF->panFieldOffset[iField], ' ',
+                psDBF->panFieldSize[iField] );
+        j = strlen((char *) pValue);
+    }
+
+    strncpy((char *) (pabyRec+psDBF->panFieldOffset[iField]),
+            (char *) pValue, j );
+
+    psDBF->bCurrentRecordModified = TRUE;
+    psDBF->bUpdated = TRUE;
 
     return( TRUE );
 }
