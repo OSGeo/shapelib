@@ -33,3 +33,5 @@ EXPORTS SHPOpen
 	DBFWriteTuple
 	DBFCloneEmpty
 	DBFClose
+	DBFWriteNULLAttribute
+
