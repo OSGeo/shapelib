@@ -4,7 +4,10 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.5  1997-03-06 14:05:02  warmerda
+ * Revision 1.6  1998-11-09 20:19:16  warmerda
+ * Changed to use SHPObject based API.
+ *
+ * Revision 1.5  1997/03/06 14:05:02  warmerda
  * fixed typo.
  *
  * Revision 1.4  1997/03/06 14:01:16  warmerda
@@ -28,7 +31,8 @@ int main( int argc, char ** argv )
 {
     SHPHandle	hSHP;
     int		nShapeType, nVertices, nParts, *panParts, i;
-    double	*padVertices;
+    double	*padfX, *padfY;
+    SHPObject	*psObject;
 
 /* -------------------------------------------------------------------- */
 /*      Display a usage message.                                        */
@@ -55,11 +59,8 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
 /*	Build a vertex/part list from the command line arguments.	*/
 /* -------------------------------------------------------------------- */
-    if( (padVertices = (double *) malloc(sizeof(double) * 1000 * 2)) == NULL )
-    {
-        printf( "Out of memory\n" );
-        exit( 1 );
-    }
+    padfX = (double *) malloc(sizeof(double) * 1000);
+    padfY = (double *) malloc(sizeof(double) * 1000);
     
     nVertices = 0;
 
@@ -81,8 +82,8 @@ int main( int argc, char ** argv )
 	}
 	else if( i < argc-1 )
 	{
-	    sscanf( argv[i], "%lg", padVertices+nVertices*2 );
-	    sscanf( argv[i+1], "%lg", padVertices+nVertices*2+1 );
+	    sscanf( argv[i], "%lg", padfX+nVertices );
+	    sscanf( argv[i+1], "%lg", padfY+nVertices );
 	    nVertices += 1;
 	    i += 2;
 	}
@@ -91,10 +92,14 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
 /*      Write the new entity to the shape file.                         */
 /* -------------------------------------------------------------------- */
-    SHPWriteVertices(hSHP, nVertices, nParts, panParts, padVertices );
-
+    psObject = SHPCreateObject( nShapeType, -1, nParts, panParts, NULL,
+                                nVertices, padfX, padfY, NULL, NULL );
+    SHPWriteObject( hSHP, -1, psObject );
+    SHPDestroyObject( psObject );
+    
     SHPClose( hSHP );
 
     free( panParts );
-    free( padVertices );
+    free( padfX );
+    free( padfY );
 }
