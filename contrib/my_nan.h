@@ -39,8 +39,8 @@
 			   double __d; })				      \
 		  { __nan_bytes }).__d)
 #else	/* Not GCC.  */
-   static CONST char __nan[8] = __nan_bytes;
-#  define	NAN	(*(CONST double *) __nan)
+   static const char __nan[8] = __nan_bytes;
+#  define	NAN	(*(const double *) __nan)
 #endif
 
 #endif	/* gnu_nan.h */
