@@ -21,7 +21,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.19  1999-04-19 21:01:57  warmerda
+ * Revision 1.20  1999-04-19 21:04:17  warmerda
+ * Fixed syntax error.
+ *
+ * Revision 1.19  1999/04/19 21:01:57  warmerda
  * Force access string to binary in SHPOpen().
  *
  * Revision 1.18  1999/04/01 18:48:07  warmerda
@@ -278,7 +281,7 @@ SHPHandle SHPOpen( const char * pszLayer, const char * pszAccess )
     if( strcmp(pszAccess,"rb+") == 0 || strcmp(pszAccess,"r+b") == 0 )
         pszAccess = "r+b";
     else
-        pszAccess = "rb" );
+        pszAccess = "rb";
     
 /* -------------------------------------------------------------------- */
 /*	Establish the byte order on this machine.			*/
