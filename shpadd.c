@@ -4,7 +4,10 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.3  1995-10-21 03:14:37  warmerda
+ * Revision 1.4  1997-03-06 14:01:16  warmerda
+ * added memory allocation checking, and free()s.
+ *
+ * Revision 1.3  1995/10/21 03:14:37  warmerda
  * Changed to use binary file access
  *
  * Revision 1.2  1995/08/04  03:18:01  warmerda
@@ -49,10 +52,20 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
 /*	Build a vertex/part list from the command line arguments.	*/
 /* -------------------------------------------------------------------- */
-    padVertices = (double *) malloc(sizeof(double) * 1000 * 2 );
+    if( (padVertices = (double *) malloc(sizeof(double) * 1000 * 2)) == NULL )
+    {
+        printf( "Out of memory\n" );
+        exit( 1 );
+    }
+    
     nVertices = 0;
 
-    panParts = (int *) malloc(sizeof(int) * 1000 );
+    if( (panParts = (int *) malloc(sizeof(int) * 1000 )) == NULL )
+    {
+        printf( "Out of memory\n" );
+        exit( 1 );
+    }
+    
     nParts = 1;
     panParts[0] = 0;
 
@@ -78,4 +91,7 @@ int main( int argc, char ** argv )
     SHPWriteVertices(hSHP, nVertices, nParts, panParts, padVertices );
 
     SHPClose( hSHP );
+
+    free( panParts );
+    free( panVertices );
 }
