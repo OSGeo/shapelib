@@ -27,7 +27,10 @@
  * sort by area, for lines sort by length and do nothing for all others.
  *
  * $Log$
- * Revision 1.2  2004-07-06 21:20:49  fwarmerdam
+ * Revision 1.3  2004-07-06 21:23:17  fwarmerdam
+ * minor const warning fix
+ *
+ * Revision 1.2  2004/07/06 21:20:49  fwarmerdam
  * major upgrade .. sort on multiple fields
  *
  * Revision 1.4  2004/06/30 18:19:53  emiller
@@ -246,7 +249,7 @@ int main (int argc, char *argv[]) {
       fprintf(stderr, "%s:%d: error writing shapefile!\n", __FILE__, __LINE__);
       exit(EXIT_FAILURE);
     }
-    tuple = DBFReadTuple(inDBF, index[i].record);
+    tuple = (void *) DBFReadTuple(inDBF, index[i].record);
     if (DBFWriteTuple(outDBF, i, tuple) < 0) {
       fprintf(stderr, "%s:%d: error writing dBASE file!\n", __FILE__, __LINE__);
       exit(EXIT_FAILURE);
