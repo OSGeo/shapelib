@@ -21,7 +21,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.13  1999-03-23 17:38:59  warmerda
+ * Revision 1.14  1999-05-04 15:01:48  warmerda
+ * Added 'F' support.
+ *
+ * Revision 1.13  1999/03/23 17:38:59  warmerda
  * DBFAddField() now actually does return the new field number, or -1 if
  * it fails.
  *
@@ -265,7 +268,7 @@ DBFHandle DBFOpen( const char * pszFilename, const char * pszAccess )
 
 	pabyFInfo = pabyBuf+iField*32;
 
-	if( pabyFInfo[11] == 'N' )
+	if( pabyFInfo[11] == 'N' || pabyFInfo[11] == 'F' )
 	{
 	    psDBF->panFieldSize[iField] = pabyFInfo[16];
 	    psDBF->panFieldDecimals[iField] = pabyFInfo[17];
@@ -683,6 +686,7 @@ DBFFieldType DBFGetFieldInfo( DBFHandle psDBF, int iField, char * pszFieldName,
     }
 
     if( psDBF->pachFieldType[iField] == 'N' 
+        || psDBF->pachFieldType[iField] == 'F'
         || psDBF->pachFieldType[iField] == 'D' )
     {
 	if( psDBF->panFieldDecimals[iField] > 0 )
@@ -758,6 +762,7 @@ static int DBFWriteAttribute(DBFHandle psDBF, int hEntity, int iField,
     {
       case 'D':
       case 'N':
+      case 'F':
 	if( psDBF->panFieldDecimals[iField] == 0 )
 	{
 	    sprintf( szFormat, "%%%dd", psDBF->panFieldSize[iField] );
