@@ -21,7 +21,11 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.11  1998-12-31 15:30:34  warmerda
+ * Revision 1.12  1999-03-06 02:54:46  warmerda
+ * Added logic to convert shapefile name to dbf filename in DBFOpen()
+ * for convenience.
+ *
+ * Revision 1.11  1998/12/31 15:30:34  warmerda
  * Improved the interchangability of numeric and string attributes.  Add
  * white space trimming option for attributes.
  *
@@ -176,6 +180,8 @@ DBFHandle DBFOpen( const char * pszFilename, const char * pszAccess )
     DBFHandle		psDBF;
     uchar		*pabyBuf;
     int			nFields, nRecords, nHeadLen, nRecLen, iField, i;
+    char	        *pszDBFFilename;
+    FILE		*fp;
 
 /* -------------------------------------------------------------------- */
 /*      We only allow the access strings "rb" and "r+".                  */
@@ -184,14 +190,37 @@ DBFHandle DBFOpen( const char * pszFilename, const char * pszAccess )
         && strcmp(pszAccess,"rb") != 0 && strcmp(pszAccess,"r+b") != 0 )
         return( NULL );
     
+/* -------------------------------------------------------------------- */
+/*	Ensure the extension is converted to dbf or DBF if it is 	*/
+/*	currently .shp or .shx.						*/    
+/* -------------------------------------------------------------------- */
+    pszDBFFilename = (char *) malloc(strlen(pszFilename)+1);
+    strcpy( pszDBFFilename, pszFilename );
+    
+    if( strcmp(pszFilename+strlen(pszFilename)-4,".shp")
+        || strcmp(pszFilename+strlen(pszFilename)-4,".shx") )
+    {
+        strcpy( pszDBFFilename+strlen(pszDBFFilename)-4, ".dbf");
+    }
+    else if( strcmp(pszFilename+strlen(pszFilename)-4,".SHP")
+             || strcmp(pszFilename+strlen(pszFilename)-4,".SHX") )
+    {
+        strcpy( pszDBFFilename+strlen(pszDBFFilename)-4, ".DBF");
+    }
+
+/* -------------------------------------------------------------------- */
+/*      Open the file.                                                  */
+/* -------------------------------------------------------------------- */
     psDBF = (DBFHandle) calloc( 1, sizeof(DBFInfo) );
-    psDBF->fp = fopen( pszFilename, pszAccess );
+    psDBF->fp = fopen( pszDBFFilename, pszAccess );
     if( psDBF->fp == NULL )
         return( NULL );
 
     psDBF->bNoHeader = FALSE;
     psDBF->nCurrentRecord = -1;
     psDBF->bCurrentRecordModified = FALSE;
+
+    free( pszDBFFilename );
 
 /* -------------------------------------------------------------------- */
 /*  Read Table Header info                                              */
