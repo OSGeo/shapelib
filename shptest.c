@@ -35,7 +35,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.4  2000-07-07 13:39:45  warmerda
+ * Revision 1.5  2001-06-22 02:18:20  warmerda
+ * Added null shape support
+ *
+ * Revision 1.4  2000/07/07 13:39:45  warmerda
  * removed unused variables, and added system include files
  *
  * Revision 1.3  1999/11/05 14:12:05  warmerda
@@ -254,7 +257,10 @@ int main( int argc, char ** argv )
 /*      Figure out which test to run.                                   */
 /* -------------------------------------------------------------------- */
 
-    if( atoi(argv[1]) == 1 )
+    if( atoi(argv[1]) == 0 )
+        Test_WritePoints( SHPT_NULL, "test0.shp" );
+
+    else if( atoi(argv[1]) == 1 )
         Test_WritePoints( SHPT_POINT, "test1.shp" );
     else if( atoi(argv[1]) == 2 )
         Test_WritePoints( SHPT_POINTZ, "test2.shp" );
