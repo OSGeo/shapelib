@@ -17,5 +17,10 @@ echo Test 3: dump polygon.shp
 echo -------------------------------------------------------------------------
 shpdump $EG_DATA/polygon.shp | head -500
 
+echo -------------------------------------------------------------------------
+echo Test 4: dump pline.dbf - uses new F field type
+echo -------------------------------------------------------------------------
+dbfdump -m -h $EG_DATA/pline.dbf | head -50
+
 
 
