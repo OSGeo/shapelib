@@ -4,7 +4,7 @@
  * Project:  Shapelib
  * Purpose:  Mainline for creating and dumping an ASCII representation of
  *           a quadtree.
- * Author:   Frank Warmerdam, warmerda@home.com
+ * Author:   Frank Warmerdam, warmerdam@pobox.com
  *
  ******************************************************************************
  * Copyright (c) 1999, Frank Warmerdam
@@ -35,7 +35,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.6  1999-11-05 14:12:05  warmerda
+ * Revision 1.7  2002-04-10 16:59:12  warmerda
+ * fixed email
+ *
+ * Revision 1.6  1999/11/05 14:12:05  warmerda
  * updated license terms
  *
  * Revision 1.5  1999/06/02 18:24:21  warmerda
