@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.45  2004-09-26 20:09:48  fwarmerdam
+ * Revision 1.46  2005-02-11 17:17:46  fwarmerdam
+ * added panPartStart[0] validation
+ *
+ * Revision 1.45  2004/09/26 20:09:48  fwarmerdam
  * const correctness changes
  *
  * Revision 1.44  2003/12/29 00:18:39  fwarmerdam
@@ -183,6 +186,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 SHP_CVSID("$Id$")
 
@@ -955,10 +959,22 @@ SHPCreateObject( int nSHPType, int nShapeId, int nParts,
         for( i = 0; i < nParts; i++ )
         {
             psObject->panPartStart[i] = panPartStart[i];
+
             if( panPartType != NULL )
                 psObject->panPartType[i] = panPartType[i];
             else
                 psObject->panPartType[i] = SHPP_RING;
+        }
+
+        if( psObject->panPartStart[0] != 0 )
+        {
+#ifdef USE_CPL
+            CPLError( CE_Failure, CPLE_AppDefined,
+                      "panPartStart[0] != 0, patching internally.  Please fix your code!\n" );
+#else
+            fprintf( stderr, "panPartStart[0] != 0, patching internally.  Please fix your code!\n" );
+#endif
+            psObject->panPartStart[0] = 0;
         }
     }
 

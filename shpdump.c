@@ -35,7 +35,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.13  2004-09-26 20:09:35  fwarmerdam
+ * Revision 1.14  2005-02-11 17:17:46  fwarmerdam
+ * added panPartStart[0] validation
+ *
+ * Revision 1.13  2004/09/26 20:09:35  fwarmerdam
  * avoid rcsid warnings
  *
  * Revision 1.12  2004/01/27 18:05:35  fwarmerdam
@@ -160,6 +163,12 @@ int main( int argc, char ** argv )
                 psShape->dfZMin, psShape->dfMMin,
                 psShape->dfXMax, psShape->dfYMax,
                 psShape->dfZMax, psShape->dfMMax );
+
+        if( psShape->nParts > 0 && psShape->panPartStart[0] != 0 )
+        {
+            fprintf( stderr, "panPartStart[0] = %d, not zero as expected.\n",
+                     psShape->panPartStart[0] );
+        }
 
 	for( j = 0, iPart = 1; j < psShape->nVertices; j++ )
 	{
