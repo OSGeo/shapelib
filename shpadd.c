@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.10  2000-05-24 15:09:22  warmerda
+ * Revision 1.11  2000-07-07 13:39:45  warmerda
+ * removed unused variables, and added system include files
+ *
+ * Revision 1.10  2000/05/24 15:09:22  warmerda
  * Added logic to graw vertex lists of needed.
  *
  * Revision 1.9  1999/11/05 14:12:04  warmerda
@@ -66,6 +69,8 @@
 static char rcsid[] = 
   "$Id$";
 
+#include <stdlib.h>
+#include <string.h>
 #include "shapefil.h"
 
 int main( int argc, char ** argv )
@@ -152,4 +157,6 @@ int main( int argc, char ** argv )
     free( panParts );
     free( padfX );
     free( padfY );
+
+    return 0;
 }

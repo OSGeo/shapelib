@@ -35,7 +35,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.7  1999-11-05 14:12:04  warmerda
+ * Revision 1.8  2000-07-07 13:39:45  warmerda
+ * removed unused variables, and added system include files
+ *
+ * Revision 1.7  1999/11/05 14:12:04  warmerda
  * updated license terms
  *
  * Revision 1.6  1998/12/03 15:48:48  warmerda
@@ -96,8 +99,8 @@ int main( int argc, char ** argv )
     printf( "Shapefile Type: %s   # of Shapes: %d\n\n",
             SHPTypeName( nShapeType ), nEntities );
     
-    printf( "File Bounds: (%12.3f,%12.3f,%lg,%lg)\n"
-            "         to  (%12.3f,%12.3f,%lg,%lg)\n",
+    printf( "File Bounds: (%12.3f,%12.3f,%g,%g)\n"
+            "         to  (%12.3f,%12.3f,%g,%g)\n",
             adfMinBound[0], 
             adfMinBound[1], 
             adfMinBound[2], 
@@ -118,8 +121,8 @@ int main( int argc, char ** argv )
 	psShape = SHPReadObject( hSHP, i );
 
 	printf( "\nShape:%d (%s)  nVertices=%d, nParts=%d\n"
-                "  Bounds:(%12.3f,%12.3f, %lg, %lg)\n"
-                "      to (%12.3f,%12.3f, %lg, %lg)\n",
+                "  Bounds:(%12.3f,%12.3f, %g, %g)\n"
+                "      to (%12.3f,%12.3f, %g, %g)\n",
 	        i, SHPTypeName(psShape->nSHPType),
                 psShape->nVertices, psShape->nParts,
                 psShape->dfXMin, psShape->dfYMin,
@@ -144,7 +147,7 @@ int main( int argc, char ** argv )
 	    else
 	        pszPlus = " ";
 
-	    printf("   %s (%12.3f,%12.3f, %lg, %lg) %s \n",
+	    printf("   %s (%12.3f,%12.3f, %g, %g) %s \n",
                    pszPlus,
                    psShape->padfX[j],
                    psShape->padfY[j],

@@ -35,7 +35,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.3  1999-11-05 14:12:05  warmerda
+ * Revision 1.4  2000-07-07 13:39:45  warmerda
+ * removed unused variables, and added system include files
+ *
+ * Revision 1.3  1999/11/05 14:12:05  warmerda
  * updated license terms
  *
  * Revision 1.2  1998/12/16 05:15:20  warmerda
@@ -49,6 +52,8 @@
 static char rcsid[] = 
   "$Id$";
 
+#include <stdlib.h>
+#include <string.h>
 #include "shapefil.h"
 
 /************************************************************************/
@@ -236,10 +241,6 @@ static void Test_WriteArcPoly( int nSHPType, const char *pszFilename )
 int main( int argc, char ** argv )
 
 {
-    SHPHandle	hSHP;
-    int		nShapeType, nEntities, i, iPart;
-    const char 	*pszPlus;
-
 /* -------------------------------------------------------------------- */
 /*      Display a usage message.                                        */
 /* -------------------------------------------------------------------- */

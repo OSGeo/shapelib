@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.3  1999-11-05 14:12:04  warmerda
+ * Revision 1.4  2000-07-07 13:39:45  warmerda
+ * removed unused variables, and added system include files
+ *
+ * Revision 1.3  1999/11/05 14:12:04  warmerda
  * updated license terms
  *
  * Revision 1.2  1995/08/04 03:16:43  warmerda
@@ -52,7 +55,6 @@ int main( int argc, char ** argv )
 {
     SHPHandle	hSHP;
     int		nShapeType;
-    double	*padVertices;
 
 /* -------------------------------------------------------------------- */
 /*      Display a usage message.                                        */
@@ -92,4 +94,6 @@ int main( int argc, char ** argv )
     }
 
     SHPClose( hSHP );
+
+    return 0;
 }

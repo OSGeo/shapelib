@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.4  1999-11-05 14:12:04  warmerda
+ * Revision 1.5  2000-07-07 13:39:45  warmerda
+ * removed unused variables, and added system include files
+ *
+ * Revision 1.4  1999/11/05 14:12:04  warmerda
  * updated license terms
  *
  * Revision 1.3  1999/04/01 18:47:44  warmerda
@@ -48,15 +51,15 @@
 static char rcsid[] = 
   "$Id$";
 
+#include <stdlib.h>
+#include <string.h>
 #include "shapefil.h"
 
 int main( int argc, char ** argv )
 
 {
     DBFHandle	hDBF;
-    int		*panWidth, i, iRecord;
-    char	szFormat[32], szField[1024];
-    int		nWidth, nDecimals;
+    int		i;
 
 /* -------------------------------------------------------------------- */
 /*      Display a usage message.                                        */

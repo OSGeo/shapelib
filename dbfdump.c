@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.5  1999-11-05 14:12:04  warmerda
+ * Revision 1.6  2000-07-07 13:39:45  warmerda
+ * removed unused variables, and added system include files
+ *
+ * Revision 1.5  1999/11/05 14:12:04  warmerda
  * updated license terms
  *
  * Revision 1.4  1998/12/31 15:30:13  warmerda
@@ -51,6 +54,8 @@
 static char rcsid[] = 
   "$Id$";
 
+#include <stdlib.h>
+#include <string.h>
 #include "shapefil.h"
 
 int main( int argc, char ** argv )
@@ -58,7 +63,7 @@ int main( int argc, char ** argv )
 {
     DBFHandle	hDBF;
     int		*panWidth, i, iRecord;
-    char	szFormat[32], szField[1024], *pszFilename = NULL;
+    char	szFormat[32], *pszFilename = NULL;
     int		nWidth, nDecimals;
     int		bHeader = 0;
     int		bRaw = 0;
@@ -205,6 +210,8 @@ int main( int argc, char ** argv )
                     printf( szFormat, 
                             DBFReadDoubleAttribute( hDBF, iRecord, i ) );
                     break;
+
+                  default:
                 }
             }
 

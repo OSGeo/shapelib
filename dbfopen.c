@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.25  2000-05-29 18:19:13  warmerda
+ * Revision 1.26  2000-07-07 13:39:45  warmerda
+ * removed unused variables, and added system include files
+ *
+ * Revision 1.25  2000/05/29 18:19:13  warmerda
  * avoid use of uchar, and adding casting fix
  *
  * Revision 1.24  2000/05/23 13:38:27  warmerda
@@ -122,6 +125,7 @@ static char rcsid[] =
 
 #include <math.h>
 #include <stdlib.h>
+#include <string.h>
 
 #ifndef FALSE
 #  define FALSE		0
