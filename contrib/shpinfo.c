@@ -27,7 +27,10 @@
  * 
  *
  * $Log$
- * Revision 1.2  2002-04-15 18:40:31  warmerda
+ * Revision 1.3  2002-04-15 21:33:03  warmerda
+ * Avoid dereference arrays.
+ *
+ * Revision 1.2  2002/04/15 18:40:31  warmerda
  * Fixed size of adfBnds{Min,Max} as per bug from David Fowler.
  *
  * Revision 1.1  1999/05/26 02:56:31  candrsn
@@ -69,7 +72,7 @@ int main( int argc, char ** argv )
 	exit( 1 );
     }
 
-    SHPGetInfo( hSHP, &nEntities, &nShapeType, &adfBndsMin, &adfBndsMax );
+    SHPGetInfo( hSHP, &nEntities, &nShapeType, adfBndsMin, adfBndsMax );
     
     switch ( nShapeType ) {
        case SHPT_POINT:
