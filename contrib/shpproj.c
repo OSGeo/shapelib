@@ -33,7 +33,10 @@
  * SHPGeo must be compiled with -DPROJ4 support
  *
  * $Log$
- * Revision 1.6  1999-05-26 02:56:31  candrsn
+ * Revision 1.7  2002-01-11 15:23:28  warmerda
+ * use text mode reading and writing .prj files
+ *
+ * Revision 1.6  1999/05/26 02:56:31  candrsn
  * updates to shpdxf, dbfinfo, port from Shapelib 1.1.5 of dbfcat and shpinfo
  *
  * Revision 1.2  1999/05/13 19:30:52  warmerda
@@ -108,10 +111,10 @@ int main( int argc, char ** argv )
    else try for a file then read args as list */
 
     strcpy( prjFileName, argv[1] );
-    ifp = fopen( asFileName ( prjFileName, "prj" ),"r");
+    ifp = fopen( asFileName ( prjFileName, "prj" ),"rt");
 
     if ( !ifp && inarg > 0 )  
-      { ifp = fopen( asFileName ( argv[inarg] + 3, ".prj" ),"r");  }
+      { ifp = fopen( asFileName ( argv[inarg] + 3, ".prj" ),"rt");  }
 
     i = 0;
     if ( ifp ) {
@@ -145,7 +148,7 @@ int main( int argc, char ** argv )
      }  
 
     i = 0;
-    if ( outarg > 0 ) ifp = fopen( asFileName ( argv[outarg] + 3, "prj" ),"r");   
+    if ( outarg > 0 ) ifp = fopen( asFileName ( argv[outarg] + 3, "prj" ),"rt");   
     if ( ifp ) {
        while( fscanf( ifp, "%s", parg) != EOF ) {
          out_args[i] = malloc ( strlen(parg));
@@ -216,7 +219,7 @@ int main( int argc, char ** argv )
     SHPFreeProjection ( new_prj );
 
     /* store projection params into prj file */
-    ifp = fopen( asFileName ( argv[outf_arg], "prj" ),"w");   
+    ifp = fopen( asFileName ( argv[outf_arg], "prj" ),"wt");   
     if ( ifp ) {
 
        if ( out_argc == 0 ) 
