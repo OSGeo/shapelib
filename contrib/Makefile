@@ -1,11 +1,11 @@
 
 #LINKOPT	=	/usr/local/lib/libdbmalloc.a
-#CFLAGS	=	-g -DUSE_DBMALLOC
+#CFLAGS	=	-g
 
 # Endian: define either _LITTLE_ENDIAN or _BIG_ENDIAN
 ENDIAN	=	-D_LITTLE_ENDIAN
 
-CFLAGS	=	-I.. -DPROJ4 $(ENDIAN) -DDEBUG -DDEBUG2 
+CFLAGS	=	-g -I.. -DPROJ4 $(ENDIAN) -DDEBUG -DDEBUG2 
 
 SHPOBJ	=	../shpopen.o ../dbfopen.o 
 
