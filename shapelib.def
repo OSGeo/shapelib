@@ -40,7 +40,9 @@ EXPORTS SHPOpen
 	DBFWriteLogicalAttribute
 	DBFReadLogicalAttribute
 	DBFUpdateHeader
+	DBFGetNativeFieldType
 	SHPRewindObject
+	
 
 
 
