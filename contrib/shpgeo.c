@@ -32,7 +32,10 @@
  * use -DPROJ4 to compile in Projection support
  *
  * $Log$
- * Revision 1.5  2000-04-26 13:24:06  warmerda
+ * Revision 1.6  2001-08-30 13:42:31  warmerda
+ * avoid use of auto initialization of PT for VC++
+ *
+ * Revision 1.5  2000/04/26 13:24:06  warmerda
  * made projUV handling safer
  *
  * Revision 1.4  2000/04/26 13:17:15  warmerda
@@ -54,7 +57,10 @@
   #define PJ void*
 #endif
 
-#include "my_nan.h" 
+#ifndef NAN
+#include "my_nan.h"
+#endif
+
 #include "shpgeo.h"
 
 
@@ -851,8 +857,12 @@ int SHPDimension ( int SHPType ) {
 PT	SHPPointinPoly_2d ( SHPObject *psCShape ) {
    PT	*sPT, rPT;
    
-   if ( !(SHPDimension (psCShape->nSHPType) & SHPD_AREA) )  
-       return ( (PT) {NAN,NAN} );
+   if ( !(SHPDimension (psCShape->nSHPType) & SHPD_AREA) )
+   {
+       rPT.x = NAN;
+       rPT.y = NAN;
+       return rPT;
+   }
 
    sPT = SHPPointsinPoly_2d ( psCShape );
    
@@ -860,7 +870,8 @@ PT	SHPPointinPoly_2d ( SHPObject *psCShape ) {
      rPT.x = sPT[0].x;
      rPT.y = sPT[0].y; 
     } else {
-     rPT =  (( PT ){ NAN, NAN });
+     rPT.x = NAN;
+     rPT.y = NAN;
     }
    return ( rPT );
 }
@@ -969,8 +980,12 @@ PT SHPCentrd_2d ( SHPObject *psCShape ) {
     PT		ringCentrd, C;
     
   
-   if ( !(SHPDimension (psCShape->nSHPType) & SHPD_AREA) )  
-       return ( (PT) {NAN,NAN} );
+   if ( !(SHPDimension (psCShape->nSHPType) & SHPD_AREA) )
+   {
+       C.x = NAN;
+       C.y = NAN;
+       return C;
+   }
 
 #ifdef DEBUG
 	printf ("for Object with %d vtx, %d parts [ %d, %d] \n",
