@@ -4,7 +4,11 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.6  1995-09-04 04:19:41  warmerda
+ * Revision 1.7  1995-10-21 03:15:58  warmerda
+ * Added support for binary file access, the magic cookie 9997
+ * and tried to improve the int32 selection logic for 16bit systems.
+ *
+ * Revision 1.6  1995/09/04  04:19:41  warmerda
  * Added fix for file bounds.
  *
  * Revision 1.5  1995/08/25  15:16:44  warmerda
@@ -30,9 +34,15 @@ static char rcsid[] =
 #include "shapefil.h"
 
 #include <math.h>
+#include <limits.h>
 
 typedef unsigned char uchar;
+
+#if UINT_MAX == 65535
+typedef long	      int32;
+#else
 typedef int	      int32;
+#endif
 
 #ifndef FALSE
 #  define FALSE		0
@@ -188,6 +198,13 @@ SHPHandle SHPOpen( const char * pszLayer, const char * pszAccess )
     double		dValue;
     
 /* -------------------------------------------------------------------- */
+/*      Ensure the access string is one of the legal ones.              */
+/* -------------------------------------------------------------------- */
+    if( strcmp(pszAccess,"r") != 0 && strcmp(pszAccess,"r+") != 0 
+        && strcmp(pszAccess,"rb") != 0 && strcmp(pszAccess,"rb+") != 0 )
+        return( NULL );
+    
+/* -------------------------------------------------------------------- */
 /*	Establish the byte order on this machine.			*/
 /* -------------------------------------------------------------------- */
     i = 1;
@@ -253,7 +270,7 @@ SHPHandle SHPOpen( const char * pszLayer, const char * pszAccess )
     if( pabyBuf[0] != 0 
         || pabyBuf[1] != 0 
         || pabyBuf[2] != 0x27 
-        || pabyBuf[3] != 0x0a )
+        || (pabyBuf[3] != 0x0a && pabyBuf[3] != 0x0d) )
     {
 	fclose( psSHP->fpSHP );
 	fclose( psSHP->fpSHX );
@@ -406,12 +423,12 @@ SHPHandle SHPCreate( const char * pszLayer, int nShapeType )
 /* -------------------------------------------------------------------- */
     pszFullname = (char *) malloc(strlen(pszBasename) + 5);
     sprintf( pszFullname, "%s.shp", pszBasename );
-    fpSHP = fopen(pszFullname, "w" );
+    fpSHP = fopen(pszFullname, "wb" );
     if( fpSHP == NULL )
         return( NULL );
 
     sprintf( pszFullname, "%s.shx", pszBasename );
-    fpSHX = fopen(pszFullname, "w" );
+    fpSHX = fopen(pszFullname, "wb" );
     if( fpSHX == NULL )
         return( NULL );
 
@@ -464,7 +481,7 @@ SHPHandle SHPCreate( const char * pszLayer, int nShapeType )
     fclose( fpSHP );
     fclose( fpSHX );
 
-    return( SHPOpen( pszLayer, "r+" ) );
+    return( SHPOpen( pszLayer, "rb+" ) );
 }
 
 /************************************************************************/
