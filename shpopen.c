@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.41  2003-07-08 15:22:43  warmerda
+ * Revision 1.42  2003-12-01 14:58:27  warmerda
+ * added degenerate object check in SHPRewindObject()
+ *
+ * Revision 1.41  2003/07/08 15:22:43  warmerda
  * avoid warning
  *
  * Revision 1.40  2003/04/21 18:30:37  warmerda
@@ -1743,6 +1746,9 @@ SHPRewindObject( SHPHandle hSHP, SHPObject * psObject )
     if( psObject->nSHPType != SHPT_POLYGON
         && psObject->nSHPType != SHPT_POLYGONZ
         && psObject->nSHPType != SHPT_POLYGONM )
+        return 0;
+
+    if( psObject->nVertices == 0 || psObject->nParts == 0 )
         return 0;
 
 /* -------------------------------------------------------------------- */
