@@ -25,14 +25,17 @@
  * requires shapelib 1.2
  *   gcc shpproj shpopen.o dbfopen.o -lm -lproj -o shpproj
  * 
- * this may require linking with the PROJ4.3 projection library available from
+ * this may require linking with the PROJ4 projection library available from
  *
- * ftp://kai.er.usgs.gov/ftp/PROJ.4
+ * http://www.remotesensing.org/proj
  *
  * use -DPROJ4 to compile in Projection support
  *
  * $Log$
- * Revision 1.4  2000-04-26 13:17:15  warmerda
+ * Revision 1.5  2000-04-26 13:24:06  warmerda
+ * made projUV handling safer
+ *
+ * Revision 1.4  2000/04/26 13:17:15  warmerda
  * check if projUV or UV
  *
  * Revision 1.3  2000/03/17 14:15:16  warmerda
@@ -45,6 +48,7 @@
 
 #include "shapefil.h"
 #ifdef PROJ4
+  #define projUV UV
   #include <projects.h>
 #else
   #define PJ void*
@@ -138,11 +142,7 @@ static void * SfRealloc( void * pMem, int nNewSize )
 int SHPProject ( SHPObject *psCShape, PJ *inproj, PJ *outproj ) {
 #ifdef	PROJ4
    int	j;
-#ifdef USE_PROJUV
-   projUV   p;    /* struct { double u, double v } */
-#else
    UV   p;    /* struct { double u, double v } */
-#endif
 
    /* for each vertex project it and stuff the projeted point back into 	*/
    /*	same SHPObject.  Proj assumes data is in radians so convert it.		*/
