@@ -45,6 +45,7 @@ shptreedump:	shptreedump.c shptree.o shpopen.o
 
 clean:
 	rm -f *.o dbfdump dbfcreate dbfadd shpdump shpcreate shpadd shputils
+	rm -rf *.lo *.la .libs
 	rm -f shptest
 
 test:	test2 test3
