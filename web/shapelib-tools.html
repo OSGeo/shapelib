@@ -291,7 +291,7 @@ as happens from time to time.
 <hr>
 
 <h2><a name="shpproj">shpproj</a></h2>
-<b>Purpose</b>: Reproject Shapefiles
+<b>Purpose</b>: Reproject Shapefiles using PROJ.4
 <br>
 <b>Usage</b>: <font face="courier">shpproj shp_file new_shp ( -i=in_proj_file | -i="in_params" | -i=geographic ) ( -o=out_info_file | -o="out_params" | -o=geographic ) </font>
 <br>
@@ -299,9 +299,6 @@ as happens from time to time.
 	<li><b>param1</b>: explain</li>
 	<li><b>param2</b>: explain</li>
 </ul>
-<b>Example</b>
-<br>
-<font face="courier">$ tool sample command line</font>
 <p>
 
 <b>INPUT</b><br>
@@ -309,7 +306,7 @@ as happens from time to time.
   directly through parameters or geographic. If the shapefile has an associated
   prj file, name the same as the shapefile but ending in ".prj" it will be used
   by default ignoring all other parameters.  If input is omitted it defaults to
-  geographic, unless the default prj file exists..<p>
+  geographic, unless the default prj file exists.<p>
 
 <b>OUTPUT</b><br>
   Output can come from one of three sources.  A projection parameter file,
@@ -318,7 +315,8 @@ as happens from time to time.
 
 <b>PROJECTION PARAMETER FILE</b><br>
   This file MUST end with the extension ".prj".  It has the form of one
-  projection parameter per line.  Parameters can be in any order. <p>
+  projection parameter per line.  Parameters can be in any order.  The
+  projection parameters are those used to define a PROJ.4 projection.<p>
 
 <b>PROJECTION PARAMETERS</b><br>
   Are the same as used by proj and invproj.<p>
@@ -327,6 +325,9 @@ as happens from time to time.
 	   proj -lu   to see available units
 	   proj -le   to see available ellipsoid
 </pre>
+
+Or visit the PROJ.4 web page at <a href="http://www.remotesensing.org/proj">http://www.remotesensing.org/proj</a> for more details.<p>
+
 <p>
 
 <b>Example</b></br>
