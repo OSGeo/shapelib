@@ -21,7 +21,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.16  1999-06-11 19:04:11  warmerda
+ * Revision 1.17  1999-06-11 19:14:12  warmerda
+ * Fixed some memory leaks.
+ *
+ * Revision 1.16  1999/06/11 19:04:11  warmerda
  * Remoted some unused variables.
  *
  * Revision 1.15  1999/05/11 03:19:28  warmerda
@@ -85,6 +88,9 @@ typedef unsigned char uchar;
 #  define FALSE		0
 #  define TRUE		1
 #endif
+
+static int	nStringFieldLen = 0;
+static char * pszStringField = NULL;
 
 /************************************************************************/
 /*                             SfRealloc()                              */
@@ -219,9 +225,11 @@ DBFHandle DBFOpen( const char * pszFilename, const char * pszAccess )
 
     pszFullname = (char *) malloc(strlen(pszBasename) + 5);
     sprintf( pszFullname, "%s.dbf", pszBasename );
+    free( pszBasename );
         
     psDBF = (DBFHandle) calloc( 1, sizeof(DBFInfo) );
     psDBF->fp = fopen( pszFullname, pszAccess );
+    free( pszFullname );
     if( psDBF->fp == NULL )
         return( NULL );
 
@@ -343,6 +351,13 @@ void	DBFClose(DBFHandle psDBF)
     free( psDBF->pszCurrentRecord );
 
     free( psDBF );
+
+    if( pszStringField != NULL )
+    {
+        free( pszStringField );
+        pszStringField = NULL;
+        nStringFieldLen = 0;
+    }
 }
 
 /************************************************************************/
@@ -375,6 +390,7 @@ DBFHandle DBFCreate( const char * pszFilename )
 
     pszFullname = (char *) malloc(strlen(pszBasename) + 5);
     sprintf( pszFullname, "%s.dbf", pszBasename );
+    free( pszBasename );
 
 /* -------------------------------------------------------------------- */
 /*      Create the file.                                                */
@@ -389,6 +405,8 @@ DBFHandle DBFCreate( const char * pszFilename )
     fp = fopen( pszFullname, "rb+" );
     if( fp == NULL )
         return( NULL );
+
+    free( pszFullname );
 
 /* -------------------------------------------------------------------- */
 /*	Create the info structure.					*/
@@ -528,8 +546,6 @@ static void *DBFReadAttribute(DBFHandle psDBF, int hEntity, int iField,
     void	*pReturnField = NULL;
 
     static double dDoubleField;
-    static char * pszStringField = NULL;
-    static int	nStringFieldLen = 0;
 
 /* -------------------------------------------------------------------- */
 /*	Have we read the record?					*/
