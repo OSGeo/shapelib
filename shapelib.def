@@ -35,5 +35,6 @@ EXPORTS SHPOpen
 	DBFClose
 	DBFWriteNULLAttribute
 	DBFGetFieldIndex
+	DBFIsAttributeNULL
 
 
