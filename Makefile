@@ -9,6 +9,9 @@ all:	shpcreate shpadd shpdump dbfcreate dbfadd dbfdump shptest
 shpopen.o:	shpopen.c shapefil.h
 	$(CC) $(CFLAGS) -c shpopen.c
 
+shptree.o:	shptree.c shapefil.h
+	$(CC) $(CFLAGS) -c shptree.c
+
 dbfopen.o:	dbfopen.c shapefil.h
 	$(CC) $(CFLAGS) -c dbfopen.c
 
@@ -35,6 +38,10 @@ shptest:	shptest.c shpopen.o
 
 shputils:	shputils.c shpopen.o dbfopen.o
 	$(CC) $(CFLAGS) shputils.c shpopen.o dbfopen.o $(LINKOPT) -o shputils
+
+shptreedump:	shptreedump.c shptree.o shpopen.o
+	$(CC) $(CFLAGS) shptreedump.c shptree.o shpopen.o $(LINKOPT) \
+		-o shptreedump
 
 clean:
 	rm -f *.o dbfdump dbfcreate dbfadd shpdump shpcreate shpadd shputils

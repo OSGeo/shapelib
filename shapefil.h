@@ -7,7 +7,10 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.9  1999-05-11 03:19:28  warmerda
+ * Revision 1.10  1999-05-18 17:49:38  warmerda
+ * added initial quadtree support
+ *
+ * Revision 1.9  1999/05/11 03:19:28  warmerda
  * added new Tuple api, and improved extension handling - add from candrsn
  *
  * Revision 1.8  1999/03/23 17:22:27  warmerda
@@ -170,6 +173,49 @@ void	SHPClose( SHPHandle hSHP );
 
 const char *SHPTypeName( int nSHPType );
 const char *SHPPartTypeName( int nPartType );
+
+/* -------------------------------------------------------------------- */
+/*      Shape quadtree indexing API.                                    */
+/* -------------------------------------------------------------------- */
+
+typedef struct shape_tree_node
+{
+    /* region covered by this node */
+    double	adfBoundsMin[4];
+    double	adfBoundsMax[4];
+
+    /* list of shapes stored at this node.  The papsShapeObj pointers
+       or the whole list can be NULL */
+    int		nShapeCount;
+    int		*panShapeIds;
+    SHPObject   **papsShapeObj;
+    
+    struct shape_tree_node *psSubNode1;
+    struct shape_tree_node *psSubNode2;
+    
+} SHPTreeNode;
+
+typedef struct
+{
+    SHPHandle   hSHP;
+    
+    int		nMaxDepth;
+    int		nDimension;
+    
+    SHPTreeNode	*psRoot;
+} SHPTree;
+
+SHPTree *SHPCreateTree( SHPHandle hSHP, int nDimension, int nMaxDepth,
+                        double *padfBoundsMin, double *padfBoundsMax );
+void     SHPDestroyTree( SHPTree * hTree );
+
+int	SHPWriteTree( SHPTree *hTree, const char * pszFilename );
+SHPTree SHPReadTree( const char * pszFilename );
+
+int	SHPTreeAddObject( SHPTree * hTree, SHPObject * psObject );
+int	SHPTreeAddShapeId( SHPTree * hTree, SHPObject * psObject );
+int	SHPTreeRemoveShapeId( SHPTree * hTree, int nShapeId );
+
 
 /************************************************************************/
 /*                             DBF Support.                             */
