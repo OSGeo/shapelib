@@ -38,9 +38,7 @@ int main( int argc, char ** argv )
 
 {
     SHPHandle	hSHP, cSHP;
-    int		nShapeType, cShapeType, i, nEntities;
-    int nShpInFile;
-    double	adBounds[4];
+    int		nShapeType, i, nEntities, nShpInFile;
     SHPObject	*shape;
 
 /* -------------------------------------------------------------------- */
@@ -94,4 +92,6 @@ int main( int argc, char ** argv )
 
     SHPClose( hSHP );
     SHPClose( cSHP );
+
+    exit( 0 );
 }
