@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.38  2001-11-28 16:07:31  warmerda
+ * Revision 1.39  2001-12-11 22:41:03  warmerda
+ * improve io related error checking when reading header
+ *
+ * Revision 1.38  2001/11/28 16:07:31  warmerda
  * Cleanup to avoid compiler warnings as suggested by Richard Hash.
  *
  * Revision 1.37  2001/07/04 05:18:09  warmerda
@@ -337,7 +340,13 @@ DBFOpen( const char * pszFilename, const char * pszAccess )
 /*  Read Table Header info                                              */
 /* -------------------------------------------------------------------- */
     pabyBuf = (unsigned char *) malloc(500);
-    fread( pabyBuf, 32, 1, psDBF->fp );
+    if( fread( pabyBuf, 32, 1, psDBF->fp ) != 1 )
+    {
+        fclose( psDBF->fp );
+        free( pabyBuf );
+        free( psDBF );
+        return NULL;
+    }
 
     psDBF->nRecords = 
      pabyBuf[4] + pabyBuf[5]*256 + pabyBuf[6]*256*256 + pabyBuf[7]*256*256*256;
@@ -357,7 +366,13 @@ DBFOpen( const char * pszFilename, const char * pszAccess )
     psDBF->pszHeader = (char *) pabyBuf;
 
     fseek( psDBF->fp, 32, 0 );
-    fread( pabyBuf, nHeadLen, 1, psDBF->fp );
+    if( fread( pabyBuf, nHeadLen, 1, psDBF->fp ) != 1 )
+    {
+        fclose( psDBF->fp );
+        free( pabyBuf );
+        free( psDBF );
+        return NULL;
+    }
 
     psDBF->panFieldOffset = (int *) malloc(sizeof(int) * nFields);
     psDBF->panFieldSize = (int *) malloc(sizeof(int) * nFields);
