@@ -37,7 +37,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.27  2003-04-21 18:30:37  warmerda
+ * Revision 1.28  2003-12-29 06:02:18  fwarmerdam
+ * added cpl_error.h option
+ *
+ * Revision 1.27  2003/04/21 18:30:37  warmerda
  * added header write/update public methods
  *
  * Revision 1.26  2002/09/29 00:00:08  warmerda
@@ -121,6 +124,10 @@
 
 #ifdef USE_DBMALLOC
 #include <dbmalloc.h>
+#endif
+
+#ifdef USE_CPL
+#include "cpl_error.h"
 #endif
 
 #ifdef __cplusplus
