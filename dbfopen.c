@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.36  2001-07-04 05:16:09  warmerda
+ * Revision 1.37  2001-07-04 05:18:09  warmerda
+ * do last fix properly
+ *
+ * Revision 1.36  2001/07/04 05:16:09  warmerda
  * fixed fieldname comparison in DBFGetFieldIndex
  *
  * Revision 1.35  2001/06/22 02:10:06  warmerda
@@ -1313,7 +1316,7 @@ DBFGetFieldIndex(DBFHandle psDBF, const char *pszFieldName)
         strncpy(name2,name,11);
         str_to_upper(name2);
 
-        if(!strcmp(name1,name2,10))
+        if(!strncmp(name1,name2,10))
             return(i);
     }
     return(-1);
