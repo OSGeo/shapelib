@@ -1,4 +1,4 @@
-		Shapefile C Library V0.9
+		Shapefile C Library V1.0
 		========================
 
 
@@ -69,7 +69,7 @@ I would like to at least paraphrase the ESRI White Paper here eventually ...
 
 Release Notes
 -------------
-Release V0.9 is sort of a pre-release and hasn't been tested much.  
+Release V1.0 is the first public release, and hasn't been tested very much.
 
 
 Maintainer
@@ -78,7 +78,7 @@ This library is maintained by Frank Warmerdam (http://www.pci.on.ca/~warmerda)
 of PCI (http://www.pci.on.ca/) on his own time.  Please send me bug patches
 and suggestions for the library.  Email can be sent to warmerda@leto.pci.on.ca.
 
-I am also interested in talking to knowledgable develops who can suggest
+I am also interested in talking to knowledgable developers who can suggest
 how to get at projection information corresponding to ArcView shapefiles.
 
 
@@ -191,6 +191,28 @@ double *SHPReadVertices( SHPHandle hSHP, int iShape, int *pnVCount,
   list of vertices.  Note that the values returned as ppanParts and the vertex
   list are only valid untill the next call to SHPReadVertices() at which point
   the internal buffers will be reused.
+
+                  ------------------------------------------
+
+void SHPReadBounds( SHPHandle hSHP, int iShape, double *padBounds );
+
+  hSHP:			The handle previously returned by SHPOpen() 
+			or SHPCreate().
+
+  iShape:		The entity number of the shape to read.  Entity 
+			numbers are between 0 and nEntities-1 (as returned
+			by SHPGetInfo()).  If an iShape value of -1 is passed
+			the bounds information for the entire file will be
+			returned.
+
+  padBounds:		A array of four doubles in which the bounds of this
+			shape (or whole file) are stored in the order
+			X Minimum, Y Minumum, X Maximum and Y Maximum.
+
+  The SHPReadBounds() call is used to read a the bounds of a single structure,
+  or all structures in the file if iShape is -1.  These bounds are actually 
+  stored in the shape file for all shape types except points.  For points
+  a bounds the bounds are computed based on the point.
 
                   ------------------------------------------
 
