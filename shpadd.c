@@ -4,7 +4,10 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.4  1997-03-06 14:01:16  warmerda
+ * Revision 1.5  1997-03-06 14:05:02  warmerda
+ * fixed typo.
+ *
+ * Revision 1.4  1997/03/06 14:01:16  warmerda
  * added memory allocation checking, and free()s.
  *
  * Revision 1.3  1995/10/21 03:14:37  warmerda
@@ -93,5 +96,5 @@ int main( int argc, char ** argv )
     SHPClose( hSHP );
 
     free( panParts );
-    free( panVertices );
+    free( padVertices );
 }
