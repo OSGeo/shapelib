@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.32  2001-06-22 01:58:07  warmerda
+ * Revision 1.33  2001-07-03 12:18:15  warmerda
+ * Improved cleanup if SHX not found, provied by Riccardo Cohen.
+ *
+ * Revision 1.32  2001/06/22 01:58:07  warmerda
  * be more careful about establishing initial bounds in face of NULL shapes
  *
  * Revision 1.31  2001/05/31 19:35:29  warmerda
@@ -400,7 +403,13 @@ SHPOpen( const char * pszLayer, const char * pszAccess )
     }
     
     if( psSHP->fpSHX == NULL )
+    {
+        fclose( psSHP->fpSHX );
+        free( psSHP );
+        free( pszBasename );
+        free( pszFullname );
         return( NULL );
+    }
 
     free( pszFullname );
     free( pszBasename );
