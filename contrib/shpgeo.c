@@ -32,7 +32,10 @@
  * use -DPROJ4 to compile in Projection support
  *
  * $Log$
- * Revision 1.7  2002-01-11 15:22:04  warmerda
+ * Revision 1.8  2002-01-15 14:36:56  warmerda
+ * upgrade to use proj_api.h
+ *
+ * Revision 1.7  2002/01/11 15:22:04  warmerda
  * fix many warnings.  Lots of this code is cruft.
  *
  * Revision 1.6  2001/08/30 13:42:31  warmerda
@@ -53,12 +56,6 @@
  */
 
 #include "shapefil.h"
-#ifdef PROJ4
-  #define projUV UV
-  #include <projects.h>
-#else
-  #define PJ void*
-#endif
 
 #ifndef NAN
 #include "my_nan.h"
@@ -148,10 +145,10 @@ static void * SfRealloc( void * pMem, int nNewSize )
  * act as a wrapper to protect against library changes in PROJ
  * 
  * **************************************************************************/ 
-int SHPProject ( SHPObject *psCShape, PJ *inproj, PJ *outproj ) {
+int SHPProject ( SHPObject *psCShape, projPJ inproj, projPJ outproj ) {
 #ifdef	PROJ4
    int	j;
-   UV   p;    /* struct { double u, double v } */
+   projUV   p;    /* struct { double u, double v } */
 
    /* for each vertex project it and stuff the projeted point back into 	*/
    /*	same SHPObject.  Proj assumes data is in radians so convert it.		*/
@@ -196,9 +193,9 @@ int SHPProject ( SHPObject *psCShape, PJ *inproj, PJ *outproj ) {
  * act as a wrapper to protect against library changes in PROJ
  *
  * **************************************************************************/
-PJ *SHPSetProjection ( int param_cnt, char **params ) {
+projPJ SHPSetProjection ( int param_cnt, char **params ) {
 #ifdef PROJ4
-  PJ	*p = NULL;
+  projPJ	*p = NULL;
 
   if ( param_cnt > 0 && params[0] )
   { p = pj_init ( param_cnt, params ); }
@@ -218,7 +215,7 @@ PJ *SHPSetProjection ( int param_cnt, char **params ) {
  * act as a wrapper to protect against library changes in PROJ
  * 
  * **************************************************************************/
-int SHPFreeProjection ( PJ *p) {
+int SHPFreeProjection ( projPJ p) {
 #ifdef PROJ4
   if ( p )
     pj_free ( p );

@@ -27,7 +27,10 @@
  *
  *
  * $Log$
- * Revision 1.2  1999-05-26 02:56:31  candrsn
+ * Revision 1.3  2002-01-15 14:36:56  warmerda
+ * upgrade to use proj_api.h
+ *
+ * Revision 1.2  1999/05/26 02:56:31  candrsn
  * updates to shpdxf, dbfinfo, port from Shapelib 1.1.5 of dbfcat and shpinfo
  *
  * 
@@ -64,7 +67,7 @@
 extern "C" {
 #endif
 
-#include <projects.h>
+#include "proj_api.h"
 
 
 #define		SHPD_POINT	 		1
@@ -101,9 +104,10 @@ typedef struct { int		cParts;
 
 
 extern char * asFileName ( const char *fil, char *ext );
-extern int 	SHPProject ( SHPObject *psCShape, PJ *inproj, PJ *outproj );
-extern PJ 	*SHPSetProjection ( int param_cnt, char **params );
-extern int 	SHPFreeProjection ( PJ *p);
+extern int 	SHPProject ( SHPObject *psCShape, 
+                             projPJ inproj, projPJ outproj );
+extern projPJ 	SHPSetProjection ( int param_cnt, char **params );
+extern int 	SHPFreeProjection ( projPJ p);
 
 extern int 	SHPDimension ( int SHPType );
 

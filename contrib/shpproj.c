@@ -33,7 +33,10 @@
  * SHPGeo must be compiled with -DPROJ4 support
  *
  * $Log$
- * Revision 1.8  2002-01-11 15:47:26  warmerda
+ * Revision 1.9  2002-01-15 14:37:08  warmerda
+ * upgrade to use proj_api.h
+ *
+ * Revision 1.8  2002/01/11 15:47:26  warmerda
  * several fixes
  *
  * Revision 1.7  2002/01/11 15:23:28  warmerda
@@ -84,7 +87,7 @@ int main( int argc, char ** argv )
     char	*out_args[16];
     int		in_argc = 0 , out_argc = 0, outf_arg;
     char	*arglst;
-    PJ		*orig_prj, *new_prj;
+    projPJ	orig_prj, new_prj;
     va_list	myargs, moargs;
 
     if( argc < 4)
