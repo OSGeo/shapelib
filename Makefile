@@ -1,6 +1,8 @@
 
 #LINKOPT	=	/usr/local/lib/libdbmalloc.a
 CFLAGS	=	-g
+INSTALL = /usr/bin/install
+LD = /usr/bin/ld
 
 default:	all
 
@@ -117,7 +119,7 @@ lib:
 	rm -fr .libs/libshp.la .libs/libshp.* .libs/libshp.*
 	rm -fr .libs/libshp.lax
 	mkdir .libs/libshp.lax
-	/usr/bin/ld -G -h libshp.so.1 -o .libs/libshp.so.$(LIBSHP_VERSION)  shpopen.lo shptree.lo dbfopen.lo  -lc
+	$(LD) -G -h libshp.so.1 -o .libs/libshp.so.$(LIBSHP_VERSION)  shpopen.lo shptree.lo dbfopen.lo  -lc
 
 	(cd .libs && rm -f libshp.so.1 && ln -s libshp.so.$(LIBSHP_VERSION) libshp.so.1)
 	(cd .libs && rm -f libshp.so && ln -s libshp.so.$(LIBSHP_VERSION) libshp.so)
@@ -129,14 +131,14 @@ lib:
 lib_install:
 	cp .libs/libshp.la .libs/libshp.lai
 	/bin/sh ./mkinstalldirs /usr/local/lib
-	/bin/sh ./libtool  --mode=install /usr/bin/install -c libshp.la /usr/local/lib/libshp.la
-	/usr/bin/install -c .libs/libshp.so.$(LIBSHP_VERSION) /usr/local/lib/libshp.so.$(LIBSHP_VERSION)
+	/bin/sh ./libtool  --mode=install $(INSTALL) -c libshp.la /usr/local/lib/libshp.la
+	$(INSTALL) -c .libs/libshp.so.$(LIBSHP_VERSION) /usr/local/lib/libshp.so.$(LIBSHP_VERSION)
 	(cd /usr/local/lib && rm -f libshp.so.1 && ln -s libshp.so.$(LIBSHP_VERSION) libshp.so.1)
 	(cd /usr/local/lib && rm -f libshp.so && ln -s libshp.so.$(LIBSHP_VERSION) libshp.so)
 	chmod +x /usr/local/lib/libshp.so.$(LIBSHP_VERSION)
-	/usr/bin/install -c .libs/libshp.la /usr/local/lib/libshp.la
-	/usr/bin/install -c .libs/libshp.a /usr/local/lib/libshp.a
+	$(INSTALL) -c .libs/libshp.la /usr/local/lib/libshp.la
+	$(INSTALL) -c .libs/libshp.a /usr/local/lib/libshp.a
 	ranlib /usr/local/lib/libshp.a
 	chmod 644 /usr/local/lib/libshp.a
 	/bin/sh ./mkinstalldirs /usr/local/include/libshp
-	/usr/bin/install -c -m 644 shapefil.h /usr/local/include/libshp/shapefil.h
+	$(INSTALL) -c -m 644 shapefil.h /usr/local/include/libshp/shapefil.h
