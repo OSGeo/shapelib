@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.39  2001-12-11 22:41:03  warmerda
+ * Revision 1.40  2002-01-09 04:32:35  warmerda
+ * fixed to read correct amount of header
+ *
+ * Revision 1.39  2001/12/11 22:41:03  warmerda
  * improve io related error checking when reading header
  *
  * Revision 1.38  2001/11/28 16:07:31  warmerda
@@ -366,7 +369,7 @@ DBFOpen( const char * pszFilename, const char * pszAccess )
     psDBF->pszHeader = (char *) pabyBuf;
 
     fseek( psDBF->fp, 32, 0 );
-    if( fread( pabyBuf, nHeadLen, 1, psDBF->fp ) != 1 )
+    if( fread( pabyBuf, nHeadLen-32, 1, psDBF->fp ) != 1 )
     {
         fclose( psDBF->fp );
         free( pabyBuf );
