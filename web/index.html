@@ -122,13 +122,22 @@ XXX.dbf - holds the attributes in xBase (dBase) format.
 
 <h2>Release Notes</h2>
 
-Release 1.2 is mostly a rewrite of the .shp/.shx access API to account for
-ArcView 3.x 3D shapes, and to encapsulate the shapes in a structure.  
+<b>Release 1.2.3</b>: Disable writing measures to multi-patches as ArcView
+seems to puke on them (as reported by Monika Sester).  Add white space 
+trimming, and string/numeric attribute interchangability in DBF API
+as suggested by Steve Lime.  Dbfdump was updated to include several 
+reporting options.<p>
+
+<b>Release 1.2.2</b>: Added proper support for multipatch (reading and 
+writing) - this release just for testing purposes.<p>
+
+<b>Release 1.2</b> is mostly a rewrite of the .shp/.shx access API to account 
+for ArcView 3.x 3D shapes, and to encapsulate the shapes in a structure.  
 Existing code using the shapefile library will require substantial changes
 to use release 1.2.<p>
 
-Release V1.1 has been built on a number of platforms, and used by a number
-of people successfully.  V1.1 is the first release with the xBase API 
+<b>Release V1.1</b> has been built on a number of platforms, and used by a 
+number of people successfully.  V1.1 is the first release with the xBase API 
 documentation.<p>
 
 
