@@ -4,10 +4,10 @@
  *
  * Project:  Shapelib
  * Purpose:  Delphi Pascal interface to Shapelib.
- * Author:   Keven Meyer (Keven@CyberTracker.co.za)
+ * Author:   Kevin Meyer (Kevin@CyberTracker.co.za)
  *
  ******************************************************************************
- * Copyright (c) 2002, Keven Meyer (Keven@CyberTracker.co.za)
+ * Copyright (c) 2002, Keven Meyer (Kevin@CyberTracker.co.za)
  *
  * This software is available under the following "MIT Style" license,
  * or at the option of the licensee under the LGPL (see LICENSE.LGPL).  This
@@ -35,7 +35,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.1  2002-01-17 14:30:37  warmerda
+ * Revision 1.2  2002-01-21 14:09:26  warmerda
+ * Fixed name.
+ *
+ * Revision 1.1  2002/01/17 14:30:37  warmerda
  * New
  *
  */
