@@ -1,13 +1,15 @@
 /* shp2dxf.c
-
-* ESRI Avenue script derived from 
+*
+* derived from a ESRI Avenue Script
+* and DXF specification from AutoCad 3
+*
 * modifications Carl Andrson 11/96
 * modifications Carl Andrson 3/97
 *
 * converted to C code 12/98
 *
 * requires shapelib 1.2
-*   gcc shp2dxf shpopen.o dbfopen.o -o shp2dxf 
+*   gcc shpdxf.c shpopen.o dbfopen.o -o shpdxf 
 *
 */
 
