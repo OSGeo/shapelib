@@ -4,7 +4,10 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.2  1995-08-04 03:16:22  warmerda
+ * Revision 1.3  1995-10-21 03:15:01  warmerda
+ * Changed to use binary file access.
+ *
+ * Revision 1.2  1995/08/04  03:16:22  warmerda
  * Added header.
  *
  */
@@ -34,7 +37,7 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
 /*      Open the file.                                                  */
 /* -------------------------------------------------------------------- */
-    hDBF = DBFOpen( argv[1], "r" );
+    hDBF = DBFOpen( argv[1], "rb" );
     if( hDBF == NULL )
     {
 	printf( "DBFOpen(%s,\"r\") failed.\n", argv[1] );
