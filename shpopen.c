@@ -4,7 +4,11 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.3  1995-08-23 02:23:15  warmerda
+ * Revision 1.4  1995-08-24 18:10:17  warmerda
+ * Switch to use SfRealloc() to avoid problems with pre-ANSI realloc()
+ * functions (such as on the Sun).
+ *
+ * Revision 1.3  1995/08/23  02:23:15  warmerda
  * Added support for reading bounds, and fixed up problems in setting the
  * file wide bounds.
  *
@@ -54,6 +58,22 @@ static void	SwapWord( int length, void * wordP )
 	((uchar *)wordP)[i] = ((uchar *) wordP)[length-i-1];
 	((uchar *) wordP)[length-i-1] = temp;
     }
+}
+
+/************************************************************************/
+/*                             SfRealloc()                              */
+/*                                                                      */
+/*      A realloc cover function that will access a NULL pointer as     */
+/*      a valid input.                                                  */
+/************************************************************************/
+
+static void * SfRealloc( void * pMem, int nNewSize )
+
+{
+    if( pMem == NULL )
+        return( (void *) malloc(nNewSize) );
+    else
+        return( (void *) realloc(pMem,nNewSize) );
 }
 
 /************************************************************************/
@@ -509,9 +529,9 @@ int SHPWriteVertices(SHPHandle psSHP, int nVCount, int nPartCount,
 	psSHP->nMaxRecords = psSHP->nMaxRecords * 1.3 + 100;
 
 	psSHP->panRecOffset = (int *) 
-	  realloc(psSHP->panRecOffset,sizeof(int) * psSHP->nMaxRecords );
+	  SfRealloc(psSHP->panRecOffset,sizeof(int) * psSHP->nMaxRecords );
 	psSHP->panRecSize = (int *) 
-	  realloc(psSHP->panRecSize,sizeof(int) * psSHP->nMaxRecords );
+	  SfRealloc(psSHP->panRecSize,sizeof(int) * psSHP->nMaxRecords );
     }
 
 /* -------------------------------------------------------------------- */
@@ -675,7 +695,7 @@ double * SHPReadVertices( SHPHandle psSHP, int hEntity, int * pnVCount,
     if( psSHP->panRecSize[hEntity]+8 > nBufSize )
     {
 	nBufSize = psSHP->panRecSize[hEntity]+8;
-	pabyRec = (uchar *) realloc(pabyRec,nBufSize);
+	pabyRec = (uchar *) SfRealloc(pabyRec,nBufSize);
     }
 
 /* -------------------------------------------------------------------- */
@@ -715,7 +735,7 @@ double * SHPReadVertices( SHPHandle psSHP, int hEntity, int * pnVCount,
 	if( nPartMax < nParts )
 	{
 	    nPartMax = nParts;
-	    panParts = (int *) realloc(panParts, nPartMax * sizeof(int) );
+	    panParts = (int *) SfRealloc(panParts, nPartMax * sizeof(int) );
 	}
 
 	memcpy( panParts, pabyRec + 44 + 8, 4 * nParts );
@@ -730,7 +750,7 @@ double * SHPReadVertices( SHPHandle psSHP, int hEntity, int * pnVCount,
 	if( nVertMax < nPoints )
 	{
 	    nVertMax = nPoints;
-	    padVertices = (double *) realloc(padVertices,
+	    padVertices = (double *) SfRealloc(padVertices,
 					     nVertMax * 2 * sizeof(double) );
 	}
 
@@ -764,7 +784,7 @@ double * SHPReadVertices( SHPHandle psSHP, int hEntity, int * pnVCount,
 	if( nVertMax < nPoints )
 	{
 	    nVertMax = nPoints;
-	    padVertices = (double *) realloc(padVertices,
+	    padVertices = (double *) SfRealloc(padVertices,
 					     nVertMax * 2 * sizeof(double) );
 	}
 
@@ -787,7 +807,7 @@ double * SHPReadVertices( SHPHandle psSHP, int hEntity, int * pnVCount,
 	if( nVertMax < 1 )
 	{
 	    nVertMax = 1;
-	    padVertices = (double *) realloc(padVertices,
+	    padVertices = (double *) SfRealloc(padVertices,
 					     nVertMax * 2 * sizeof(double) );
 	}
 
