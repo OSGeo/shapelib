@@ -8,8 +8,19 @@ SHPOBJ	=	../shpopen.o ../dbfopen.o
 
 default:	all
 
-all:	shp2dxf
+all:	shpdxf shpproj
 
-shp2dxf:	shp2dxf.c $(SHPOBJ)
-	$(CC) $(CFLAGS) shp2dxf.c $(SHPOBJ) $(LINKOPT) -o shp2dxf
+clean:  
+	rm -f shpdxf shpproj
 
+
+shpdxf:	shpdxf.c $(SHPOBJ)
+	$(CC) $(CFLAGS) shpdxf.c ${SHPOBJ} $(LINKOPT) -o shpdxf
+
+shpproj: shpproj.c $(SHPOBJ)
+	$(CC) $(CFLAGS) shpproj.c  $(SHPOBJ) -lm -lproj $(LINKOPT) -o shpproj
+	
+testproj: 
+	tests/shpproj.sh
+
+	  
