@@ -37,7 +37,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.20  2001-07-20 13:06:02  warmerda
+ * Revision 1.21  2001-11-01 16:29:55  warmerda
+ * move pabyRec into SHPInfo for thread safety
+ *
+ * Revision 1.20  2001/07/20 13:06:02  warmerda
  * fixed SHPAPI attribute for SHPTreeFindLikelyShapes
  *
  * Revision 1.19  2001/05/31 19:20:13  warmerda
@@ -150,6 +153,9 @@ typedef	struct
     double	adBoundsMax[4];
 
     int		bUpdated;
+
+    unsigned char *pabyRec;
+    int         nBufSize;
 } SHPInfo;
 
 typedef SHPInfo * SHPHandle;
