@@ -7,7 +7,10 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.4  1998-11-09 20:19:33  warmerda
+ * Revision 1.5  1998-11-09 20:57:16  warmerda
+ * Altered SHPGetInfo() call.
+ *
+ * Revision 1.4  1998/11/09 20:19:33  warmerda
  * Added 3D support, and use of SHPObject.
  *
  * Revision 1.3  1995/08/23 02:24:05  warmerda
@@ -33,6 +36,7 @@ typedef	struct
     FILE	*fpSHX;
 
     int		nShapeType;				/* SHPT_* */
+    
     int		nFileSize;				/* SHP file */
 
     int         nRecords;
@@ -114,7 +118,8 @@ typedef struct
 /* -------------------------------------------------------------------- */
 SHPHandle SHPOpen( const char * pszShapeFile, const char * pszAccess );
 SHPHandle SHPCreate( const char * pszShapeFile, int nShapeType );
-void	SHPGetInfo( SHPHandle hSHP, int * pnEntities, int * pnShapeType );
+void	SHPGetInfo( SHPHandle hSHP, int * pnEntities, int * pnShapeType,
+                    double * padfMinBound, double * padfMaxBound );
 
 SHPObject *SHPReadObject( SHPHandle hSHP, int iShape );
 int	SHPWriteObject( SHPHandle hSHP, int iShape, SHPObject * psObject );
