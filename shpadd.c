@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.9  1999-11-05 14:12:04  warmerda
+ * Revision 1.10  2000-05-24 15:09:22  warmerda
+ * Added logic to graw vertex lists of needed.
+ *
+ * Revision 1.9  1999/11/05 14:12:04  warmerda
  * updated license terms
  *
  * Revision 1.8  1998/12/03 16:36:26  warmerda
@@ -69,7 +72,7 @@ int main( int argc, char ** argv )
 
 {
     SHPHandle	hSHP;
-    int		nShapeType, nVertices, nParts, *panParts, i;
+    int		nShapeType, nVertices, nParts, *panParts, i, nVMax;
     double	*padfX, *padfY;
     SHPObject	*psObject;
 
@@ -98,8 +101,9 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
 /*	Build a vertex/part list from the command line arguments.	*/
 /* -------------------------------------------------------------------- */
-    padfX = (double *) malloc(sizeof(double) * 1000);
-    padfY = (double *) malloc(sizeof(double) * 1000);
+    nVMax = 1000;
+    padfX = (double *) malloc(sizeof(double) * nVMax);
+    padfY = (double *) malloc(sizeof(double) * nVMax);
     
     nVertices = 0;
 
@@ -121,6 +125,13 @@ int main( int argc, char ** argv )
 	}
 	else if( i < argc-1 )
 	{
+            if( nVertices == nVMax )
+            {
+                nVMax = nVMax * 2;
+                padfX = (double *) realloc(padfX,sizeof(double)*nVMax);
+                padfY = (double *) realloc(padfY,sizeof(double)*nVMax);
+            }
+
 	    sscanf( argv[i], "%lg", padfX+nVertices );
 	    sscanf( argv[i+1], "%lg", padfY+nVertices );
 	    nVertices += 1;
