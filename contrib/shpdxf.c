@@ -1,20 +1,44 @@
-/* shp2dxf.c
-*
-* derived from a ESRI Avenue Script
-* and DXF specification from AutoCad 3
-*
-* modifications Carl Andrson 11/96
-* modifications Carl Andrson 3/97
-*
-* converted to C code 12/98
-*
-* requires shapelib 1.2
-*   gcc shpdxf.c shpopen.o dbfopen.o -o shpdxf 
-*
-*/
+/******************************************************************************
+ * Copyright (c) 1999, Carl Anderson
+ *
+ * This code is based in part on the earlier work of Frank Warmerdam
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ ******************************************************************************
+ *
+ * shp2dxf.c
+ *
+ * derived from a ESRI Avenue Script
+ * and DXF specification from AutoCad 3 (yes 1984)
+ *
+ * modifications Carl Andrson 11/96
+ * modifications Carl Andrson 3/97
+ *
+ * converted to C code 12/98
+ *
+ * requires shapelib 1.2
+ *   gcc shpdxf.c shpopen.o dbfopen.o -o shpdxf 
+ *
+ */
 
 #include "shapefil.h"
-/* #include <libgen.h> */
+
 
 #define FLOAT_PREC "%16.5f\r\n"
 
@@ -190,7 +214,7 @@ main (int argc, char **argv)
     unsigned int MaxElem = -1;
  
     if ( argc < 2 )  {
-        printf ("usage: shp2dxf shapefile {idfield}\r\n");
+        printf ("usage: shpdxf shapefile {idfield}\r\n");
         exit (-1);
     }
    
@@ -264,8 +288,9 @@ main (int argc, char **argv)
         else  
             elev = DBFReadDoubleAttribute ( dbf, recNum, zfld );
   
+#ifdef DEBUG
         printf("\r\nworking on obj %d", recNum);
-//   fflush(stdout);
+#endif
 
         shape = SHPReadObject( shp, recNum );
    
@@ -274,10 +299,13 @@ main (int argc, char **argv)
         panParts = shape->panPartStart;
         part = 0;
         for (vrtx=0; vrtx < nVertices; vrtx ++ ) { 
-
-//   printf("\rworking on part %d, vertex %d", part,vrtx);     
+#ifdef DEBUG
+        printf("\rworking on part %d, vertex %d", part,vrtx);     
+#endif 
             if ( panParts[part] == vrtx ) {
-//       printf ("object preamble\r\n");
+#ifdef DEBUG
+       printf ("object preamble\r\n");
+#endif
                 dxf_ent_preamble (shp_type, id, dxf);
             }
      
