@@ -21,7 +21,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.13  1998-12-03 15:33:54  warmerda
+ * Revision 1.14  1998-12-03 15:47:56  warmerda
+ * Fixed setting of nVertices in SHPCreateObject().
+ *
+ * Revision 1.13  1998/12/03 15:33:54  warmerda
  * Made SHPCalculateExtents() separately callable.
  *
  * Revision 1.12  1998/11/11 20:01:50  warmerda
@@ -733,6 +736,8 @@ SHPObject *SHPCreateObject( int nSHPType, int nShapeId, int nParts,
 /* -------------------------------------------------------------------- */
 /*      Compute the extents.                                            */
 /* -------------------------------------------------------------------- */
+    psObject->nVertices = nVertices;
+    
     SHPComputeExtents( psObject );
 
     return( psObject );
