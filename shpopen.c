@@ -4,7 +4,11 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.2  1995-08-04 03:16:57  warmerda
+ * Revision 1.3  1995-08-23 02:23:15  warmerda
+ * Added support for reading bounds, and fixed up problems in setting the
+ * file wide bounds.
+ *
+ * Revision 1.2  1995/08/04  03:16:57  warmerda
  * Added header.
  *
  */
@@ -93,11 +97,11 @@ static void SHPWriteHeader( SHPHandle psSHP )
     ByteCopy( &dValue, abyHeader+36, 8 );
     if( bBigEndian ) SwapWord( 8, abyHeader+36 );
 
-    dValue = psSHP->adBoundsMin[1];
+    dValue = psSHP->adBoundsMax[0];
     ByteCopy( &dValue, abyHeader+44, 8 );
     if( bBigEndian ) SwapWord( 8, abyHeader+44 );
 
-    dValue = psSHP->adBoundsMax[0];
+    dValue = psSHP->adBoundsMin[1];
     ByteCopy( &dValue, abyHeader+52, 8 );
     if( bBigEndian ) SwapWord( 8, abyHeader+52 );
 
@@ -243,11 +247,11 @@ SHPHandle SHPOpen( const char * pszLayer, const char * pszAccess )
 
     if( bBigEndian ) SwapWord( 8, pabyBuf+44 );
     memcpy( &dValue, pabyBuf+44, 8 );
-    psSHP->adBoundsMin[1] = dValue;
+    psSHP->adBoundsMax[0] = dValue;
 
     if( bBigEndian ) SwapWord( 8, pabyBuf+52 );
     memcpy( &dValue, pabyBuf+52, 8 );
-    psSHP->adBoundsMax[0] = dValue;
+    psSHP->adBoundsMin[1] = dValue;
 
     if( bBigEndian ) SwapWord( 8, pabyBuf+60 );
     memcpy( &dValue, pabyBuf+60, 8 );
@@ -644,8 +648,9 @@ int SHPWriteVertices(SHPHandle psSHP, int nVCount, int nPartCount,
 }
 
 /************************************************************************/
-/*                            SHPGetShape()                             */
+/*                          SHPReadVertices()                           */
 /*                                                                      */
+/*      Read the vertices for one shape from the shape file.            */
 /************************************************************************/
 
 double * SHPReadVertices( SHPHandle psSHP, int hEntity, int * pnVCount,
@@ -798,9 +803,82 @@ double * SHPReadVertices( SHPHandle psSHP, int hEntity, int * pnVCount,
     return( padVertices );
 }
 
+/************************************************************************/
+/*                           SHPReadBounds()                            */
+/*                                                                      */
+/*      Read the bounds for one shape, or for the whole shapefile.      */
+/************************************************************************/
 
+void SHPReadBounds( SHPHandle psSHP, int hEntity, double * padBounds )
 
+{
+/* -------------------------------------------------------------------- */
+/*      Validate the record/entity number.                              */
+/* -------------------------------------------------------------------- */
+    if( hEntity < -1 || hEntity >= psSHP->nRecords )
+    {
+	padBounds[0] = 0.0;
+	padBounds[0] = 0.0;
+	padBounds[0] = 0.0;
+	padBounds[0] = 0.0;
 
+        return;
+    }
 
+/* -------------------------------------------------------------------- */
+/*	If the entity is -1 we fetch the bounds for the whole file.	*/
+/* -------------------------------------------------------------------- */
+    if( hEntity == -1 )
+    {
+	padBounds[0] = psSHP->adBoundsMin[0];
+	padBounds[2] = psSHP->adBoundsMin[1];
+	padBounds[1] = psSHP->adBoundsMax[0];
+	padBounds[3] = psSHP->adBoundsMax[1];
+    }
 
+/* -------------------------------------------------------------------- */
+/*      Extract bounds for any record but a point record.               */
+/* -------------------------------------------------------------------- */
+    else if( psSHP->nShapeType != SHPT_POINT )
+    {
+	fseek( psSHP->fpSHP, psSHP->panRecOffset[hEntity]+12, 0 );
+	fread( padBounds, sizeof(double)*4, 1, psSHP->fpSHP );
 
+	if( bBigEndian )
+	{
+	    SwapWord( 8, padBounds );
+	    SwapWord( 8, padBounds+1 );
+	    SwapWord( 8, padBounds+2 );
+	    SwapWord( 8, padBounds+3 );
+	}
+    }
+
+/* -------------------------------------------------------------------- */
+/*      For points we fetch the point, and duplicate it as the          */
+/*      minimum and maximum bound.                                      */
+/* -------------------------------------------------------------------- */
+    else
+    {
+	fseek( psSHP->fpSHP, psSHP->panRecOffset[hEntity]+12, 0 );
+	fread( padBounds, sizeof(double)*2, 1, psSHP->fpSHP );
+
+	if( bBigEndian )
+	{
+	    SwapWord( 8, padBounds );
+	    SwapWord( 8, padBounds+1 );
+	}
+
+	memcpy( padBounds+2, padBounds, 2*sizeof(double) );
+    }
+
+/* -------------------------------------------------------------------- */
+/*      Ensure that we fix up the byte order.                           */
+/* -------------------------------------------------------------------- */
+    if( bBigEndian )
+    {
+	SwapWord( 8, padBounds );
+	SwapWord( 8, padBounds+1 );
+	SwapWord( 8, padBounds+2 );
+	SwapWord( 8, padBounds+3 );
+    }
+}
