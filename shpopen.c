@@ -4,7 +4,10 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.5  1995-08-25 15:16:44  warmerda
+ * Revision 1.6  1995-09-04 04:19:41  warmerda
+ * Added fix for file bounds.
+ *
+ * Revision 1.5  1995/08/25  15:16:44  warmerda
  * Fixed a couple of problems with big endian systems ... one with bounds
  * and the other with multipart polygons.
  *
@@ -121,11 +124,11 @@ static void SHPWriteHeader( SHPHandle psSHP )
     ByteCopy( &dValue, abyHeader+36, 8 );
     if( bBigEndian ) SwapWord( 8, abyHeader+36 );
 
-    dValue = psSHP->adBoundsMax[0];
+    dValue = psSHP->adBoundsMin[1];
     ByteCopy( &dValue, abyHeader+44, 8 );
     if( bBigEndian ) SwapWord( 8, abyHeader+44 );
 
-    dValue = psSHP->adBoundsMin[1];
+    dValue = psSHP->adBoundsMax[0];
     ByteCopy( &dValue, abyHeader+52, 8 );
     if( bBigEndian ) SwapWord( 8, abyHeader+52 );
 
@@ -271,11 +274,11 @@ SHPHandle SHPOpen( const char * pszLayer, const char * pszAccess )
 
     if( bBigEndian ) SwapWord( 8, pabyBuf+44 );
     memcpy( &dValue, pabyBuf+44, 8 );
-    psSHP->adBoundsMax[0] = dValue;
+    psSHP->adBoundsMin[1] = dValue;
 
     if( bBigEndian ) SwapWord( 8, pabyBuf+52 );
     memcpy( &dValue, pabyBuf+52, 8 );
-    psSHP->adBoundsMin[1] = dValue;
+    psSHP->adBoundsMax[0] = dValue;
 
     if( bBigEndian ) SwapWord( 8, pabyBuf+60 );
     memcpy( &dValue, pabyBuf+60, 8 );
@@ -855,8 +858,8 @@ void SHPReadBounds( SHPHandle psSHP, int hEntity, double * padBounds )
     if( hEntity == -1 )
     {
 	padBounds[0] = psSHP->adBoundsMin[0];
-	padBounds[2] = psSHP->adBoundsMin[1];
-	padBounds[1] = psSHP->adBoundsMax[0];
+	padBounds[1] = psSHP->adBoundsMin[1];
+	padBounds[2] = psSHP->adBoundsMax[0];
 	padBounds[3] = psSHP->adBoundsMax[1];
     }
 
