@@ -318,5 +318,30 @@ void DBFClose( DBFHandle hDBF );
   The file handle (hDBF) should not be used again with the DBF API after
   calling DBFClose().<p>
 
+<!-------------------------------------------------------------------------->
+
+<h2>DBFGetNativeFieldType()</h2>
+
+<pre>
+char DBFGetNativeFieldType( DBFHandle hDBF, int iField );
+
+  hDBF:		The access handle for the file.
+  iField:       The field index to query.
+  
+</pre>
+
+  This function returns the DBF type code of the indicated field. It will
+  be one of:<p>
+
+<ul>
+<li> 'C' (String)
+<li> 'D' (Date)
+<li> 'F' (Float)
+<li> 'N' (Numeric, with or without decimal)
+<li> 'L' (Logical)
+<li> 'M' (Memo: 10 digits .DBT block ptr)
+<li> ' ' (field out of range)
+</ul>
+
 </body>
 </html>

@@ -37,7 +37,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.15  2000-02-16 16:03:51  warmerda
+ * Revision 1.16  2000-09-25 14:15:59  warmerda
+ * added DBFGetNativeFieldType()
+ *
+ * Revision 1.15  2000/02/16 16:03:51  warmerda
  * added null shape support
  *
  * Revision 1.14  1999/11/05 14:12:05  warmerda
@@ -340,6 +343,7 @@ int DBFWriteTuple(DBFHandle psDBF, int hEntity, void * pRawTuple );
 DBFHandle DBFCloneEmpty(DBFHandle psDBF, const char * pszFilename );
  
 void	DBFClose( DBFHandle hDBF );
+char    DBFGetNativeFieldType( DBFHandle hDBF, int iField );
 
 #ifdef __cplusplus
 }

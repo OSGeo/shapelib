@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.26  2000-07-07 13:39:45  warmerda
+ * Revision 1.27  2000-09-25 14:15:51  warmerda
+ * added DBFGetNativeFieldType()
+ *
+ * Revision 1.26  2000/07/07 13:39:45  warmerda
  * removed unused variables, and added system include files
  *
  * Revision 1.25  2000/05/29 18:19:13  warmerda
@@ -1103,4 +1106,24 @@ DBFHandle DBFCloneEmpty(DBFHandle psDBF, const char * pszFilename )
    newDBF = DBFOpen ( pszFilename, "rb+" );
 
    return ( newDBF );
+}
+
+/************************************************************************/
+/*                       DBFGetNativeFieldType()                        */
+/*                                                                      */
+/*      Return the DBase field type for the specified field.            */
+/*                                                                      */
+/*      Value can be one of: 'C' (String), 'D' (Date), 'F' (Float),     */
+/*                           'N' (Numeric, with or without decimal),    */
+/*                           'L' (Logical),                             */
+/*                           'M' (Memo: 10 digits .DBT block ptr)       */
+/************************************************************************/
+
+char DBFGetNativeFieldType( DBFHandle psDBF, int iField )
+
+{
+    if( iField >=0 && iField < psDBF->nFields )
+        return psDBF->pachFieldType[iField];
+
+    return  ' ';
 }
