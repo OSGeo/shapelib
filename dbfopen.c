@@ -34,7 +34,11 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.57  2005-02-10 20:16:54  fwarmerdam
+ * Revision 1.58  2005-03-14 15:18:54  fwarmerdam
+ * Treat very wide fields with no decimals as double.  This is
+ * more than 32bit integer fields.
+ *
+ * Revision 1.57  2005/02/10 20:16:54  fwarmerdam
  * Make the pszStringField buffer for DBFReadAttribute() static char [256]
  * as per bug 306.
  *
@@ -992,7 +996,8 @@ DBFGetFieldInfo( DBFHandle psDBF, int iField, char * pszFieldName,
              || psDBF->pachFieldType[iField] == 'F'
              || psDBF->pachFieldType[iField] == 'D' )
     {
-	if( psDBF->panFieldDecimals[iField] > 0 )
+	if( psDBF->panFieldDecimals[iField] > 0 
+            || psDBF->panFieldWidth[iField] > 10 )
 	    return( FTDouble );
 	else
 	    return( FTInteger );
