@@ -4,7 +4,10 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.5  1998-11-09 20:57:36  warmerda
+ * Revision 1.6  1998-12-03 15:48:48  warmerda
+ * Added report of shapefile type, and total number of shapes.
+ *
+ * Revision 1.5  1998/11/09 20:57:36  warmerda
  * use SHPObject.
  *
  * Revision 1.4  1995/10/21 03:14:49  warmerda
@@ -56,6 +59,9 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
     SHPGetInfo( hSHP, &nEntities, &nShapeType, adfMinBound, adfMaxBound );
 
+    printf( "Shapefile Type: %s   # of Shapes: %d\n\n",
+            SHPTypeName( nShapeType ), nEntities );
+    
     printf( "File Bounds: (%12.3f,%12.3f,%lg,%lg)\n"
             "         to  (%12.3f,%12.3f,%lg,%lg)\n",
             adfMinBound[0], 
