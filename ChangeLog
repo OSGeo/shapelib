@@ -1,3 +1,13 @@
+2002-01-15  Frank Warmerdam  <warmerdam@pobox.com>
+
+	* shapelib.h: Added support for SHAPELIB_DLLEXPORT macro, and write
+	up material attempting to explain the use of SHPAPI_CALL macros.
+
+	* dbfopen.c: Compute nHeaderLength in DBFCloneEmpty() instead of
+	copying it from the source file so we don't have quirks when copying
+	from files with extra bytes of spacers in the header that don't 
+	themselves get copied properly.
+
 2001-12-07  Frank Warmerdam  <warmerdam@pobox.com>
 
 	* shpopen.c: Fix fclose() of SHX file if SHX file fails to open. 
