@@ -37,7 +37,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.24  2002-04-10 16:59:54  warmerda
+ * Revision 1.25  2002-05-07 13:46:30  warmerda
+ * added DBFWriteAttributeDirectly().
+ *
+ * Revision 1.24  2002/04/10 16:59:54  warmerda
  * added SHPRewindObject
  *
  * Revision 1.23  2002/01/15 14:36:07  warmerda
@@ -449,6 +452,9 @@ int SHPAPI_CALL
 int SHPAPI_CALL
      DBFWriteNULLAttribute( DBFHandle hDBF, int iShape, int iField );
 
+int SHPAPI_CALL
+     DBFWriteAttributeDirectly(DBFHandle psDBF, int hEntity, int iField,
+                               void * pValue );
 const char SHPAPI_CALL1(*)
       DBFReadTuple(DBFHandle psDBF, int hEntity );
 int SHPAPI_CALL
