@@ -40,8 +40,11 @@ clean:
 	rm -f *.o dbfdump dbfcreate dbfadd shpdump shpcreate shpadd shputils
 	rm -f shptest
 
-test:	test1 test2
+test:	test2
 
+#
+#	Note this stream only works if example data is accessable.
+#
 test1:
 	@./stream1.sh > s1.out
 	@if test "`diff s1.out stream1.out`" = '' ; then \
