@@ -2,7 +2,7 @@
  * Copyright (c) 1999, Carl Anderson
  *
  * This code is based in part on the earlier work of Frank Warmerdam
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
@@ -32,16 +32,16 @@
  */
 
 #include "shapefil.h"
+int dbfcat_main( int argc, char ** argv );
 
 int main( int argc, char ** argv )
 
 {
     SHPHandle	hSHP, cSHP;
     int		nShapeType, cShapeType, i, nEntities;
-//    nEntities, nVertices, nParts, *panParts, i, iPart;
+    int nShpInFile;
     double	adBounds[4];
     SHPObject	*shape;
-
 
 /* -------------------------------------------------------------------- */
 /*      Display a usage message.                                        */
@@ -62,9 +62,9 @@ int main( int argc, char ** argv )
 	printf( "Unable to open:%s\n", argv[1] );
 	exit( 1 );
     }
-
+    
     SHPGetInfo( hSHP, &nEntities, &nShapeType, NULL, NULL );
-
+    fprintf(stderr,"Opened From File %s, with %d shapes\n",argv[1],nEntities);
 
 /* -------------------------------------------------------------------- */
 /*      Open the passed shapefile.                                      */
@@ -76,19 +76,20 @@ int main( int argc, char ** argv )
 	printf( "Unable to open:%s\n", argv[2] );
 	exit( 1 );
     }
-
-    SHPGetInfo( cSHP, NULL, &cShapeType, &(adBounds[0]), &(adBounds[2]) );
+    
+    SHPGetInfo( cSHP, &nShpInFile, NULL, NULL, NULL );
+    fprintf(stderr,"Opened to file %s with %d shapes, ready to add %d\n",
+            argv[2],nShpInFile,nEntities);
 
 /* -------------------------------------------------------------------- */
 /*	Skim over the list of shapes, printing all the vertices.	*/
 /* -------------------------------------------------------------------- */
     for( i = 0; i < nEntities; i++ )
     {
-
         shape = SHPReadObject( hSHP, i );
-        SHPWriteObject( cSHP, -1, shape );          
+        SHPWriteObject( cSHP, -1, shape );
         SHPDestroyObject ( shape );
- 
+
     }
 
     SHPClose( hSHP );
