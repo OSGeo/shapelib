@@ -53,7 +53,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.5  2000-11-02 13:52:48  warmerda
+ * Revision 1.6  2001-08-28 13:57:14  warmerda
+ * fixed DBFAddField return value check
+ *
+ * Revision 1.5  2000/11/02 13:52:48  warmerda
  * major upgrade from Bill Miller
  *
  * Revision 1.4  1999/11/05 14:12:05  warmerda
@@ -595,7 +598,8 @@ void mergefields()
 	{                 /* The output DBF must be is empty */
 	    pt[i]=tj;
 	    tj++;
-	    if( !DBFAddField( hDBFappend, iszTitle, iType, iWidth, iDecimals ))
+	    if( DBFAddField( hDBFappend, iszTitle, iType, iWidth, iDecimals )
+                == -1 )
 	    {
 		printf( "Warning: DBFAddField(%s, TYPE:%d, WIDTH:%d  DEC:%d, ITEM#:%d of %d) failed.\n",
 		         iszTitle, iType, iWidth, iDecimals, (i+1), (ti+1) );

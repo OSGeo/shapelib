@@ -1,3 +1,8 @@
+2001-08-28  Frank Warmerdam  <warmerdam@pobox.com>
+
+	* shputils.c: DBFAddField() call should check for -1 return value
+	for failure.
+
 2001-07-03  Frank Warmerdam  <warmerdam@pobox.com>
 
 	* shpopen.c: cleanup better if SHX missing, provided by 
