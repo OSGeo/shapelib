@@ -35,7 +35,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.2  2002-01-21 14:09:26  warmerda
+ * Revision 1.3  2003-05-14 20:04:51  warmerda
+ * Changed fpSHP and fpSHX to integer at suggestion of Ivan Lucena.
+ *
+ * Revision 1.2  2002/01/21 14:09:26  warmerda
  * Fixed name.
  *
  * Revision 1.1  2002/01/17 14:30:37  warmerda
@@ -90,7 +93,7 @@ SHPBoundsArr = double;
 
 SHPInfo = record
     fpSHP,
-    fpSHX : FILE;
+    fpSHX : integer;
 
     nShapeType,
     nFileSize,
