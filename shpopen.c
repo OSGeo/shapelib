@@ -4,7 +4,10 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.11  1998-11-09 20:56:44  warmerda
+ * Revision 1.12  1998-11-11 20:01:50  warmerda
+ * Fixed bug writing ArcM/Z, and PolygonM/Z for big endian machines.
+ *
+ * Revision 1.11  1998/11/09 20:56:44  warmerda
  * Fixed up handling of file wide bounds.
  *
  * Revision 1.10  1998/11/09 20:18:51  warmerda
@@ -815,7 +818,7 @@ int SHPWriteObject(SHPHandle psSHP, int nShapeId, SHPObject * psObject )
             if( bBigEndian ) SwapWord( 8, pabyRec + nRecordSize );
             nRecordSize += 8;
 
-            for( i = 0; i < nPoints; i++ )
+            for( i = 0; i < psObject->nVertices; i++ )
             {
                 ByteCopy( psObject->padfZ + i, pabyRec + nRecordSize, 8 );
                 if( bBigEndian ) SwapWord( 8, pabyRec + nRecordSize );
@@ -839,7 +842,7 @@ int SHPWriteObject(SHPHandle psSHP, int nShapeId, SHPObject * psObject )
             if( bBigEndian ) SwapWord( 8, pabyRec + nRecordSize );
             nRecordSize += 8;
 
-            for( i = 0; i < nPoints; i++ )
+            for( i = 0; i < psObject->nVertices; i++ )
             {
                 ByteCopy( psObject->padfM + i, pabyRec + nRecordSize, 8 );
                 if( bBigEndian ) SwapWord( 8, pabyRec + nRecordSize );
