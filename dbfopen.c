@@ -4,7 +4,10 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.7  1997-03-06 14:02:10  warmerda
+ * Revision 1.8  1997-12-04 15:40:15  warmerda
+ * Added newline character after field definitions.
+ *
+ * Revision 1.7  1997/03/06 14:02:10  warmerda
  * Ensure bUpdated is initialized.
  *
  * Revision 1.6  1996/02/12 04:54:41  warmerda
@@ -93,11 +96,22 @@ static void DBFWriteHeader(DBFHandle psDBF)
 
 /* -------------------------------------------------------------------- */
 /*      Write the initial 32 byte file header, and all the field        */
-/*      descriptions.                                                   */
+/*      descriptions.                                     		*/
 /* -------------------------------------------------------------------- */
     fseek( psDBF->fp, 0, 0 );
     fwrite( abyHeader, 32, 1, psDBF->fp );
     fwrite( psDBF->pszHeader, 32, psDBF->nFields, psDBF->fp );
+
+/* -------------------------------------------------------------------- */
+/*      Write out the newline character if there is room for it.        */
+/* -------------------------------------------------------------------- */
+    if( psDBF->nHeaderLength > 32*psDBF->nFields + 32 )
+    {
+        char	cNewline;
+
+        cNewline = 0x0d;
+        fwrite( &cNewline, 1, 1, psDBF->fp );
+    }
 }
 
 /************************************************************************/
@@ -305,7 +319,7 @@ DBFHandle DBFCreate( const char * pszFilename )
     psDBF->nRecords = 0;
     psDBF->nFields = 0;
     psDBF->nRecordLength = 1;
-    psDBF->nHeaderLength = 32;
+    psDBF->nHeaderLength = 33;
     
     psDBF->panFieldOffset = NULL;
     psDBF->panFieldSize = NULL;
