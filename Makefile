@@ -40,7 +40,7 @@ clean:
 	rm -f *.o dbfdump dbfcreate dbfadd shpdump shpcreate shpadd shputils
 	rm -f shptest
 
-test:	test2
+test:	test2 test3
 
 #
 #	Note this stream only works if example data is accessable.
@@ -64,4 +64,15 @@ test2:
 	else \
 	    echo "******* Stream 2 Failed *********"; \
 	    diff s2.out stream2.out; \
+	fi
+
+test3:
+	@./makeshape.sh > s3.out
+	@if test "`diff s3.out stream3.out`" = '' ; then \
+	    echo "******* Stream 3 Succeeded *********"; \
+	    rm s3.out; \
+	    rm test.*; \
+	else \
+	    echo "******* Stream 3 Failed *********"; \
+	    diff s3.out stream3.out; \
 	fi
