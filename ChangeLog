@@ -1,5 +1,7 @@
 2000-05-23  Frank Warmerdam  <warmerda@cs46980-c>
 
+	* Added checks in dbfopen.c on return result of fseek() and fread().
+
 	* Avoid crashing in DBReadIntegerAttribute() or DBFReadDoubleAttribte()
 	if the field or record are out of range.
 
