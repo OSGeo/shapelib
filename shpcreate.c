@@ -3,7 +3,7 @@
  *
  * Project:  Shapelib
  * Purpose:  Sample application for creating a new shapefile.
- * Author:   Frank Warmerdam, warmerda@home.com
+ * Author:   Frank Warmerdam, warmerdm@pobox.com
  *
  ******************************************************************************
  * Copyright (c) 1999, Frank Warmerdam
@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.4  2000-07-07 13:39:45  warmerda
+ * Revision 1.5  2002-01-15 14:36:07  warmerda
+ * updated email address
+ *
+ * Revision 1.4  2000/07/07 13:39:45  warmerda
  * removed unused variables, and added system include files
  *
  * Revision 1.3  1999/11/05 14:12:04  warmerda

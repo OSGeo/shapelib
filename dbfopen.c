@@ -3,7 +3,7 @@
  *
  * Project:  Shapelib
  * Purpose:  Implementation of .dbf access API documented in dbf_api.html.
- * Author:   Frank Warmerdam, warmerda@home.com
+ * Author:   Frank Warmerdam, warmerdam@pobox.com
  *
  ******************************************************************************
  * Copyright (c) 1999, Frank Warmerdam
@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.41  2002-01-15 14:31:49  warmerda
+ * Revision 1.42  2002-01-15 14:36:07  warmerda
+ * updated email address
+ *
+ * Revision 1.41  2002/01/15 14:31:49  warmerda
  * compute rather than copying nHeaderLength in DBFCloneEmpty()
  *
  * Revision 1.40  2002/01/09 04:32:35  warmerda

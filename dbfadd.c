@@ -3,7 +3,7 @@
  *
  * Project:  Shapelib
  * Purpose:  Sample application for adding a record to an existing .dbf file.
- * Author:   Frank Warmerdam, warmerda@home.com
+ * Author:   Frank Warmerdam, warmerdam@pobox.com
  *
  ******************************************************************************
  * Copyright (c) 1999, Frank Warmerdam
@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.6  2001-05-31 18:15:40  warmerda
+ * Revision 1.7  2002-01-15 14:36:07  warmerda
+ * updated email address
+ *
+ * Revision 1.6  2001/05/31 18:15:40  warmerda
  * Added support for NULL fields in DBF files
  *
  * Revision 1.5  1999/11/05 14:12:04  warmerda

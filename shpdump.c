@@ -4,7 +4,7 @@
  * Project:  Shapelib
  * Purpose:  Sample application for dumping contents of a shapefile to 
  *           the terminal in human readable form.
- * Author:   Frank Warmerdam, warmerda@home.com
+ * Author:   Frank Warmerdam, warmerdam@pobox.com
  *
  ******************************************************************************
  * Copyright (c) 1999, Frank Warmerdam
@@ -35,7 +35,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.8  2000-07-07 13:39:45  warmerda
+ * Revision 1.9  2002-01-15 14:36:07  warmerda
+ * updated email address
+ *
+ * Revision 1.8  2000/07/07 13:39:45  warmerda
  * removed unused variables, and added system include files
  *
  * Revision 1.7  1999/11/05 14:12:04  warmerda

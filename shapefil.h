@@ -6,7 +6,7 @@
  *
  * Project:  Shapelib
  * Purpose:  Primary include file for Shapelib.
- * Author:   Frank Warmerdam, warmerda@home.com
+ * Author:   Frank Warmerdam, warmerdam@pobox.com
  *
  ******************************************************************************
  * Copyright (c) 1999, Frank Warmerdam
@@ -37,7 +37,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.22  2002-01-15 14:32:00  warmerda
+ * Revision 1.23  2002-01-15 14:36:07  warmerda
+ * updated email address
+ *
+ * Revision 1.22  2002/01/15 14:32:00  warmerda
  * try to improve SHPAPI_CALL docs
  *
  * Revision 1.21  2001/11/01 16:29:55  warmerda

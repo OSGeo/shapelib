@@ -3,7 +3,7 @@
  *
  * Project:  Shapelib
  * Purpose:  Sample application for adding a shape to a shapefile.
- * Author:   Frank Warmerdam, warmerda@home.com
+ * Author:   Frank Warmerdam, warmerdam@pobox.com
  *
  ******************************************************************************
  * Copyright (c) 1999, Frank Warmerdam
@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.12  2001-05-31 19:35:29  warmerda
+ * Revision 1.13  2002-01-15 14:36:07  warmerda
+ * updated email address
+ *
+ * Revision 1.12  2001/05/31 19:35:29  warmerda
  * added support for writing null shapes
  *
  * Revision 1.11  2000/07/07 13:39:45  warmerda
