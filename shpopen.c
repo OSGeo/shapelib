@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.29  2001-05-23 13:36:52  warmerda
+ * Revision 1.30  2001-05-28 12:46:29  warmerda
+ * Add some checking on reasonableness of record count when opening.
+ *
+ * Revision 1.29  2001/05/23 13:36:52  warmerda
  * added use of SHPAPI_CALL
  *
  * Revision 1.28  2001/02/06 22:25:06  warmerda
@@ -428,6 +431,16 @@ SHPOpen( const char * pszLayer, const char * pszAccess )
     psSHP->nRecords = (psSHP->nRecords*2 - 100) / 8;
 
     psSHP->nShapeType = pabyBuf[32];
+
+    if( psSHP->nRecords < 0 || psSHP->nRecords > 256000000 )
+    {
+        /* this header appears to be corrupt.  Give up. */
+	fclose( psSHP->fpSHP );
+	fclose( psSHP->fpSHX );
+	free( psSHP );
+
+	return( NULL );
+    }
 
 /* -------------------------------------------------------------------- */
 /*      Read the bounds.                                                */
