@@ -21,7 +21,11 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.16  1998-12-16 05:14:33  warmerda
+ * Revision 1.17  1998-12-31 15:29:39  warmerda
+ * Disable writing measure values to multipatch objects if
+ * DISABLE_MULTIPATCH_MEASURE is defined.
+ *
+ * Revision 1.16  1998/12/16 05:14:33  warmerda
  * Added support to write MULTIPATCH.  Fixed reading Z coordinate of
  * MULTIPATCH. Fixed record size written for all feature types.
  *
@@ -903,9 +907,11 @@ int SHPWriteObject(SHPHandle psSHP, int nShapeId, SHPObject * psObject )
          */
         if( psSHP->nShapeType == SHPT_POLYGONM
             || psSHP->nShapeType == SHPT_ARCM
+#ifndef DISABLE_MULTIPATCH_MEASURE            
+            || psSHP->nShapeType == SHPT_MULTIPATCH
+#endif            
             || psSHP->nShapeType == SHPT_POLYGONZ
-            || psSHP->nShapeType == SHPT_ARCZ
-            || psSHP->nShapeType == SHPT_MULTIPATCH )
+            || psSHP->nShapeType == SHPT_ARCZ )
         {
             ByteCopy( &(psObject->dfMMin), pabyRec + nRecordSize, 8 );
             if( bBigEndian ) SwapWord( 8, pabyRec + nRecordSize );
