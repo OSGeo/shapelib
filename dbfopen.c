@@ -1,10 +1,30 @@
-/*
- * Copyright (c) 1995 Frank Warmerdam
+/******************************************************************************
+ * Copyright (c) 1998, Frank Warmerdam
  *
- * This code is in the public domain.
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ ******************************************************************************
  *
  * $Log$
- * Revision 1.8  1997-12-04 15:40:15  warmerda
+ * Revision 1.9  1998-12-03 15:34:23  warmerda
+ * Updated copyright message.
+ *
+ * Revision 1.8  1997/12/04 15:40:15  warmerda
  * Added newline character after field definitions.
  *
  * Revision 1.7  1997/03/06 14:02:10  warmerda
