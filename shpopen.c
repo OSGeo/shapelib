@@ -4,7 +4,11 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.7  1995-10-21 03:15:58  warmerda
+ * Revision 1.8  1997-12-04 15:40:29  warmerda
+ * Fixed byte swapping of record number, and record length fields in the
+ * .shp file.
+ *
+ * Revision 1.7  1995/10/21 03:15:58  warmerda
  * Added support for binary file access, the magic cookie 9997
  * and tried to improve the int32 selection logic for 16bit systems.
  *
@@ -650,11 +654,11 @@ int SHPWriteVertices(SHPHandle psSHP, int nVCount, int nPartCount,
 /*      Set the shape type, record number, and record size.             */
 /* -------------------------------------------------------------------- */
     i32 = psSHP->nRecords-1+1;					/* record # */
-    if( bBigEndian ) SwapWord( 4, &i32 );
+    if( !bBigEndian ) SwapWord( 4, &i32 );
     ByteCopy( &i32, pabyRec, 4 );
 
     i32 = nRecordSize/2;				/* record size */
-    if( bBigEndian ) SwapWord( 4, &i32 );
+    if( !bBigEndian ) SwapWord( 4, &i32 );
     ByteCopy( &i32, pabyRec + 4, 4 );
 
     i32 = psSHP->nShapeType;				/* shape type */
