@@ -7,7 +7,10 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.7  1998-12-31 15:31:07  warmerda
+ * Revision 1.8  1999-03-23 17:22:27  warmerda
+ * Added extern "C" protection for C++ users of shapefil.h.
+ *
+ * Revision 1.7  1998/12/31 15:31:07  warmerda
  * Added the TRIM_DBF_WHITESPACE and DISABLE_MULTIPATCH_MEASURE options.
  *
  * Revision 1.6  1998/12/03 15:48:15  warmerda
@@ -33,6 +36,10 @@
 #include <dbmalloc.h>
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+    
 /************************************************************************/
 /*                        Configuration options.                        */
 /************************************************************************/
@@ -221,5 +228,9 @@ int DBFWriteStringAttribute( DBFHandle hDBF, int iShape, int iField,
 			     const char * pszFieldValue );
 
 void	DBFClose( DBFHandle hDBF );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* ndef _SHAPEFILE_H_INCLUDED */
