@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.35  2001-06-22 02:10:06  warmerda
+ * Revision 1.36  2001-07-04 05:16:09  warmerda
+ * fixed fieldname comparison in DBFGetFieldIndex
+ *
+ * Revision 1.35  2001/06/22 02:10:06  warmerda
  * fixed NULL shape support with help from Jim Matthews
  *
  * Revision 1.33  2001/05/31 19:20:13  warmerda
@@ -1310,7 +1313,7 @@ DBFGetFieldIndex(DBFHandle psDBF, const char *pszFieldName)
         strncpy(name2,name,11);
         str_to_upper(name2);
 
-        if(!strcmp(name1,name2))
+        if(!strcmp(name1,name2,10))
             return(i);
     }
     return(-1);
