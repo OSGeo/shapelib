@@ -105,6 +105,10 @@ XXX.dbf - holds the attributes in xBase (dBase) format.
 
 <h2>Release Notes</h2>
 
+<b>Release 1.2.7</b>: Fix record size (was 4 bytes too long).  Modify 
+SHPReadObject() to handle null shapes properly.  Use atof() instead of
+sscanf().  Support .DBF as well as .dbf.<p>
+
 <b>Release 1.2.6</b>: Now available under old MIT style license, or at the
 users option, LGPL.  Added the contrib directory of stuff from Carl Anderson
 and the shptree.c API for quadtree based spatial searches.<p>
@@ -165,6 +169,7 @@ the "tuple" additions to dbfopen.c.
 <li> Jan-Oliver Wagner for convincing me to make it available under LGPL.
 <li> Dennis Christopher (of Avenza) for testing and bug fixes.
 <li> Miko Syrjä (of 3D-system Oy) for a record size bug fix.
+<li> Steven Lime and Curtis Hill for help with NULL shapes.
 </ul>
 
 <h2>In Memorium</h2>
