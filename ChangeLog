@@ -1,3 +1,7 @@
+2004-06-23  Frank Warmerdam  <warmerdam@pobox.com>
+
+	* contrib/shpsort.c: added new contribute program from Eric Miller.
+
 2003-04-07  Frank Warmerdam  <warmerdam@pobox.com>
 
 	* Issue 1.2.10 Release.
