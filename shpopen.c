@@ -1,10 +1,30 @@
-/*
- * Copyright (c) 1995 Frank Warmerdam
+/******************************************************************************
+ * Copyright (c) 1998, Frank Warmerdam
  *
- * This code is in the public domain.
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ ******************************************************************************
  *
  * $Log$
- * Revision 1.12  1998-11-11 20:01:50  warmerda
+ * Revision 1.13  1998-12-03 15:33:54  warmerda
+ * Made SHPCalculateExtents() separately callable.
+ *
+ * Revision 1.12  1998/11/11 20:01:50  warmerda
  * Fixed bug writing ArcM/Z, and PolygonM/Z for big endian machines.
  *
  * Revision 1.11  1998/11/09 20:56:44  warmerda
@@ -577,6 +597,43 @@ static void	_SHPSetBounds( uchar * pabyRec, SHPObject * psShape )
 }
 
 /************************************************************************/
+/*                         SHPComputeExtents()                          */
+/*                                                                      */
+/*      Recompute the extents of a shape.  Automatically done by        */
+/*      SHPCreateObject().                                              */
+/************************************************************************/
+
+void SHPComputeExtents( SHPObject * psObject )
+
+{
+    int		i;
+    
+/* -------------------------------------------------------------------- */
+/*      Build extents for this object.                                  */
+/* -------------------------------------------------------------------- */
+    if( psObject->nVertices > 0 )
+    {
+        psObject->dfXMin = psObject->dfXMax = psObject->padfX[0];
+        psObject->dfYMin = psObject->dfYMax = psObject->padfY[0];
+        psObject->dfZMin = psObject->dfZMax = psObject->padfZ[0];
+        psObject->dfMMin = psObject->dfMMax = psObject->padfM[0];
+    }
+    
+    for( i = 0; i < psObject->nVertices; i++ )
+    {
+        psObject->dfXMin = MIN(psObject->dfXMin, psObject->padfX[i]);
+        psObject->dfYMin = MIN(psObject->dfYMin, psObject->padfY[i]);
+        psObject->dfZMin = MIN(psObject->dfZMin, psObject->padfZ[i]);
+        psObject->dfMMin = MIN(psObject->dfMMin, psObject->padfM[i]);
+
+        psObject->dfXMax = MAX(psObject->dfXMax, psObject->padfX[i]);
+        psObject->dfYMax = MAX(psObject->dfYMax, psObject->padfY[i]);
+        psObject->dfZMax = MAX(psObject->dfZMax, psObject->padfZ[i]);
+        psObject->dfMMax = MAX(psObject->dfMMax, psObject->padfM[i]);
+    }
+}
+
+/************************************************************************/
 /*                          SHPCreateObject()                           */
 /*                                                                      */
 /*      Create a shape object.  It should be freed with                 */
@@ -674,29 +731,9 @@ SHPObject *SHPCreateObject( int nSHPType, int nShapeId, int nParts,
     }
 
 /* -------------------------------------------------------------------- */
-/*      Build extents for this object.                                  */
+/*      Compute the extents.                                            */
 /* -------------------------------------------------------------------- */
-    psObject->nVertices = nVertices;
-    if( nVertices > 0 )
-    {
-        psObject->dfXMin = psObject->dfXMax = psObject->padfX[0];
-        psObject->dfYMin = psObject->dfYMax = psObject->padfY[0];
-        psObject->dfZMin = psObject->dfZMax = psObject->padfZ[0];
-        psObject->dfMMin = psObject->dfMMax = psObject->padfM[0];
-    }
-    
-    for( i = 0; i < nVertices; i++ )
-    {
-        psObject->dfXMin = MIN(psObject->dfXMin, psObject->padfX[i]);
-        psObject->dfYMin = MIN(psObject->dfYMin, psObject->padfY[i]);
-        psObject->dfZMin = MIN(psObject->dfZMin, psObject->padfZ[i]);
-        psObject->dfMMin = MIN(psObject->dfMMin, psObject->padfM[i]);
-
-        psObject->dfXMax = MAX(psObject->dfXMax, psObject->padfX[i]);
-        psObject->dfYMax = MAX(psObject->dfYMax, psObject->padfY[i]);
-        psObject->dfZMax = MAX(psObject->dfZMax, psObject->padfZ[i]);
-        psObject->dfMMax = MAX(psObject->dfMMax, psObject->padfM[i]);
-    }
+    SHPComputeExtents( psObject );
 
     return( psObject );
 }
