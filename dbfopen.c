@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.22  1999-12-15 13:47:24  warmerda
+ * Revision 1.23  2000-05-23 13:25:49  warmerda
+ * Avoid crashing if field or record are out of range in dbfread*attribute().
+ *
+ * Revision 1.22  1999/12/15 13:47:24  warmerda
  * Added stdlib.h to ensure that atof() is prototyped.
  *
  * Revision 1.21  1999/12/13 17:25:46  warmerda
@@ -591,11 +594,17 @@ static void *DBFReadAttribute(DBFHandle psDBF, int hEntity, int iField,
     static double dDoubleField;
 
 /* -------------------------------------------------------------------- */
-/*	Have we read the record?					*/
+/*      Verify selection.                                               */
 /* -------------------------------------------------------------------- */
     if( hEntity < 0 || hEntity >= psDBF->nRecords )
         return( NULL );
 
+    if( iField < 0 || iField >= psDBF->nFields )
+        return( NULL );
+
+/* -------------------------------------------------------------------- */
+/*	Have we read the record?					*/
+/* -------------------------------------------------------------------- */
     if( psDBF->nCurrentRecord != hEntity )
     {
 	DBFFlushRecord( psDBF );
@@ -676,7 +685,10 @@ int	DBFReadIntegerAttribute( DBFHandle psDBF, int iRecord, int iField )
 
     pdValue = (double *) DBFReadAttribute( psDBF, iRecord, iField, 'N' );
 
-    return( (int) *pdValue );
+    if( pdValue == NULL )
+        return 0;
+    else
+        return( (int) *pdValue );
 }
 
 /************************************************************************/
@@ -692,7 +704,10 @@ double	DBFReadDoubleAttribute( DBFHandle psDBF, int iRecord, int iField )
 
     pdValue = (double *) DBFReadAttribute( psDBF, iRecord, iField, 'N' );
 
-    return( *pdValue );
+    if( pdValue == NULL )
+        return 0.0;
+    else
+        return( *pdValue );
 }
 
 /************************************************************************/
