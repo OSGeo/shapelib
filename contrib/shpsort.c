@@ -27,8 +27,14 @@
  * sort by area, for lines sort by length and do nothing for all others.
  *
  * $Log$
- * Revision 1.1  2004-06-24 00:55:34  fwarmerdam
- * New
+ * Revision 1.2  2004-07-06 21:20:49  fwarmerdam
+ * major upgrade .. sort on multiple fields
+ *
+ * Revision 1.4  2004/06/30 18:19:53  emiller
+ * handle POINTZ, POINTM
+ *
+ * Revision 1.3  2004/06/30 17:40:32  emiller
+ * major rewrite allows sorting on multiple fields.
  *
  * Revision 1.2  2004/06/23 23:19:58  emiller
  * use tuple copy, misc changes
@@ -46,31 +52,70 @@
 #include <math.h>
 #include "shapefil.h"
 
-#undef DEBUG
+enum FieldOrderEnum {DESCENDING, ASCENDING};
+enum FieldTypeEnum {
+  FIDType = -2, 
+  SHPType = -1, 
+  StringType = FTString,
+  LogicalType = FTLogical,
+  IntegerType = FTInteger,
+  DoubleType = FTDouble
+};
 
-static int * index_shape (SHPHandle shp, int ascending);
-static int * index_dbf (DBFHandle dbf, int field, int ascending);
+struct DataUnion {
+  int null;
+  union {
+    int i;
+    double d;
+    char *s;
+  } u;
+};
+
+struct DataStruct {
+  int record;
+  struct DataUnion *value;
+};
+
+/* 
+   globals used in sorting, each element could have a pointer to
+   a single data struct, but that's still nShapes pointers more
+   memory.  Alternatively, write a custom sort rather than using
+   library qsort.
+*/
+int nFields;
+int *fldIdx;
+int *fldOrder;
+int *fldType;
+int shpType;
+int nShapes;
+
+static struct DataStruct * build_index (SHPHandle shp, DBFHandle dbf);
 static char * dupstr (const char *);
 static void copy_related (const char *inName, const char *outName, 
 			  const char *old_ext, const char *new_ext);
+static char ** split(const char *arg, const char *delim);
+static int compare(const void *, const void *);
+static double area2d_polygon (int n, double *x, double *y);
+static double shp_area (SHPObject *feat);
+static double length2d_polyline (int n, double *x, double *y);
+static double shp_length (SHPObject *feat);
 
 int main (int argc, char *argv[]) {
 
-  SHPHandle inSHP, outSHP;
-  DBFHandle inDBF, outDBF;
-  int       shpType, count;
-  int       fieldIndex;
-  int       ascending = 1;
-  int       len; 
-  int       i;
-  char      *fieldName;
-  int       *index;
-  int       j;
-  SHPObject *feat;
-  char *tuple;
+  SHPHandle  inSHP, outSHP;
+  DBFHandle  inDBF, outDBF;
+  int        len; 
+  int        i;
+  char       **fieldNames;
+  char       **strOrder = 0;
+  struct DataStruct *index;
+  int        width;
+  int        decimals;
+  SHPObject  *feat;
+  void       *tuple;
 
   if (argc < 4) {
-    printf("USAGE: shpsort infile outfile field [ASCENDING | DESCENDING]\n");
+    printf("USAGE: shpsort <infile> <outfile> <field[;...]> [<(ASCENDING|DESCENDING)[;...]>]\n");
     exit(EXIT_FAILURE);
   }
 
@@ -79,7 +124,7 @@ int main (int argc, char *argv[]) {
     fputs("Couldn't open shapefile for reading!\n", stderr);
     exit(EXIT_FAILURE);
   }
-  SHPGetInfo(inSHP, &count, &shpType, NULL, NULL);
+  SHPGetInfo(inSHP, &nShapes, &shpType, NULL, NULL);
 
   /* If we can open the inSHP, open its DBF */
   inDBF = DBFOpen (argv[1], "rb");
@@ -88,63 +133,89 @@ int main (int argc, char *argv[]) {
     exit(EXIT_FAILURE);
   }
 
-  /* Check field existence */
-  len = (int)strlen(argv[3]);
-  fieldName = malloc(len + 1);
-  if (!fieldName) {
+  /* Parse fields and validate existence */
+  fieldNames = split(argv[3], ";");
+  if (!fieldNames) {
+    fputs("ERROR: parsing field names!\n", stderr);
+    exit(EXIT_FAILURE);
+  }
+  for (nFields = 0; fieldNames[nFields] ; nFields++) {
+    continue;
+  }
+
+  fldIdx = malloc(sizeof *fldIdx * nFields);
+  if (!fldIdx) {
     fputs("malloc failed!\n", stderr);
     exit(EXIT_FAILURE);
   }
-  for (i = 0; i <= len; i++)
-    fieldName[i] = (char)toupper((unsigned char)argv[3][i]);
-
-  if (strcmp(fieldName, "SHAPE") == 0) {
-    fieldIndex = -1;
-  }
-  else if (strcmp(fieldName, "FID") == 0) {
-    fieldIndex = -2;
-  }
-  else {
-    fieldIndex = DBFGetFieldIndex(inDBF, fieldName);
-    if (fieldIndex < 0) {
-      fputs("DBF field not found!\n", stderr);
-      exit (EXIT_FAILURE);
+  for (i = 0; i < nFields; i++) {
+    len = (int)strlen(fieldNames[i]);
+    while(len > 0) {
+      --len;
+      fieldNames[i][len] = (char)toupper((unsigned char)fieldNames[i][len]); 
+    }
+    fldIdx[i] = DBFGetFieldIndex(inDBF, fieldNames[i]);
+    if (fldIdx[i] < 0) {
+      /* try "SHAPE" */
+      if (strcmp(fieldNames[i], "SHAPE") == 0) {
+	fldIdx[i] = -1;
+      }
+      else if (strcmp(fieldNames[i], "FID") == 0) {
+	fldIdx[i] = -2;
+      }
+      else {
+	fprintf(stderr, "ERROR: field '%s' not found!\n", fieldNames[i]);
+	exit(EXIT_FAILURE);
+      }
     }
   }
 
-  /* check direction */
-  if (argc > 4)
-    if (strcmp(argv[4], "DESCENDING") == 0)
-      ascending = 0;
 
-  /* build sorted index */
-  if (fieldIndex == -1) {
-    /* sorting by shape */
-    index = index_shape(inSHP, ascending);
+  /* set up field type array */
+  fldType = malloc(sizeof *fldType * nFields);
+  if (!fldType) {
+    fputs("malloc failed!\n", stderr);
+    exit(EXIT_FAILURE);
   }
-  else if (fieldIndex == -2) {
-    /* copy via "FID" virtual field in forward or reverse */
-    index = malloc (sizeof *index * count);
-    if (!index) {
-      fprintf(stderr, "%s:%d: malloc failed!\n", __FILE__, __LINE__);
+  for (i = 0; i < nFields; i++) {
+    if (fldIdx[i] < 0) {
+      fldType[i] = fldIdx[i];
+    }
+    else {
+      fldType[i] = DBFGetFieldInfo(inDBF, fldIdx[i], NULL, &width, &decimals);
+      if (fldType[i] == FTInvalid) {
+	fputs("Unrecognized field type in dBASE file!\n", stderr);
+	exit(EXIT_FAILURE);
+      }
+    }
+  }
+
+
+  /* set up field order array */
+  fldOrder = malloc(sizeof *fldOrder * nFields);
+  if (!fldOrder) {
+    fputs("malloc failed!\n", stderr);
+    exit(EXIT_FAILURE);
+  }
+  for (i = 0; i < nFields; i++) {
+    /* default to ascending order */
+    fldOrder[i] = ASCENDING;
+  }
+  if (argc > 4) {
+    strOrder = split(argv[4], ";");
+    if (!strOrder) {
+      fputs("ERROR: parsing fields ordering!\n", stderr);
       exit(EXIT_FAILURE);
     }
-    if (ascending)
-      for (i = 0; i < count; i++)
-	index[i] = i;
-    else
-      for (i = 0, j = count - 1; i < count; i++, j--)
-	index[i] = j;
-#ifdef DEBUG
-    printf("DEBUG: FID ordering ascending --> %d {\n", ascending);
-    for (i =0; i < count; i++)
-      printf("%d\n", index[i]);
-    puts("}\n");
-#endif
+    for (i = 0; i < nFields && strOrder[i]; i++) {
+      if (strcmp(strOrder[i], "DESCENDING") == 0) {
+	fldOrder[i] = DESCENDING;
+      }
+    }
   }
-  else {
-    index = index_dbf(inDBF, fieldIndex, ascending);
-  }
+
+  /* build the index */
+  index = build_index (inSHP, inDBF);
 
   /* Create output shapefile */
   outSHP = SHPCreate(argv[2], shpType);
@@ -169,13 +240,13 @@ int main (int argc, char *argv[]) {
   copy_related(argv[1], argv[2], ".shp", ".shp.xml");
 
   /* Write out sorted results */
-  for (i = 0; i < count; i++) {
-    feat = SHPReadObject(inSHP, index[i]);
+  for (i = 0; i < nShapes; i++) {
+    feat = SHPReadObject(inSHP, index[i].record);
     if (SHPWriteObject(outSHP, -1, feat) < 0) {
       fprintf(stderr, "%s:%d: error writing shapefile!\n", __FILE__, __LINE__);
       exit(EXIT_FAILURE);
     }
-    tuple = (char *) DBFReadTuple(inDBF, index[i]);
+    tuple = DBFReadTuple(inDBF, index[i].record);
     if (DBFWriteTuple(outDBF, i, tuple) < 0) {
       fprintf(stderr, "%s:%d: error writing dBASE file!\n", __FILE__, __LINE__);
       exit(EXIT_FAILURE);
@@ -189,6 +260,48 @@ int main (int argc, char *argv[]) {
   return EXIT_SUCCESS;
 
 }
+
+static char ** split(const char *arg, const char *delim)
+{
+  char *copy = dupstr(arg);
+  char *cptr = copy;
+  char **result = NULL;
+  char **tmp;
+  int i = 0;
+
+  for (cptr = strtok(copy, delim); cptr; cptr = strtok(NULL, delim)) {
+    tmp = realloc (result, sizeof *result * (i + 1));
+    if (!tmp && result) {
+      while (i > 0) {
+	free(result[--i]);
+      }
+      free(result);
+      free(copy);
+      return NULL;
+    }
+    result = tmp;
+    result[i++] = dupstr(cptr);
+  }
+
+  free(copy);
+
+  if (i) {
+    tmp = realloc(result, sizeof *result * (i + 1));
+    if (!tmp) {
+      while (i > 0) {
+	free(result[--i]);
+      }
+      free(result);
+      free(copy);
+      return NULL;
+    }
+    result = tmp;
+    result[i++] = NULL;
+  }
+
+  return result;
+}
+
 
 static void copy_related (const char *inName, const char *outName, 
 			  const char *old_ext, const char *new_ext) 
@@ -205,9 +318,6 @@ static void copy_related (const char *inName, const char *outName,
   in = malloc(name_len - old_len + new_len + 1);
   strncpy(in, inName, (name_len - old_len));
   strcpy(&in[(name_len - old_len)], new_ext);
-#ifdef DEBUG
-  printf("DEBUG:copy_related: attempting to open '%s'\n", in);
-#endif
   inFile = fopen(in, "rb");
   if (!inFile) {
     free(in);
@@ -217,9 +327,6 @@ static void copy_related (const char *inName, const char *outName,
   out = malloc(name_len - old_len + new_len + 1);
   strncpy(out, outName, (name_len - old_len));
   strcpy(&out[(name_len - old_len)], new_ext);
-#ifdef DEBUG
-  printf("DEBUG:copy_related: attempting to open '%s'\n", out);
-#endif
   outFile = fopen(out, "wb");
   if (!out) {
     fprintf(stderr, "%s:%d: couldn't copy related file!\n",
@@ -251,240 +358,182 @@ static char * dupstr (const char *src)
   return dst;
 }
 
-struct fieldData {
-  int record;
-  int null;
-  union {
-    int i;
-    double d;
-    char * s;
-  } data;
-};
-
-typedef int (*compare_function)(const void *, const void *);
-
-#define NUMBER_CMP(_a,_b,_asc)\
-do {                          \
-  if (!(_a) && !(_b))         \
-    return 0;                 \
-  if (!(_a) && (_b))          \
-    return (_asc) ? -1 : 1;   \
-  if ((_a) && !(_b))          \
-    return (_asc) ? 1 : -1;   \
-  if (*(_a) < *(_b))          \
-    return (_asc) ? -1 : 1;   \
-  if (*(_a) > *(_b))          \
-    return (_asc) ? 1 : -1;   \
-  return 0;                   \
-} while (0)
-
-static int cmp_int (const int *a, const int *b, int ascending) {
-  NUMBER_CMP(a,b,ascending);
+#ifdef DEBUG
+static void PrintDataStruct (struct DataStruct *data) {
+  int i, j;
+  for (i = 0; i < nShapes; i++) {
+    printf("data[%d] {\n", i);
+    printf("\t.record = %d\n", data[i].record);
+    for (j = 0; j < nFields; j++) {
+      printf("\t.value[%d].null = %d\n", j, data[i].value[j].null);
+      if (!data[i].value[j].null) {
+	switch(fldType[j]) {
+	case FIDType:
+	case IntegerType:
+	case LogicalType:
+	  printf("\t.value[%d].u.i = %d\n", j, data[i].value[j].u.i);
+	  break;
+	case DoubleType:
+	case SHPType:
+	  printf("\t.value[%d].u.d = %f\n", j, data[i].value[j].u.d);
+	  break;
+	case StringType:
+	  printf("\t.value[%d].u.s = %s\n", j, data[i].value[j].u.s);
+	  break;
+	}
+      }
+    }
+    puts("}");
+  }
 }
+#endif
 
-static int cmp_int_asc(const void *a, const void *b) {
-  const struct fieldData *A = a;
-  const struct fieldData *B = b;
-  return cmp_int ((A->null) ? NULL : &(A->data.i),
-		  (B->null) ? NULL : &(B->data.i),
-		  1);
-}
-
-static int cmp_int_desc(const void *a, const void *b) {
-  const struct fieldData *A = a;
-  const struct fieldData *B = b;
-  return cmp_int ((A->null) ? NULL : &(A->data.i),
-		  (B->null) ? NULL : &(B->data.i),
-		  0);
-}
-
-static int cmp_dbl (const double *a, const double *b, int ascending) {
-  NUMBER_CMP(a,b,ascending);
-}
-
-static int cmp_dbl_asc(const void *a, const void *b) {
-  const struct fieldData *A = a;
-  const struct fieldData *B = b;
-  return cmp_dbl ((A->null) ? NULL : &(A->data.d),
-		  (B->null) ? NULL : &(B->data.d),
-		  1);
-}
-
-static int cmp_dbl_desc(const void *a, const void *b) {
-  const struct fieldData *A = a;
-  const struct fieldData *B = b;
-  return cmp_dbl ((A->null) ? NULL : &(A->data.d),
-		  (B->null) ? NULL : &(B->data.d),
-		  0);
-}
-
-static int cmp_str(const char *a, const char *b, int ascending) {
-  if (!a && !b)
-    return 0;
-  if (!a && b)
-    return (ascending) ? -1 : 1;
-  if (a && !b)
-    return (ascending) ? 1 : -1;
-  return (ascending) ? strcmp(a,b) : strcmp(b,a);
-}
-
-static int cmp_str_asc(const void *a, const void *b) {
-  const struct fieldData *A = a;
-  const struct fieldData *B = b;
-  return cmp_str ((A->null) ? NULL : A->data.s,
-		  (B->null) ? NULL : B->data.s,
-		  1);
-}
-
-static int cmp_str_desc(const void *a, const void *b) {
-  const struct fieldData *A = a;
-  const struct fieldData *B = b;
-  return cmp_str ((A->null) ? NULL : A->data.s,
-		  (B->null) ? NULL : B->data.s,
-		  0);
-}
-
-
-static int * index_dbf (DBFHandle dbf, int field, int ascending)
-{
-  int *index;
-  int width;
-  int decimals;
-  DBFFieldType fldType;
-  char nativeType;
-  int count;
+static struct DataStruct * build_index (SHPHandle shp, DBFHandle dbf) {
+  struct DataStruct *data;
+  SHPObject  *feat;
   int i;
-  struct fieldData *theData;
-  compare_function cmp = NULL;
+  int j;
 
-  fldType = DBFGetFieldInfo(dbf, field, NULL, &width, &decimals);
-  if (fldType == FTInvalid) {
-    fprintf(stderr, "%s:%d: unrecognized field type!\n", __FILE__, __LINE__);
+  /* make array */
+  data = malloc (sizeof *data * nShapes);
+  if (!data) {
+    fputs("malloc failed!\n", stderr);
     exit(EXIT_FAILURE);
   }
-  nativeType = DBFGetNativeFieldType(dbf, field);
-  count   = DBFGetRecordCount(dbf);
 
-#ifdef DEBUG
-  printf("DEBUG:index_dbf: fldType = %d, nativeType = %c, count = %d\n",
-	 fldType, nativeType, count);
-#endif
-
-  /* copy data to our struct */
-  theData = malloc (sizeof *theData * count);
-  if (!theData) {
-    fprintf(stderr, "%s:%d: malloc failed!", __FILE__, __LINE__);
-    exit(EXIT_FAILURE);
-  }
-#ifdef DEBUG
-  puts("DEBUG:index_dbf: copying field data.\n");
-#endif
-  for (i = 0; i < count; i++) {
-    theData[i].record = i;
-    theData[i].null = DBFIsAttributeNULL(dbf, i, field);
-    if (!theData[i].null) {
-      switch (fldType) {
+  /* populate array */
+  for (i = 0; i < nShapes; i++) {
+    data[i].value = malloc(sizeof data[0].value[0] * nFields);
+    if (0 == data[i].value) {
+      fputs("malloc failed!\n", stderr);
+      exit(EXIT_FAILURE);
+    }
+    data[i].record = i;
+    for (j = 0; j < nFields; j++) {
+      data[i].value[j].null = 0;
+      switch (fldType[j]) {
+      case FIDType:
+	data[i].value[j].u.i = i;
+	break;
+      case SHPType:
+	feat = SHPReadObject(shp, i);
+	switch (feat->nSHPType) {
+	case SHPT_NULL:
+	  fprintf(stderr, "Shape %d is a null feature!\n", i);
+	  data[i].value[j].null = 1;
+	  break;
+	case SHPT_POINT:
+	case SHPT_POINTZ:
+	case SHPT_POINTM:
+	case SHPT_MULTIPOINT:
+	case SHPT_MULTIPOINTZ:
+	case SHPT_MULTIPOINTM:
+	case SHPT_MULTIPATCH:
+	  /* Y-sort bounds */
+	  data[i].value[j].u.d = feat->dfYMax;
+	  break;
+	case SHPT_ARC:
+	case SHPT_ARCZ:
+	case SHPT_ARCM:
+	  data[i].value[j].u.d = shp_length(feat);
+	  break;
+	case SHPT_POLYGON:
+	case SHPT_POLYGONZ:
+	case SHPT_POLYGONM:
+	  data[i].value[j].u.d = shp_area(feat);
+	  break;
+	default:
+	  fputs("Can't sort on Shapefile feature type!\n", stderr);
+	  exit(EXIT_FAILURE);
+	}
+	SHPDestroyObject(feat);
+	break;
       case FTString:
-	theData[i].data.s = dupstr(DBFReadStringAttribute(dbf, i, field));
+	data[i].value[j].null = DBFIsAttributeNULL(dbf, i, fldIdx[j]);
+	if (!data[i].value[j].null) {
+	  data[i].value[j].u.s = dupstr(DBFReadStringAttribute(dbf, i, fldIdx[j]));
+	}
 	break;
       case FTInteger:
       case FTLogical:
-	theData[i].data.i = DBFReadIntegerAttribute(dbf, i, field);
+	data[i].value[j].null = DBFIsAttributeNULL(dbf, i, fldIdx[j]);
+	if (!data[i].value[j].null) {
+	  data[i].value[j].u.i  = DBFReadIntegerAttribute(dbf, i, fldIdx[j]);
+	}
 	break;
       case FTDouble:
-	theData[i].data.d = DBFReadDoubleAttribute(dbf, i, field);	
+	data[i].value[j].null = DBFIsAttributeNULL(dbf, i, fldIdx[j]);
+	if (!data[i].value[j].null) {
+	  data[i].value[j].u.d = DBFReadDoubleAttribute(dbf, i, fldIdx[j]);	
+	}
+	break;
       }
     }
   }
-
+  
 #ifdef DEBUG
-    puts("DEBUG:index_dbf: before sort {");
-    for (i = 0; i < count; i++) {
-      printf ("%5d, %d", theData[i].record, theData[i].null);
-      if (!theData[i].null) {
-	switch(fldType) {
-	case FTString:
-	  printf(", %s", theData[i].data.s); break;
-	case FTInteger:
-	case FTLogical:
-	  printf(", %d", theData[i].data.i); break;
-	case FTDouble:
-	  printf(", %f", theData[i].data.d); break;
-	}
-      }
-      puts("");
-    }
-    puts("}\n");
+  PrintDataStruct(data);
+  fputs("build_index: sorting array\n", stdout);
 #endif
 
-  /* sort the data */
-  switch (fldType) {
-  case FTString:
-    cmp = (ascending) ? cmp_str_asc : cmp_str_desc;
-    break;
-  case FTInteger:
-    cmp = (ascending) ? cmp_int_asc : cmp_int_desc;
-    break;
-  case FTLogical:
-    cmp = (ascending) ? cmp_int_desc : cmp_int_asc;
-    break;
-  case FTDouble:
-    cmp = (ascending) ? cmp_dbl_asc : cmp_dbl_desc;
-    break;
-  }
-  qsort(theData, count, sizeof *theData, cmp);
+  qsort (data, nShapes, sizeof data[0], compare);
+
 #ifdef DEBUG
-    puts("DEBUG:index_dbf: after sort {");
-    for (i = 0; i < count; i++) {
-      printf ("%5d, %d", theData[i].record, theData[i].null);
-      if (!theData[i].null) {
-	switch(fldType) {
-	case FTString:
-	  printf(", %s", theData[i].data.s); break;
-	case FTInteger:
-	case FTLogical:
-	  printf(", %d", theData[i].data.i); break;
-	case FTDouble:
-	  printf(", %f", theData[i].data.d); break;
-	}
-      }
-      puts("");
-    }
-    puts("}\n");
+  PrintDataStruct(data);
+  fputs("build_index: returning array\n", stdout);
 #endif
 
-  /* Build output index */
-  index = malloc (sizeof *index * count);
-  if (!index) {
-    fprintf(stderr, "%s:%d: malloc failed!\n", __FILE__, __LINE__);
-    exit(EXIT_FAILURE);
-  }
-  for (i = 0; i < count; i++) {
-    index[i] = theData[i].record;
-  }
-
-  /* release memory */
-  free(theData);
-
-  return index;
+  return data;
 }
 
+static int compare(const void *A, const void *B) {
+  const struct DataStruct *a = A;
+  const struct DataStruct *b = B;
+  int i;
+  int result = 0;
 
-struct shpdata {
-  int record;
-  double value;  /* area or length */
-};
-
-static int cmp_shpdata_asc (const void *a, const void *b) {
-  const struct shpdata *A = a;
-  const struct shpdata *B = b;
-  return cmp_dbl(&(A->value), &(B->value), 1);
-}
-
-static int cmp_shpdata_desc (const void *a, const void *b) {
-  const struct shpdata *A = a;
-  const struct shpdata *B = b;
-  return cmp_dbl(&(A->value), &(B->value), 0);
+  for (i = 0; i < nFields; i++) {
+    if (a->value[i].null && b->value[i].null) {
+      continue;
+    }
+    if (a->value[i].null && !b->value[i].null) {
+      return (fldOrder[i]) ? 1 : -1;
+    }
+    if (!a->value[i].null && b->value[i].null) {
+      return (fldOrder[i]) ? -1 : 1;
+    }
+    switch (fldType[i]) {
+    case FIDType:
+    case IntegerType:
+    case LogicalType:
+      if (a->value[i].u.i < b->value[i].u.i) {
+	return (fldOrder[i]) ? -1 : 1;
+      }
+      if (a->value[i].u.i > b->value[i].u.i) {
+	return (fldOrder[i]) ? 1 : -1;
+      }
+      break;
+    case DoubleType:
+    case SHPType:
+      if (a->value[i].u.d < b->value[i].u.d) {
+	return (fldOrder[i]) ? -1 : 1;
+      }
+      if (a->value[i].u.d > b->value[i].u.d) {
+	return (fldOrder[i]) ? 1 : -1;
+      }
+      break;      
+    case StringType:
+      result = strcmp(a->value[i].u.s, b->value[i].u.s);
+      if (result) {
+	return (fldOrder[i]) ? result : -result;
+      }
+      break;
+    default:
+      fprintf(stderr, "compare: Program Error! Unhandled field type! fldType[%d] = %d\n", i, fldType[i]);
+      break;
+    }
+  }
+  return 0;
 }
 
 static double area2d_polygon (int n, double *x, double *y) {
@@ -551,81 +600,3 @@ static double shp_length (SHPObject *feat) {
   return length;
 }
 
-static int * index_shape (SHPHandle shp, int ascending)
-{
-  struct shpdata *data;
-  int            *index;
-  int             i;
-  int             count;
-  int             shpType;
-  SHPObject       *feat;
-  SHPGetInfo(shp, &count, &shpType, NULL, NULL);
-
-#ifdef DEBUG
-  printf("DEBUG: index_shape: count = %d, shpType = %d\n", count, shpType);
-#endif
- 
-  switch (shpType) {
-  case SHPT_ARC:
-  case SHPT_POLYGON:
-  case SHPT_ARCZ:
-  case SHPT_POLYGONZ:
-  case SHPT_ARCM:
-  case SHPT_POLYGONM:
-    /* actually do something with these */
-    break;
-  default:
-    fprintf(stderr, "Sort is not defined for the Shapefile type!\n");
-    exit(EXIT_FAILURE);
-  }
-
-  data = malloc(sizeof *data * count);
-  if (!data) {
-    fprintf(stderr, "%s:%d: malloc failed!\n", __FILE__, __LINE__);
-    exit(EXIT_FAILURE);
-  }
-  for (i = 0; i < count; i++) {
-    feat = SHPReadObject(shp, i);
-    data[i].record = i;
-    if (shpType == SHPT_ARC || shpType == SHPT_ARCZ || shpType == SHPT_ARCM) {
-      data[i].value = shp_length(feat);
-    }
-    else {
-      data[i].value = shp_area(feat);
-    }
-  }
-
-#ifdef DEBUG
-  puts("DEBUG: index_shape: before sort {");
-  for (i = 0; i < count; i++) {
-    printf("%5d, %f\n", data[i].record, data[i].value);
-  }
-  puts("}\n");
-#endif
-
-  if (ascending) {
-    qsort(data, count, sizeof *data, cmp_shpdata_asc);
-  }
-  else {
-    qsort(data, count, sizeof *data, cmp_shpdata_desc);
-  }
-
-#ifdef DEBUG
-  puts("DEBUG: index_shape: after sort {");
-  for (i = 0; i < count; i++) {
-    printf("%5d, %f\n", data[i].record, data[i].value);
-  }
-  puts("}\n");
-#endif
-  
-  index = malloc(sizeof *index * count);
-  if (!index) {
-    fprintf(stderr, "%s:%d: malloc failed!\n", __FILE__, __LINE__);
-    exit(EXIT_FAILURE);
-  }
-  for (i = 0; i < count; i++) {
-    index[i] = data[i].record;
-  }
-
-  return index;
-}
