@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.20  1999-11-30 16:32:11  warmerda
+ * Revision 1.21  1999-12-13 17:25:46  warmerda
+ * Added support for upper case .DBF extention.
+ *
+ * Revision 1.20  1999/11/30 16:32:11  warmerda
  * Use atof() instead of sscanf().
  *
  * Revision 1.19  1999/11/05 14:12:04  warmerda
@@ -250,13 +253,24 @@ DBFHandle DBFOpen( const char * pszFilename, const char * pszAccess )
 
     pszFullname = (char *) malloc(strlen(pszBasename) + 5);
     sprintf( pszFullname, "%s.dbf", pszBasename );
-    free( pszBasename );
         
     psDBF = (DBFHandle) calloc( 1, sizeof(DBFInfo) );
     psDBF->fp = fopen( pszFullname, pszAccess );
-    free( pszFullname );
+
     if( psDBF->fp == NULL )
+    {
+        sprintf( pszFullname, "%s.DBF", pszBasename );
+        psDBF->fp = fopen(pszFullname, pszAccess );
+    }
+    
+    free( pszBasename );
+    free( pszFullname );
+    
+    if( psDBF->fp == NULL )
+    {
+        free( psDBF );
         return( NULL );
+    }
 
     psDBF->bNoHeader = FALSE;
     psDBF->nCurrentRecord = -1;
