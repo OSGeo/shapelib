@@ -10,24 +10,28 @@
  * 
  * this requires linking with the PROJ4.3 projection library available from
  *
- * ftp://???????????????????
+ * ftp://kai.er.usgs.gov/ftp/PROJ.4
+ *
+ * $Log$
+ * Revision 1.2  1999-05-13 19:30:52  warmerda
+ * Removed libgen.h, added url for PROJ.4, and corrected unsafe return of
+ * local variable in asFileName().
  *
  */
 
 
 #include "shapefil.h"
-#include <libgen.h>
 #include <projects.h>
 #include <math.h>
 #include <stdarg.h>
 
 char * asFileName ( const char *fil, char *ext ) {
   char	pszBasename[120];
-  char	pszFullname[120];
+  static char	pszFullname[120];
   int	i;
 /* -------------------------------------------------------------------- */
-/*	Compute the base (layer) name.  If there is any extension		*/
-/*	on the passed in filename we will strip it off.					*/
+/*	Compute the base (layer) name.  If there is any extension	*/
+/*	on the passed in filename we will strip it off.			*/
 /* -------------------------------------------------------------------- */
 //    pszFullname = (char*) malloc(( strlen(fil)+5 ));
 //    pszBasename = (char *) malloc(strlen(fil)+5);
