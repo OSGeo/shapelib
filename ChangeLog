@@ -1,3 +1,10 @@
+Wed Dec 15 08:49:53 1999  Frank Warmerdam  <warmerda@gdal.velocet.ca>
+
+	* Fixed record size written at beginning of records in .shp
+	file.  It was 4 bytes to long (thanks to Mikko Syrja of 3D-system Oy)
+	
+	* Use atof() instead of sscanf() in dbfopen.c, and add stdlib.h.
+
 Mon Dec 13 12:29:01 1999  Frank Warmerdam  <warmerda@gdal.velocet.ca>
 
 	* Added support for uppercase .DBF extention c/o 
