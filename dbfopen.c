@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.45  2002-09-29 00:00:08  warmerda
+ * Revision 1.46  2002-10-09 13:10:21  warmerda
+ * Added check that width is positive.
+ *
+ * Revision 1.45  2002/09/29 00:00:08  warmerda
  * added FTLogical and logical attribute read/write calls
  *
  * Revision 1.44  2002/05/07 13:46:11  warmerda
@@ -591,6 +594,9 @@ DBFAddField(DBFHandle psDBF, const char * pszFieldName,
 
     if( eType != FTDouble && nDecimals != 0 )
         return( -1 );
+
+    if( nWidth < 1 )
+        return -1;
 
 /* -------------------------------------------------------------------- */
 /*      SfRealloc all the arrays larger to hold the additional field      */
