@@ -4,7 +4,10 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.8  1997-12-04 15:40:29  warmerda
+ * Revision 1.9  1998-02-24 15:09:05  warmerda
+ * Fixed memory leak.
+ *
+ * Revision 1.8  1997/12/04 15:40:29  warmerda
  * Fixed byte swapping of record number, and record length fields in the
  * .shp file.
  *
@@ -332,6 +335,7 @@ SHPHandle SHPOpen( const char * pszLayer, const char * pszAccess )
 	psSHP->panRecOffset[i] = nOffset*2;
 	psSHP->panRecSize[i] = nLength*2;
     }
+    free( pabyBuf );
 
     return( psSHP );
 }
