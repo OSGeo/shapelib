@@ -51,9 +51,11 @@ format is a new working and interchange format promulagated by ESRI
 apparently the only file format that can be edited in ARCView 2, and can
 also be exported and imported in ARC/Info.  
 
-An excellent white paper on the shapefile format is available from ESRI, 
-and if anyone knows how I can get this in PostScript, or flat text form
-I would love to include a copy with this distribution.
+An excellent white paper on the shapefile format is available from ESRI,
+but it is .pdf format, so you will need Adobe Acrobat to browse it.  The
+document is at url ftp://ftp.esri.com/pub/marketing/white_papers/av_shape.pdf
+and Adobe Acrobat (freeware) can be found at Adobe, perhaps at the url
+ftp://ftp.adobe.com/pub/adobe/Applications/Acrobat/.
 
 The file format actually consists of three files.
 
@@ -62,14 +64,9 @@ XXX.shx - hold index data pointing to the structures in the .shp file.
 XXX.dbf - holds the attributes in xBase (dBase) format.  
 
 
-Format
-------
-I would like to at least paraphrase the ESRI White Paper here eventually ...
-
-
 Release Notes
 -------------
-Release V1.0 is the first public release, and hasn't been tested very much.
+Release V1.0 is the first public release, and hasn't received much testing.
 
 
 Maintainer
@@ -77,9 +74,6 @@ Maintainer
 This library is maintained by Frank Warmerdam (http://www.pci.on.ca/~warmerda)
 of PCI (http://www.pci.on.ca/) on his own time.  Please send me bug patches
 and suggestions for the library.  Email can be sent to warmerda@leto.pci.on.ca.
-
-I am also interested in talking to knowledgable developers who can suggest
-how to get at projection information corresponding to ArcView shapefiles.
 
 
 Limitations
@@ -90,19 +84,14 @@ Limitations
 
  o Not written in such a way as to be particularly fast.
 
- o Doesn't give access to all the bounding rectangle informaton stored in 
-   the file .shp file.
-
  o Doesn't set the last access time properly in the .dbf files.
 
  o Doesn't recover the working space in SHPGetVertices(), though the buffers
    are shared among all open files.  Usually this is only a few kilobytes.
 
- o There is now way to syncronize information to the file except to close it.
+ o There is now way to synchronize information to the file except to close it.
 
  o Poor error checking and reporting.
-
- o Poorly tested. 
 
  o Not proffesionally supported.
 
