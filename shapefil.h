@@ -37,7 +37,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.29  2004-09-26 20:09:35  fwarmerdam
+ * Revision 1.30  2005-01-03 22:30:13  fwarmerdam
+ * added support for saved quadtrees
+ *
+ * Revision 1.29  2004/09/26 20:09:35  fwarmerdam
  * avoid rcsid warnings
  *
  * Revision 1.28  2003/12/29 06:02:18  fwarmerdam
@@ -370,6 +373,7 @@ typedef struct
     
     int		nMaxDepth;
     int		nDimension;
+    int         nTotalCount;
     
     SHPTreeNode	*psRoot;
 } SHPTree;
@@ -402,6 +406,11 @@ int    SHPAPI_CALL1(*)
                                int * );
 int     SHPAPI_CALL
       SHPCheckBoundsOverlap( double *, double *, double *, double *, int );
+
+int SHPAPI_CALL1(*) 
+SHPSearchDiskTree( FILE *fp, 
+                   double *padfBoundsMin, double *padfBoundsMax,
+                   int *pnShapeCount );
 
 /************************************************************************/
 /*                             DBF Support.                             */
