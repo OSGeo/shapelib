@@ -4,7 +4,10 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.7  1998-11-09 20:57:04  warmerda
+ * Revision 1.8  1998-12-03 16:36:26  warmerda
+ * Use r+b rather than rb+ for binary access.
+ *
+ * Revision 1.7  1998/11/09 20:57:04  warmerda
  * Fixed SHPGetInfo() call.
  *
  * Revision 1.6  1998/11/09 20:19:16  warmerda
@@ -49,7 +52,7 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
 /*      Open the passed shapefile.                                      */
 /* -------------------------------------------------------------------- */
-    hSHP = SHPOpen( argv[1], "rb+" );
+    hSHP = SHPOpen( argv[1], "r+b" );
 
     if( hSHP == NULL )
     {
