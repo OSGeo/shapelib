@@ -29,7 +29,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.1  1999-05-18 17:49:20  warmerda
+ * Revision 1.2  1999-05-18 19:11:11  warmerda
+ * Added example searching capability
+ *
+ * Revision 1.1  1999/05/18 17:49:20  warmerda
  * New
  *
  */
@@ -40,8 +43,25 @@ static char rcsid[] =
 #include "shapefil.h"
 
 #include <assert.h>
+#include <stdlib.h>
+#include <math.h>
 
 static void SHPTreeNodeDump( SHPTree *, SHPTreeNode *, const char *, int );
+static void SHPTreeNodeSearchAndDump( SHPTree *, double *, double * );
+
+/************************************************************************/
+/*                               Usage()                                */
+/************************************************************************/
+
+static void Usage()
+
+{
+    printf( "shptreedump [-maxdepth n] [-search xmin ymin xmax ymax]\n"
+            "            [-v] shp_file\n" );
+    exit( 1 );
+}
+
+
 
 /************************************************************************/
 /*                                main()                                */
@@ -53,6 +73,9 @@ int main( int argc, char ** argv )
     SHPTree	*psTree;
     int		nExpandShapes = 0;
     int		nMaxDepth = 0;
+    int		nDoSearch = 0;
+    double	adfSearchMin[4], adfSearchMax[4];
+    
 
 /* -------------------------------------------------------------------- */
 /*	Consume flags.							*/
@@ -71,6 +94,28 @@ int main( int argc, char ** argv )
             argv += 2;
             argc -= 2;
         }
+        else if( strcmp(argv[1],"-search") == 0 && argc > 5 )
+        {
+            nDoSearch = 1;
+
+            adfSearchMin[0] = atof(argv[2]);
+            adfSearchMin[1] = atof(argv[3]);
+            adfSearchMax[0] = atof(argv[4]);
+            adfSearchMax[1] = atof(argv[5]);
+
+            adfSearchMin[2] = adfSearchMax[2] = 0.0;
+            adfSearchMin[3] = adfSearchMax[3] = 0.0;
+
+            if( adfSearchMin[0] > adfSearchMax[0]
+                || adfSearchMin[1] > adfSearchMax[1] )
+            {
+                printf( "Min greater than max in search criteria.\n" );
+                Usage();
+            }
+            
+            argv += 5;
+            argc -= 5;
+        }
         else
             break;
     }
@@ -80,8 +125,7 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
     if( argc < 2 )
     {
-	printf( "shptreedump [-v] [-maxdepth n] shp_file\n" );
-	exit( 1 );
+        Usage();
     }
 
 /* -------------------------------------------------------------------- */
@@ -103,7 +147,14 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
 /*      Dump tree by recursive descent.                                 */
 /* -------------------------------------------------------------------- */
-    SHPTreeNodeDump( psTree, psTree->psRoot, "", nExpandShapes );
+    if( !nDoSearch )
+        SHPTreeNodeDump( psTree, psTree->psRoot, "", nExpandShapes );
+
+/* -------------------------------------------------------------------- */
+/*      or do a search instead.                                         */
+/* -------------------------------------------------------------------- */
+    else
+        SHPTreeNodeSearchAndDump( psTree, adfSearchMin, adfSearchMax );
 
 /* -------------------------------------------------------------------- */
 /*      cleanup                                                         */
@@ -236,6 +287,8 @@ static void SHPTreeNodeDump( SHPTree * psTree,
             {
                 EmitShape( psObject, szNextPrefix, psTree->nDimension );
             }
+
+            SHPDestroyObject( psObject );
         }
     }
     else
@@ -264,3 +317,57 @@ static void SHPTreeNodeDump( SHPTree * psTree,
     return;
 }
 
+/************************************************************************/
+/*                      SHPTreeNodeSearchAndDump()                      */
+/************************************************************************/
+
+static void SHPTreeNodeSearchAndDump( SHPTree * hTree,
+                                      double *padfBoundsMin,
+                                      double *padfBoundsMax )
+
+{
+    int		*panHits, nShapeCount, i;
+
+/* -------------------------------------------------------------------- */
+/*      Perform the search for likely candidates.  These are shapes     */
+/*      that fall into a tree node whose bounding box intersects our    */
+/*      area of interest.                                               */
+/* -------------------------------------------------------------------- */
+    panHits = SHPTreeFindLikelyShapes( hTree, padfBoundsMin, padfBoundsMax,
+                                       &nShapeCount );
+
+/* -------------------------------------------------------------------- */
+/*      Read all of these shapes, and establish whether the shape's     */
+/*      bounding box actually intersects the area of interest.  Note    */
+/*      that the bounding box could intersect the area of interest,     */
+/*      and the shape itself still not cross it but we don't try to     */
+/*      address that here.                                              */
+/* -------------------------------------------------------------------- */
+    for( i = 0; i < nShapeCount; i++ )
+    {
+        SHPObject	*psObject;
+
+        psObject = SHPReadObject( hTree->hSHP, panHits[i] );
+        if( psObject == NULL )
+            continue;
+        
+        if( !SHPCheckBoundsOverlap( padfBoundsMin, padfBoundsMax,
+                                    &(psObject->dfXMin),
+                                    &(psObject->dfXMax),
+                                    hTree->nDimension ) )
+        {
+            printf( "Shape %d: not in area of interest, but fetched.\n",
+                    panHits[i] );
+        }
+        else
+        {
+            printf( "Shape %d: appears to be in area of interest.\n",
+                    panHits[i] );
+        }
+
+        SHPDestroyObject( psObject );
+    }
+
+    if( nShapeCount == 0 )
+        printf( "No shapes found in search.\n" );
+}

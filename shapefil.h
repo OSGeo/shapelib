@@ -7,7 +7,10 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.10  1999-05-18 17:49:38  warmerda
+ * Revision 1.11  1999-05-18 19:11:11  warmerda
+ * Added example searching capability
+ *
+ * Revision 1.10  1999/05/18 17:49:38  warmerda
  * added initial quadtree support
  *
  * Revision 1.9  1999/05/11 03:19:28  warmerda
@@ -216,6 +219,11 @@ int	SHPTreeAddObject( SHPTree * hTree, SHPObject * psObject );
 int	SHPTreeAddShapeId( SHPTree * hTree, SHPObject * psObject );
 int	SHPTreeRemoveShapeId( SHPTree * hTree, int nShapeId );
 
+int    *SHPTreeFindLikelyShapes( SHPTree * hTree,
+                                 double * padfBoundsMin,
+                                 double * padfBoundsMax,
+                                 int * );
+int     SHPCheckBoundsOverlap( double *, double *, double *, double *, int );
 
 /************************************************************************/
 /*                             DBF Support.                             */

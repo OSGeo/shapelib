@@ -28,7 +28,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.1  1999-05-18 17:49:20  warmerda
+ * Revision 1.2  1999-05-18 19:11:11  warmerda
+ * Added example searching capability
+ *
+ * Revision 1.1  1999/05/18 17:49:20  warmerda
  * New
  *
  */
@@ -226,12 +229,37 @@ void SHPDestroyTree( SHPTree * psTree )
 }
 
 /************************************************************************/
-/*                           SHPCheckBounds()                           */
+/*                       SHPCheckBoundsOverlap()                        */
+/*                                                                      */
+/*      Do the given boxes overlap at all?                              */
+/************************************************************************/
+
+int SHPCheckBoundsOverlap( double * padfBox1Min, double * padfBox1Max,
+                           double * padfBox2Min, double * padfBox2Max,
+                           int nDimension )
+
+{
+    int		iDim;
+
+    for( iDim = 0; iDim < nDimension; iDim++ )
+    {
+        if( padfBox2Max[iDim] < padfBox1Min[iDim] )
+            return FALSE;
+        
+        if( padfBox1Max[iDim] < padfBox2Min[iDim] )
+            return FALSE;
+    }
+
+    return TRUE;
+}
+
+/************************************************************************/
+/*                      SHPCheckObjectContained()                       */
 /*                                                                      */
 /*      Does the given shape fit within the indicated extents?          */
 /************************************************************************/
 
-static int SHPCheckBounds( SHPObject * psObject, int nDimension,
+static int SHPCheckObjectContained( SHPObject * psObject, int nDimension,
                            double * padfBoundsMin, double * padfBoundsMax )
 
 {
@@ -320,7 +348,7 @@ SHPTreeNodeAddShapeId( SHPTreeNode * psTreeNode, SHPObject * psObject,
 /* -------------------------------------------------------------------- */
     if( nMaxDepth > 1 && psTreeNode->psSubNode1 != NULL )
     {
-        if( SHPCheckBounds(psObject, nDimension,
+        if( SHPCheckObjectContained(psObject, nDimension,
                            psTreeNode->psSubNode1->adfBoundsMin,
                            psTreeNode->psSubNode1->adfBoundsMax))
         {
@@ -328,7 +356,7 @@ SHPTreeNodeAddShapeId( SHPTreeNode * psTreeNode, SHPObject * psObject,
                                           nMaxDepth-1, nDimension );
         }
 
-        if( SHPCheckBounds(psObject, nDimension,
+        if( SHPCheckObjectContained(psObject, nDimension,
                            psTreeNode->psSubNode2->adfBoundsMin,
                            psTreeNode->psSubNode2->adfBoundsMax))
         {
@@ -350,7 +378,8 @@ SHPTreeNodeAddShapeId( SHPTreeNode * psTreeNode, SHPObject * psObject,
                             adfBoundsMin1, adfBoundsMax1,
                             adfBoundsMin2, adfBoundsMax2 );
 
-        if( SHPCheckBounds(psObject, nDimension, adfBoundsMin1, adfBoundsMax1))
+        if( SHPCheckObjectContained(psObject, nDimension,
+                                 adfBoundsMin1, adfBoundsMax1))
         {
             psTreeNode->psSubNode1 = SHPTreeNodeCreate( adfBoundsMin1,
                                                         adfBoundsMax1 );
@@ -360,8 +389,8 @@ SHPTreeNodeAddShapeId( SHPTreeNode * psTreeNode, SHPObject * psObject,
             return( SHPTreeNodeAddShapeId( psTreeNode->psSubNode1, psObject,
                                            nMaxDepth - 1, nDimension ) );
         }
-        else if( SHPCheckBounds(psObject, nDimension,
-                                adfBoundsMin2, adfBoundsMax2) )
+        else if( SHPCheckObjectContained(psObject, nDimension,
+                                      adfBoundsMin2, adfBoundsMax2) )
         {
             psTreeNode->psSubNode1 = SHPTreeNodeCreate( adfBoundsMin1,
                                                         adfBoundsMax1 );
@@ -406,4 +435,115 @@ int SHPTreeAddShapeId( SHPTree * psTree, SHPObject * psObject )
 {
     return( SHPTreeNodeAddShapeId( psTree->psRoot, psObject,
                                    psTree->nMaxDepth, psTree->nDimension ) );
+}
+
+/************************************************************************/
+/*                      SHPTreeCollectShapesIds()                       */
+/*                                                                      */
+/*      Work function implementing SHPTreeFindLikelyShapes() on a       */
+/*      tree node by tree node basis.                                   */
+/************************************************************************/
+
+void SHPTreeCollectShapeIds( SHPTree *hTree, SHPTreeNode * psTreeNode,
+                             double * padfBoundsMin, double * padfBoundsMax,
+                             int * pnShapeCount, int * pnMaxShapes,
+                             int ** ppanShapeList )
+
+{
+    int		i;
+    
+/* -------------------------------------------------------------------- */
+/*      Does this node overlap the area of interest at all?  If not,    */
+/*      return without adding to the list at all.                       */
+/* -------------------------------------------------------------------- */
+    if( !SHPCheckBoundsOverlap( psTreeNode->adfBoundsMin,
+                                psTreeNode->adfBoundsMax,
+                                padfBoundsMin,
+                                padfBoundsMax,
+                                hTree->nDimension ) )
+        return;
+
+/* -------------------------------------------------------------------- */
+/*      Grow the list to hold the shapes on this node.                  */
+/* -------------------------------------------------------------------- */
+    if( *pnShapeCount + psTreeNode->nShapeCount > *pnMaxShapes )
+    {
+        *pnMaxShapes = (*pnShapeCount + psTreeNode->nShapeCount) * 2 + 20;
+        *ppanShapeList = (int *)
+            SfRealloc(*ppanShapeList,sizeof(int) * *pnMaxShapes);
+    }
+
+/* -------------------------------------------------------------------- */
+/*      Add the local nodes shapeids to the list.                       */
+/* -------------------------------------------------------------------- */
+    for( i = 0; i < psTreeNode->nShapeCount; i++ )
+    {
+        (*ppanShapeList)[(*pnShapeCount)++] = psTreeNode->panShapeIds[i];
+    }
+    
+/* -------------------------------------------------------------------- */
+/*      Recurse to subnodes if they exist.                              */
+/* -------------------------------------------------------------------- */
+    if( psTreeNode->psSubNode1 != NULL )
+        SHPTreeCollectShapeIds( hTree, psTreeNode->psSubNode1,
+                                padfBoundsMin, padfBoundsMax,
+                                pnShapeCount, pnMaxShapes,
+                                ppanShapeList );
+
+    if( psTreeNode->psSubNode2 != NULL )
+        SHPTreeCollectShapeIds( hTree, psTreeNode->psSubNode2,
+                                padfBoundsMin, padfBoundsMax,
+                                pnShapeCount, pnMaxShapes,
+                                ppanShapeList );
+}
+
+/************************************************************************/
+/*                      SHPTreeFindLikelyShapes()                       */
+/*                                                                      */
+/*      Find all shapes within tree nodes for which the tree node       */
+/*      bounding box overlaps the search box.  The return value is      */
+/*      an array of shapeids terminated by a -1.  The shapeids will     */
+/*      be in order, as hopefully this will result in faster (more      */
+/*      sequential) reading from the file.                              */
+/************************************************************************/
+
+
+int *SHPTreeFindLikelyShapes( SHPTree * hTree,
+                              double * padfBoundsMin, double * padfBoundsMax,
+                              int * pnShapeCount )
+
+{
+    int	*panShapeList=NULL, nMaxShapes = 0;
+    int	i, j;
+
+/* -------------------------------------------------------------------- */
+/*      Perform the search by recursive descent.                        */
+/* -------------------------------------------------------------------- */
+    *pnShapeCount = 0;
+
+    SHPTreeCollectShapeIds( hTree, hTree->psRoot,
+                            padfBoundsMin, padfBoundsMax,
+                            pnShapeCount, &nMaxShapes,
+                            &panShapeList );
+
+/* -------------------------------------------------------------------- */
+/*      For now I just use a bubble sort to order the shapeids, but     */
+/*      this should really be a quicksort.                              */
+/* -------------------------------------------------------------------- */
+    for( i = 0; i < *pnShapeCount-1; i++ )
+    {
+        for( j = 0; j < (*pnShapeCount) - i - 1; j++ )
+        {
+            if( panShapeList[j] > panShapeList[j+1] )
+            {
+                int	nTempId;
+
+                nTempId = panShapeList[j];
+                panShapeList[j] = panShapeList[j+1];
+                panShapeList[j+1] = nTempId;
+            }
+        }
+    }
+
+    return panShapeList;
 }
