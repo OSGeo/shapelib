@@ -197,6 +197,11 @@ such as MSDOS.<p>
 The shputils.c module is contributed, and may not take the same approach
 to portability as the rest of the package.<p>
 
+On Linux, and most unix systems it should be possible to build and 
+install shapefile support as a shared library using the "lib" and "lib_install"
+targets of the Makefile.  Note that this Makefile doesn't use autoconf
+mechanisms and will generally require some hand tailoring for your environment.
+
 
 <h2>Limitations</h2>
 
