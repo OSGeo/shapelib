@@ -1,4 +1,4 @@
-Shapefile Type: Polygon   # of Shapes: 2
+Shapefile Type: Polygon   # of Shapes: 3
 
 File Bounds: (       0.000,       0.000,0,0)
          to  (     180.000,     170.000,0,0)
@@ -23,6 +23,15 @@ Shape:1 (Polygon)  nVertices=4, nParts=1
      (     160.000,     150.000, 0, 0)  
      (     180.000,     170.000, 0, 0)  
      (     150.000,     150.000, 0, 0)  
+
+Shape:2 (Polygon)  nVertices=4, nParts=1
+  Bounds:(     150.000,     150.000, 0, 0)
+      to (     180.000,     170.000, 0, 0)
+     (     150.000,     150.000, 0, 0) Ring 
+     (     160.000,     150.000, 0, 0)  
+     (     180.000,     170.000, 0, 0)  
+     (     150.000,     150.000, 0, 0)  
 Descriptio                     TestInt       TestDouble 
 Square with triangle missing        1           2.50000 
 Smaller triangle                  100        1000.25000 
+(NULL)                         (NULL)            (NULL) 

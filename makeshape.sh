@@ -14,5 +14,8 @@ dbfadd test.dbf "Square with triangle missing" 1.5 2.5
 shpadd test 150 150 160 150 180 170 150 150
 dbfadd test.dbf "Smaller triangle" 100 1000.25
 
+shpadd test 150 150 160 150 180 170 150 150
+dbfadd test.dbf "" "" ""
+
 shpdump test.shp
 dbfdump test.dbf
