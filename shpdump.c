@@ -4,7 +4,10 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.2  1995-08-04 03:18:11  warmerda
+ * Revision 1.3  1995-08-23 02:25:25  warmerda
+ * Added support for bounds.
+ *
+ * Revision 1.2  1995/08/04  03:18:11  warmerda
  * Added header.
  *
  */
@@ -19,7 +22,7 @@ int main( int argc, char ** argv )
 {
     SHPHandle	hSHP;
     int		nShapeType, nEntities, nVertices, nParts, *panParts, i, iPart;
-    double	*padVertices;
+    double	*padVertices, adBounds[4];
     const char 	*pszPlus;
 
 /* -------------------------------------------------------------------- */
@@ -45,6 +48,13 @@ int main( int argc, char ** argv )
     SHPGetInfo( hSHP, &nEntities, &nShapeType );
 
 /* -------------------------------------------------------------------- */
+/*      Print out the file bounds.                                      */
+/* -------------------------------------------------------------------- */
+    SHPReadBounds( hSHP, -1, adBounds );
+    printf( "File Bounds: (%lg,%lg) - (%lg,%lg)\n",
+	    adBounds[0], adBounds[1], adBounds[2], adBounds[3] );
+
+/* -------------------------------------------------------------------- */
 /*	Skim over the list of shapes, printing all the vertices.	*/
 /* -------------------------------------------------------------------- */
     for( i = 0; i < nEntities; i++ )
@@ -53,8 +63,10 @@ int main( int argc, char ** argv )
 
 	padVertices = SHPReadVertices( hSHP, i, &nVertices, &nParts,
 				       &panParts );
+	SHPReadBounds( hSHP, i, adBounds );
+	printf( "\nShape:%d  Bounds:(%lg,%lg) - (%lg,%lg)\n",
+	        i, adBounds[0], adBounds[1], adBounds[2], adBounds[3] );
 
-	printf( "\nShape:%d\n", i );
 	for( j = 0, iPart = 1; j < nVertices; j++ )
 	{
 	    if( iPart < nParts && panParts[iPart] == j+1 )
