@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.52  2003-07-08 15:20:03  warmerda
+ * Revision 1.53  2003-12-29 00:00:30  fwarmerdam
+ * mark DBFWriteAttributeDirectly as SHPAPI_CALL
+ *
+ * Revision 1.52  2003/07/08 15:20:03  warmerda
  * avoid warnings about downcasting to unsigned char
  *
  * Revision 1.51  2003/07/08 13:50:15  warmerda
@@ -1169,7 +1172,8 @@ static int DBFWriteAttribute(DBFHandle psDBF, int hEntity, int iField,
 /*      as is to the field position in the record.                      */
 /************************************************************************/
 
-int DBFWriteAttributeDirectly(DBFHandle psDBF, int hEntity, int iField,
+int SHPAPI_CALL
+DBFWriteAttributeDirectly(DBFHandle psDBF, int hEntity, int iField,
                               void * pValue )
 
 {
