@@ -4,7 +4,11 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.4  1995-08-24 18:10:17  warmerda
+ * Revision 1.5  1995-08-25 15:16:44  warmerda
+ * Fixed a couple of problems with big endian systems ... one with bounds
+ * and the other with multipart polygons.
+ *
+ * Revision 1.4  1995/08/24  18:10:17  warmerda
  * Switch to use SfRealloc() to avoid problems with pre-ANSI realloc()
  * functions (such as on the Sun).
  *
@@ -574,8 +578,8 @@ int SHPWriteVertices(SHPHandle psSHP, int nVCount, int nPartCount,
 	    ByteCopy( padVertices+i*2+1, 
 		      pabyRec + 44 + 4*nPartCount + 8 + i * 16 + 8, 8 );
 
-	    if( bBigEndian ) SwapWord( 8, pabyRec + 44 + 4 + 8 + i * 16 );
-	    if( bBigEndian ) SwapWord( 8, pabyRec + 44 + 4 + 8 + i * 16 + 8 );
+	    if( bBigEndian ) SwapWord( 8, pabyRec + 44+4*nPartCount+8+i*16 );
+	    if( bBigEndian ) SwapWord( 8, pabyRec + 44+4*nPartCount+8+i*16+8 );
 	}
 
 	nRecordSize = 44 + 4*nPartCount + 16 * nVCount;
@@ -889,16 +893,5 @@ void SHPReadBounds( SHPHandle psSHP, int hEntity, double * padBounds )
 	}
 
 	memcpy( padBounds+2, padBounds, 2*sizeof(double) );
-    }
-
-/* -------------------------------------------------------------------- */
-/*      Ensure that we fix up the byte order.                           */
-/* -------------------------------------------------------------------- */
-    if( bBigEndian )
-    {
-	SwapWord( 8, padBounds );
-	SwapWord( 8, padBounds+1 );
-	SwapWord( 8, padBounds+2 );
-	SwapWord( 8, padBounds+3 );
     }
 }
