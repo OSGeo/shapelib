@@ -3,7 +3,8 @@
 
 default:	all
 
-all:	shpcreate.exe shpadd.exe shpdump.exe dbfcreate.exe dbfadd.exe dbfdump.exe shptest.exe shptreedump.exe shapelib.dll
+all:	shpcreate.exe shpadd.exe shpdump.exe shprewind.exe dbfcreate.exe \
+	dbfadd.exe dbfdump.exe shptest.exe shptreedump.exe shapelib.dll
 
 shpopen.obj:	shpopen.c shapefil.h
 	$(CC) $(CFLAGS) -c shpopen.c
@@ -22,6 +23,9 @@ shpadd.exe:		shpadd.c shpopen.obj
 
 shpdump.exe:	shpdump.c shpopen.obj
 	$(CC) $(CFLAGS) shpdump.c shpopen.obj $(LINKOPT)
+
+shprewind.exe:	shprewind.c shpopen.obj
+	$(CC) $(CFLAGS) shprewind.c shpopen.obj $(LINKOPT)
 
 dbfcreate.exe:	dbfcreate.c dbfopen.obj
 	$(CC) $(CFLAGS) dbfcreate.c dbfopen.obj $(LINKOPT)
