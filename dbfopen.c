@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.46  2002-10-09 13:10:21  warmerda
+ * Revision 1.47  2002-11-20 03:32:22  warmerda
+ * Ensure field name in DBFGetFieldIndex() is properly terminated.
+ *
+ * Revision 1.46  2002/10/09 13:10:21  warmerda
  * Added check that width is positive.
  *
  * Revision 1.45  2002/09/29 00:00:08  warmerda
@@ -1464,6 +1467,7 @@ DBFGetFieldIndex(DBFHandle psDBF, const char *pszFieldName)
     int           i;
 
     strncpy(name1, pszFieldName,11);
+    name1[11] = '\0';
     str_to_upper(name1);
 
     for( i = 0; i < DBFGetFieldCount(psDBF); i++ )
