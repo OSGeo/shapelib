@@ -1,3 +1,8 @@
+Wed Feb 16 11:20:29 2000  Frank Warmerdam  <warmerda@gdal.velocet.ca>
+
+	* Modified SHPReadObject() so that will return NULL (type 0) shapes
+	in a sort of sensible way.
+
 Wed Dec 15 08:49:53 1999  Frank Warmerdam  <warmerda@gdal.velocet.ca>
 
 	* Fixed record size written at beginning of records in .shp

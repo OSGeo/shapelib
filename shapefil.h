@@ -37,7 +37,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.14  1999-11-05 14:12:05  warmerda
+ * Revision 1.15  2000-02-16 16:03:51  warmerda
+ * added null shape support
+ *
+ * Revision 1.14  1999/11/05 14:12:05  warmerda
  * updated license terms
  *
  * Revision 1.13  1999/06/02 18:24:21  warmerda
@@ -133,6 +136,7 @@ typedef SHPInfo * SHPHandle;
 /* -------------------------------------------------------------------- */
 /*      Shape types (nSHPType)                                          */
 /* -------------------------------------------------------------------- */
+#define SHPT_NULL	0
 #define SHPT_POINT	1
 #define SHPT_ARC	3
 #define SHPT_POLYGON	5
