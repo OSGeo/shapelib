@@ -36,5 +36,7 @@ EXPORTS SHPOpen
 	DBFWriteNULLAttribute
 	DBFGetFieldIndex
 	DBFIsAttributeNULL
+	DBFWriteLogicalAttribute
+	DBFReadLogicalAttribute
 
 
