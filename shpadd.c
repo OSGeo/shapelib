@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.11  2000-07-07 13:39:45  warmerda
+ * Revision 1.12  2001-05-31 19:35:29  warmerda
+ * added support for writing null shapes
+ *
+ * Revision 1.11  2000/07/07 13:39:45  warmerda
  * removed unused variables, and added system include files
  *
  * Revision 1.10  2000/05/24 15:09:22  warmerda
@@ -84,7 +87,7 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
 /*      Display a usage message.                                        */
 /* -------------------------------------------------------------------- */
-    if( argc < 4 )
+    if( argc < 2 )
     {
 	printf( "shpadd shp_file [[x y] [+]]*\n" );
 	exit( 1 );
@@ -102,6 +105,9 @@ int main( int argc, char ** argv )
     }
 
     SHPGetInfo( hSHP, NULL, &nShapeType, NULL, NULL );
+
+    if( argc == 2 )
+        nShapeType = SHPT_NULL;
 
 /* -------------------------------------------------------------------- */
 /*	Build a vertex/part list from the command line arguments.	*/

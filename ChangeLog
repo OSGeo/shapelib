@@ -1,5 +1,7 @@
 2001-05-31  Frank Warmerdam  <warmerdam@pobox.com>
 
+	* shpopen.c: Add support for writing null shapes.
+
 	* dbfopen.c: added DBFGetFieldIndex(), contributed by Jim Matthews.
 
 	* dbfopen.c/shapefil.h/dbf_api.h: added support for NULL fields
