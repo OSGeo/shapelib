@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.42  2002-01-15 14:36:07  warmerda
+ * Revision 1.43  2002-02-13 19:39:21  warmerda
+ * Fix casting issues in DBFCloneEmpty().
+ *
+ * Revision 1.42  2002/01/15 14:36:07  warmerda
  * updated email address
  *
  * Revision 1.41  2002/01/15 14:31:49  warmerda
@@ -1254,20 +1257,20 @@ DBFCloneEmpty(DBFHandle psDBF, const char * pszFilename )
    newDBF = DBFCreate ( pszFilename );
    if ( newDBF == NULL ) return ( NULL ); 
    
-   newDBF->pszHeader = (void *) malloc ( 32 * psDBF->nFields );
+   newDBF->pszHeader = (char *) malloc ( 32 * psDBF->nFields );
    memcpy ( newDBF->pszHeader, psDBF->pszHeader, 32 * psDBF->nFields );
    
    newDBF->nFields = psDBF->nFields;
    newDBF->nRecordLength = psDBF->nRecordLength;
    newDBF->nHeaderLength = 32 * (psDBF->nFields+1);
     
-   newDBF->panFieldOffset = (void *) malloc ( sizeof(int) * psDBF->nFields ); 
+   newDBF->panFieldOffset = (int *) malloc ( sizeof(int) * psDBF->nFields ); 
    memcpy ( newDBF->panFieldOffset, psDBF->panFieldOffset, sizeof(int) * psDBF->nFields );
-   newDBF->panFieldSize = (void *) malloc ( sizeof(int) * psDBF->nFields );
+   newDBF->panFieldSize = (int *) malloc ( sizeof(int) * psDBF->nFields );
    memcpy ( newDBF->panFieldSize, psDBF->panFieldSize, sizeof(int) * psDBF->nFields );
-   newDBF->panFieldDecimals = (void *) malloc ( sizeof(int) * psDBF->nFields );
+   newDBF->panFieldDecimals = (int *) malloc ( sizeof(int) * psDBF->nFields );
    memcpy ( newDBF->panFieldDecimals, psDBF->panFieldDecimals, sizeof(int) * psDBF->nFields );
-   newDBF->pachFieldType = (void *) malloc ( sizeof(int) * psDBF->nFields );
+   newDBF->pachFieldType = (char *) malloc ( sizeof(int) * psDBF->nFields );
    memcpy ( newDBF->pachFieldType, psDBF->pachFieldType, sizeof(int) * psDBF->nFields );
 
    newDBF->bNoHeader = TRUE;
