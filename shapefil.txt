@@ -1,4 +1,4 @@
-		Shapefile C Library V1.1
+		Shapefile C Library V1.2
 		========================
 
 
@@ -11,10 +11,9 @@ and the associated attribute file (.dbf).
 
 Copyright
 ---------
-The source for the Shapefile C Library is (c) 1995 Frank Warmerdam, and placed
+The source for the Shapefile C Library is (c) 1998 Frank Warmerdam, and placed
 in the public domain.  Feel free to do anything with the source you please.
-Neither I, nor PCI assume any liability, nor express any warranty for this 
-code.  
+I do not assume any liability, nor express any warranty for this code.  
 
 
 Manifest
@@ -45,20 +44,24 @@ Makefile	- A simple makefile to compile the library and example
 
 makeshape.sh	- A simple script for running some of the example programs.
 
+shptest.c	- A simple test harnass to generate each of the supported
+		  types of shapefiles. 
+stream1.sh	- A test script, which should produce stream1.out.
+stream1.out	- Expected output of stream1.sh test script.
+stream2.sh	- A test script, which should produce stream2.out.
+stream2.out	- Expected output of stream2.sh test script.
+
 
 What is a Shapefile?
 --------------------
 If you don't know, you probably don't need this library.  The Shapefile
 format is a new working and interchange format promulagated by ESRI 
 (http://www.esri.com/) for simple vector data with attributes.  It is
-apparently the only file format that can be edited in ARCView 2, and can
-also be exported and imported in ARC/Info.  
+apparently the only file format that can be edited in ARCView 2/3, and can
+also be exported and imported in Arc/Info.  
 
 An excellent white paper on the shapefile format is available from ESRI,
-but it is .pdf format, so you will need Adobe Acrobat to browse it.  The
-document is at url ftp://ftp.esri.com/pub/marketing/white_papers/av_shape.pdf
-and Adobe Acrobat (freeware) can be found at Adobe, perhaps at the url
-ftp://ftp.adobe.com/pub/adobe/Applications/Acrobat/.
+but it is .pdf format, so you will need Adobe Acrobat to browse it.
 
 The file format actually consists of three files.
 
@@ -69,6 +72,10 @@ XXX.dbf - holds the attributes in xBase (dBase) format.
 
 Release Notes
 -------------
+
+Release 1.2 is mostly a rewrite of the .shp/.shx access API to account for
+ArcView 3.x 3D shapes, and to encapsulate the shapes in a structure.
+
 Release V1.1 has been built on a number of platforms, and used by a number
 of people successfully.  V1.1 is the first release with the xBase API 
 documentation.
@@ -76,9 +83,12 @@ documentation.
 
 Maintainer
 ----------
-This library is maintained by Frank Warmerdam (http://www.pci.on.ca/~warmerda)
-of PCI (http://www.pci.on.ca/) on his own time.  Please send me bug patches
-and suggestions for the library.  Email can be sent to warmerda@leto.pci.on.ca.
+This library is maintained by me (Frank Warmerdam) on my own time.  Please 
+send me bug patches and suggestions for the library.  Email can be sent to 
+warmerda@home.com.
+
+The current status of the Shapelib code can be found somewhere off my
+home page at http://members.home.com/warmerda. 
 
 The shputils.c module was contributed by Bill Miller (NC-DOT) who can be
 reached at bmiller@doh.dot.state.nc.us.
@@ -87,11 +97,7 @@ reached at bmiller@doh.dot.state.nc.us.
 Portability
 -----------
 The Shapefile C Library should port easily to 32bit systems with ANSI C
-compilers.  The code is not compatible with K&R C compilers (such as the
-stock C compiler on SunOS 4.x), and I don't really want to mess it up
-with support for K&R C.  It should work on 64 bit architectures (such 
-as the DEC AXP), and has reportedly worked on 16 bit systems (Borland C)
-as well as long as int32 gets properly defined in shpopen.c.
+compilers.  It should work on 64 bit architectures (such as the DEC AXP).
 
 Care should also be taken to pass the binary access flag into SHPOpen()
 and DBFOpen() when operating on systems with special text file translation
@@ -141,7 +147,69 @@ Vertex (SHP) API
 The Vertex (SHP) API uses a SHPHandle to represent an open .shp/.shx file pair.
 The contents of the SHPHandle are visible (see shapefile.h) but should
 be ignored by the application.  It is intended that all information be
-accessed by the API functions.
+accessed by the API functions.  
+
+                  ----------- Shape Types -------------------
+
+  2D Shape Types (pre ArcView 3.x):
+
+  #define SHPT_POINT		1	Points
+  #define SHPT_ARC		3	Arcs (Polylines, possible in parts)
+  #define SHPT_POLYGON		5	Polygons (possible in parts)
+  #define SHPT_MULTIPOINT	8	MultiPoint (related points)
+
+  3D Shape Types (may include "measure" values for vertices):
+
+  #define SHPT_POINTZ		11	
+  #define SHPT_ARCZ		13
+  #define SHPT_POLYGONZ		15
+  #define SHPT_MULTIPOINTZ 	18
+
+  2D + Measure Types:
+
+  #define SHPT_POINTM		21
+  #define SHPT_ARCM		23
+  #define SHPT_POLYGONM		25
+  #define SHPT_MULTIPOINTM 	28
+
+  Complex (TIN-like) with Z, and Measure:
+
+  #define SHPT_MULTIPATCH 	31
+
+
+                  ------------ SHPObject -------------------
+
+An individual shape is represented by the SHPObject structure.  SHPObject's
+created with SHPCreateObject(), SHPCreateSimpleObject(), or SHPReadObject()
+should be disposed of with SHPDestroyObject().
+
+  typedef struct
+  {
+    int		nSHPType;	Shape Type (SHPT_* - see list above)
+
+    int		nShapeId; 	Shape Number (-1 is unknown/unassigned)
+
+    int		nParts;		# of Parts (0 implies single part with no info)
+    int		*panPartStart;  Start Vertex of part
+    int		*panPartType;	Part Type (SHPP_RING if not SHPT_MULTIPATCH)
+    
+    int		nVertices;	Vertex list 
+    double	*padfX;		
+    double	*padfY;
+    double	*padfZ;		(all zero if not provided)
+    double	*padfM;		(all zero if not provided)
+
+    double	dfXMin;		Bounds in X, Y, Z and M dimensions
+    double	dfYMin;
+    double	dfZMin;
+    double	dfMMin;
+
+    double	dfXMax;
+    double	dfYMax;
+    double	dfZMax;
+    double	dfMMax;
+  } SHPObject;
+
 
                   ------------------------------------------
 
@@ -162,6 +230,7 @@ SHPHandle SHPOpen( const char * pszShapeFile, const char * pszAccess );
   and SHPClose() should be invoked to recover resources, and flush changes 
   to disk when complete.
 
+                  ------------------------------------------
 
 void SHPGetInfo( SHPHandle hSHP, int * pnEntities, int * pnShapeType );
 
@@ -178,8 +247,7 @@ void SHPGetInfo( SHPHandle hSHP, int * pnEntities, int * pnShapeType );
 			
                   ------------------------------------------
 
-double *SHPReadVertices( SHPHandle hSHP, int iShape, int *pnVCount,
-	 		 int * pnPartCount, int ** ppanParts );
+SHPObject *SHPReadObject( SHPHandle hSHP, int iShape );
 
   hSHP:			The handle previously returned by SHPOpen() 
 			or SHPCreate().
@@ -188,50 +256,15 @@ double *SHPReadVertices( SHPHandle hSHP, int iShape, int *pnVCount,
 			numbers are between 0 and nEntities-1 (as returned
 			by SHPGetInfo()).
 
-  pnVCount:		Pointer to an integer into which the number of 
-			vertices can be placed.  Currently must not be NULL.
+  The SHPReadObject() call is used to read a single structure, or entity
+  from the shapefile.  See the definition of the SHPObject structure for
+  detailed information on fields of a SHPObject.  SHPObject's returned from
+  SHPReadObject() should be deallocated with SHPDestroyShape().  
+  SHPReadObject() will return NULL if an illegal iShape value is requested.
 
-  pnPartCount:		Pointer to an integer into which the number of
-			``parts'' should be placed.  This may be NULL
-			for SHPT_POINT and SHPT_MULTIPOINT files which
-			don't have parts.
-
-  ppanParts:		Pointer to a pointer to integers.  This pointer will
-			be assigned to point to an internal array of parts
-			managed by SHPReadVertices().  
-
-  The SHPReadVertices() call is used to read a single structure, or entity
-  from the shapefile.  A shape may consists of multiple parts (the outline
-  and interior holes for a polygon) which will be indicated by the ppanParts
-  values returned.   The values returned in ppanParts will be the offsets
-  to the first vertex of each part.
-
-  The return value of SHPReadVertices() is a pointer to an internally managed
-  list of vertices.  Note that the values returned as ppanParts and the vertex
-  list are only valid untill the next call to SHPReadVertices() at which point
-  the internal buffers will be reused.
-
-                  ------------------------------------------
-
-void SHPReadBounds( SHPHandle hSHP, int iShape, double *padBounds );
-
-  hSHP:			The handle previously returned by SHPOpen() 
-			or SHPCreate().
-
-  iShape:		The entity number of the shape to read.  Entity 
-			numbers are between 0 and nEntities-1 (as returned
-			by SHPGetInfo()).  If an iShape value of -1 is passed
-			the bounds information for the entire file will be
-			returned.
-
-  padBounds:		A array of four doubles in which the bounds of this
-			shape (or whole file) are stored in the order
-			X Minimum, Y Minumum, X Maximum and Y Maximum.
-
-  The SHPReadBounds() call is used to read a the bounds of a single structure,
-  or all structures in the file if iShape is -1.  These bounds are actually 
-  stored in the shape file for all shape types except points.  For points
-  a bounds the bounds are computed based on the point.
+  Note that the bounds placed into the SHPObject are those read from the
+  file, and may not be correct.   For points the bounds are generated from
+  the single point since bounds aren't normally provided for point types.
 
                   ------------------------------------------
 
@@ -262,31 +295,121 @@ SHPHandle SHPCreate( const char * pszShapeFile, int nShapeType );
 
                   ------------------------------------------
 
-int SHPWriteVertices( SHPHandle hSHP, int nVCount, int nPartCount,
-	              int * panParts, double * padVertices );
+SHPObject * 
+     SHPCreateSimpleObject( int nSHPType, int nVertices, 
+			    double *padfX, double * padfY, double *padfZ, );
 
-  hSHP:			The handle previously returned by SHPOpen() 
+  nSHPType:		The SHPT_ type of the object to be created, such
+                        as SHPT_POINT, or SHPT_POLYGON.
+  
+  nVertices:		The number of vertices being passed in padfX,    
+                        padfY, and padfZ. 
+
+  padfX:		An array of nVertices X coordinates of the vertices
+                        for this object.
+
+  padfY:		An array of nVertices Y coordinates of the vertices
+                        for this object.
+
+  padfZ:		An array of nVertices Z coordinates of the vertices
+                        for this object.  This may be NULL in which case
+		        they are all assumed to be zero.
+
+  The SHPCreateSimpleObject() allows for the convenient creation of 
+  simple objects.  This is normally used so that the SHPObject can be
+  passed to SHPWriteObject() to write it to the file.  The simple object
+  creation API assumes an M (measure) value of zero for each vertex.  For
+  complex objects (such as polygons) it is assumed that there is only one
+  part, and that it is of the default type (SHPP_RING). 
+
+  Use the SHPCreateObject() function for more sophisticated objects.  The
+  SHPDestroyObject() function should be used to free resources associated with
+  an object allocated with SHPCreateSimpleObject(). 
+
+  This function computes a bounding box for the SHPObject from the given 
+  vertices.
+
+                  ------------------------------------------
+
+SHPObject * 
+     SHPCreateObject( int nSHPType, int iShape,
+                      int nParts, int * panPartStart, int * panPartType,
+                      int nVertices, double *padfX, double * padfY, 
+                      double *padfZ, double *padfM );
+
+  nSHPType:		The SHPT_ type of the object to be created, such
+                        as SHPT_POINT, or SHPT_POLYGON.
+
+  iShape:		The shapeid to be recorded with this shape.
+
+  nParts:		The number of parts for this object.  If this is
+                        zero for ARC, or POLYGON type objects, a single 
+                        zero valued part will be created internally.
+  
+  panPartStart:		The list of zero based start vertices for the rings
+                        (parts) in this object.  The first should always be
+                        zero.  This may be NULL if nParts is 0.
+  
+  panPartType:		The type of each of the parts.  This is only meaningful
+                        for MULTIPATCH files.  For all other cases this may
+                        be NULL, and will be assumed to be SHPP_RING.
+  
+  nVertices:		The number of vertices being passed in padfX,    
+                        padfY, and padfZ. 
+
+  padfX:		An array of nVertices X coordinates of the vertices
+                        for this object.
+
+  padfY:		An array of nVertices Y coordinates of the vertices
+                        for this object.
+
+  padfZ:		An array of nVertices Z coordinates of the vertices
+                        for this object.  This may be NULL in which case
+		        they are all assumed to be zero.
+
+  padfM:		An array of nVertices M (measure values) of the 
+			vertices for this object.  This may be NULL in which 
+			case they are all assumed to be zero.
+
+  The SHPCreateSimpleObject() allows for the creation of objects (shapes).  
+  This is normally used so that the SHPObject can be passed to 
+  SHPWriteObject() to write it to the file. 
+
+  The SHPDestroyObject() function should be used to free resources associated 
+  with an object allocated with SHPCreateObject(). 
+
+  This function computes a bounding box for the SHPObject from the given 
+  vertices.
+
+                  ------------------------------------------
+
+int SHPWriteObject( SHPHandle hSHP, int iShape, SHPObject *psObject );
+
+  hSHP:			The handle previously returned by SHPOpen("r+") 
 			or SHPCreate().
 
-  nVCount:		The number of vertices in padVertices.  
+  iShape:		The entity number of the shape to write.  A value of
+		        -1 should be used for new shapes.  
 
-  nPartCount:		The number of parts found in panParts.  Should
-			be zero for SHPT_POINT and SHPT_MULTIPOINT.
+  psObject:		The shape to write to the file. This should have
+                        been created with SHPCreateObject(), or 
+                        SHPCreateSimpleObject().
 
-  panParts:		List of parts, may be NULL for SHPT_POINT and
-			SHPT_MULTIPOINT.  For SHPT_ARC and SHPT_POLYGON
-			it must have at least one entry (0) indicating that
-			the first part starts at the zeroth vertex.
+  The SHPWriteObject() call is used to write a single structure, or entity
+  to the shapefile.  See the definition of the SHPObject structure for
+  detailed information on fields of a SHPObject.  The return value is the
+  entity number of the written shape. 
 
-  padVertices:		The list of vertices (nVCount * 2 doubles). 
+                  ------------------------------------------
 
-  The SHPWriteVertices() function is used to write a new entity/shape to
-  a shape file created with SHPCreate(), or opened with the "r+" access string
-  in SHPOpen().  
+void SHPDestroyObject( SHPObject *psObject );
 
-  The return value of this function is the entity number of the newly written
-  shapefile which will always be the new number of entities less one.
- 
+  psObject:		The object to deallocate.
+
+  This function should be used to deallocate the resources associated with
+  a SHPObject when it is no longer needed, including those created with
+  SHPCreateSimpleObject(), SHPCreateObject() and returned from SHPReadObject().
+
                   ------------------------------------------
 
 Attribute (DBF) API
