@@ -34,7 +34,11 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.27  2000-09-25 14:15:51  warmerda
+ * Revision 1.28  2000-09-25 14:18:07  warmerda
+ * Added some casts of strlen() return result to fix warnings on some
+ * systems, as submitted by Daniel.
+ *
+ * Revision 1.27  2000/09/25 14:15:51  warmerda
  * added DBFGetNativeFieldType()
  *
  * Revision 1.26  2000/07/07 13:39:45  warmerda
@@ -561,7 +565,7 @@ int	DBFAddField(DBFHandle psDBF, const char * pszFieldName,
     for( i = 0; i < 32; i++ )
         pszFInfo[i] = '\0';
 
-    if( strlen(pszFieldName) < 10 )
+    if( (int) strlen(pszFieldName) < 10 )
         strncpy( pszFInfo, pszFieldName, strlen(pszFieldName));
     else
         strncpy( pszFInfo, pszFieldName, 10);
@@ -881,7 +885,7 @@ static int DBFWriteAttribute(DBFHandle psDBF, int hEntity, int iField,
 	{
 	    sprintf( szFormat, "%%%dd", psDBF->panFieldSize[iField] );
 	    sprintf(szSField, szFormat, (int) *((double *) pValue) );
-	    if( strlen(szSField) > psDBF->panFieldSize[iField] )
+	    if( (int)strlen(szSField) > psDBF->panFieldSize[iField] )
 	        szSField[psDBF->panFieldSize[iField]] = '\0';
 
 	    strncpy((char *) (pabyRec+psDBF->panFieldOffset[iField]),
@@ -893,7 +897,7 @@ static int DBFWriteAttribute(DBFHandle psDBF, int hEntity, int iField,
 		     psDBF->panFieldSize[iField],
 		     psDBF->panFieldDecimals[iField] );
 	    sprintf(szSField, szFormat, *((double *) pValue) );
-	    if( strlen(szSField) > psDBF->panFieldSize[iField] )
+	    if( (int) strlen(szSField) > psDBF->panFieldSize[iField] )
 	        szSField[psDBF->panFieldSize[iField]] = '\0';
 	    strncpy((char *) (pabyRec+psDBF->panFieldOffset[iField]),
 		    szSField, strlen(szSField) );
@@ -901,7 +905,7 @@ static int DBFWriteAttribute(DBFHandle psDBF, int hEntity, int iField,
 	break;
 
       default:
-	if( strlen((char *) pValue) > psDBF->panFieldSize[iField] )
+	if( (int) strlen((char *) pValue) > psDBF->panFieldSize[iField] )
 	    j = psDBF->panFieldSize[iField];
 	else
         {
