@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.33  2001-05-31 19:20:13  warmerda
+ * Revision 1.34  2001-06-01 15:47:19  warmerda
+ * ensure binary mode open in DBFOpen
+ *
+ * Revision 1.33  2001/05/31 19:20:13  warmerda
  * added DBFGetFieldIndex()
  *
  * Revision 1.32  2001/05/31 18:15:40  warmerda
@@ -274,6 +277,12 @@ DBFOpen( const char * pszFilename, const char * pszAccess )
         && strcmp(pszAccess,"rb") != 0 && strcmp(pszAccess,"rb+") != 0
         && strcmp(pszAccess,"r+b") != 0 )
         return( NULL );
+
+    if( strcmp(pszAccess,"r") == 0 )
+        pszAccess = "rb";
+
+    if( strcmp(pszAccess,"r+") == 0 )
+        pszAccess = "rb+";
 
 /* -------------------------------------------------------------------- */
 /*	Compute the base (layer) name.  If there is any extension	*/
