@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.31  2001-05-23 13:36:52  warmerda
+ * Revision 1.32  2001-05-31 18:15:40  warmerda
+ * Added support for NULL fields in DBF files
+ *
+ * Revision 1.31  2001/05/23 13:36:52  warmerda
  * added use of SHPAPI_CALL
  *
  * Revision 1.30  2000/12/05 14:43:38  warmerda
@@ -766,6 +769,28 @@ DBFReadStringAttribute( DBFHandle psDBF, int iRecord, int iField )
 }
 
 /************************************************************************/
+/*                         DBFIsAttributeNULL()                         */
+/************************************************************************/
+
+int SHPAPI_CALL
+DBFIsAttributeNULL( DBFHandle psDBF, int iRecord, int iField )
+
+{
+    const char	*pszValue;
+    int		i;
+
+    pszValue = DBFReadStringAttribute( psDBF, iRecord, iField );
+
+    for( i = 0; pszValue[i] != '\0'; i++ )
+    {
+        if( pszValue[i] != ' ' )
+            return FALSE;
+    }
+
+    return TRUE;
+}
+
+/************************************************************************/
 /*                          DBFGetFieldCount()                          */
 /*                                                                      */
 /*      Return the number of fields in this table.                      */
@@ -892,6 +917,21 @@ static int DBFWriteAttribute(DBFHandle psDBF, int hEntity, int iField,
     pabyRec = (unsigned char *) psDBF->pszCurrentRecord;
 
 /* -------------------------------------------------------------------- */
+/*      Is this field being NULLed?  If so, just write spaces to the    */
+/*      whole field.                                                    */
+/* -------------------------------------------------------------------- */
+    psDBF->bCurrentRecordModified = TRUE;
+    psDBF->bUpdated = TRUE;
+
+    if( pValue == NULL )
+    {
+        memset( (char *) (pabyRec+psDBF->panFieldOffset[iField]), ' ', 
+                psDBF->panFieldSize[iField] );
+
+        return TRUE;
+    }
+
+/* -------------------------------------------------------------------- */
 /*      Assign all the record fields.                                   */
 /* -------------------------------------------------------------------- */
     switch( psDBF->pachFieldType[iField] )
@@ -946,9 +986,6 @@ static int DBFWriteAttribute(DBFHandle psDBF, int hEntity, int iField,
 	break;
     }
 
-    psDBF->bCurrentRecordModified = TRUE;
-    psDBF->bUpdated = TRUE;
-
     return( TRUE );
 }
 
@@ -994,6 +1031,19 @@ DBFWriteStringAttribute( DBFHandle psDBF, int iRecord, int iField,
 
 {
     return( DBFWriteAttribute( psDBF, iRecord, iField, (void *) pszValue ) );
+}
+
+/************************************************************************/
+/*                      DBFWriteNULLAttribute()                         */
+/*                                                                      */
+/*      Write a string attribute.                                       */
+/************************************************************************/
+
+int SHPAPI_CALL
+DBFWriteNULLAttribute( DBFHandle psDBF, int iRecord, int iField )
+
+{
+    return( DBFWriteAttribute( psDBF, iRecord, iField, NULL ) );
 }
 
 /************************************************************************/

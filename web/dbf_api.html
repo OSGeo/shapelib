@@ -232,6 +232,28 @@ const char *DBFReadStringAttribute( DBFHandle hDBF, int iShape, int iField );
 
 <!-------------------------------------------------------------------------->
 
+<h2>DBFIsAttributeNULL()</h2>
+
+<pre>
+int DBFIsAttributeNULL( DBFHandle hDBF, int iShape, int iField );
+  
+  hDBF:		The access handle for the file to be queried, as returned by
+		DBFOpen(), or DBFCreate().
+
+  iShape:	The record number (shape number) from which the field value
+                should be read.
+
+  iField:	The field within the selected record that should be read.
+</pre>
+
+  This function will return TRUE if the indicated field is NULL valued
+  otherwise FALSE.  Note that NULL fields are represented in the .dbf file
+  as having all spaces in the field.  Reading NULL fields will result in
+  a value of 0.0 or an empty string with the other DBFRead*Attribute() 
+  functions.<p>
+
+<!-------------------------------------------------------------------------->
+
 <h2>DBFWriteIntegerAttribute</h2>
 
 <pre>
@@ -301,6 +323,27 @@ The DBFWriteStringAttribute() function is used to write a value to a string
 field (FString).  If the write succeeds the value TRUE willbe returned, 
 otherwise FALSE will be returned.  The value may be truncated 
 without warning if written to a field to narrow to hold the string.<p>
+
+<!-------------------------------------------------------------------------->
+
+<h2>DBFWriteStringAttribute()</h2>
+
+<pre>
+int DBFWriteNULLAttribute( DBFHandle hDBF, int iShape, int iField );
+
+  hDBF:		The access handle for the file to be written, as returned by
+		DBFOpen(), or DBFCreate().
+
+  iShape:	The record number (shape number) to which the field value
+                should be written.
+
+  iField:	The field within the selected record that should be written.
+</pre>
+
+The DBFWriteNULLAttribute() function is used to clear the indicated field
+to a NULL value.  In the .dbf file this is represented by setting the entire
+field to spaces.  If the write succeeds the value TRUE willbe returned, 
+otherwise FALSE will be returned.<p>
 
 <!-------------------------------------------------------------------------->
 

@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.7  2000-09-20 13:13:55  warmerda
+ * Revision 1.8  2001-05-31 18:15:40  warmerda
+ * Added support for NULL fields in DBF files
+ *
+ * Revision 1.7  2000/09/20 13:13:55  warmerda
  * added break after default:
  *
  * Revision 1.6  2000/07/07 13:39:45  warmerda
@@ -194,28 +197,40 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
             if( !bRaw )
             {
-                switch( eType )
+                if( DBFIsAttributeNULL( hDBF, iRecord, i ) )
                 {
-                  case FTString:
-                    sprintf( szFormat, "%%-%ds", nWidth );
-                    printf( szFormat, 
-                            DBFReadStringAttribute( hDBF, iRecord, i ) );
-                    break;
-                    
-                  case FTInteger:
-                    sprintf( szFormat, "%%%dd", nWidth );
-                    printf( szFormat, 
-                            DBFReadIntegerAttribute( hDBF, iRecord, i ) );
-                    break;
+                    if( eType == FTString )
+                        sprintf( szFormat, "%%-%ds", nWidth );
+                    else
+                        sprintf( szFormat, "%%%ds", nWidth );
 
-                  case FTDouble:
-                    sprintf( szFormat, "%%%d.%dlf", nWidth, nDecimals );
-                    printf( szFormat, 
-                            DBFReadDoubleAttribute( hDBF, iRecord, i ) );
-                    break;
-
-                  default:
-                    break;
+                    printf( szFormat, "(NULL)" );
+                }
+                else
+                {
+                    switch( eType )
+                    {
+                      case FTString:
+                        sprintf( szFormat, "%%-%ds", nWidth );
+                        printf( szFormat, 
+                                DBFReadStringAttribute( hDBF, iRecord, i ) );
+                        break;
+                        
+                      case FTInteger:
+                        sprintf( szFormat, "%%%dd", nWidth );
+                        printf( szFormat, 
+                                DBFReadIntegerAttribute( hDBF, iRecord, i ) );
+                        break;
+                        
+                      case FTDouble:
+                        sprintf( szFormat, "%%%d.%dlf", nWidth, nDecimals );
+                        printf( szFormat, 
+                                DBFReadDoubleAttribute( hDBF, iRecord, i ) );
+                        break;
+                        
+                      default:
+                        break;
+                    }
                 }
             }
 

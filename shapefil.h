@@ -37,7 +37,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.17  2001-05-23 13:36:52  warmerda
+ * Revision 1.18  2001-05-31 18:15:40  warmerda
+ * Added support for NULL fields in DBF files
+ *
+ * Revision 1.17  2001/05/23 13:36:52  warmerda
  * added use of SHPAPI_CALL
  *
  * Revision 1.16  2000/09/25 14:15:59  warmerda
@@ -368,6 +371,8 @@ double 	SHPAPI_CALL
       DBFReadDoubleAttribute( DBFHandle hDBF, int iShape, int iField );
 const char SHPAPI_CALL1(*)
       DBFReadStringAttribute( DBFHandle hDBF, int iShape, int iField );
+int     SHPAPI_CALL
+      DBFIsAttributeNULL( DBFHandle hDBF, int iShape, int iField );
 
 int SHPAPI_CALL
       DBFWriteIntegerAttribute( DBFHandle hDBF, int iShape, int iField, 
@@ -378,6 +383,8 @@ int SHPAPI_CALL
 int SHPAPI_CALL
       DBFWriteStringAttribute( DBFHandle hDBF, int iShape, int iField,
                                const char * pszFieldValue );
+int SHPAPI_CALL
+     DBFWriteNULLAttribute( DBFHandle hDBF, int iShape, int iField );
 
 const char SHPAPI_CALL1(*)
       DBFReadTuple(DBFHandle psDBF, int hEntity );

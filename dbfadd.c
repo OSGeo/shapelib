@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.5  1999-11-05 14:12:04  warmerda
+ * Revision 1.6  2001-05-31 18:15:40  warmerda
+ * Added support for NULL fields in DBF files
+ *
+ * Revision 1.5  1999/11/05 14:12:04  warmerda
  * updated license terms
  *
  * Revision 1.4  1998/12/03 16:36:06  warmerda
@@ -98,7 +101,9 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
     for( i = 0; i < DBFGetFieldCount(hDBF); i++ )
     {
-	if( DBFGetFieldInfo( hDBF, i, NULL, NULL, NULL ) == FTString )
+        if( strcmp( argv[i+2], "" ) == 0 )
+            DBFWriteNULLAttribute(hDBF, iRecord, i );
+	else if( DBFGetFieldInfo( hDBF, i, NULL, NULL, NULL ) == FTString )
 	    DBFWriteStringAttribute(hDBF, iRecord, i, argv[i+2] );
 	else
 	    DBFWriteDoubleAttribute(hDBF, iRecord, i, atof(argv[i+2]) );
