@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.38  2002-05-07 16:43:39  warmerda
+ * Revision 1.39  2002-08-26 06:46:56  warmerda
+ * avoid c++ comments
+ *
+ * Revision 1.38  2002/05/07 16:43:39  warmerda
  * Removed debugging printf.
  *
  * Revision 1.37  2002/04/10 17:35:22  warmerda
@@ -1826,19 +1829,19 @@ SHPRewindObject( SHPHandle hSHP, SHPObject * psObject )
             {
                 double dfSaved;
 
-                // Swap X
+                /* Swap X */
                 dfSaved = psObject->padfX[nVertStart+i];
                 psObject->padfX[nVertStart+i] = 
                     psObject->padfX[nVertStart+nVertCount-i-1];
                 psObject->padfX[nVertStart+nVertCount-i-1] = dfSaved;
 
-                // Swap Y
+                /* Swap Y */
                 dfSaved = psObject->padfY[nVertStart+i];
                 psObject->padfY[nVertStart+i] = 
                     psObject->padfY[nVertStart+nVertCount-i-1];
                 psObject->padfY[nVertStart+nVertCount-i-1] = dfSaved;
 
-                // Swap Z
+                /* Swap Z */
                 if( psObject->padfZ )
                 {
                     dfSaved = psObject->padfZ[nVertStart+i];
@@ -1847,7 +1850,7 @@ SHPRewindObject( SHPHandle hSHP, SHPObject * psObject )
                     psObject->padfZ[nVertStart+nVertCount-i-1] = dfSaved;
                 }
 
-                // Swap M
+                /* Swap M */
                 if( psObject->padfM )
                 {
                     dfSaved = psObject->padfM[nVertStart+i];
