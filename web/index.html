@@ -123,7 +123,8 @@ XXX.dbf - holds the attributes in xBase (dBase) format.
 <h2>Release Notes</h2>
 
 <b>Release 1.2.5</b>: SHPOpen() now forcably uses "rb" or "r+b" access string
-to avoid common mistakes on Windows.<p>
+to avoid common mistakes on Windows.  Also fixed a serious bug with .dbf
+files with a 'F' field type.<p>
 
 <b>Release 1.2.4</b>: DBFOpen() will now automatically translate a .shp
 extension to .dbf for convenience.  SHPOpen() will try datasets with lower
