@@ -34,4 +34,6 @@ EXPORTS SHPOpen
 	DBFCloneEmpty
 	DBFClose
 	DBFWriteNULLAttribute
+	DBFGetFieldIndex
+
 
