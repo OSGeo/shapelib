@@ -4,7 +4,11 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.3  1995-08-04 03:15:16  warmerda
+ * Revision 1.4  1995-08-24 18:10:42  warmerda
+ * Added use of SfRealloc() to avoid pre-ANSI realloc() functions such
+ * as on the Sun.
+ *
+ * Revision 1.3  1995/08/04  03:15:16  warmerda
  * Fixed up header.
  *
  * Revision 1.2  1995/08/04  03:14:43  warmerda
@@ -24,6 +28,22 @@ typedef unsigned char uchar;
 #  define FALSE		0
 #  define TRUE		1
 #endif
+
+/************************************************************************/
+/*                             SfRealloc()                              */
+/*                                                                      */
+/*      A realloc cover function that will access a NULL pointer as     */
+/*      a valid input.                                                  */
+/************************************************************************/
+
+static void * SfRealloc( void * pMem, int nNewSize )
+
+{
+    if( pMem == NULL )
+        return( (void *) malloc(nNewSize) );
+    else
+        return( (void *) realloc(pMem,nNewSize) );
+}
 
 /************************************************************************/
 /*                           DBFWriteHeader()                           */
@@ -141,7 +161,7 @@ DBFHandle DBFOpen( const char * pszFilename, const char * pszAccess )
 /*  Read in Field Definitions                                           */
 /* -------------------------------------------------------------------- */
     
-    pabyBuf = (uchar *) realloc(pabyBuf,nHeadLen);
+    pabyBuf = (uchar *) SfRealloc(pabyBuf,nHeadLen);
     psDBF->pszHeader = (char *) pabyBuf;
 
     fseek( psDBF->fp, 32, 0 );
@@ -318,22 +338,22 @@ int	DBFAddField(DBFHandle psDBF, const char * pszFieldName,
         return( FALSE );
 
 /* -------------------------------------------------------------------- */
-/*      Realloc all the arrays larger to hold the additional field      */
+/*      SfRealloc all the arrays larger to hold the additional field      */
 /*      information.                                                    */
 /* -------------------------------------------------------------------- */
     psDBF->nFields++;
 
     psDBF->panFieldOffset = (int *) 
-      realloc( psDBF->panFieldOffset, sizeof(int) * psDBF->nFields );
+      SfRealloc( psDBF->panFieldOffset, sizeof(int) * psDBF->nFields );
 
     psDBF->panFieldSize = (int *) 
-      realloc( psDBF->panFieldSize, sizeof(int) * psDBF->nFields );
+      SfRealloc( psDBF->panFieldSize, sizeof(int) * psDBF->nFields );
 
     psDBF->panFieldDecimals = (int *) 
-      realloc( psDBF->panFieldDecimals, sizeof(int) * psDBF->nFields );
+      SfRealloc( psDBF->panFieldDecimals, sizeof(int) * psDBF->nFields );
 
     psDBF->pachFieldType = (char *) 
-      realloc( psDBF->pachFieldType, sizeof(char) * psDBF->nFields );
+      SfRealloc( psDBF->pachFieldType, sizeof(char) * psDBF->nFields );
 
 /* -------------------------------------------------------------------- */
 /*      Assign the new field information fields.                        */
@@ -353,7 +373,7 @@ int	DBFAddField(DBFHandle psDBF, const char * pszFieldName,
 /* -------------------------------------------------------------------- */
     psDBF->nHeaderLength += 32;
 
-    psDBF->pszHeader = (char *) realloc(psDBF->pszHeader,psDBF->nFields*32);
+    psDBF->pszHeader = (char *) SfRealloc(psDBF->pszHeader,psDBF->nFields*32);
 
     pszFInfo = psDBF->pszHeader + 32 * (psDBF->nFields-1);
 
@@ -381,7 +401,7 @@ int	DBFAddField(DBFHandle psDBF, const char * pszFieldName,
 /* -------------------------------------------------------------------- */
 /*      Make the current record buffer appropriately larger.            */
 /* -------------------------------------------------------------------- */
-    psDBF->pszCurrentRecord = (char *) realloc(psDBF->pszCurrentRecord,
+    psDBF->pszCurrentRecord = (char *) SfRealloc(psDBF->pszCurrentRecord,
 					       psDBF->nRecordLength);
 
     return( TRUE );
@@ -431,7 +451,7 @@ static void *DBFReadAttribute(DBFHandle psDBF, int hEntity, int iField )
     if( psDBF->panFieldSize[iField]+1 > nStringFieldLen )
     {
 	nStringFieldLen = psDBF->panFieldSize[iField]*2 + 10;
-	pszStringField = (char *) realloc(pszStringField,nStringFieldLen);
+	pszStringField = (char *) SfRealloc(pszStringField,nStringFieldLen);
     }
 
 /* -------------------------------------------------------------------- */
