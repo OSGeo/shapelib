@@ -4,7 +4,10 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.2  1995-08-04 03:18:01  warmerda
+ * Revision 1.3  1995-10-21 03:14:37  warmerda
+ * Changed to use binary file access
+ *
+ * Revision 1.2  1995/08/04  03:18:01  warmerda
  * Added header.
  *
  */
@@ -33,7 +36,7 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
 /*      Open the passed shapefile.                                      */
 /* -------------------------------------------------------------------- */
-    hSHP = SHPOpen( argv[1], "r+" );
+    hSHP = SHPOpen( argv[1], "rb+" );
 
     if( hSHP == NULL )
     {
