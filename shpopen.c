@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.26  2000-02-16 16:03:51  warmerda
+ * Revision 1.27  2000-07-18 15:21:33  warmerda
+ * added better enforcement of -1 for append in SHPWriteObject
+ *
+ * Revision 1.26  2000/02/16 16:03:51  warmerda
  * added null shape support
  *
  * Revision 1.25  1999/12/15 13:47:07  warmerda
@@ -858,6 +861,17 @@ int SHPWriteObject(SHPHandle psSHP, int nShapeId, SHPObject * psObject )
 /*      being written to.                                               */
 /* -------------------------------------------------------------------- */
     assert( psObject->nSHPType == psSHP->nShapeType );
+
+/* -------------------------------------------------------------------- */
+/*      Ensure that -1 is used for appends.  Either blow an             */
+/*      assertion, or if they are disabled, set the shapeid to -1       */
+/*      for appends.                                                    */
+/* -------------------------------------------------------------------- */
+    assert( nShapeId == -1 
+            || (nShapeId >= 0 && nShapeId < psSHP->nRecords) );
+
+    if( nShapeId != -1 && nShapeId >= psSHP->nRecords )
+        nShapeId = -1;
 
 /* -------------------------------------------------------------------- */
 /*      Add the new entity to the in memory index.                      */
