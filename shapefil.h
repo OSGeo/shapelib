@@ -7,7 +7,10 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.5  1998-11-09 20:57:16  warmerda
+ * Revision 1.6  1998-12-03 15:48:15  warmerda
+ * Added SHPCalculateExtents().
+ *
+ * Revision 1.5  1998/11/09 20:57:16  warmerda
  * Altered SHPGetInfo() call.
  *
  * Revision 1.4  1998/11/09 20:19:33  warmerda
@@ -125,6 +128,7 @@ SHPObject *SHPReadObject( SHPHandle hSHP, int iShape );
 int	SHPWriteObject( SHPHandle hSHP, int iShape, SHPObject * psObject );
 
 void	SHPDestroyObject( SHPObject * psObject );
+void	SHPComputeExtents( SHPObject * psObject );
 SHPObject *SHPCreateObject( int nSHPType, int nShapeId,
                             int nParts, int * panPartStart, int * panPartType,
                             int nVertices, double * padfX, double * padfY,
@@ -132,7 +136,6 @@ SHPObject *SHPCreateObject( int nSHPType, int nShapeId,
 SHPObject *SHPCreateSimpleObject( int nSHPType, int nVertices,
                               double * padfX, double * padfY, double * padfZ );
 
-void	SHPReadBounds( SHPHandle hSHP, int iShape, double * padBounds );
 void	SHPClose( SHPHandle hSHP );
 
 const char *SHPTypeName( int nSHPType );
