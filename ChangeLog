@@ -1,3 +1,10 @@
+2001-06-21  Frank Warmerdam  <warmerdam@pobox.com>
+
+	* dbfopen.c: Fixed NULL support with patches from Jim Matthews. 
+
+	* shpopen.c: Be more careful of establishing initial file bounds in
+	face of possible NULL shapes.
+
 2001-06-01  Frank Warmerdam  <warmerdam@pobox.com>
 
 	* dbfopen.c: ensure binary mode open.
