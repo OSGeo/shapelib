@@ -1298,8 +1298,8 @@ TYPE: Overhead Primary
 SYM_NBR:    101
 PHASE: ABC 
 CKT_NM: MED36                         
-VOLTAGE:                               
-CMPN:                               
+VOLTAGE: (NULL)                        
+CMPN: (NULL)                        
 
 Record: 1
 FNODE_:         352
