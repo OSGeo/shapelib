@@ -1,7 +1,7 @@
 
 default:	all
 
-all:	shpcreate shpadd shpdump dbfcreate dbfadd dbfdump
+all:	shpcreate shpadd shpdump dbfcreate dbfadd dbfdump shputils
 
 shpopen.o:	shpopen.c shapefil.h
 	$(CC) $(CFLAGS) -c shpopen.c
@@ -27,6 +27,8 @@ dbfadd:		dbfadd.c dbfopen.o
 dbfdump:	dbfdump.c dbfopen.o
 	$(CC) $(CFLAGS) dbfdump.c dbfopen.o -o dbfdump
 
+shputils:	shputils.c shpopen.o dbfopen.o
+	$(CC) $(CFLAGS) shputils.c shpopen.o dbfopen.o -o shputils
 
 clean:
 	rm *.o dbfdump dbfcreate dbfadd shpdump shpcreate shpadd
