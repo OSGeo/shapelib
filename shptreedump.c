@@ -29,7 +29,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.2  1999-05-18 19:11:11  warmerda
+ * Revision 1.3  1999-05-18 19:13:13  warmerda
+ * Use fabs() instead of abs().
+ *
+ * Revision 1.2  1999/05/18 19:11:11  warmerda
  * Added example searching capability
  *
  * Revision 1.1  1999/05/18 17:49:20  warmerda
@@ -179,7 +182,7 @@ static void EmitCoordinate( double * padfCoord, int nDimension )
 {
     const char	*pszFormat;
     
-    if( abs(padfCoord[0]) < 180 && abs(padfCoord[1]) < 180 )
+    if( fabs(padfCoord[0]) < 180 && fabs(padfCoord[1]) < 180 )
         pszFormat = "%.9f";
     else
         pszFormat = "%.2f";
