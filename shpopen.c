@@ -34,7 +34,11 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.24  1999-11-05 14:12:04  warmerda
+ * Revision 1.25  1999-12-15 13:47:07  warmerda
+ * Fixed record size settings in .shp file (was 4 words too long)
+ * Added stdlib.h.
+ *
+ * Revision 1.24  1999/11/05 14:12:04  warmerda
  * updated license terms
  *
  * Revision 1.23  1999/07/27 00:53:46  warmerda
@@ -120,6 +124,7 @@ static char rcsid[] =
 #include <math.h>
 #include <limits.h>
 #include <assert.h>
+#include <stdlib.h>
 
 typedef unsigned char uchar;
 
@@ -1113,7 +1118,7 @@ int SHPWriteObject(SHPHandle psSHP, int nShapeId, SHPObject * psObject )
     if( !bBigEndian ) SwapWord( 4, &i32 );
     ByteCopy( &i32, pabyRec, 4 );
 
-    i32 = nRecordSize/2;				/* record size */
+    i32 = (nRecordSize-8)/2;				/* record size */
     if( !bBigEndian ) SwapWord( 4, &i32 );
     ByteCopy( &i32, pabyRec + 4, 4 );
 
