@@ -35,7 +35,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.11  2004-01-09 16:39:49  fwarmerdam
+ * Revision 1.12  2004-01-27 18:05:35  fwarmerdam
+ * Added the -ho (header only) switch.
+ *
+ * Revision 1.11  2004/01/09 16:39:49  fwarmerdam
  * include standard include files
  *
  * Revision 1.10  2002/04/10 16:59:29  warmerda
@@ -79,6 +82,7 @@ int main( int argc, char ** argv )
 {
     SHPHandle	hSHP;
     int		nShapeType, nEntities, i, iPart, bValidate = 0,nInvalidCount=0;
+    int         bHeaderOnly = 0;
     const char 	*pszPlus;
     double 	adfMinBound[4], adfMaxBound[4];
 
@@ -89,12 +93,19 @@ int main( int argc, char ** argv )
         argc--;
     }
 
+    if( argc > 1 && strcmp(argv[1],"-ho") == 0 )
+    {
+        bHeaderOnly = 1;
+        argv++;
+        argc--;
+    }
+
 /* -------------------------------------------------------------------- */
 /*      Display a usage message.                                        */
 /* -------------------------------------------------------------------- */
     if( argc != 2 )
     {
-	printf( "shpdump [-validate] shp_file\n" );
+	printf( "shpdump [-validate] [-ho] shp_file\n" );
 	exit( 1 );
     }
 
@@ -127,11 +138,11 @@ int main( int argc, char ** argv )
             adfMaxBound[1], 
             adfMaxBound[2], 
             adfMaxBound[3] );
-    
+
 /* -------------------------------------------------------------------- */
 /*	Skim over the list of shapes, printing all the vertices.	*/
 /* -------------------------------------------------------------------- */
-    for( i = 0; i < nEntities; i++ )
+    for( i = 0; i < nEntities && !bHeaderOnly; i++ )
     {
 	int		j;
         SHPObject	*psShape;
