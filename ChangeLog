@@ -1,3 +1,9 @@
+2002-04-10  Frank Warmerdam  <warmerdam@pobox.com>
+
+	* shpopen.c: Added SHPRewindObject() to correct ring winding.
+
+	* shprewind.c: New utility program.
+
 2002-03-12  Frank Warmerdam  <warmerdam@pobox.com>
 
 	* shapelib.def: added DBFWriteNULLAttribute.
