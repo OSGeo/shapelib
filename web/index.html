@@ -122,6 +122,10 @@ XXX.dbf - holds the attributes in xBase (dBase) format.
 
 <h2>Release Notes</h2>
 
+<b>Release 1.2.4</b>: DBFOpen() will now automatically translate a .shp
+extension to .dbf for convenience.  SHPOpen() will try datasets with lower
+and uppercase extension.<p>
+
 <b>Release 1.2.3</b>: Disable writing measures to multi-patches as ArcView
 seems to puke on them (as reported by Monika Sester).  Add white space 
 trimming, and string/numeric attribute interchangability in DBF API
