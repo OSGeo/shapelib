@@ -21,7 +21,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.9  1998-12-03 15:34:23  warmerda
+ * Revision 1.10  1998-12-03 16:36:44  warmerda
+ * Use r+b instead of rb+ for binary access.
+ *
+ * Revision 1.9  1998/12/03 15:34:23  warmerda
  * Updated copyright message.
  *
  * Revision 1.8  1997/12/04 15:40:15  warmerda
@@ -174,7 +177,7 @@ DBFHandle DBFOpen( const char * pszFilename, const char * pszAccess )
 /*      We only allow the access strings "rb" and "r+".                  */
 /* -------------------------------------------------------------------- */
     if( strcmp(pszAccess,"r") != 0 && strcmp(pszAccess,"r+") != 0 
-        && strcmp(pszAccess,"rb") != 0 && strcmp(pszAccess,"rb+") != 0 )
+        && strcmp(pszAccess,"rb") != 0 && strcmp(pszAccess,"r+b") != 0 )
         return( NULL );
     
     psDBF = (DBFHandle) calloc( 1, sizeof(DBFInfo) );
