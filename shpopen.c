@@ -21,7 +21,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.18  1999-04-01 18:48:07  warmerda
+ * Revision 1.19  1999-04-19 21:01:57  warmerda
+ * Force access string to binary in SHPOpen().
+ *
+ * Revision 1.18  1999/04/01 18:48:07  warmerda
  * Try upper case extensions if lower case doesn't work.
  *
  * Revision 1.17  1998/12/31 15:29:39  warmerda
@@ -268,11 +271,14 @@ SHPHandle SHPOpen( const char * pszLayer, const char * pszAccess )
     double		dValue;
     
 /* -------------------------------------------------------------------- */
-/*      Ensure the access string is one of the legal ones.              */
+/*      Ensure the access string is one of the legal ones.  We          */
+/*      ensure the result string indicates binary to avoid common       */
+/*      problems on Windows.                                            */
 /* -------------------------------------------------------------------- */
-    if( strcmp(pszAccess,"r") != 0 && strcmp(pszAccess,"r+") != 0 
-        && strcmp(pszAccess,"rb") != 0 && strcmp(pszAccess,"r+b") != 0 )
-        return( NULL );
+    if( strcmp(pszAccess,"rb+") == 0 || strcmp(pszAccess,"r+b") == 0 )
+        pszAccess = "r+b";
+    else
+        pszAccess = "rb" );
     
 /* -------------------------------------------------------------------- */
 /*	Establish the byte order on this machine.			*/
