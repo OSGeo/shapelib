@@ -232,7 +232,8 @@ SHPHandle SHPOpen( const char * pszShapeFile, const char * pszAccess );
 
                   ------------------------------------------
 
-void SHPGetInfo( SHPHandle hSHP, int * pnEntities, int * pnShapeType );
+void SHPGetInfo( SHPHandle hSHP, int * pnEntities, int * pnShapeType,
+                 double * padfMinBound, double * padfMaxBound );
 
   hSHP:			The handle previously returned by SHPOpen() 
 			or SHPCreate().
@@ -244,6 +245,12 @@ void SHPGetInfo( SHPHandle hSHP, int * pnEntities, int * pnShapeType );
 			of this file should be placed.  Shapefiles may contain
 			either SHPT_POINT, SHPT_ARC, SHPT_POLYGON or 
 			SHPT_MULTIPOINT entities.
+
+  padfMinBound:		The X, Y, Z and M minimum values will be placed into
+                        this four entry array.  This may be NULL.
+			
+  padfMaxBound:		The X, Y, Z and M maximum values will be placed into
+                        this four entry array.  This may be NULL.
 			
                   ------------------------------------------
 
