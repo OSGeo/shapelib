@@ -27,7 +27,10 @@
  * 
  *
  * $Log$
- * Revision 1.1  1999-05-26 02:56:31  candrsn
+ * Revision 1.2  2002-04-15 18:40:31  warmerda
+ * Fixed size of adfBnds{Min,Max} as per bug from David Fowler.
+ *
+ * Revision 1.1  1999/05/26 02:56:31  candrsn
  * updates to shpdxf, dbfinfo, port from Shapelib 1.1.5 of dbfcat and shpinfo
  *
  *
@@ -40,7 +43,7 @@ int main( int argc, char ** argv )
 {
     SHPHandle	hSHP, cSHP;
     int		nShapeType, nEntities, nVertices, nParts, *panParts, i, iPart;
-    double	*padVertices, adfBndsMin[2], adfBndsMax[2];
+    double	*padVertices, adfBndsMin[4], adfBndsMax[4];
     const char 	*pszPlus;
     int		cShapeType, cEntities, cVertices, cParts, *cpanParts, ci, cPart;
     double	*cpadVertices, cadBounds[4];
