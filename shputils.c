@@ -53,7 +53,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.8  2004-01-14 14:40:22  fwarmerdam
+ * Revision 1.9  2004-01-14 14:56:00  fwarmerdam
+ * Some cleanlyness improvements.
+ *
+ * Revision 1.8  2004/01/14 14:40:22  fwarmerdam
  * Fixed exit() call to include code.
  *
  * Revision 1.7  2003/02/25 17:20:22  warmerda
@@ -84,6 +87,8 @@ static char rcsid[] =
 
 #include "shapefil.h"
 #include "string.h"
+#include <stdlib.h>
+
 #ifndef FALSE
 #  define FALSE		0
 #  define TRUE		1
@@ -115,9 +120,10 @@ char	iszFormat[32], iszField[1024];
 char	jszFormat[32], jszField[1024];
 int	i, ti, iWidth, iDecimals, iRecord;
 int	j, tj, jWidth, jDecimals, jRecord;
-int     found, newdbf;
 
 
+int clip_boundary();
+double findunit(char *unit);
 void openfiles(void);
 void setext(char *pt, char *ext);
 int strncasecmp2(char *s1, char *s2, int n);
@@ -125,7 +131,7 @@ void mergefields(void);
 void findselect(void);
 void showitems(void);
 int selectrec();
-int check_theme_bnd();
+void check_theme_bnd();
 int clip_boundary();
 void error();
 
@@ -750,7 +756,7 @@ long int value, ty;
 }
 
 
-int check_theme_bnd()
+void check_theme_bnd()
 {
     if ( (adfBoundsMin[0] >= cxmin) && (adfBoundsMax[0] <= cxmax) &&
          (adfBoundsMin[1] >= cymin) && (adfBoundsMax[1] <= cymax) )
@@ -772,7 +778,7 @@ int check_theme_bnd()
         puts("WARNING: Theme is outside the clip area."); /** SKIP THEME  **/
 }
 
-clip_boundary()
+int clip_boundary()
 {
     int  inside;
     int  prev_outside;
@@ -913,8 +919,7 @@ int j,i;
 
 
 #define  NKEYS (sizeof(unitkeytab) / sizeof(struct unitkey))
-findunit(unit)
-   char *unit;
+double findunit(char *unit)
    {
    struct unitkey {
      char   *name;
