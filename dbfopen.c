@@ -21,7 +21,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.14  1999-05-04 15:01:48  warmerda
+ * Revision 1.15  1999-05-11 03:19:28  warmerda
+ * added new Tuple api, and improved extension handling - add from candrsn
+ *
+ * Revision 1.14  1999/05/04 15:01:48  warmerda
  * Added 'F' support.
  *
  * Revision 1.13  1999/03/23 17:38:59  warmerda
@@ -108,7 +111,7 @@ static void * SfRealloc( void * pMem, int nNewSize )
 static void DBFWriteHeader(DBFHandle psDBF)
 
 {
-    uchar	abyHeader[32];
+    uchar	abyHeader[XBASE_FLDHDR_SZ];
     int		i;
 
     if( !psDBF->bNoHeader )
@@ -119,7 +122,7 @@ static void DBFWriteHeader(DBFHandle psDBF)
 /* -------------------------------------------------------------------- */
 /*	Initialize the file header information.				*/
 /* -------------------------------------------------------------------- */
-    for( i = 0; i < 32; i++ )
+    for( i = 0; i < XBASE_FLDHDR_SZ; i++ )
         abyHeader[i] = 0;
 
     abyHeader[0] = 0x03;		/* memo field? - just copying 	*/
@@ -137,8 +140,8 @@ static void DBFWriteHeader(DBFHandle psDBF)
 /*      descriptions.                                     		*/
 /* -------------------------------------------------------------------- */
     fseek( psDBF->fp, 0, 0 );
-    fwrite( abyHeader, 32, 1, psDBF->fp );
-    fwrite( psDBF->pszHeader, 32, psDBF->nFields, psDBF->fp );
+    fwrite( abyHeader, XBASE_FLDHDR_SZ, 1, psDBF->fp );
+    fwrite( psDBF->pszHeader, XBASE_FLDHDR_SZ, psDBF->nFields, psDBF->fp );
 
 /* -------------------------------------------------------------------- */
 /*      Write out the newline character if there is room for it.        */
@@ -187,47 +190,41 @@ DBFHandle DBFOpen( const char * pszFilename, const char * pszAccess )
     DBFHandle		psDBF;
     uchar		*pabyBuf;
     int			nFields, nRecords, nHeadLen, nRecLen, iField, i;
-    char	        *pszDBFFilename;
-    FILE		*fp;
+    char		*pszBasename, *pszFullname;
 
 /* -------------------------------------------------------------------- */
 /*      We only allow the access strings "rb" and "r+".                  */
 /* -------------------------------------------------------------------- */
     if( strcmp(pszAccess,"r") != 0 && strcmp(pszAccess,"r+") != 0 
-        && strcmp(pszAccess,"rb") != 0 && strcmp(pszAccess,"r+b") != 0 )
+        && strcmp(pszAccess,"rb") != 0 && strcmp(pszAccess,"rb+") != 0
+        && strcmp(pszAccess,"r+b") != 0 )
         return( NULL );
-    
-/* -------------------------------------------------------------------- */
-/*	Ensure the extension is converted to dbf or DBF if it is 	*/
-/*	currently .shp or .shx.						*/    
-/* -------------------------------------------------------------------- */
-    pszDBFFilename = (char *) malloc(strlen(pszFilename)+1);
-    strcpy( pszDBFFilename, pszFilename );
-    
-    if( strcmp(pszFilename+strlen(pszFilename)-4,".shp")
-        || strcmp(pszFilename+strlen(pszFilename)-4,".shx") )
-    {
-        strcpy( pszDBFFilename+strlen(pszDBFFilename)-4, ".dbf");
-    }
-    else if( strcmp(pszFilename+strlen(pszFilename)-4,".SHP")
-             || strcmp(pszFilename+strlen(pszFilename)-4,".SHX") )
-    {
-        strcpy( pszDBFFilename+strlen(pszDBFFilename)-4, ".DBF");
-    }
 
 /* -------------------------------------------------------------------- */
-/*      Open the file.                                                  */
+/*	Compute the base (layer) name.  If there is any extension	*/
+/*	on the passed in filename we will strip it off.			*/
 /* -------------------------------------------------------------------- */
+    pszBasename = (char *) malloc(strlen(pszFilename)+5);
+    strcpy( pszBasename, pszFilename );
+    for( i = strlen(pszBasename)-1; 
+	 i > 0 && pszBasename[i] != '.' && pszBasename[i] != '/'
+	       && pszBasename[i] != '\\';
+	 i-- ) {}
+
+    if( pszBasename[i] == '.' )
+        pszBasename[i] = '\0';
+
+    pszFullname = (char *) malloc(strlen(pszBasename) + 5);
+    sprintf( pszFullname, "%s.dbf", pszBasename );
+        
     psDBF = (DBFHandle) calloc( 1, sizeof(DBFInfo) );
-    psDBF->fp = fopen( pszDBFFilename, pszAccess );
+    psDBF->fp = fopen( pszFullname, pszAccess );
     if( psDBF->fp == NULL )
         return( NULL );
 
     psDBF->bNoHeader = FALSE;
     psDBF->nCurrentRecord = -1;
     psDBF->bCurrentRecordModified = FALSE;
-
-    free( pszDBFFilename );
 
 /* -------------------------------------------------------------------- */
 /*  Read Table Header info                                              */
@@ -358,18 +355,37 @@ DBFHandle DBFCreate( const char * pszFilename )
 {
     DBFHandle	psDBF;
     FILE	*fp;
+    char	*pszFullname, *pszBasename;
+    int		i;
+
+/* -------------------------------------------------------------------- */
+/*	Compute the base (layer) name.  If there is any extension	*/
+/*	on the passed in filename we will strip it off.			*/
+/* -------------------------------------------------------------------- */
+    pszBasename = (char *) malloc(strlen(pszFilename)+5);
+    strcpy( pszBasename, pszFilename );
+    for( i = strlen(pszBasename)-1; 
+	 i > 0 && pszBasename[i] != '.' && pszBasename[i] != '/'
+	       && pszBasename[i] != '\\';
+	 i-- ) {}
+
+    if( pszBasename[i] == '.' )
+        pszBasename[i] = '\0';
+
+    pszFullname = (char *) malloc(strlen(pszBasename) + 5);
+    sprintf( pszFullname, "%s.dbf", pszBasename );
 
 /* -------------------------------------------------------------------- */
 /*      Create the file.                                                */
 /* -------------------------------------------------------------------- */
-    fp = fopen( pszFilename, "wb" );
+    fp = fopen( pszFullname, "wb" );
     if( fp == NULL )
         return( NULL );
 
     fputc( 0, fp );
     fclose( fp );
 
-    fp = fopen( pszFilename, "rb+" );
+    fp = fopen( pszFullname, "rb+" );
     if( fp == NULL )
         return( NULL );
 
@@ -843,3 +859,150 @@ int DBFWriteStringAttribute( DBFHandle psDBF, int iRecord, int iField,
     return( DBFWriteAttribute( psDBF, iRecord, iField, (void *) pszValue ) );
 }
 
+/************************************************************************/
+/*                         DBFWriteTuple()                              */
+/*									*/
+/*	Write an attribute record to the file.				*/
+/************************************************************************/
+
+int DBFWriteTuple(DBFHandle psDBF, int hEntity, void * pRawTuple )
+
+{
+    int	       	nRecordOffset, i, j;
+    uchar	*pabyRec;
+    char	szSField[40], szFormat[12];
+
+/* -------------------------------------------------------------------- */
+/*	Is this a valid record?						*/
+/* -------------------------------------------------------------------- */
+    if( hEntity < 0 || hEntity > psDBF->nRecords )
+        return( FALSE );
+
+    if( psDBF->bNoHeader )
+        DBFWriteHeader(psDBF);
+
+/* -------------------------------------------------------------------- */
+/*      Is this a brand new record?                                     */
+/* -------------------------------------------------------------------- */
+    if( hEntity == psDBF->nRecords )
+    {
+	DBFFlushRecord( psDBF );
+
+	psDBF->nRecords++;
+	for( i = 0; i < psDBF->nRecordLength; i++ )
+	    psDBF->pszCurrentRecord[i] = ' ';
+
+	psDBF->nCurrentRecord = hEntity;
+    }
+
+/* -------------------------------------------------------------------- */
+/*      Is this an existing record, but different than the last one     */
+/*      we accessed?                                                    */
+/* -------------------------------------------------------------------- */
+    if( psDBF->nCurrentRecord != hEntity )
+    {
+	DBFFlushRecord( psDBF );
+
+	nRecordOffset = psDBF->nRecordLength * hEntity + psDBF->nHeaderLength;
+
+	fseek( psDBF->fp, nRecordOffset, 0 );
+	fread( psDBF->pszCurrentRecord, psDBF->nRecordLength, 1, psDBF->fp );
+
+	psDBF->nCurrentRecord = hEntity;
+    }
+
+    pabyRec = (uchar *) psDBF->pszCurrentRecord;
+
+    memcpy ( pabyRec, pRawTuple,  psDBF->nRecordLength );
+
+    psDBF->bCurrentRecordModified = TRUE;
+    psDBF->bUpdated = TRUE;
+
+    return( TRUE );
+}
+
+/************************************************************************/
+/*                          DBFReadTuple()                              */
+/*                                                                      */
+/*      Read one of the attribute fields of a record.                   */
+/************************************************************************/
+
+const char *DBFReadTuple(DBFHandle psDBF, int hEntity )
+
+{
+    int	       	nRecordOffset, i, j;
+    uchar	*pabyRec;
+    char	*pszSField;
+    static char	*pReturnTuple = NULL;
+
+    static int	nTupleLen = 0;
+
+/* -------------------------------------------------------------------- */
+/*	Have we read the record?					*/
+/* -------------------------------------------------------------------- */
+    if( hEntity < 0 || hEntity >= psDBF->nRecords )
+        return( NULL );
+
+    if( psDBF->nCurrentRecord != hEntity )
+    {
+	DBFFlushRecord( psDBF );
+
+	nRecordOffset = psDBF->nRecordLength * hEntity + psDBF->nHeaderLength;
+
+	fseek( psDBF->fp, nRecordOffset, 0 );
+	fread( psDBF->pszCurrentRecord, psDBF->nRecordLength, 1, psDBF->fp );
+
+	psDBF->nCurrentRecord = hEntity;
+    }
+
+    pabyRec = (uchar *) psDBF->pszCurrentRecord;
+
+    if ( nTupleLen < psDBF->nRecordLength) {
+      nTupleLen = psDBF->nRecordLength;
+      pReturnTuple = (char *) SfRealloc(pReturnTuple, psDBF->nRecordLength);
+    }
+    
+    memcpy ( pReturnTuple, pabyRec, psDBF->nRecordLength );
+        
+    return( pReturnTuple );
+}
+
+/************************************************************************/
+/*                          DBFCloneEmpty()                              */
+/*                                                                      */
+/*      Read one of the attribute fields of a record.                   */
+/************************************************************************/
+
+DBFHandle DBFCloneEmpty(DBFHandle psDBF, const char * pszFilename ) 
+{
+    DBFHandle	newDBF;
+
+   newDBF = DBFCreate ( pszFilename );
+   if ( newDBF == NULL ) return ( NULL ); 
+   
+   newDBF->pszHeader = (void *) malloc ( 32 * psDBF->nFields );
+   memcpy ( newDBF->pszHeader, psDBF->pszHeader, 32 * psDBF->nFields );
+   
+   newDBF->nFields = psDBF->nFields;
+   newDBF->nRecordLength = psDBF->nRecordLength;
+   newDBF->nHeaderLength = psDBF->nHeaderLength;
+    
+   newDBF->panFieldOffset = (void *) malloc ( sizeof(int) * psDBF->nFields ); 
+   memcpy ( newDBF->panFieldOffset, psDBF->panFieldOffset, sizeof(int) * psDBF->nFields );
+   newDBF->panFieldSize = (void *) malloc ( sizeof(int) * psDBF->nFields );
+   memcpy ( newDBF->panFieldSize, psDBF->panFieldSize, sizeof(int) * psDBF->nFields );
+   newDBF->panFieldDecimals = (void *) malloc ( sizeof(int) * psDBF->nFields );
+   memcpy ( newDBF->panFieldDecimals, psDBF->panFieldDecimals, sizeof(int) * psDBF->nFields );
+   newDBF->pachFieldType = (void *) malloc ( sizeof(int) * psDBF->nFields );
+   memcpy ( newDBF->pachFieldType, psDBF->pachFieldType, sizeof(int) * psDBF->nFields );
+
+   newDBF->bNoHeader = TRUE;
+   newDBF->bUpdated = TRUE;
+   
+   DBFWriteHeader ( newDBF );
+   DBFClose ( newDBF );
+   
+   newDBF = DBFOpen ( pszFilename, "rb+" );
+
+   return ( newDBF );
+}

@@ -7,7 +7,10 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.8  1999-03-23 17:22:27  warmerda
+ * Revision 1.9  1999-05-11 03:19:28  warmerda
+ * added new Tuple api, and improved extension handling - add from candrsn
+ *
+ * Revision 1.8  1999/03/23 17:22:27  warmerda
  * Added extern "C" protection for C++ users of shapefil.h.
  *
  * Revision 1.7  1998/12/31 15:31:07  warmerda
@@ -204,6 +207,8 @@ typedef enum {
   FTInvalid
 } DBFFieldType;
 
+#define XBASE_FLDHDR_SZ       32
+
 DBFHandle DBFOpen( const char * pszDBFFile, const char * pszAccess );
 DBFHandle DBFCreate( const char * pszDBFFile );
 
@@ -227,6 +232,11 @@ int DBFWriteDoubleAttribute( DBFHandle hDBF, int iShape, int iField,
 int DBFWriteStringAttribute( DBFHandle hDBF, int iShape, int iField,
 			     const char * pszFieldValue );
 
+const char *DBFReadTuple(DBFHandle psDBF, int hEntity );
+int DBFWriteTuple(DBFHandle psDBF, int hEntity, void * pRawTuple );
+
+DBFHandle DBFCloneEmpty(DBFHandle psDBF, const char * pszFilename );
+ 
 void	DBFClose( DBFHandle hDBF );
 
 #ifdef __cplusplus
