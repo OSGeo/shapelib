@@ -32,11 +32,12 @@
  * use -DPROJ4 to compile in Projection support
  *
  * $Log$
- * Revision 1.2  1999-05-26 02:56:31  candrsn
+ * Revision 1.3  2000-03-17 14:15:16  warmerda
+ * Don't try to use system nan.h ... doesn't always exist.
+ *
+ * Revision 1.2  1999/05/26 02:56:31  candrsn
  * updates to shpdxf, dbfinfo, port from Shapelib 1.1.5 of dbfcat and shpinfo
  *
- *
- * 
  */
 
 #include "shapefil.h"
@@ -46,11 +47,7 @@
   #define PJ void*
 #endif
 
-#include <nan.h>
-#ifndef NAN
-  #include "my_nan.h" 
-#endif
-
+#include "my_nan.h" 
 #include "shpgeo.h"
 
 
