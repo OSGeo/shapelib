@@ -2,9 +2,10 @@
 #LINKOPT	=	/usr/local/lib/libdbmalloc.a
 #CFLAGS	=	-g -DUSE_DBMALLOC
 
-CFLAGS	=	-I.. -DPROJ4 -DDEBUG -DDEBUG2 
+# Endian: define either _LITTLE_ENDIAN or _BIG_ENDIAN
+ENDIAN	=	-D_LITTLE_ENDIAN
 
-#CFLAGS  =	-I.. -DPROJ4
+CFLAGS	=	-I.. -DPROJ4 $(ENDIAN) -DDEBUG -DDEBUG2 
 
 SHPOBJ	=	../shpopen.o ../dbfopen.o 
 
@@ -43,18 +44,16 @@ shpcat:		shpcat.c $(SHPOBJ)
 shpwkb:		shpwkb.c $(SHPGOBJ)
 	$(CC) $(CFLAGS) shpwkb.c ${SHPOBJ} $(LINKOPT) $(GEOOBJ) -o shpwkb
 
-shpproj: 	shpproj.c $(SHPOBJ)
+shpproj: 	shpproj.c $(SHPGOBJ)
 	$(CC) $(CFLAGS) shpproj.c  $(SHPOBJ) $(GEOOBJ) -lm -lproj $(LINKOPT) -o shpproj
 
 dbfinfo: 	dbfinfo.c $(SHPOBJ)
 	$(CC) $(CFLAGS) dbfinfo.c $(SHPOBJ) $(LINKOPT) -o dbfinfo
-	
+
 dbfcat:		dbfcat.c $(SHPOBJ)
 	$(CC) $(CFLAGS) dbfcat.c $(SHPOBJ) $(LINKOPT) -o dbfcat
-		
+
 check:	testproj
-		
+
 testproj: 
 	tests/shpproj.sh
-
-	  
