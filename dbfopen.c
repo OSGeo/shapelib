@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.29  2000-10-05 14:36:44  warmerda
+ * Revision 1.30  2000-12-05 14:43:38  warmerda
+ * DBReadAttribute() white space trimming bug fix
+ *
+ * Revision 1.29  2000/10/05 14:36:44  warmerda
  * fix bug with writing very wide numeric fields
  *
  * Revision 1.28  2000/09/25 14:18:07  warmerda
@@ -694,9 +697,8 @@ static void *DBFReadAttribute(DBFHandle psDBF, int hEntity, int iField,
             *(pchDst++) = *(pchSrc++);
         *pchDst = '\0';
 
-        while( *(--pchDst) == ' ' && pchDst != pszStringField )
+        while( pchDst != pszStringField && *(--pchDst) == ' ' )
             *pchDst = '\0';
-
     }
 #endif
     
