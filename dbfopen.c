@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.58  2005-03-14 15:18:54  fwarmerdam
+ * Revision 1.59  2005-03-14 15:20:28  fwarmerdam
+ * Fixed last change.
+ *
+ * Revision 1.58  2005/03/14 15:18:54  fwarmerdam
  * Treat very wide fields with no decimals as double.  This is
  * more than 32bit integer fields.
  *
@@ -997,7 +1000,7 @@ DBFGetFieldInfo( DBFHandle psDBF, int iField, char * pszFieldName,
              || psDBF->pachFieldType[iField] == 'D' )
     {
 	if( psDBF->panFieldDecimals[iField] > 0 
-            || psDBF->panFieldWidth[iField] > 10 )
+            || psDBF->panFieldSize[iField] > 10 )
 	    return( FTDouble );
 	else
 	    return( FTInteger );
