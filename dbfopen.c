@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.28  2000-09-25 14:18:07  warmerda
+ * Revision 1.29  2000-10-05 14:36:44  warmerda
+ * fix bug with writing very wide numeric fields
+ *
+ * Revision 1.28  2000/09/25 14:18:07  warmerda
  * Added some casts of strlen() return result to fix warnings on some
  * systems, as submitted by Daniel.
  *
@@ -830,7 +833,7 @@ static int DBFWriteAttribute(DBFHandle psDBF, int hEntity, int iField,
 {
     int	       	nRecordOffset, i, j;
     unsigned char	*pabyRec;
-    char	szSField[40], szFormat[12];
+    char	szSField[400], szFormat[20];
 
 /* -------------------------------------------------------------------- */
 /*	Is this a valid record?						*/
@@ -883,7 +886,12 @@ static int DBFWriteAttribute(DBFHandle psDBF, int hEntity, int iField,
       case 'F':
 	if( psDBF->panFieldDecimals[iField] == 0 )
 	{
-	    sprintf( szFormat, "%%%dd", psDBF->panFieldSize[iField] );
+            int		nWidth = psDBF->panFieldSize[iField];
+
+            if( sizeof(szSField)-2 < nWidth )
+                nWidth = sizeof(szSField)-2;
+
+	    sprintf( szFormat, "%%%dd", nWidth );
 	    sprintf(szSField, szFormat, (int) *((double *) pValue) );
 	    if( (int)strlen(szSField) > psDBF->panFieldSize[iField] )
 	        szSField[psDBF->panFieldSize[iField]] = '\0';
@@ -893,9 +901,13 @@ static int DBFWriteAttribute(DBFHandle psDBF, int hEntity, int iField,
 	}
 	else
 	{
+            int		nWidth = psDBF->panFieldSize[iField];
+
+            if( sizeof(szSField)-2 < nWidth )
+                nWidth = sizeof(szSField)-2;
+
 	    sprintf( szFormat, "%%%d.%df", 
-		     psDBF->panFieldSize[iField],
-		     psDBF->panFieldDecimals[iField] );
+                     nWidth, psDBF->panFieldDecimals[iField] );
 	    sprintf(szSField, szFormat, *((double *) pValue) );
 	    if( (int) strlen(szSField) > psDBF->panFieldSize[iField] )
 	        szSField[psDBF->panFieldSize[iField]] = '\0';

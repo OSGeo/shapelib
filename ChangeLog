@@ -1,3 +1,9 @@
+2000-10-05  Frank Warmerdam  <warmerda@cs46980-c>
+
+	* Fixed DBFWriteAttribute() to ensure we can't overwrite the
+	end of the szSField buffer even if the width is set large.
+	Bug report by Kirk Benell <kirk@rsinc.com>.
+
 2000-09-25  Frank Warmerdam  <warmerda@cs46980-c>
 
 	* Added DBFGetNativeFieldType() (contributed by Daniel) to dbfopen.c.
