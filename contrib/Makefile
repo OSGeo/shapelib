@@ -14,10 +14,10 @@ GEOOBJ	=	./shpgeo.o -lm -lproj
 
 default:	all
 
-all:	shpdxf shpproj dbfinfo shpcentrd shpdata shpwkb dbfinfo dbfcat shpinfo
+all:	shpdxf shpproj dbfinfo shpcentrd shpdata shpwkb dbfinfo dbfcat shpinfo shpfix shpcat
 
 clean:  
-	rm -f shpdxf shpproj dbfinfo shpcentrd shpdata shpwkb dbfcat dbfinfo shpinfo
+	rm -f shpdxf shpproj dbfinfo shpcentrd shpdata shpwkb dbfcat dbfinfo shpinfo shpfix shpcat
 
 shpgeo.o:	shpgeo.c shpgeo.h
 	$(CC) $(CFLAGS) -c shpgeo.c
@@ -33,7 +33,13 @@ shpdata:	shpdata.c $(SHPGOBJ)
 
 shpinfo:	shpinfo.c $(SHPOBJ)
 	$(CC) $(CFLAGS) shpinfo.c ${SHPOBJ} $(LINKOPT) $(GEOOBJ) -o shpinfo
-	
+
+shpfix:		shpfix.c $(SHPOBJ)
+	$(CC) $(CFLAGS) shpfix.c ${SHPOBJ} $(LINKOPT) -o shpfix
+
+shpcat:		shpcat.c $(SHPOBJ)
+	$(CC) $(CFLAGS) shpcat.c ${SHPOBJ} $(LINKOPT) -o shpcat
+
 shpwkb:		shpwkb.c $(SHPGOBJ)
 	$(CC) $(CFLAGS) shpwkb.c ${SHPOBJ} $(LINKOPT) $(GEOOBJ) -o shpwkb
 
