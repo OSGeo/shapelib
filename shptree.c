@@ -28,7 +28,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.3  1999-06-02 17:56:12  warmerda
+ * Revision 1.4  1999-06-02 18:24:21  warmerda
+ * added trimming code
+ *
+ * Revision 1.3  1999/06/02 17:56:12  warmerda
  * added quad'' subnode support for trees
  *
  * Revision 1.2  1999/05/18 19:11:11  warmerda
@@ -97,7 +100,7 @@ static SHPTreeNode *SHPTreeNodeCreate( double * padfBoundsMin,
     psTreeNode->panShapeIds = NULL;
     psTreeNode->papsShapeObj = NULL;
 
-    psTreeNode->nSubnodes = 0;
+    psTreeNode->nSubNodes = 0;
 
     if( padfBoundsMin != NULL )
         memcpy( psTreeNode->adfBoundsMin, padfBoundsMin, sizeof(double) * 4 );
@@ -196,7 +199,7 @@ static void SHPDestroyTreeNode( SHPTreeNode * psTreeNode )
 {
     int		i;
     
-    for( i = 0; i < psTreeNode->nSubnodes; i++ )
+    for( i = 0; i < psTreeNode->nSubNodes; i++ )
     {
         if( psTreeNode->apsSubNode[i] != NULL )
             SHPDestroyTreeNode( psTreeNode->apsSubNode[i] );
@@ -350,9 +353,9 @@ SHPTreeNodeAddShapeId( SHPTreeNode * psTreeNode, SHPObject * psObject,
 /*      If there are subnodes, then consider wiether this object        */
 /*      will fit in them.                                               */
 /* -------------------------------------------------------------------- */
-    if( nMaxDepth > 1 && psTreeNode->nSubnodes > 0 )
+    if( nMaxDepth > 1 && psTreeNode->nSubNodes > 0 )
     {
-        for( i = 0; i < psTreeNode->nSubnodes; i++ )
+        for( i = 0; i < psTreeNode->nSubNodes; i++ )
         {
             if( SHPCheckObjectContained(psObject, nDimension,
                                       psTreeNode->apsSubNode[i]->adfBoundsMin,
@@ -370,7 +373,7 @@ SHPTreeNodeAddShapeId( SHPTreeNode * psTreeNode, SHPObject * psObject,
 /*      them, and adding to the appropriate subnode.                    */
 /* -------------------------------------------------------------------- */
 #if MAX_SUBNODE == 4
-    else if( nMaxDepth > 1 && psTreeNode->nSubnodes == 0 )
+    else if( nMaxDepth > 1 && psTreeNode->nSubNodes == 0 )
     {
         double	adfBoundsMinH1[4], adfBoundsMaxH1[4];
         double	adfBoundsMinH2[4], adfBoundsMaxH2[4];
@@ -401,7 +404,7 @@ SHPTreeNodeAddShapeId( SHPTreeNode * psTreeNode, SHPObject * psObject,
             || SHPCheckObjectContained(psObject, nDimension,
                                     adfBoundsMin4, adfBoundsMax4) )
         {
-            psTreeNode->nSubnodes = 4;
+            psTreeNode->nSubNodes = 4;
             psTreeNode->apsSubNode[0] = SHPTreeNodeCreate( adfBoundsMin1,
                                                            adfBoundsMax1 );
             psTreeNode->apsSubNode[1] = SHPTreeNodeCreate( adfBoundsMin2,
@@ -423,7 +426,7 @@ SHPTreeNodeAddShapeId( SHPTreeNode * psTreeNode, SHPObject * psObject,
 /*      them, and adding to the appropriate subnode.                    */
 /* -------------------------------------------------------------------- */
 #if MAX_SUBNODE == 2
-    else if( nMaxDepth > 1 && psTreeNode->nSubnodes == 0 )
+    else if( nMaxDepth > 1 && psTreeNode->nSubNodes == 0 )
     {
         double	adfBoundsMin1[4], adfBoundsMax1[4];
         double	adfBoundsMin2[4], adfBoundsMax2[4];
@@ -435,7 +438,7 @@ SHPTreeNodeAddShapeId( SHPTreeNode * psTreeNode, SHPObject * psObject,
         if( SHPCheckObjectContained(psObject, nDimension,
                                  adfBoundsMin1, adfBoundsMax1))
         {
-            psTreeNode->nSubnodes = 2;
+            psTreeNode->nSubNodes = 2;
             psTreeNode->apsSubNode[0] = SHPTreeNodeCreate( adfBoundsMin1,
                                                            adfBoundsMax1 );
             psTreeNode->apsSubNode[1] = SHPTreeNodeCreate( adfBoundsMin2,
@@ -447,7 +450,7 @@ SHPTreeNodeAddShapeId( SHPTreeNode * psTreeNode, SHPObject * psObject,
         else if( SHPCheckObjectContained(psObject, nDimension,
                                          adfBoundsMin2, adfBoundsMax2) )
         {
-            psTreeNode->nSubnodes = 2;
+            psTreeNode->nSubNodes = 2;
             psTreeNode->apsSubNode[0] = SHPTreeNodeCreate( adfBoundsMin1,
                                                            adfBoundsMax1 );
             psTreeNode->apsSubNode[1] = SHPTreeNodeCreate( adfBoundsMin2,
@@ -541,7 +544,7 @@ void SHPTreeCollectShapeIds( SHPTree *hTree, SHPTreeNode * psTreeNode,
 /* -------------------------------------------------------------------- */
 /*      Recurse to subnodes if they exist.                              */
 /* -------------------------------------------------------------------- */
-    for( i = 0; i < psTreeNode->nSubnodes; i++ )
+    for( i = 0; i < psTreeNode->nSubNodes; i++ )
     {
         if( psTreeNode->apsSubNode[i] != NULL )
             SHPTreeCollectShapeIds( hTree, psTreeNode->apsSubNode[i],
@@ -601,3 +604,53 @@ int *SHPTreeFindLikelyShapes( SHPTree * hTree,
 
     return panShapeList;
 }
+
+/************************************************************************/
+/*                          SHPTreeNodeTrim()                           */
+/*                                                                      */
+/*      This is the recurve version of SHPTreeTrimExtraNodes() that     */
+/*      walks the tree cleaning it up.                                  */
+/************************************************************************/
+
+static int SHPTreeNodeTrim( SHPTreeNode * psTreeNode )
+
+{
+    int		i;
+
+/* -------------------------------------------------------------------- */
+/*      Trim subtrees, and free subnodes that come back empty.          */
+/* -------------------------------------------------------------------- */
+    for( i = 0; i < psTreeNode->nSubNodes; i++ )
+    {
+        if( SHPTreeNodeTrim( psTreeNode->apsSubNode[i] ) )
+        {
+            SHPDestroyTreeNode( psTreeNode->apsSubNode[i] );
+
+            psTreeNode->apsSubNode[i] =
+                psTreeNode->apsSubNode[psTreeNode->nSubNodes-1];
+
+            psTreeNode->nSubNodes--;
+
+            i--; /* process the new occupant of this subnode entry */
+        }
+    }
+
+/* -------------------------------------------------------------------- */
+/*      We should be trimmed if we have no subnodes, and no shapes.     */
+/* -------------------------------------------------------------------- */
+    return( psTreeNode->nSubNodes == 0 && psTreeNode->nShapeCount == 0 );
+}
+
+/************************************************************************/
+/*                       SHPTreeTrimExtraNodes()                        */
+/*                                                                      */
+/*      Trim empty nodes from the tree.  Note that we never trim an     */
+/*      empty root node.                                                */
+/************************************************************************/
+
+void SHPTreeTrimExtraNodes( SHPTree * hTree )
+
+{
+    SHPTreeNodeTrim( hTree->psRoot );
+}
+

@@ -29,7 +29,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.4  1999-06-02 17:56:12  warmerda
+ * Revision 1.5  1999-06-02 18:24:21  warmerda
+ * added trimming code
+ *
+ * Revision 1.4  1999/06/02 17:56:12  warmerda
  * added quad'' subnode support for trees
  *
  * Revision 1.3  1999/05/18 19:13:13  warmerda
@@ -150,6 +153,11 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
     psTree = SHPCreateTree( hSHP, 2, nMaxDepth, NULL, NULL );
 
+/* -------------------------------------------------------------------- */
+/*      Trim unused nodes from the tree.                                */
+/* -------------------------------------------------------------------- */
+    SHPTreeTrimExtraNodes( psTree );
+        
 /* -------------------------------------------------------------------- */
 /*      Dump tree by recursive descent.                                 */
 /* -------------------------------------------------------------------- */
@@ -310,7 +318,7 @@ static void SHPTreeNodeDump( SHPTree * psTree,
 /* -------------------------------------------------------------------- */
 /*      Emit subnodes.                                                  */
 /* -------------------------------------------------------------------- */
-    for( i = 0; i < psTreeNode->nSubnodes; i++ )
+    for( i = 0; i < psTreeNode->nSubNodes; i++ )
     {
         if( psTreeNode->apsSubNode[i] != NULL )
             SHPTreeNodeDump( psTree, psTreeNode->apsSubNode[i],

@@ -7,7 +7,10 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.12  1999-06-02 17:56:12  warmerda
+ * Revision 1.13  1999-06-02 18:24:21  warmerda
+ * added trimming code
+ *
+ * Revision 1.12  1999/06/02 17:56:12  warmerda
  * added quad'' subnode support for trees
  *
  * Revision 1.11  1999/05/18 19:11:11  warmerda
@@ -199,8 +202,7 @@ typedef struct shape_tree_node
     int		*panShapeIds;
     SHPObject   **papsShapeObj;
 
-    int		nSubnodes;
-
+    int		nSubNodes;
     struct shape_tree_node *apsSubNode[MAX_SUBNODE];
     
 } SHPTreeNode;
@@ -225,6 +227,8 @@ SHPTree SHPReadTree( const char * pszFilename );
 int	SHPTreeAddObject( SHPTree * hTree, SHPObject * psObject );
 int	SHPTreeAddShapeId( SHPTree * hTree, SHPObject * psObject );
 int	SHPTreeRemoveShapeId( SHPTree * hTree, int nShapeId );
+
+void 	SHPTreeTrimExtraNodes( SHPTree * hTree );
 
 int    *SHPTreeFindLikelyShapes( SHPTree * hTree,
                                  double * padfBoundsMin,
