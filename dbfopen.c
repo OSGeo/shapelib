@@ -34,7 +34,11 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.56  2005-02-10 20:07:56  fwarmerdam
+ * Revision 1.57  2005-02-10 20:16:54  fwarmerdam
+ * Make the pszStringField buffer for DBFReadAttribute() static char [256]
+ * as per bug 306.
+ *
+ * Revision 1.56  2005/02/10 20:07:56  fwarmerdam
  * Fixed bug 305 in DBFCloneEmpty() - header length problem.
  *
  * Revision 1.55  2004/09/26 20:23:46  fwarmerdam
@@ -219,9 +223,6 @@ SHP_CVSID("$Id$")
 #  define FALSE		0
 #  define TRUE		1
 #endif
-
-static int	nStringFieldLen = 0;
-static char * pszStringField = NULL;
 
 /************************************************************************/
 /*                             SfRealloc()                              */
@@ -530,13 +531,6 @@ DBFClose(DBFHandle psDBF)
     free( psDBF->pszCurrentRecord );
 
     free( psDBF );
-
-    if( pszStringField != NULL )
-    {
-        free( pszStringField );
-        pszStringField = NULL;
-        nStringFieldLen = 0;
-    }
 }
 
 /************************************************************************/
@@ -732,6 +726,7 @@ static void *DBFReadAttribute(DBFHandle psDBF, int hEntity, int iField,
     void	*pReturnField = NULL;
 
     static double dDoubleField;
+    static char szStringField[257];
 
 /* -------------------------------------------------------------------- */
 /*      Verify selection.                                               */
@@ -772,30 +767,21 @@ static void *DBFReadAttribute(DBFHandle psDBF, int hEntity, int iField,
     pabyRec = (unsigned char *) psDBF->pszCurrentRecord;
 
 /* -------------------------------------------------------------------- */
-/*	Ensure our field buffer is large enough to hold this buffer.	*/
-/* -------------------------------------------------------------------- */
-    if( psDBF->panFieldSize[iField]+1 > nStringFieldLen )
-    {
-	nStringFieldLen = psDBF->panFieldSize[iField]*2 + 10;
-	pszStringField = (char *) SfRealloc(pszStringField,nStringFieldLen);
-    }
-
-/* -------------------------------------------------------------------- */
 /*	Extract the requested field.					*/
 /* -------------------------------------------------------------------- */
-    strncpy( pszStringField, 
+    strncpy( szStringField, 
 	     ((const char *) pabyRec) + psDBF->panFieldOffset[iField],
 	     psDBF->panFieldSize[iField] );
-    pszStringField[psDBF->panFieldSize[iField]] = '\0';
+    szStringField[psDBF->panFieldSize[iField]] = '\0';
 
-    pReturnField = pszStringField;
+    pReturnField = szStringField;
 
 /* -------------------------------------------------------------------- */
 /*      Decode the field.                                               */
 /* -------------------------------------------------------------------- */
     if( chReqType == 'N' )
     {
-        dDoubleField = atof(pszStringField);
+        dDoubleField = atof(szStringField);
 
 	pReturnField = &dDoubleField;
     }
@@ -808,7 +794,7 @@ static void *DBFReadAttribute(DBFHandle psDBF, int hEntity, int iField,
     {
         char	*pchSrc, *pchDst;
 
-        pchDst = pchSrc = pszStringField;
+        pchDst = pchSrc = szStringField;
         while( *pchSrc == ' ' )
             pchSrc++;
 
@@ -816,7 +802,7 @@ static void *DBFReadAttribute(DBFHandle psDBF, int hEntity, int iField,
             *(pchDst++) = *(pchSrc++);
         *pchDst = '\0';
 
-        while( pchDst != pszStringField && *(--pchDst) == ' ' )
+        while( pchDst != szStringField && *(--pchDst) == ' ' )
             *pchDst = '\0';
     }
 #endif
