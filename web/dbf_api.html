@@ -128,8 +128,8 @@ DBFFieldType DBFGetFieldInfo( DBFHandle hDBF, int iField, char * pszFieldName,
 <h2>DBFAddField()</h2>
 
 <pre>
-DBFFieldType DBFAddField( DBFHandle hDBF, const char * pszFieldName, 
-                          DBFFieldType eType, int nWidth, int nDecimals );
+int DBFAddField( DBFHandle hDBF, const char * pszFieldName, 
+                 DBFFieldType eType, int nWidth, int nDecimals );
 
   hDBF:		The access handle for the file to be updated, as returned by
 		DBFOpen(), or DBFCreate().
@@ -161,7 +161,8 @@ DBFFieldType DBFAddField( DBFHandle hDBF, const char * pszFieldName,
   can only be added to xBase files with no records, though this is limitation
   of this API, not of the file format.<p>
 
-  The DBFAddField() return value is the field number of the new field. <p>
+  The DBFAddField() return value is the field number of the new field, or
+  -1 if the addition of the field failed.<p>
 
 <!-------------------------------------------------------------------------->
 
