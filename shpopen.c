@@ -21,7 +21,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.14  1998-12-03 15:47:56  warmerda
+ * Revision 1.15  1998-12-03 16:35:29  warmerda
+ * r+b is proper binary access string, not rb+.
+ *
+ * Revision 1.14  1998/12/03 15:47:56  warmerda
  * Fixed setting of nVertices in SHPCreateObject().
  *
  * Revision 1.13  1998/12/03 15:33:54  warmerda
@@ -257,7 +260,7 @@ SHPHandle SHPOpen( const char * pszLayer, const char * pszAccess )
 /*      Ensure the access string is one of the legal ones.              */
 /* -------------------------------------------------------------------- */
     if( strcmp(pszAccess,"r") != 0 && strcmp(pszAccess,"r+") != 0 
-        && strcmp(pszAccess,"rb") != 0 && strcmp(pszAccess,"rb+") != 0 )
+        && strcmp(pszAccess,"rb") != 0 && strcmp(pszAccess,"r+b") != 0 )
         return( NULL );
     
 /* -------------------------------------------------------------------- */
@@ -572,7 +575,7 @@ SHPHandle SHPCreate( const char * pszLayer, int nShapeType )
     fclose( fpSHP );
     fclose( fpSHX );
 
-    return( SHPOpen( pszLayer, "rb+" ) );
+    return( SHPOpen( pszLayer, "r+b" ) );
 }
 
 /************************************************************************/
