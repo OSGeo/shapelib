@@ -21,7 +21,11 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.15  1998-12-03 16:35:29  warmerda
+ * Revision 1.16  1998-12-16 05:14:33  warmerda
+ * Added support to write MULTIPATCH.  Fixed reading Z coordinate of
+ * MULTIPATCH. Fixed record size written for all feature types.
+ *
+ * Revision 1.15  1998/12/03 16:35:29  warmerda
  * r+b is proper binary access string, not rb+.
  *
  * Revision 1.14  1998/12/03 15:47:56  warmerda
@@ -800,7 +804,7 @@ int SHPWriteObject(SHPHandle psSHP, int nShapeId, SHPObject * psObject )
     psSHP->panRecOffset[psSHP->nRecords-1] = nRecordOffset = psSHP->nFileSize;
     
     pabyRec = (uchar *) malloc(psObject->nVertices * 4 * sizeof(double) 
-			       + psObject->nParts * 4 + 128);
+			       + psObject->nParts * 8 + 128);
     
 /* -------------------------------------------------------------------- */
 /*  Extract vertices for a Polygon or Arc.				*/
@@ -810,7 +814,8 @@ int SHPWriteObject(SHPHandle psSHP, int nShapeId, SHPObject * psObject )
         || psSHP->nShapeType == SHPT_POLYGONM
         || psSHP->nShapeType == SHPT_ARC 
         || psSHP->nShapeType == SHPT_ARCZ
-        || psSHP->nShapeType == SHPT_ARCM )
+        || psSHP->nShapeType == SHPT_ARCM
+        || psSHP->nShapeType == SHPT_MULTIPATCH )
     {
 	int32		nPoints, nParts;
 	int    		i;
@@ -826,34 +831,56 @@ int SHPWriteObject(SHPHandle psSHP, int nShapeId, SHPObject * psObject )
 	ByteCopy( &nPoints, pabyRec + 40 + 8, 4 );
 	ByteCopy( &nParts, pabyRec + 36 + 8, 4 );
 
+        nRecordSize = 52;
+
+        /*
+         * Write part start positions.
+         */
 	ByteCopy( psObject->panPartStart, pabyRec + 44 + 8,
                   4 * psObject->nParts );
 	for( i = 0; i < psObject->nParts; i++ )
 	{
 	    if( bBigEndian ) SwapWord( 4, pabyRec + 44 + 8 + 4*i );
+            nRecordSize += 4;
 	}
-
-	for( i = 0; i < psObject->nVertices; i++ )
-	{
-	    ByteCopy( psObject->padfX + i,
-		      pabyRec + 44 + 4*psObject->nParts + 8 + i * 16, 8 );
-	    ByteCopy( psObject->padfY + i,
-		      pabyRec + 44 + 4*psObject->nParts + 8 + i * 16 + 8, 8 );
-
-	    if( bBigEndian )
-                SwapWord( 8, pabyRec + 44+4*psObject->nParts+8+i*16 );
-            
-	    if( bBigEndian )
-                SwapWord( 8, pabyRec + 44+4*psObject->nParts+8+i*16+8 );
-	}
-
-	nRecordSize = 52 + 4*psObject->nParts + 16 * psObject->nVertices;
 
         /*
-         * If we have a Z coordinate, collect that now.
+         * Write multipatch part types if needed.
+         */
+        if( psSHP->nShapeType == SHPT_MULTIPATCH )
+        {
+            memcpy( pabyRec + nRecordSize, psObject->panPartType,
+                    4*psObject->nParts );
+            for( i = 0; i < psObject->nParts; i++ )
+            {
+                if( bBigEndian ) SwapWord( 4, pabyRec + nRecordSize );
+                nRecordSize += 4;
+            }
+        }
+
+        /*
+         * Write the (x,y) vertex values.
+         */
+	for( i = 0; i < psObject->nVertices; i++ )
+	{
+	    ByteCopy( psObject->padfX + i, pabyRec + nRecordSize, 8 );
+	    ByteCopy( psObject->padfY + i, pabyRec + nRecordSize + 8, 8 );
+
+	    if( bBigEndian )
+                SwapWord( 8, pabyRec + nRecordSize );
+            
+	    if( bBigEndian )
+                SwapWord( 8, pabyRec + nRecordSize + 8 );
+
+            nRecordSize += 2 * 8;
+	}
+
+        /*
+         * Write the Z coordinates (if any).
          */
         if( psSHP->nShapeType == SHPT_POLYGONZ
-            || psSHP->nShapeType == SHPT_ARCZ )
+            || psSHP->nShapeType == SHPT_ARCZ
+            || psSHP->nShapeType == SHPT_MULTIPATCH )
         {
             ByteCopy( &(psObject->dfZMin), pabyRec + nRecordSize, 8 );
             if( bBigEndian ) SwapWord( 8, pabyRec + nRecordSize );
@@ -872,12 +899,13 @@ int SHPWriteObject(SHPHandle psSHP, int nShapeId, SHPObject * psObject )
         }
 
         /*
-         * If we have a M measure value, then read it now.                
+         * Write the M values, if any.
          */
         if( psSHP->nShapeType == SHPT_POLYGONM
             || psSHP->nShapeType == SHPT_ARCM
             || psSHP->nShapeType == SHPT_POLYGONZ
-            || psSHP->nShapeType == SHPT_ARCZ )
+            || psSHP->nShapeType == SHPT_ARCZ
+            || psSHP->nShapeType == SHPT_MULTIPATCH )
         {
             ByteCopy( &(psObject->dfMMin), pabyRec + nRecordSize, 8 );
             if( bBigEndian ) SwapWord( 8, pabyRec + nRecordSize );
@@ -993,6 +1021,12 @@ int SHPWriteObject(SHPHandle psSHP, int nShapeId, SHPObject * psObject )
         }
     }
 
+    else
+    {
+        /* unknown type */
+        assert( FALSE );
+    }
+
 /* -------------------------------------------------------------------- */
 /*      Set the shape type, record number, and record size.             */
 /* -------------------------------------------------------------------- */
@@ -1000,7 +1034,7 @@ int SHPWriteObject(SHPHandle psSHP, int nShapeId, SHPObject * psObject )
     if( !bBigEndian ) SwapWord( 4, &i32 );
     ByteCopy( &i32, pabyRec, 4 );
 
-    i32 = (nRecordSize + 8)/2;				/* record size */
+    i32 = nRecordSize/2;				/* record size */
     if( !bBigEndian ) SwapWord( 4, &i32 );
     ByteCopy( &i32, pabyRec + 4, 4 );
 
@@ -1012,11 +1046,11 @@ int SHPWriteObject(SHPHandle psSHP, int nShapeId, SHPObject * psObject )
 /*      Write out record.                                               */
 /* -------------------------------------------------------------------- */
     fseek( psSHP->fpSHP, nRecordOffset, 0 );
-    fwrite( pabyRec, nRecordSize+8, 1, psSHP->fpSHP );
+    fwrite( pabyRec, nRecordSize, 1, psSHP->fpSHP );
     free( pabyRec );
 
-    psSHP->panRecSize[psSHP->nRecords-1] = nRecordSize;
-    psSHP->nFileSize += nRecordSize + 8;
+    psSHP->panRecSize[psSHP->nRecords-1] = nRecordSize-8;
+    psSHP->nFileSize += nRecordSize;
 
 /* -------------------------------------------------------------------- */
 /*	Expand file wide bounds based on this shape.			*/
@@ -1185,7 +1219,8 @@ SHPObject *SHPReadObject( SHPHandle psSHP, int hEntity )
 /*      If we have a Z coordinate, collect that now.                    */
 /* -------------------------------------------------------------------- */
         if( psSHP->nShapeType == SHPT_POLYGONZ
-            || psSHP->nShapeType == SHPT_ARCZ )
+            || psSHP->nShapeType == SHPT_ARCZ
+            || psSHP->nShapeType == SHPT_MULTIPATCH )
         {
             memcpy( &(psShape->dfZMin), pabyRec + nOffset, 8 );
             memcpy( &(psShape->dfZMax), pabyRec + nOffset + 8, 8 );
