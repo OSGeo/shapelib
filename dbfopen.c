@@ -4,7 +4,10 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.5  1995-10-21 03:15:12  warmerda
+ * Revision 1.6  1996-02-12 04:54:41  warmerda
+ * Ensure that DBFWriteAttribute() returns TRUE if it succeeds.
+ *
+ * Revision 1.5  1995/10/21  03:15:12  warmerda
  * Changed to use binary file access, and ensure that the
  * field name field is zero filled, and limited to 10 chars.
  *
@@ -697,6 +700,8 @@ static int DBFWriteAttribute(DBFHandle psDBF, int hEntity, int iField,
 
     psDBF->bCurrentRecordModified = TRUE;
     psDBF->bUpdated = TRUE;
+
+    return( TRUE );
 }
 
 /************************************************************************/
