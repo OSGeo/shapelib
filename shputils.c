@@ -1,27 +1,15 @@
-/*
- * ORGINAL CODE WAS FROM "dbfdump.c", "shpdump.c", and "shpopen.c".
- *    Frank Warmerdam 1995
+/******************************************************************************
+ * $Id$
  *
- * This code is in the public domain.
+ * Project:  Shapelib
+ * Purpose:  
+ *   Altered "shpdump" and "dbfdump" to allow two files to be appended.
+ *   Other Functions:
+ *     Selecting from the DBF before the write occurs.
+ *     Change the UNITS between Feet and Meters and Shift X,Y.
+ *     Clip and Erase boundary.
  *
- * $Log$
- * Revision 1.3  1998-12-03 15:47:39  warmerda
- * Did a bunch of rewriting to make it work with the V1.2 API.
- *
- * Revision 1.2  1998/06/18 01:19:49  warmerda
- * Made C++ compilable.
- *
- * Revision 1.1  1997/05/27 20:40:27  warmerda
- * Initial revision
- *
- *
- * Altered "shpdump" and "dbfdump" to allow two files to be appended.
- * Other Functions:
- *    Selecting from the DBF before the write occurs.
- *    Change the UNITS between Feet and Meters and Shift X,Y.
- *    Clip and Erase boundary.
- *
- *    Bill Miller   NC-DOT -- Feb. 1997 -- bmiller@doh.dot.state.nc.us
+ *   Bill Miller   NC-DOT -- Feb. 1997 -- bmiller@doh.dot.state.nc.us
  *         There was not a lot of time to debug hidden problems;
  *         And the code is not very well organized or documented.
  *         The clip/erase function was not well tested.
@@ -30,6 +18,48 @@
  *             Clip boundaries.  The program only passes thru the
  *             data once.
  *
+ * Author:   Bill Miller (bmiller@doh.dot.state.nc.us)
+ *
+ ******************************************************************************
+ * Copyright (c) 1999, Frank Warmerdam
+ *
+ * This software is available under the following "MIT Style" license,
+ * or at the option of the licensee under the LGPL (see LICENSE.LGPL).  This
+ * option is discussed in more detail in shapelib.html.
+ *
+ * --
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ ******************************************************************************
+ *
+ * $Log$
+ * Revision 1.4  1999-11-05 14:12:05  warmerda
+ * updated license terms
+ *
+ * Revision 1.3  1998/12/03 15:47:39  warmerda
+ * Did a bunch of rewriting to make it work with the V1.2 API.
+ *
+ * Revision 1.2  1998/06/18 01:19:49  warmerda
+ * Made C++ compilable.
+ *
+ * Revision 1.1  1997/05/27 20:40:27  warmerda
+ * Initial revision
  */
 
 static char rcsid[] = 

@@ -9,6 +9,12 @@
  ******************************************************************************
  * Copyright (c) 1999, Frank Warmerdam
  *
+ * This software is available under the following "MIT Style" license,
+ * or at the option of the licensee under the LGPL (see LICENSE.LGPL).  This
+ * option is discussed in more detail in shapelib.html.
+ *
+ * --
+ * 
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
@@ -29,7 +35,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.5  1999-06-02 18:24:21  warmerda
+ * Revision 1.6  1999-11-05 14:12:05  warmerda
+ * updated license terms
+ *
+ * Revision 1.5  1999/06/02 18:24:21  warmerda
  * added trimming code
  *
  * Revision 1.4  1999/06/02 17:56:12  warmerda

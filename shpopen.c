@@ -1,6 +1,19 @@
 /******************************************************************************
- * Copyright (c) 1998, Frank Warmerdam
+ * $Id$
  *
+ * Project:  Shapelib
+ * Purpose:  Implementation of core Shapefile read/write functions.
+ * Author:   Frank Warmerdam, warmerda@home.com
+ *
+ ******************************************************************************
+ * Copyright (c) 1999, Frank Warmerdam
+ *
+ * This software is available under the following "MIT Style" license,
+ * or at the option of the licensee under the LGPL (see LICENSE.LGPL).  This
+ * option is discussed in more detail in shapelib.html.
+ *
+ * --
+ * 
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
@@ -21,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.23  1999-07-27 00:53:46  warmerda
+ * Revision 1.24  1999-11-05 14:12:04  warmerda
+ * updated license terms
+ *
+ * Revision 1.23  1999/07/27 00:53:46  warmerda
  * added support for rewriting shapes
  *
  * Revision 1.22  1999/06/11 19:19:11  warmerda
