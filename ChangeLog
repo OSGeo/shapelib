@@ -1,5 +1,7 @@
 Wed Feb 16 11:20:29 2000  Frank Warmerdam  <warmerda@gdal.velocet.ca>
 
+	* Release 1.2.7.
+
 	* Modified SHPReadObject() so that will return NULL (type 0) shapes
 	in a sort of sensible way.
 
