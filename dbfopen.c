@@ -21,7 +21,11 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.10  1998-12-03 16:36:44  warmerda
+ * Revision 1.11  1998-12-31 15:30:34  warmerda
+ * Improved the interchangability of numeric and string attributes.  Add
+ * white space trimming option for attributes.
+ *
+ * Revision 1.10  1998/12/03 16:36:44  warmerda
  * Use r+b instead of rb+ for binary access.
  *
  * Revision 1.9  1998/12/03 15:34:23  warmerda
@@ -462,7 +466,8 @@ int	DBFAddField(DBFHandle psDBF, const char * pszFieldName,
 /*      Read one of the attribute fields of a record.                   */
 /************************************************************************/
 
-static void *DBFReadAttribute(DBFHandle psDBF, int hEntity, int iField )
+static void *DBFReadAttribute(DBFHandle psDBF, int hEntity, int iField,
+                              char chReqType )
 
 {
     int	       	nRecordOffset, i, j;
@@ -515,20 +520,34 @@ static void *DBFReadAttribute(DBFHandle psDBF, int hEntity, int iField )
 /* -------------------------------------------------------------------- */
 /*      Decode the field.                                               */
 /* -------------------------------------------------------------------- */
-    if( psDBF->pachFieldType[iField] == 'N'
-        || psDBF->pachFieldType[iField] == 'D' )
+    if( chReqType == 'N' )
     {
-	if( psDBF->panFieldDecimals[iField] == 0 )
-	{
-	    dDoubleField = atoi(pszStringField);
-	}
-	else
-	{
-	    sscanf( pszStringField, "%lf", &dDoubleField );
-	}
+        sscanf( pszStringField, "%lf", &dDoubleField );
 
 	pReturnField = &dDoubleField;
     }
+
+/* -------------------------------------------------------------------- */
+/*      Should we trim white space off the string attribute value?      */
+/* -------------------------------------------------------------------- */
+#ifdef TRIM_DBF_WHITESPACE
+    else
+    {
+        char	*pchSrc, *pchDst;
+
+        pchDst = pchSrc = pszStringField;
+        while( *pchSrc == ' ' )
+            pchSrc++;
+
+        while( *pchSrc != '\0' )
+            *(pchDst++) = *(pchSrc++);
+        *pchDst = '\0';
+
+        while( *(--pchDst) == ' ' && pchDst != pszStringField )
+            *pchDst = '\0';
+
+    }
+#endif
     
     return( pReturnField );
 }
@@ -544,7 +563,7 @@ int	DBFReadIntegerAttribute( DBFHandle psDBF, int iRecord, int iField )
 {
     double	*pdValue;
 
-    pdValue = (double *) DBFReadAttribute( psDBF, iRecord, iField );
+    pdValue = (double *) DBFReadAttribute( psDBF, iRecord, iField, 'N' );
 
     return( (int) *pdValue );
 }
@@ -560,7 +579,7 @@ double	DBFReadDoubleAttribute( DBFHandle psDBF, int iRecord, int iField )
 {
     double	*pdValue;
 
-    pdValue = (double *) DBFReadAttribute( psDBF, iRecord, iField );
+    pdValue = (double *) DBFReadAttribute( psDBF, iRecord, iField, 'N' );
 
     return( *pdValue );
 }
@@ -574,7 +593,7 @@ double	DBFReadDoubleAttribute( DBFHandle psDBF, int iRecord, int iField )
 const char *DBFReadStringAttribute( DBFHandle psDBF, int iRecord, int iField )
 
 {
-    return( (const char *) DBFReadAttribute( psDBF, iRecord, iField ) );
+    return( (const char *) DBFReadAttribute( psDBF, iRecord, iField, 'C' ) );
 }
 
 /************************************************************************/
