@@ -21,7 +21,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.15  1999-05-11 03:19:28  warmerda
+ * Revision 1.16  1999-06-11 19:04:11  warmerda
+ * Remoted some unused variables.
+ *
+ * Revision 1.15  1999/05/11 03:19:28  warmerda
  * added new Tuple api, and improved extension handling - add from candrsn
  *
  * Revision 1.14  1999/05/04 15:01:48  warmerda
@@ -259,8 +262,6 @@ DBFHandle DBFOpen( const char * pszFilename, const char * pszAccess )
 
     for( iField = 0; iField < nFields; iField++ )
     {
-        char            *pszTitle;
-        int             nType;
 	uchar		*pabyFInfo;
 
 	pabyFInfo = pabyBuf+iField*32;
@@ -522,9 +523,8 @@ static void *DBFReadAttribute(DBFHandle psDBF, int hEntity, int iField,
                               char chReqType )
 
 {
-    int	       	nRecordOffset, i, j;
+    int	       	nRecordOffset;
     uchar	*pabyRec;
-    char	*pszSField;
     void	*pReturnField = NULL;
 
     static double dDoubleField;
@@ -868,9 +868,8 @@ int DBFWriteStringAttribute( DBFHandle psDBF, int iRecord, int iField,
 int DBFWriteTuple(DBFHandle psDBF, int hEntity, void * pRawTuple )
 
 {
-    int	       	nRecordOffset, i, j;
+    int	       	nRecordOffset, i;
     uchar	*pabyRec;
-    char	szSField[40], szFormat[12];
 
 /* -------------------------------------------------------------------- */
 /*	Is this a valid record?						*/
@@ -930,9 +929,8 @@ int DBFWriteTuple(DBFHandle psDBF, int hEntity, void * pRawTuple )
 const char *DBFReadTuple(DBFHandle psDBF, int hEntity )
 
 {
-    int	       	nRecordOffset, i, j;
+    int	       	nRecordOffset;
     uchar	*pabyRec;
-    char	*pszSField;
     static char	*pReturnTuple = NULL;
 
     static int	nTupleLen = 0;
