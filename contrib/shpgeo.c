@@ -32,7 +32,10 @@
  * use -DPROJ4 to compile in Projection support
  *
  * $Log$
- * Revision 1.6  2001-08-30 13:42:31  warmerda
+ * Revision 1.7  2002-01-11 15:22:04  warmerda
+ * fix many warnings.  Lots of this code is cruft.
+ *
+ * Revision 1.6  2001/08/30 13:42:31  warmerda
  * avoid use of auto initialization of PT for VC++
  *
  * Revision 1.5  2000/04/26 13:24:06  warmerda
@@ -232,17 +235,17 @@ int SHPFreeProjection ( PJ *p) {
  * **************************************************************************/
 int SHPOGisType ( int GeomType, int toOGis) {
 
-        if ( toOGis == 0 )  /* connect OGis -> SHP types  					*/
+    if ( toOGis == 0 )  /* connect OGis -> SHP types  					*/
 	switch (GeomType) {
-	  case (OGIST_POINT):		return ( SHPT_POINT );      break;
-	  case (OGIST_LINESTRING):	return ( SHPT_ARC );        break;
-	  case (OGIST_POLYGON):		return ( SHPT_POLYGON );    break;
-	  case (OGIST_MULTIPOINT):	return ( SHPT_MULTIPOINT ); break;
-	  case (OGIST_MULTILINE):	return ( SHPT_ARC );	    break;
-	  case (OGIST_MULTIPOLYGON):	return ( SHPT_POLYGON );    break;
-	  }
-	else  /* ok so its SHP->OGis types 									*/
-	  switch (GeomType) {
+            case (OGIST_POINT):		return ( SHPT_POINT );      break;
+            case (OGIST_LINESTRING):	return ( SHPT_ARC );        break;
+            case (OGIST_POLYGON):		return ( SHPT_POLYGON );    break;
+            case (OGIST_MULTIPOINT):	return ( SHPT_MULTIPOINT ); break;
+            case (OGIST_MULTILINE):	return ( SHPT_ARC );	    break;
+            case (OGIST_MULTIPOLYGON):	return ( SHPT_POLYGON );    break;
+        }
+    else  /* ok so its SHP->OGis types 									*/
+        switch (GeomType) {
 	    case (SHPT_POINT):		return ( OGIST_POINT );	    break;
 	    case (SHPT_POINTM):		return ( OGIST_POINT );	    break;
 	    case (SHPT_POINTZ):		return ( OGIST_POINT );	    break;
@@ -256,8 +259,9 @@ int SHPOGisType ( int GeomType, int toOGis) {
 	    case (SHPT_MULTIPOINTZ):	return ( OGIST_MULTIPOINT );break;
 	    case (SHPT_MULTIPOINTM):	return ( OGIST_MULTIPOINT );break;
 	    case (SHPT_MULTIPATCH):	return ( OGIST_GEOMCOLL );  break;
-	  } 	  	  	  
+        } 	  	  	  
 
+    return 0;
 }
 
 
@@ -327,7 +331,7 @@ int	use_M = 0;
  * **************************************************************************/
 int SHPWriteSHPStream ( WKBStreamObj *stream_obj, SHPObject *psCShape ) {
 
-int	obj_storage;
+int	obj_storage = 0;
 int	need_swap = 0, my_order, GeoType;
 int	use_Z = 0;
 int	use_M = 0;
@@ -373,7 +377,8 @@ int WKBStreamWrite ( WKBStreamObj* wso, void* this, int tcount, int tsize ) {
      memcpy ( &(wso->wStream[wso->StreamPos]), this, tsize * tcount );
      
    wso->StreamPos += tsize;
-    
+
+   return 0;
 }
 
 
@@ -392,7 +397,8 @@ int WKBStreamRead ( WKBStreamObj* wso, void* this, int tcount, int tsize ) {
      memcpy ( this, &(wso->wStream[wso->StreamPos]), tsize * tcount );
      
    wso->StreamPos += tsize;
-    
+
+   return 0;
 }
 
 
@@ -406,7 +412,7 @@ int WKBStreamRead ( WKBStreamObj* wso, void* this, int tcount, int tsize ) {
 SHPObject* SHPReadOGisWKB ( WKBStreamObj *stream_obj) {
   SHPObject	*psCShape;
   char		WKB_order;
-  int		need_swap = 0, my_order, GeoType;
+  int		need_swap = 0, my_order, GeoType = 0;
   int		use_Z = 0, use_M = 0;
   int		nSHPType, thisDim;
 
@@ -794,7 +800,7 @@ SHPObject* SHPReadOGisPoint ( WKBStreamObj *stream_obj ) {
  *
  * **************************************************************************/
 int RingReadOgisWKB ( SHPObject *psCShape, char *stream_obj) {
-
+    return 0;
 }
 
 
@@ -808,7 +814,7 @@ int RingReadOgisWKB ( SHPObject *psCShape, char *stream_obj) {
  * **************************************************************************/
 int RingWriteOgisWKB ( SHPObject *psCShape, char *stream_obj) {
 
-
+    return 0;
 }
 
 
@@ -888,7 +894,7 @@ PT	SHPPointinPoly_2d ( SHPObject *psCShape ) {
  * 
  * **************************************************************************/
 PT*	SHPPointsinPoly_2d ( SHPObject *psCShape ) {
-   PT		*PIP;
+   PT		*PIP = NULL;
    int		cRing;
    SHPObject	*psO, *psInt, *CLine;
    double	*CLx, *CLy;
@@ -898,7 +904,7 @@ PT*	SHPPointsinPoly_2d ( SHPObject *psCShape ) {
    if ( !(SHPDimension (psCShape->nSHPType) & SHPD_AREA) )  
       return ( NULL );
 
-   while (  psO == SHPUnCompound (psCShape, &cRing)) {
+   while (  psO = SHPUnCompound (psCShape, &cRing)) {
      CLx = calloc ( 4, sizeof(double));
      CLy = calloc ( 4, sizeof(double));
      CLst = calloc ( 2, sizeof(int));
@@ -1352,7 +1358,7 @@ SHPObject* SHPUnCompound  ( SHPObject *psCShape, int * ringNumber ) {
       }
 
    lRing = *ringNumber;
-   ringDir == -1;
+   ringDir = -1;
    for ( ring = (lRing + 1); (ring < psCShape->nParts) && ( ringDir < 0 ); ring ++)
      ringDir = SHPRingDir_2d ( psCShape, ring);
    
