@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.55  2004-09-26 20:23:46  fwarmerdam
+ * Revision 1.56  2005-02-10 20:07:56  fwarmerdam
+ * Fixed bug 305 in DBFCloneEmpty() - header length problem.
+ *
+ * Revision 1.55  2004/09/26 20:23:46  fwarmerdam
  * avoid warnings with rcsid and signed/unsigned stuff
  *
  * Revision 1.54  2004/09/15 16:26:10  fwarmerdam
@@ -1453,13 +1456,13 @@ DBFCloneEmpty(DBFHandle psDBF, const char * pszFilename )
    newDBF = DBFCreate ( pszFilename );
    if ( newDBF == NULL ) return ( NULL ); 
    
-   newDBF->pszHeader = (char *) malloc ( 32 * psDBF->nFields );
-   memcpy ( newDBF->pszHeader, psDBF->pszHeader, 32 * psDBF->nFields );
-   
    newDBF->nFields = psDBF->nFields;
    newDBF->nRecordLength = psDBF->nRecordLength;
-   newDBF->nHeaderLength = 32 * (psDBF->nFields+1);
+   newDBF->nHeaderLength = psDBF->nHeaderLength;
     
+   newDBF->pszHeader = (char *) malloc ( newDBF->nHeaderLength );
+   memcpy ( newDBF->pszHeader, psDBF->pszHeader, newDBF->nHeaderLength );
+   
    newDBF->panFieldOffset = (int *) malloc ( sizeof(int) * psDBF->nFields ); 
    memcpy ( newDBF->panFieldOffset, psDBF->panFieldOffset, sizeof(int) * psDBF->nFields );
    newDBF->panFieldSize = (int *) malloc ( sizeof(int) * psDBF->nFields );
