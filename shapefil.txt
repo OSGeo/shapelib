@@ -76,6 +76,20 @@ of PCI (http://www.pci.on.ca/) on his own time.  Please send me bug patches
 and suggestions for the library.  Email can be sent to warmerda@leto.pci.on.ca.
 
 
+Portability
+-----------
+The Shapefile C Library should port easily to 32bit systems with ANSI C
+compilers.  The code is not compatible with K&R C compilers (such as the
+stock C compiler on SunOS 4.x), and I don't really want to mess it up
+with support for K&R C.  It should work on 64 bit architectures (such 
+as the DEC AXP), and has reportedly worked on 16 bit systems (Borland C)
+as well as long as int32 gets properly defined in shpopen.c.
+
+Care should also be taken to pass the binary access flag into SHPOpen()
+and DBFOpen() when operating on systems with special text file translation
+such as MSDOS.  
+
+
 Limitations
 -----------
  o You can't modify the vertices of existing structures (though you 
@@ -89,7 +103,7 @@ Limitations
  o Doesn't recover the working space in SHPGetVertices(), though the buffers
    are shared among all open files.  Usually this is only a few kilobytes.
 
- o There is now way to synchronize information to the file except to close it.
+ o There is no way to synchronize information to the file except to close it.
 
  o Poor error checking and reporting.
 
@@ -123,7 +137,8 @@ SHPHandle SHPOpen( const char * pszShapeFile, const char * pszAccess );
 			just be the path plus the basename of the pair.
 
   pszAccess:		The fopen() style access string.  At this time only
-			"r" (read-only) and "r+" (read/write) should be used.
+			"rb" (read-only binary) and "rb+" (read/write binary) 
+		        should be used.
 
   The SHPOpen() function should be used to establish access to the two files
   for accessing vertices (.shp and .shx).  Note that both files have to 
