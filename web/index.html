@@ -82,6 +82,8 @@ Note this will only work if you have the example data downloaded.<p>
 
 <li> <b>stream2.out</b>: Expected output of stream2.sh test script.<p>
 
+<li> <b>pyshapelib-0.1</b>: Prototype contributed Python bindings.<p>
+
 </ul>
 
 <h2>What is a Shapefile?</h2>
@@ -104,6 +106,15 @@ XXX.dbf - holds the attributes in xBase (dBase) format.
 </pre>
 
 <h2>Release Notes</h2>
+
+<b>Release 1.2.9</b>: Good support for reading and writing NULL fields 
+in .dbf files, good support for NULL shapes and addition of the
+DBFGetFieldIndex() functions (all contributed by Jim Matthews).<p>
+
+An upgraded shputils.c has been contributed by Bill Miller.  Daniel 
+Morissette contributed DBFGetNativeFieldType().  Better error checking
+for disk errors in dbfopen.c.  Various other bug fixes and safety improvements.
+<p>
 
 <b>Release 1.2.8</b>: Added hacked libtool support (supplied by Jan)
 and "rpm ready" install logic.<p>
@@ -230,6 +241,8 @@ not used by ESRI.<p>
 
 <li> The application must keep the .dbf file in sync with the .shp/.shx
 files through appropriate use of the DBF and SHP APIs.<p>
+
+<li> No support for the undocumented .sbn/.sbx spatial index files.<p>
 
 </ul>
 

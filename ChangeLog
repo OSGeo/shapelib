@@ -1,5 +1,7 @@
 2001-08-28  Frank Warmerdam  <warmerdam@pobox.com>
 
+	* Issue Shapelib 1.2.9
+
 	* shputils.c: DBFAddField() call should check for -1 return value
 	for failure.
 

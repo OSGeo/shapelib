@@ -45,6 +45,7 @@ shptreedump:	shptreedump.c shptree.o shpopen.o
 
 clean:
 	rm -f *.o dbfdump dbfcreate dbfadd shpdump shpcreate shpadd shputils
+	rm -f shptreedump
 	rm -rf *.lo *.la .libs
 	rm -f shptest
 
@@ -91,7 +92,7 @@ test3:
 # The following is contributed by Jan-Oliver Wagner, and should allow for
 # creating shared libraries on most platforms with gcc, and libtool installed.
 
-SHPLIB_VERSION=1.2.7
+SHPLIB_VERSION=1.2.9
 LIBSHP_VERSION=1.0.1 # still once to be changed manually (see for 1:1:0), sorry
 
 lib:
