@@ -4,7 +4,10 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.4  1995-10-21 03:14:49  warmerda
+ * Revision 1.5  1998-11-09 20:57:36  warmerda
+ * use SHPObject.
+ *
+ * Revision 1.4  1995/10/21 03:14:49  warmerda
  * Changed to use binary file access.
  *
  * Revision 1.3  1995/08/23  02:25:25  warmerda
@@ -24,9 +27,9 @@ int main( int argc, char ** argv )
 
 {
     SHPHandle	hSHP;
-    int		nShapeType, nEntities, nVertices, nParts, *panParts, i, iPart;
-    double	*padVertices, adBounds[4];
+    int		nShapeType, nEntities, i, iPart;
     const char 	*pszPlus;
+    double 	adfMinBound[4], adfMaxBound[4];
 
 /* -------------------------------------------------------------------- */
 /*      Display a usage message.                                        */
@@ -48,43 +51,76 @@ int main( int argc, char ** argv )
 	exit( 1 );
     }
 
-    SHPGetInfo( hSHP, &nEntities, &nShapeType );
-
 /* -------------------------------------------------------------------- */
 /*      Print out the file bounds.                                      */
 /* -------------------------------------------------------------------- */
-    SHPReadBounds( hSHP, -1, adBounds );
-    printf( "File Bounds: (%lg,%lg) - (%lg,%lg)\n",
-	    adBounds[0], adBounds[1], adBounds[2], adBounds[3] );
+    SHPGetInfo( hSHP, &nEntities, &nShapeType, adfMinBound, adfMaxBound );
 
+    printf( "File Bounds: (%12.3f,%12.3f,%lg,%lg)\n"
+            "         to  (%12.3f,%12.3f,%lg,%lg)\n",
+            adfMinBound[0], 
+            adfMinBound[1], 
+            adfMinBound[2], 
+            adfMinBound[3], 
+            adfMaxBound[0], 
+            adfMaxBound[1], 
+            adfMaxBound[2], 
+            adfMaxBound[3] );
+    
 /* -------------------------------------------------------------------- */
 /*	Skim over the list of shapes, printing all the vertices.	*/
 /* -------------------------------------------------------------------- */
     for( i = 0; i < nEntities; i++ )
     {
 	int		j;
+        SHPObject	*psShape;
 
-	padVertices = SHPReadVertices( hSHP, i, &nVertices, &nParts,
-				       &panParts );
-	SHPReadBounds( hSHP, i, adBounds );
-	printf( "\nShape:%d  Bounds:(%lg,%lg) - (%lg,%lg)\n",
-	        i, adBounds[0], adBounds[1], adBounds[2], adBounds[3] );
+	psShape = SHPReadObject( hSHP, i );
 
-	for( j = 0, iPart = 1; j < nVertices; j++ )
+	printf( "\nShape:%d (%s)  nVertices=%d, nParts=%d\n"
+                "  Bounds:(%12.3f,%12.3f, %lg, %lg)\n"
+                "      to (%12.3f,%12.3f, %lg, %lg)\n",
+	        i, SHPTypeName(psShape->nSHPType),
+                psShape->nVertices, psShape->nParts,
+                psShape->dfXMin, psShape->dfYMin,
+                psShape->dfZMin, psShape->dfMMin,
+                psShape->dfXMax, psShape->dfYMax,
+                psShape->dfZMax, psShape->dfMMax );
+
+	for( j = 0, iPart = 1; j < psShape->nVertices; j++ )
 	{
-	    if( iPart < nParts && panParts[iPart] == j+1 )
+            const char	*pszPartType = "";
+
+            if( j == 0 && psShape->nParts > 0 )
+                pszPartType = SHPPartTypeName( psShape->panPartType[0] );
+            
+	    if( iPart < psShape->nParts
+                && psShape->panPartStart[iPart] == j )
 	    {
+                pszPartType = SHPPartTypeName( psShape->panPartType[iPart] );
 		iPart++;
 		pszPlus = "+";
 	    }
 	    else
-	        pszPlus = "";
+	        pszPlus = " ";
 
-	    printf("(%lg,%lg) %s \n", 
-		   padVertices[j*2], padVertices[j*2+1], 
-		   pszPlus );
+	    printf("   %s (%12.3f,%12.3f, %lg, %lg) %s \n",
+                   pszPlus,
+                   psShape->padfX[j],
+                   psShape->padfY[j],
+                   psShape->padfZ[j],
+                   psShape->padfM[j],
+                   pszPartType );
 	}
+        
+        SHPDestroyObject( psShape );
     }
 
     SHPClose( hSHP );
+
+#ifdef USE_DBMALLOC
+    malloc_dump(2);
+#endif
+
+    exit( 0 );
 }
