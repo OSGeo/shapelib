@@ -92,7 +92,7 @@ test3:
 # creating shared libraries on most platforms with gcc, and libtool installed.
 
 SHPLIB_VERSION=1.2.7
-LIBSHP_VERSION=1.0.1 # still once to be changed manually (see for 1:0:1), sorry
+LIBSHP_VERSION=1.0.1 # still once to be changed manually (see for 1:1:0), sorry
 
 lib:
 	/bin/sh ./libtool --mode=compile gcc -DPACKAGE=\"libshp\" -DVERSION=\"$(SHPLIB_VERSION)\" -DSTDC_HEADERS=1  -I. -I. -I/usr/local/include    -g -O2 -c shpopen.c
@@ -109,7 +109,7 @@ lib:
 	gcc -DPACKAGE=\"libshp\" -DVERSION=\"$(SHPLIB_VERSION)\" -DSTDC_HEADERS=1 -I. -I. -I/usr/local/include -g -O2 -c  -fPIC -DPIC dbfopen.c -o .libs/dbfopen.lo
 	gcc -DPACKAGE=\"libshp\" -DVERSION=\"$(SHPLIB_VERSION)\" -DSTDC_HEADERS=1 -I. -I. -I/usr/local/include -g -O2 -c dbfopen.c -o dbfopen.o >/dev/null 2>&1
 	mv -f .libs/dbfopen.lo dbfopen.lo
-	/bin/sh ./libtool --mode=link gcc  -g -O2  -o libshp.la -rpath /usr/local/lib -version-info 1:0:1 shpopen.lo shptree.lo dbfopen.lo  
+	/bin/sh ./libtool --mode=link gcc  -g -O2  -o libshp.la -rpath /usr/local/lib -version-info 1:1:0 shpopen.lo shptree.lo dbfopen.lo  
 	rm -fr .libs/libshp.la .libs/libshp.* .libs/libshp.*
 	rm -fr .libs/libshp.lax
 	mkdir .libs/libshp.lax
