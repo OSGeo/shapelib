@@ -4,7 +4,11 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.4  1995-08-24 18:10:42  warmerda
+ * Revision 1.5  1995-10-21 03:15:12  warmerda
+ * Changed to use binary file access, and ensure that the
+ * field name field is zero filled, and limited to 10 chars.
+ *
+ * Revision 1.4  1995/08/24  18:10:42  warmerda
  * Added use of SfRealloc() to avoid pre-ANSI realloc() functions such
  * as on the Sun.
  *
@@ -127,9 +131,10 @@ DBFHandle DBFOpen( const char * pszFilename, const char * pszAccess )
     int			nFields, nRecords, nHeadLen, nRecLen, iField, i;
 
 /* -------------------------------------------------------------------- */
-/*      We only allow the access strings "r" and "r+".                  */
+/*      We only allow the access strings "rb" and "r+".                  */
 /* -------------------------------------------------------------------- */
-    if( strcmp(pszAccess,"r") != 0 && strcmp(pszAccess,"r+") != 0 )
+    if( strcmp(pszAccess,"r") != 0 && strcmp(pszAccess,"r+") != 0 
+        && strcmp(pszAccess,"rb") != 0 && strcmp(pszAccess,"rb+") != 0 )
         return( NULL );
     
     psDBF = (DBFHandle) calloc( 1, sizeof(DBFInfo) );
@@ -274,14 +279,14 @@ DBFHandle DBFCreate( const char * pszFilename )
 /* -------------------------------------------------------------------- */
 /*      Create the file.                                                */
 /* -------------------------------------------------------------------- */
-    fp = fopen( pszFilename, "w" );
+    fp = fopen( pszFilename, "wb" );
     if( fp == NULL )
         return( NULL );
 
     fputc( 0, fp );
     fclose( fp );
 
-    fp = fopen( pszFilename, "r+" );
+    fp = fopen( pszFilename, "rb+" );
     if( fp == NULL )
         return( NULL );
 
@@ -378,12 +383,12 @@ int	DBFAddField(DBFHandle psDBF, const char * pszFieldName,
     pszFInfo = psDBF->pszHeader + 32 * (psDBF->nFields-1);
 
     for( i = 0; i < 32; i++ )
-        pszFInfo[i] = ' ';
+        pszFInfo[i] = '\0';
 
-    if( strlen(pszFieldName) < 11 )
+    if( strlen(pszFieldName) < 10 )
         strncpy( pszFInfo, pszFieldName, strlen(pszFieldName));
     else
-        strncpy( pszFInfo, pszFieldName, 11);
+        strncpy( pszFInfo, pszFieldName, 10);
 
     pszFInfo[11] = psDBF->pachFieldType[psDBF->nFields-1];
 
