@@ -15,7 +15,7 @@ GEOOBJ	=	./shpgeo.o -lm -lproj
 
 default:	all
 
-all:	shpdxf shpproj dbfinfo shpcentrd shpdata shpwkb dbfinfo dbfcat shpinfo shpfix shpcat
+all:	shpdxf shpproj dbfinfo shpcentrd shpdata shpwkb dbfinfo dbfcat shpinfo shpfix shpcat Shape_PointInPoly
 
 clean:  
 	rm -f shpdxf shpproj dbfinfo shpcentrd shpdata shpwkb dbfcat dbfinfo shpinfo shpfix shpcat *.o
@@ -52,6 +52,10 @@ dbfinfo: 	dbfinfo.c $(SHPOBJ)
 
 dbfcat:		dbfcat.c $(SHPOBJ)
 	$(CC) $(CFLAGS) dbfcat.c $(SHPOBJ) $(LINKOPT) -o dbfcat
+
+Shape_PointInPoly:	Shape_PointInPoly.cpp $(SHPOBJ)
+	$(CXX) $(CFLAGS) Shape_PointInPoly.cpp $(SHPOBJ) $(LINKOPT) \
+		-o Shape_PointInPoly
 
 check:	testproj
 
