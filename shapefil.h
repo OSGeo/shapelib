@@ -7,7 +7,10 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.2  1995-08-04 03:17:39  warmerda
+ * Revision 1.3  1995-08-23 02:24:05  warmerda
+ * Added support for reading bounds.
+ *
+ * Revision 1.2  1995/08/04  03:17:39  warmerda
  * Added header.
  *
  */
@@ -50,6 +53,7 @@ double *SHPReadVertices( SHPHandle hSHP, int iShape, int *pnVCount,
 			 int * pnPartCount, int ** ppanParts );
 int	SHPWriteVertices( SHPHandle hSHP, int nVCount, int nPartCount, 
 			  int * panParts, double * pdVertices);
+void	SHPReadBounds( SHPHandle hSHP, int iShape, double * padBounds );
 void	SHPClose( SHPHandle hSHP );
 
 /************************************************************************/
