@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.7  2002-01-15 14:36:07  warmerda
+ * Revision 1.8  2002-05-07 13:07:45  warmerda
+ * use qsort() - patch from Bernhard Herzog
+ *
+ * Revision 1.7  2002/01/15 14:36:07  warmerda
  * updated email address
  *
  * Revision 1.6  2001/05/23 13:36:52  warmerda
@@ -585,6 +588,12 @@ SHPTreeCollectShapeIds( SHPTree *hTree, SHPTreeNode * psTreeNode,
 /*      sequential) reading from the file.                              */
 /************************************************************************/
 
+/* helper for qsort */
+static int
+compare_ints(void * a, void * b)
+{
+    return (*(int*)a) - (*(int*)b);
+}
 
 int SHPAPI_CALL1(*)
 SHPTreeFindLikelyShapes( SHPTree * hTree,
@@ -606,23 +615,10 @@ SHPTreeFindLikelyShapes( SHPTree * hTree,
                             &panShapeList );
 
 /* -------------------------------------------------------------------- */
-/*      For now I just use a bubble sort to order the shapeids, but     */
-/*      this should really be a quicksort.                              */
+/*      Sort the id array                                               */
 /* -------------------------------------------------------------------- */
-    for( i = 0; i < *pnShapeCount-1; i++ )
-    {
-        for( j = 0; j < (*pnShapeCount) - i - 1; j++ )
-        {
-            if( panShapeList[j] > panShapeList[j+1] )
-            {
-                int	nTempId;
 
-                nTempId = panShapeList[j];
-                panShapeList[j] = panShapeList[j+1];
-                panShapeList[j+1] = nTempId;
-            }
-        }
-    }
+    qsort(panShapeList, *pnShapeCount, sizeof(int), compare_ints);
 
     return panShapeList;
 }
