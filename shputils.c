@@ -5,7 +5,10 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.2  1998-06-18 01:19:49  warmerda
+ * Revision 1.3  1998-12-03 15:47:39  warmerda
+ * Did a bunch of rewriting to make it work with the V1.2 API.
+ *
+ * Revision 1.2  1998/06/18 01:19:49  warmerda
  * Made C++ compilable.
  *
  * Revision 1.1  1997/05/27 20:40:27  warmerda
@@ -44,9 +47,10 @@ char            infile[80], outfile[80], temp[400];
 /* Variables for shape files */
 SHPHandle	hSHP;
 SHPHandle	hSHPappend;
-int		nShapeType, nEntities, nVertices, nParts, *panParts, iPart;
+int		nShapeType, nEntities, iPart;
 int		nShapeTypeAppend, nEntitiesAppend;
-double		*padVertices, adBounds[4];
+SHPObject	*psCShape;
+double		adfBoundsMin[4], adfBoundsMax[4];
 
 
 /* Variables for DBF files */
@@ -128,7 +132,7 @@ int main( int argc, char ** argv )
     for (i = 3; i < argc; i++)
     {
     	if ((strncasecmp2(argv[i],  "SEL",3) == 0) ||
-           (strncasecmp2(argv[i],  "UNSEL",5) == 0))
+            (strncasecmp2(argv[i],  "UNSEL",5) == 0))
     	{
             if (strncasecmp2(argv[i],  "UNSEL",5) == 0) iunselect=TRUE;
     	    i++;
@@ -142,99 +146,101 @@ int main( int argc, char ** argv )
     	    tj = atoi(cpt);
     	    ti = 0;
     	    while (tj>0) {
-    	       selectvalues[selcount] = tj;
-    	       while( *cpt >= '0' && *cpt <= '9')
-    	          cpt++; 
-    	       while( *cpt > '\0' && (*cpt < '0' || *cpt > '9') )
-    	          cpt++; 
-    	       tj=atoi(cpt);
-    	       selcount++;
+                selectvalues[selcount] = tj;
+                while( *cpt >= '0' && *cpt <= '9')
+                    cpt++; 
+                while( *cpt > '\0' && (*cpt < '0' || *cpt > '9') )
+                    cpt++; 
+                tj=atoi(cpt);
+                selcount++;
     	    }
     	    iselect=TRUE;
     	}
     	else
-        if ((strncasecmp2(argv[i], "CLIP",4) == 0) ||
-           (strncasecmp2(argv[i],  "ERASE",5) == 0))
-        {
-            if (strncasecmp2(argv[i],  "ERASE",5) == 0) ierase=TRUE;
-            i++;
-    	    if (i >= argc) error();
-    	    strcpy(clipfile,argv[i]);
-            sscanf(argv[i],"%lf",&cxmin);
-            i++;
-    	    if (i >= argc) error();
-            if (strncasecmp2(argv[i],  "BOUND",5) == 0) {
-                 setext(clipfile, "shp");
-                 hSHP = SHPOpen( clipfile, "rb" );
-                 if( hSHP == NULL )
-                 {
-                   printf( "ERROR: Unable to open the clip shape file:%s\n", clipfile );
-                   exit( 1 );
-                 }
-                 SHPReadBounds( hSHP, -1, adBounds );
-                 cxmin = adBounds[0];
-                 cymin = adBounds[1];
-                 cxmax = adBounds[2];
-                 cymax = adBounds[3];
-                 printf("Theme Clip Boundary: (%lf,%lf) - (%lf,%lf)\n",cxmin, cymin, cxmax, cymax);
-                 ibound=TRUE;
-                 }
-            else if (strncasecmp2(argv[i],  "POLY",4) == 0)
-                 {
-                 ipoly=TRUE;
-                 }
-            else {  /*** xmin,ymin,xmax,ymax ***/
-                 sscanf(argv[i],"%lf",&cymin);
-                 i++;
-    	         if (i >= argc) error();
-                 sscanf(argv[i],"%lf",&cxmax);
-                 i++;
-    	         if (i >= argc) error();
-                 sscanf(argv[i],"%lf",&cymax);
-                 printf("Clip Box: (%lf,%lf) - (%lf,%lf)\n",cxmin, cymin, cxmax, cymax);
-                 }
-            i++;
-    	    if (i >= argc) error();
-            if (strncasecmp2(argv[i],  "CUT",3) == 0) icut=TRUE;
-            else if (strncasecmp2(argv[i],  "TOUCH",5) == 0) itouch=TRUE;
-                 else if (strncasecmp2(argv[i],  "INSIDE",6) == 0) iinside=TRUE;
-                      else error();
-            iclip=TRUE;
-        }
-    	else
-        if (strncasecmp2(argv[i],  "UNIT",4) == 0)
-        {
-            i++;
-    	    if (i >= argc) error();
-            if (strncasecmp2(argv[i],  "METER",5) == 0)
-                factor=0.304800609601;
-            else
+            if ((strncasecmp2(argv[i], "CLIP",4) == 0) ||
+                (strncasecmp2(argv[i],  "ERASE",5) == 0))
             {
-                if (strncasecmp2(argv[i],  "FEET",4) == 0)
-                    factor=3.280833;
+                if (strncasecmp2(argv[i],  "ERASE",5) == 0) ierase=TRUE;
+                i++;
+                if (i >= argc) error();
+                strcpy(clipfile,argv[i]);
+                sscanf(argv[i],"%lf",&cxmin);
+                i++;
+                if (i >= argc) error();
+                if (strncasecmp2(argv[i],  "BOUND",5) == 0) {
+                    setext(clipfile, "shp");
+                    hSHP = SHPOpen( clipfile, "rb" );
+                    if( hSHP == NULL )
+                    {
+                        printf( "ERROR: Unable to open the clip shape file:%s\n", clipfile );
+                        exit( 1 );
+                    }
+                    SHPGetInfo( hSHPappend, NULL, NULL,
+                                adfBoundsMin, adfBoundsMax );
+                    cxmin = adfBoundsMin[0];
+                    cymin = adfBoundsMin[1];
+                    cxmax = adfBoundsMax[0];
+                    cymax = adfBoundsMax[1];
+                    printf("Theme Clip Boundary: (%lf,%lf) - (%lf,%lf)\n",
+                           cxmin, cymin, cxmax, cymax);
+                    ibound=TRUE;
+                }
+                else if (strncasecmp2(argv[i],  "POLY",4) == 0)
+                {
+                    ipoly=TRUE;
+                }
+                else {  /*** xmin,ymin,xmax,ymax ***/
+                    sscanf(argv[i],"%lf",&cymin);
+                    i++;
+                    if (i >= argc) error();
+                    sscanf(argv[i],"%lf",&cxmax);
+                    i++;
+                    if (i >= argc) error();
+                    sscanf(argv[i],"%lf",&cymax);
+                    printf("Clip Box: (%lf,%lf) - (%lf,%lf)\n",cxmin, cymin, cxmax, cymax);
+                }
+                i++;
+                if (i >= argc) error();
+                if (strncasecmp2(argv[i],  "CUT",3) == 0) icut=TRUE;
+                else if (strncasecmp2(argv[i],  "TOUCH",5) == 0) itouch=TRUE;
+                else if (strncasecmp2(argv[i],  "INSIDE",6) == 0) iinside=TRUE;
+                else error();
+                iclip=TRUE;
+            }
+            else
+                if (strncasecmp2(argv[i],  "UNIT",4) == 0)
+                {
+                    i++;
+                    if (i >= argc) error();
+                    if (strncasecmp2(argv[i],  "METER",5) == 0)
+                        factor=0.304800609601;
+                    else
+                    {
+                        if (strncasecmp2(argv[i],  "FEET",4) == 0)
+                            factor=3.280833;
+                        else
+                            sscanf(argv[i],"%lf",&factor);
+                    }      
+                    if (factor == 0) error();
+                    iunit=TRUE;
+                    printf("Output file coordinate values will be factored by %lg\n",factor);
+                }
                 else
-                    sscanf(argv[i],"%lf",&factor);
-            }      
-            if (factor == 0) error();
-            iunit=TRUE;
-            printf("Output file coordinate values will be factored by %lg\n",factor);
-    	}
-    	else
-        if (strncasecmp2(argv[i],"SHIFT",5) == 0)
-        {
-            i++;
-    	    if (i >= argc) error();
-            sscanf(argv[i],"%lf",&xshift);
-            i++;
-    	    if (i >= argc) error();
-            sscanf(argv[i],"%lf",&yshift);
-            iunit=TRUE;
-            printf("X Shift: %lg   Y Shift: %lg\n",xshift,yshift);
-        }
-        else
-        {
-    	printf("ERROR: Unknown function %s\n",argv[i]);  error();
-    	}
+                    if (strncasecmp2(argv[i],"SHIFT",5) == 0)
+                    {
+                        i++;
+                        if (i >= argc) error();
+                        sscanf(argv[i],"%lf",&xshift);
+                        i++;
+                        if (i >= argc) error();
+                        sscanf(argv[i],"%lf",&yshift);
+                        iunit=TRUE;
+                        printf("X Shift: %lg   Y Shift: %lg\n",xshift,yshift);
+                    }
+                    else
+                    {
+                        printf("ERROR: Unknown function %s\n",argv[i]);  error();
+                    }
     }
 /* -------------------------------------------------------------------- */
 /*	If there is no data in this file let the user know.		*/
@@ -249,26 +255,31 @@ int main( int argc, char ** argv )
 /*      Print out the file bounds.                                      */
 /* -------------------------------------------------------------------- */
     iRecord = DBFGetRecordCount( hDBF );
-    SHPReadBounds( hSHP, -1, adBounds );
+    SHPGetInfo( hSHP, NULL, NULL, adfBoundsMin, adfBoundsMax );
+
     printf( "Input Bounds:  (%lg,%lg) - (%lg,%lg)   Entities: %d   DBF: %d\n",
-	    adBounds[0], adBounds[1], adBounds[2], adBounds[3], nEntities, iRecord );
+	    adfBoundsMin[0], adfBoundsMin[1],
+            adfBoundsMax[0], adfBoundsMax[1],
+            nEntities, iRecord );
 	    
     if (strcmp(outfile,"") == 0)
-    	{
+    {
     	ti = DBFGetFieldCount( hDBF );
 	showitems();
 	exit(0);
-	}
+    }
      
     if (iclip) check_theme_bnd();
     
     jRecord = DBFGetRecordCount( hDBFappend );
-    SHPReadBounds( hSHPappend, -1, adBounds );
+    SHPGetInfo( hSHPappend, NULL, NULL, adfBoundsMin, adfBoundsMax );
     if (nEntitiesAppend == 0)
-         puts("New Output File");
+        puts("New Output File\n");
     else
-         printf( "Append Bounds: (%lg,%lg) - (%lg,%lg)   Entities: %d  DBF: %d\n",
-	    adBounds[0], adBounds[1], adBounds[2], adBounds[3], nEntitiesAppend, jRecord );
+        printf( "Append Bounds: (%lg,%lg)-(%lg,%lg)   Entities: %d  DBF: %d\n",
+                adfBoundsMin[0], adfBoundsMin[1],
+                adfBoundsMax[0], adfBoundsMax[1],
+                nEntitiesAppend, jRecord );
     
 /* -------------------------------------------------------------------- */
 /*	Find matching fields in the append file or add new items.       */
@@ -278,7 +289,6 @@ int main( int argc, char ** argv )
 /*	Find selection field if needed.                                 */
 /* -------------------------------------------------------------------- */
     if (iselect)    findselect();
-    
 
 /* -------------------------------------------------------------------- */
 /*  Read all the records 						*/
@@ -286,7 +296,6 @@ int main( int argc, char ** argv )
     jRecord = DBFGetRecordCount( hDBFappend );
     for( iRecord = 0; iRecord < nEntities; iRecord++)  /** DBFGetRecordCount(hDBF) **/
     {
-    
 /* -------------------------------------------------------------------- */
 /*      SELECT for values if needed. (Can the record be skipped.)       */
 /* -------------------------------------------------------------------- */
@@ -296,7 +305,7 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
 /*      Read a Shape record                                             */
 /* -------------------------------------------------------------------- */
-	padVertices = SHPReadVertices( hSHP, iRecord, &nVertices, &nParts, &panParts );
+        psCShape = SHPReadObject( hSHP, iRecord );
 
 /* -------------------------------------------------------------------- */
 /*      Clip coordinates of shapes if needed.                           */
@@ -313,26 +322,26 @@ int main( int argc, char ** argv )
 /*      Store the record according to the type and formatting           */
 /*      information implicit in the DBF field description.              */
 /* -------------------------------------------------------------------- */
-          if (pt[i] > -1)  /* if the current field exists in output file */
-          {
-	    switch( DBFGetFieldInfo( hDBF, i, NULL, &iWidth, &iDecimals ) )
-	    {
-	      case FTString:
-	        DBFWriteStringAttribute(hDBFappend, jRecord, pt[i],
-	        (DBFReadStringAttribute( hDBF, iRecord, i )) );
-		break;
+            if (pt[i] > -1)  /* if the current field exists in output file */
+            {
+                switch( DBFGetFieldInfo( hDBF, i, NULL, &iWidth, &iDecimals ) )
+                {
+                  case FTString:
+                    DBFWriteStringAttribute(hDBFappend, jRecord, pt[i],
+                                            (DBFReadStringAttribute( hDBF, iRecord, i )) );
+                    break;
 
-	      case FTInteger:
-	        DBFWriteIntegerAttribute(hDBFappend, jRecord, pt[i],
-	        (DBFReadIntegerAttribute( hDBF, iRecord, i )) );
-		break;
+                  case FTInteger:
+                    DBFWriteIntegerAttribute(hDBFappend, jRecord, pt[i],
+                                             (DBFReadIntegerAttribute( hDBF, iRecord, i )) );
+                    break;
 
-	      case FTDouble:
-	        DBFWriteDoubleAttribute(hDBFappend, jRecord, pt[i],
-	        (DBFReadDoubleAttribute( hDBF, iRecord, i )) );
-		break;
-	    }
-	  }
+                  case FTDouble:
+                    DBFWriteDoubleAttribute(hDBFappend, jRecord, pt[i],
+                                            (DBFReadDoubleAttribute( hDBF, iRecord, i )) );
+                    break;
+                }
+            }
 	}
 	jRecord++;
 /* -------------------------------------------------------------------- */
@@ -340,18 +349,21 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
         if (iunit)
         {
-	    for( j = 0; j < (nVertices*2); j++ ) 
+	    for( j = 0; j < psCShape->nVertices; j++ ) 
 	    {
-	        padVertices[j] = padVertices[j] * factor + xshift; j++;
-	        padVertices[j] = padVertices[j] * factor + yshift;
+                psCShape->padfX[j] = psCShape->padfX[j] * factor + xshift;
+                psCShape->padfY[j] = psCShape->padfY[j] * factor + yshift;
 	    }
         }
         
 /* -------------------------------------------------------------------- */
-/*      Write the Shape record                                          */
+/*      Write the Shape record after recomputing current extents.       */
 /* -------------------------------------------------------------------- */
-        SHPWriteVertices(hSHPappend, nVertices, nParts, panParts, padVertices );
-        SKIP_RECORD:
+        SHPComputeExtents( psCShape );
+        SHPWriteObject( hSHPappend, -1, psCShape );
+
+      SKIP_RECORD:
+        SHPDestroyObject( psCShape );
         j=0;
     }
 
@@ -359,10 +371,13 @@ int main( int argc, char ** argv )
 /*      Print out the # of Entities and the file bounds.                */
 /* -------------------------------------------------------------------- */
     jRecord = DBFGetRecordCount( hDBFappend );
-    SHPGetInfo( hSHPappend, &nEntitiesAppend, &nShapeTypeAppend );
-    SHPReadBounds( hSHPappend, -1, adBounds );
+    SHPGetInfo( hSHPappend, &nEntitiesAppend, &nShapeTypeAppend,
+                adfBoundsMin, adfBoundsMax );
+    
     printf( "Output Bounds: (%lg,%lg) - (%lg,%lg)   Entities: %d  DBF: %d\n\n",
-	    adBounds[0], adBounds[1], adBounds[2], adBounds[3], nEntitiesAppend, jRecord );
+	    adfBoundsMin[0], adfBoundsMin[1],
+            adfBoundsMax[0], adfBoundsMax[1],
+            nEntitiesAppend, jRecord );
 
 /* -------------------------------------------------------------------- */
 /*      Close the both shapefiles.                                      */
@@ -394,19 +409,19 @@ void openfiles() {
 /*      Open the append DBF file.                                       */
 /* -------------------------------------------------------------------- */
     if (strcmp(outfile,"")) {
-    setext(outfile, "dbf");
-    hDBFappend = DBFOpen( outfile, "rb+" );
-    newdbf=0;
-    if( hDBFappend == NULL )
-    {
-        newdbf=1;
-        hDBFappend = DBFCreate( outfile );
+        setext(outfile, "dbf");
+        hDBFappend = DBFOpen( outfile, "rb+" );
+        newdbf=0;
         if( hDBFappend == NULL )
         {
-            printf( "ERROR: Unable to open the append DBF:%s\n", outfile );
-	    exit( 1 );
+            newdbf=1;
+            hDBFappend = DBFCreate( outfile );
+            if( hDBFappend == NULL )
+            {
+                printf( "ERROR: Unable to open the append DBF:%s\n", outfile );
+                exit( 1 );
+            }
         }
-    }
     }
 /* -------------------------------------------------------------------- */
 /*      Open the passed shapefile.                                      */
@@ -420,33 +435,34 @@ void openfiles() {
 	exit( 1 );
     }
 
-    SHPGetInfo( hSHP, &nEntities, &nShapeType );
+    SHPGetInfo( hSHP, &nEntities, &nShapeType, NULL, NULL );
 
 /* -------------------------------------------------------------------- */
 /*      Open the passed append shapefile.                               */
 /* -------------------------------------------------------------------- */
     if (strcmp(outfile,"")) {
-    setext(outfile, "shp");
-    hSHPappend = SHPOpen( outfile, "rb+" );
+        setext(outfile, "shp");
+        hSHPappend = SHPOpen( outfile, "rb+" );
 
-    if( hSHPappend == NULL )
-    {
-        hSHPappend = SHPCreate( outfile, nShapeType );
         if( hSHPappend == NULL )
         {
-            printf( "ERROR: Unable to open the append shape file:%s\n", outfile );
-	    exit( 1 );
+            hSHPappend = SHPCreate( outfile, nShapeType );
+            if( hSHPappend == NULL )
+            {
+                printf( "ERROR: Unable to open the append shape file:%s\n",
+                        outfile );
+                exit( 1 );
+            }
+        }
+        SHPGetInfo( hSHPappend, &nEntitiesAppend, &nShapeTypeAppend,
+                    NULL, NULL );
+
+        if (nShapeType != nShapeTypeAppend) 
+        {
+            puts( "ERROR: Input and Append shape files are of different types.");
+            exit( 1 );
         }
     }
-    SHPGetInfo( hSHPappend, &nEntitiesAppend, &nShapeTypeAppend );
-
-    if (nShapeType != nShapeTypeAppend) 
-    {
-	puts( "ERROR: Input and Append shape files are of different types.");
-	exit( 1 );
-    }
-    }
-  
 }
 
 /* -------------------------------------------------------------------- */
@@ -594,17 +610,17 @@ int value, ty;
 
 int check_theme_bnd()
 {
-    if ( (adBounds[0] >= cxmin) && (adBounds[2] <= cxmax) &&
-         (adBounds[1] >= cymin) && (adBounds[3] <= cymax) )
+    if ( (adfBoundsMin[0] >= cxmin) && (adfBoundsMax[0] <= cxmax) &&
+         (adfBoundsMin[1] >= cymin) && (adfBoundsMax[1] <= cymax) )
     {   /** Theme is totally inside clip area **/
         if (ierase) nEntities=0; /** SKIP THEME  **/
         else   iclip=FALSE; /** WRITE THEME (Clip not needed) **/
     }
             
-    if ( ( (adBounds[0] < cxmin) && (adBounds[2] < cxmin) ) ||
-         ( (adBounds[1] < cymin) && (adBounds[3] < cymin) ) ||
-         ( (adBounds[0] > cxmax) && (adBounds[2] > cxmax) ) ||
-         ( (adBounds[1] > cymax) && (adBounds[3] > cymax) ) )
+    if ( ( (adfBoundsMin[0] < cxmin) && (adfBoundsMax[0] < cxmin) ) ||
+         ( (adfBoundsMin[1] < cymin) && (adfBoundsMax[1] < cymin) ) ||
+         ( (adfBoundsMin[0] > cxmax) && (adfBoundsMax[0] > cxmax) ) ||
+         ( (adfBoundsMin[1] > cymax) && (adfBoundsMax[1] > cymax) ) )
     {   /** Theme is totally outside clip area **/
         if (ierase) iclip=FALSE; /** WRITE THEME (Clip not needed) **/
         else   nEntities=0; /** SKIP THEME  **/
@@ -619,20 +635,17 @@ int clip()
     int  outside=FALSE;
     int  j2=0, i2=0;
 
-    /*** FIRST check the boundary of the feature ***/
-    SHPReadBounds( hSHP, iRecord, adBounds );
-
-    if ( (adBounds[0] >= cxmin) && (adBounds[2] <= cxmax) &&
-         (adBounds[1] >= cymin) && (adBounds[3] <= cymax) )
+    if ( (psCShape->dfXMin >= cxmin) && (psCShape->dfXMax <= cxmax) &&
+         (psCShape->dfYMin >= cymin) && (psCShape->dfYMax <= cymax) )
     {   /** Feature is totally inside clip area **/
         if (ierase) return(0); /** SKIP  RECORD **/
         else   return(1); /** WRITE RECORD **/
     }
             
-    if ( ( (adBounds[0] < cxmin) && (adBounds[2] < cxmin) ) ||
-         ( (adBounds[1] < cymin) && (adBounds[3] < cymin) ) ||
-         ( (adBounds[0] > cxmax) && (adBounds[2] > cxmax) ) ||
-         ( (adBounds[1] > cymax) && (adBounds[3] > cymax) ) )
+    if ( ( psCShape->dfXMax < cxmin ) ||
+         ( psCShape->dfYMax < cymin ) ||
+         ( psCShape->dfXMin > cxmax ) ||
+         ( psCShape->dfYMin > cymax ) )
     {   /** Feature is totally outside clip area **/
         if (ierase) return(1); /** WRITE RECORD **/
         else   return(0); /** SKIP  RECORD **/
@@ -651,15 +664,15 @@ int clip()
     }
            
     /*** SECOND check each vertex in the feature ***/
-    for( j2 = 0; j2 < (nVertices*2); j2=j2+2 ) 
+    for( j2 = 0; j2 < psCShape->nVertices; j2++ ) 
     {
-        if (padVertices[j2] < cxmin  ||  padVertices[j2] > cxmax)
+        if (psCShape->padfX[j2] < cxmin  || psCShape->padfX[j2] > cxmax)
         {
             outside=TRUE;
         }
         else
         {
-            if (padVertices[j2+1] < cymin  ||  padVertices[j2+1] > cymax)
+            if (psCShape->padfY[j2] < cymin  || psCShape->padfY[j2] > cymax)
                 outside=TRUE;
             else
                 outside=FALSE;
@@ -673,10 +686,11 @@ int clip()
             } else {
                 if (i2 != j2)
                 {
-                    padVertices[i2]=padVertices[j2];     /** write vertex **/
-                    padVertices[i2+1]=padVertices[j2+1]; /** write vertex **/
+                    /* write vertex */
+                    psCShape->padfX[i2] = psCShape->padfX[j2];
+                    psCShape->padfY[i2] = psCShape->padfY[j2];
                 }
-                i2=i2+2;
+                i2++;
             }
         }
         else
@@ -700,11 +714,13 @@ int clip()
     
     if (icut)
     {
-        j2=nVertices;
-        if (i2 < 4) return(0); /** SKIP RECORD **/
-        nVertices=i2/2;
-        printf("Vertices:%d   OUT:%d   Number of Parts:%d  PanParts:%d   PadVertices:%d\n",
-               j2,nVertices,nParts,panParts,padVertices);
+        j2 = psCShape->nVertices;
+        if (i2 < 2) return(0); /** SKIP RECORD **/
+
+        psCShape->nVertices = i2;
+
+        printf("Vertices:%d   OUT:%d   Number of Parts:%d\n",
+               j2, psCShape->nVertices, psCShape->nParts );
     }
     if (itouch)
     {
