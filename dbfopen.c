@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.49  2003-04-21 18:30:37  warmerda
+ * Revision 1.50  2003-04-21 18:58:25  warmerda
+ * ensure current record is flushed at same time as header is updated
+ *
+ * Revision 1.49  2003/04/21 18:30:37  warmerda
  * added header write/update public methods
  *
  * Revision 1.48  2003/03/10 14:51:27  warmerda
@@ -315,6 +318,8 @@ DBFUpdateHeader( DBFHandle psDBF )
 
     if( psDBF->bNoHeader )
         DBFWriteHeader( psDBF );
+
+    DBFFlushRecord( psDBF );
 
     fseek( psDBF->fp, 0, 0 );
     fread( abyFileHeader, 32, 1, psDBF->fp );
