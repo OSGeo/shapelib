@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.27  2000-07-18 15:21:33  warmerda
+ * Revision 1.28  2001-02-06 22:25:06  warmerda
+ * fixed memory leaks when SHPOpen() fails
+ *
+ * Revision 1.27  2000/07/18 15:21:33  warmerda
  * added better enforcement of -1 for append in SHPWriteObject
  *
  * Revision 1.26  2000/02/16 16:03:51  warmerda
@@ -367,7 +370,12 @@ SHPHandle SHPOpen( const char * pszLayer, const char * pszAccess )
     }
     
     if( psSHP->fpSHP == NULL )
+    {
+        free( psSHP );
+        free( pszBasename );
+        free( pszFullname );
         return( NULL );
+    }
 
     sprintf( pszFullname, "%s.shx", pszBasename );
     psSHP->fpSHX = fopen(pszFullname, pszAccess );
