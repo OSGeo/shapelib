@@ -1,4 +1,4 @@
-		Shapefile C Library V1.0
+		Shapefile C Library V1.1
 		========================
 
 
@@ -66,7 +66,9 @@ XXX.dbf - holds the attributes in xBase (dBase) format.
 
 Release Notes
 -------------
-Release V1.0 is the first public release, and hasn't received much testing.
+Release V1.1 has been built on a number of platforms, and used by a number
+of people successfully.  V1.1 is the first release with the xBase API 
+documentation.
 
 
 Maintainer
@@ -111,6 +113,10 @@ Limitations
 
  o Some aspects of xBase files not supported, though I believe they are
    not used by ESRI.
+
+ o The application must keep the .dbf file in sync with the .shp/.shx
+   files through appropriate use of the DBF and SHP APIs.
+
 
 
 			Shapefile Library API
