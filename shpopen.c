@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.34  2001-11-01 16:29:55  warmerda
+ * Revision 1.35  2001-12-07 15:10:44  warmerda
+ * fix if .shx fails to open
+ *
+ * Revision 1.34  2001/11/01 16:29:55  warmerda
  * move pabyRec into SHPInfo for thread safety
  *
  * Revision 1.33  2001/07/03 12:18:15  warmerda
@@ -405,7 +408,7 @@ SHPOpen( const char * pszLayer, const char * pszAccess )
     
     if( psSHP->fpSHX == NULL )
     {
-        fclose( psSHP->fpSHX );
+        fclose( psSHP->fpSHP );
         free( psSHP );
         free( pszBasename );
         free( pszFullname );
