@@ -36,6 +36,9 @@ shpadd.c	- Simple example program for adding a shape to an existing
 		  shape file.
 shpdump.c	- Simple program for dumping all the vertices in a shapefile
 		  with an indicating of the parts.
+shputils.c	- Complex contributed program capable of clipping and appending
+                  shapefiles as well as a few other things.  Type shputils
+                  after building to get a full usage message.
 
 Makefile	- A simple makefile to compile the library and example 
 		  programs.
@@ -77,6 +80,9 @@ This library is maintained by Frank Warmerdam (http://www.pci.on.ca/~warmerda)
 of PCI (http://www.pci.on.ca/) on his own time.  Please send me bug patches
 and suggestions for the library.  Email can be sent to warmerda@leto.pci.on.ca.
 
+The shputils.c module was contributed by Bill Miller (NC-DOT) who can be
+reached at bmiller@doh.dot.state.nc.us.
+
 
 Portability
 -----------
@@ -90,6 +96,9 @@ as well as long as int32 gets properly defined in shpopen.c.
 Care should also be taken to pass the binary access flag into SHPOpen()
 and DBFOpen() when operating on systems with special text file translation
 such as MSDOS.  
+
+The shputils.c module is contributed, and may not take the same approach
+to portability as the rest of the package.
 
 
 Limitations
