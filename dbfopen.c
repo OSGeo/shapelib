@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.40  2002-01-09 04:32:35  warmerda
+ * Revision 1.41  2002-01-15 14:31:49  warmerda
+ * compute rather than copying nHeaderLength in DBFCloneEmpty()
+ *
+ * Revision 1.40  2002/01/09 04:32:35  warmerda
  * fixed to read correct amount of header
  *
  * Revision 1.39  2001/12/11 22:41:03  warmerda
@@ -1253,7 +1256,7 @@ DBFCloneEmpty(DBFHandle psDBF, const char * pszFilename )
    
    newDBF->nFields = psDBF->nFields;
    newDBF->nRecordLength = psDBF->nRecordLength;
-   newDBF->nHeaderLength = psDBF->nHeaderLength;
+   newDBF->nHeaderLength = 32 * (psDBF->nFields+1);
     
    newDBF->panFieldOffset = (void *) malloc ( sizeof(int) * psDBF->nFields ); 
    memcpy ( newDBF->panFieldOffset, psDBF->panFieldOffset, sizeof(int) * psDBF->nFields );
