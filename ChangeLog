@@ -1,5 +1,7 @@
 2001-05-31  Frank Warmerdam  <warmerdam@pobox.com>
 
+	* dbfopen.c: added DBFGetFieldIndex(), contributed by Jim Matthews.
+
 	* dbfopen.c/shapefil.h/dbf_api.h: added support for NULL fields
 	in .dbf files. 
 

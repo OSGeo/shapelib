@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.32  2001-05-31 18:15:40  warmerda
+ * Revision 1.33  2001-05-31 19:20:13  warmerda
+ * added DBFGetFieldIndex()
+ *
+ * Revision 1.32  2001/05/31 18:15:40  warmerda
  * Added support for NULL fields in DBF files
  *
  * Revision 1.31  2001/05/23 13:36:52  warmerda
@@ -1214,4 +1217,50 @@ DBFGetNativeFieldType( DBFHandle psDBF, int iField )
         return psDBF->pachFieldType[iField];
 
     return  ' ';
+}
+
+/************************************************************************/
+/*                            str_to_upper()                            */
+/************************************************************************/
+
+static void str_to_upper (char *string)
+{
+    int len;
+    short i = -1;
+
+    len = strlen (string);
+
+    while (++i < len)
+        if (isalpha(string[i]) && islower(string[i]))
+            string[i] = toupper ((int)string[i]);
+}
+
+/************************************************************************/
+/*                          DBFGetFieldIndex()                          */
+/*                                                                      */
+/*      Get the index number for a field in a .dbf file.                */
+/*                                                                      */
+/*      Contributed by Jim Matthews.                                    */
+/************************************************************************/
+
+int SHPAPI_CALL
+DBFGetFieldIndex(DBFHandle psDBF, const char *pszFieldName)
+
+{
+    char          name[12], name1[12], name2[12];
+    int           i;
+
+    strncpy(name1, pszFieldName,11);
+    str_to_upper(name1);
+
+    for( i = 0; i < DBFGetFieldCount(psDBF); i++ )
+    {
+        DBFGetFieldInfo( psDBF, i, name, NULL, NULL );
+        strcpy(name2,name);
+        str_to_upper(name2);
+
+        if(!strcmp(name1,name2))
+            return(i);
+    }
+    return(-1);
 }

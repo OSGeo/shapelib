@@ -37,7 +37,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.18  2001-05-31 18:15:40  warmerda
+ * Revision 1.19  2001-05-31 19:20:13  warmerda
+ * added DBFGetFieldIndex()
+ *
+ * Revision 1.18  2001/05/31 18:15:40  warmerda
  * Added support for NULL fields in DBF files
  *
  * Revision 1.17  2001/05/23 13:36:52  warmerda
@@ -364,6 +367,9 @@ int	SHPAPI_CALL
 DBFFieldType SHPAPI_CALL
       DBFGetFieldInfo( DBFHandle psDBF, int iField, 
                        char * pszFieldName, int * pnWidth, int * pnDecimals );
+
+int SHPAPI_CALL
+      DBFGetFieldIndex(DBFHandle psDBF, const char *pszFieldName);
 
 int 	SHPAPI_CALL
       DBFReadIntegerAttribute( DBFHandle hDBF, int iShape, int iField );

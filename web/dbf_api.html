@@ -80,6 +80,22 @@ int DBFGetRecordCount( DBFHandle hDBF );
 
 <!-------------------------------------------------------------------------->
 
+<h2>DBFGetFieldIndex()</h2>
+
+<pre>
+int DBFGetFieldIndex( DBFHandle hDBF, const char *pszFieldName );
+
+  hDBF:		The access handle for the file to be queried, as returned by
+		DBFOpen(), or DBFCreate().
+
+  pszFieldName: Name of the field to search for.
+</pre>
+
+  Returns the index of the field matching this name, or -1 on failure.  The
+  comparison is case insensitive.  However, lengths must match exactly.<p>
+
+<!-------------------------------------------------------------------------->
+
 <h2>DBFGetFieldInfo()</h2>
 
 <pre>
