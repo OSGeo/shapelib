@@ -21,7 +21,11 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.12  1999-03-06 02:54:46  warmerda
+ * Revision 1.13  1999-03-23 17:38:59  warmerda
+ * DBFAddField() now actually does return the new field number, or -1 if
+ * it fails.
+ *
+ * Revision 1.12  1999/03/06 02:54:46  warmerda
  * Added logic to convert shapefile name to dbf filename in DBFOpen()
  * for convenience.
  *
@@ -410,13 +414,13 @@ int	DBFAddField(DBFHandle psDBF, const char * pszFieldName,
 /*      Do some checking to ensure we can add records to this file.     */
 /* -------------------------------------------------------------------- */
     if( psDBF->nRecords > 0 )
-        return( FALSE );
+        return( -1 );
 
     if( !psDBF->bNoHeader )
-        return( FALSE );
+        return( -1 );
 
     if( eType != FTDouble && nDecimals != 0 )
-        return( FALSE );
+        return( -1 );
 
 /* -------------------------------------------------------------------- */
 /*      SfRealloc all the arrays larger to hold the additional field      */
@@ -486,7 +490,7 @@ int	DBFAddField(DBFHandle psDBF, const char * pszFieldName,
     psDBF->pszCurrentRecord = (char *) SfRealloc(psDBF->pszCurrentRecord,
 					       psDBF->nRecordLength);
 
-    return( TRUE );
+    return( psDBF->nFields-1 );
 }
 
 /************************************************************************/
