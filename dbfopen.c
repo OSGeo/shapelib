@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.37  2001-07-04 05:18:09  warmerda
+ * Revision 1.38  2001-11-28 16:07:31  warmerda
+ * Cleanup to avoid compiler warnings as suggested by Richard Hash.
+ *
+ * Revision 1.37  2001/07/04 05:18:09  warmerda
  * do last fix properly
  *
  * Revision 1.36  2001/07/04 05:16:09  warmerda
@@ -274,7 +277,7 @@ DBFOpen( const char * pszFilename, const char * pszAccess )
 {
     DBFHandle		psDBF;
     unsigned char		*pabyBuf;
-    int			nFields, nRecords, nHeadLen, nRecLen, iField, i;
+    int			nFields, nHeadLen, nRecLen, iField, i;
     char		*pszBasename, *pszFullname;
 
 /* -------------------------------------------------------------------- */
@@ -336,7 +339,7 @@ DBFOpen( const char * pszFilename, const char * pszAccess )
     pabyBuf = (unsigned char *) malloc(500);
     fread( pabyBuf, 32, 1, psDBF->fp );
 
-    psDBF->nRecords = nRecords = 
+    psDBF->nRecords = 
      pabyBuf[4] + pabyBuf[5]*256 + pabyBuf[6]*256*256 + pabyBuf[7]*256*256*256;
 
     psDBF->nHeaderLength = nHeadLen = pabyBuf[8] + pabyBuf[9]*256;
@@ -822,7 +825,6 @@ DBFIsAttributeNULL( DBFHandle psDBF, int iRecord, int iField )
         /* empty string fields are considered NULL */
         return strlen(pszValue) == 0;
     }
-    return FALSE;
 }
 
 /************************************************************************/
