@@ -1,3 +1,17 @@
+/*
+** Copyright (c) 1995 Frank Warmerdam
+**
+** This code is in the public domain.
+**
+** $Log$
+** Revision 1.2  1995-08-04 03:14:43  warmerda
+** Added header.
+**
+*/
+
+static char rcsid[] = 
+  "$Id$";
+
 #include "shapefil.h"
 
 #include <math.h>
@@ -126,7 +140,7 @@ DBFHandle DBFOpen( const char * pszFilename, const char * pszAccess )
 /* -------------------------------------------------------------------- */
     
     pabyBuf = (uchar *) realloc(pabyBuf,nHeadLen);
-    psDBF->pszHeader = pabyBuf;
+    psDBF->pszHeader = (char *) pabyBuf;
 
     fseek( psDBF->fp, 32, 0 );
     fread( pabyBuf, nHeadLen, 1, psDBF->fp );

@@ -1,3 +1,17 @@
+/*
+ * Copyright (c) 1995 Frank Warmerdam
+ *
+ * This code is in the public domain.
+ *
+ * $Log$
+ * Revision 1.2  1995-08-04 03:15:59  warmerda
+ * Added header.
+ *
+ */
+
+static char rcsid[] = 
+  "$Id$";
+
 #include "shapefil.h"
 
 int main( int argc, char ** argv )

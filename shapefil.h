@@ -1,6 +1,17 @@
 #ifndef _SHAPEFILE_H_INCLUDED
 #define _SHAPEFILE_H_INCLUDED
 
+/*
+ * Copyright (c) 1995 Frank Warmerdam
+ *
+ * This code is in the public domain.
+ *
+ * $Log$
+ * Revision 1.2  1995-08-04 03:17:39  warmerda
+ * Added header.
+ *
+ */
+
 #include <stdio.h>
 
 /************************************************************************/
