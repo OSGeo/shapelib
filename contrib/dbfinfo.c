@@ -9,6 +9,11 @@
  *   gcc dbfinfo dbfopen.o dbfinfo
  * 
  *
+ * $Log$
+ * Revision 1.2  1999-05-26 02:56:31  candrsn
+ * updates to shpdxf, dbfinfo, port from Shapelib 1.1.5 of dbfcat and shpinfo
+ *
+ * 
  */
 
 

@@ -32,8 +32,8 @@
  * use -DPROJ4 to compile in Projection support
  *
  * $Log$
- * Revision 1.1  1999-05-26 02:16:01  candrsn
- * prototype for shpgeo, move wrappers for PROJ4.3 over from shpproj.c
+ * Revision 1.2  1999-05-26 02:56:31  candrsn
+ * updates to shpdxf, dbfinfo, port from Shapelib 1.1.5 of dbfcat and shpinfo
  *
  *
  * 
@@ -355,9 +355,9 @@ int	use_M = 0;
  * Encapsulate entire SHPObject for use with Postgresql
  *
  * **************************************************************************/
-int WKBStreamWrite ( WKBStreamObj* wso, void* this, int tcount, int tsize, char OKtoSwap ) {
+int WKBStreamWrite ( WKBStreamObj* wso, void* this, int tcount, int tsize ) {
 
-   if ( wso->NeedSwap && OKtoSwap )
+   if ( wso->NeedSwap )
      SwapG ( &(wso->wStream[wso->StreamPos]), this, tcount, tsize );
    else
      memcpy ( &(wso->wStream[wso->StreamPos]), this, tsize * tcount );
@@ -374,9 +374,9 @@ int WKBStreamWrite ( WKBStreamObj* wso, void* this, int tcount, int tsize, char 
  * Encapsulate entire SHPObject for use with Postgresql
  *
  * **************************************************************************/
-int WKBStreamRead ( WKBStreamObj* wso, void* this, int tcount, int tsize, char OKtoSwap ) {
+int WKBStreamRead ( WKBStreamObj* wso, void* this, int tcount, int tsize ) {
 
-   if ( wso->NeedSwap && OKtoSwap )
+   if ( wso->NeedSwap )
      SwapG ( this, &(wso->wStream[wso->StreamPos]), tcount, tsize );
    else
      memcpy ( this, &(wso->wStream[wso->StreamPos]), tsize * tcount );
@@ -400,7 +400,7 @@ SHPObject* SHPReadOGisWKB ( WKBStreamObj *stream_obj) {
   int		use_Z = 0, use_M = 0;
   int		nSHPType, thisDim;
 
-  WKBStreamRead ( stream_obj, &WKB_order, 1, sizeof(char), FALSE );
+  WKBStreamRead ( stream_obj, &WKB_order, 1, sizeof(char));
   my_order = 1;
   my_order = ((char*) (&my_order))[0];
   stream_obj->NeedSwap = !(WKB_order & my_order);
@@ -408,7 +408,7 @@ SHPObject* SHPReadOGisWKB ( WKBStreamObj *stream_obj) {
   /* convert OGis Types to SHP types  */
   nSHPType = SHPOGisType ( GeoType, 0 );
 
-  WKBStreamRead ( stream_obj, &GeoType, 1, sizeof(int), TRUE );
+  WKBStreamRead ( stream_obj, &GeoType, 1, sizeof(int));
      
   thisDim = SHPDimension ( nSHPType );
   
@@ -476,7 +476,7 @@ int SHPWriteOGisWKB ( WKBStreamObj* stream_obj, SHPObject *psCShape ) {
     printf ("this system is (%d) LSB recorded as needSwap %d\n",my_order, stream_obj->NeedSwap);
   #endif
 
-  WKBStreamWrite ( stream_obj, & LSB, 1, sizeof(char), FALSE );
+  WKBStreamWrite ( stream_obj, & LSB, 1, sizeof(char) );
   
   #ifdef DEBUG2
     printf ("this system in (%d) LSB \n");
@@ -485,7 +485,7 @@ int SHPWriteOGisWKB ( WKBStreamObj* stream_obj, SHPObject *psCShape ) {
   
   /* convert SHP Types to OGis types  */
   GeoType = SHPOGisType ( psCShape->nSHPType, 1 );
-  WKBStreamWrite ( stream_obj, &GeoType, 1, sizeof(int), TRUE );
+  WKBStreamWrite ( stream_obj, &GeoType, 1, sizeof(int) );
      
   thisDim = SHPDimension ( psCShape->nSHPType );
   
@@ -538,15 +538,15 @@ int SHPWriteOGisPolygon ( WKBStreamObj *stream_obj, SHPObject *psCShape ) {
      printf ("(SHPWriteOGisPolygon) Uncompounded into %d parts \n", cParts);
 #endif
       
-   WKBStreamWrite ( stream_obj, &cParts, 1, sizeof(int), FALSE );
+   WKBStreamWrite ( stream_obj, &cParts, 1, sizeof(int) );
 
    for ( cpart = 0; cpart < cParts; cpart++) {
 
-     WKBStreamWrite ( stream_obj, & Flag, 1, sizeof(char), TRUE );
-     WKBStreamWrite ( stream_obj, & GeoType, 1, sizeof(int), TRUE );
+     WKBStreamWrite ( stream_obj, & Flag, 1, sizeof(char) );
+     WKBStreamWrite ( stream_obj, & GeoType, 1, sizeof(int) );
   
      psC = (SHPObject*) ppsC[cpart];
-     WKBStreamWrite ( stream_obj, &(psC->nParts), 1, sizeof(int), TRUE );    
+     WKBStreamWrite ( stream_obj, &(psC->nParts), 1, sizeof(int) );    
      
      for ( ring = 0; (ring < (psC->nParts)) && (psC->nParts > 0); ring ++) {
        if ( ring < (psC->nParts-2) )
@@ -558,10 +558,10 @@ int SHPWriteOGisPolygon ( WKBStreamObj *stream_obj, SHPObject *psCShape ) {
      		cpart, ring, rVertices);
 #endif             
        rPart = psC->panPartStart[ring];
-       WKBStreamWrite ( stream_obj, &rVertices, 1, sizeof(int), TRUE );
+       WKBStreamWrite ( stream_obj, &rVertices, 1, sizeof(int) );       
        for ( j=rPart; j < (rPart + rVertices); j++ ) {
-         WKBStreamWrite ( stream_obj, &(psC->padfX[j]), 1, sizeof(double), TRUE );
-         WKBStreamWrite ( stream_obj, &(psC->padfY[j]), 1, sizeof(double), TRUE );
+         WKBStreamWrite ( stream_obj, &(psC->padfX[j]), 1, sizeof(double) );
+         WKBStreamWrite ( stream_obj, &(psC->padfY[j]), 1, sizeof(double) );
         } /* for each vertex */
       }  /* for each ring */
     }  /* for each complex part */
@@ -600,11 +600,11 @@ int SHPWriteOGisLine ( WKBStreamObj *stream_obj, SHPObject *psCShape ) {
 int SHPWriteOGisPoint ( WKBStreamObj *stream_obj, SHPObject *psCShape ) {
    int			j;
    
-   WKBStreamWrite ( stream_obj, &(psCShape->nVertices), 1, sizeof(int), TRUE );
+   WKBStreamWrite ( stream_obj, &(psCShape->nVertices), 1, sizeof(int) );
 
    for ( j=0; j < psCShape->nVertices; j++ ) {
-     WKBStreamWrite ( stream_obj, &(psCShape->padfX[j]), 1, sizeof(double), TRUE );
-     WKBStreamWrite ( stream_obj, &(psCShape->padfY[j]), 1, sizeof(double), TRUE );
+     WKBStreamWrite ( stream_obj, &(psCShape->padfX[j]), 1, sizeof(double) );
+     WKBStreamWrite ( stream_obj, &(psCShape->padfY[j]), 1, sizeof(double) );
     } /* for each vertex */
 
   return (1);
@@ -631,7 +631,7 @@ SHPObject* SHPReadOGisPolygon ( WKBStreamObj *stream_obj ) {
         	NULL, NULL, NULL, NULL ); 
    /* initialize a blank SHPObject 											*/        	
 
-   WKBStreamRead ( stream_obj, &cParts, 1, sizeof(char), FALSE );
+   WKBStreamRead ( stream_obj, &cParts, 1, sizeof(char) );
 
    totParts = cParts;
    totVertices = 0;
@@ -640,7 +640,7 @@ SHPObject* SHPReadOGisPolygon ( WKBStreamObj *stream_obj ) {
    SfRealloc ( psC->panPartType, cParts * sizeof(int));
 
    for ( cpart = 0; cpart < cParts; cpart++) {
-     WKBStreamRead ( stream_obj, &nParts, 1, sizeof(int), TRUE );
+     WKBStreamRead ( stream_obj, &nParts, 1, sizeof(int) );
      pRings = nParts;     
      /* pRings is the number of rings prior to the Ring loop below			*/
      
@@ -652,7 +652,7 @@ SHPObject* SHPReadOGisPolygon ( WKBStreamObj *stream_obj ) {
 
      rPart = 0;
      for ( ring = 0; ring < (nParts - 1); ring ++) {
-       WKBStreamRead ( stream_obj, &rVertices, 1, sizeof(int), TRUE );
+       WKBStreamRead ( stream_obj, &rVertices, 1, sizeof(int) );
        totVertices += rVertices;
                
        psC->panPartStart[ring+pRings] = rPart;
@@ -665,8 +665,8 @@ SHPObject* SHPReadOGisPolygon ( WKBStreamObj *stream_obj ) {
        SfRealloc ( psC->padfY, totVertices * sizeof (double));
               
        for ( j=rPart; j < (rPart + rVertices); j++ ) {
-         WKBStreamRead ( stream_obj, &(psC->padfX[j]), 1, sizeof(double), TRUE );
-         WKBStreamRead ( stream_obj, &(psC->padfY[j]), 1, sizeof(double), TRUE );        
+         WKBStreamRead ( stream_obj, &(psC->padfX[j]), 1, sizeof(double) );
+         WKBStreamRead ( stream_obj, &(psC->padfY[j]), 1, sizeof(double) );        
         } /* for each vertex */
        rPart += rVertices;
 
@@ -698,7 +698,7 @@ SHPObject* SHPReadOGisLine ( WKBStreamObj *stream_obj ) {
         	NULL, NULL, NULL, NULL ); 
    /* initialize a blank SHPObject 											*/        	
 
-   WKBStreamRead ( stream_obj, &cParts, 1, sizeof(int), TRUE );
+   WKBStreamRead ( stream_obj, &cParts, 1, sizeof(int) );
 
    totParts = cParts;
    totVertices = 0;
@@ -707,19 +707,19 @@ SHPObject* SHPReadOGisLine ( WKBStreamObj *stream_obj ) {
    SfRealloc ( psC->panPartType, cParts * sizeof(int));
 
    for ( cpart = 0; cpart < cParts; cpart++) {
-     WKBStreamRead ( stream_obj, &nParts, 1, sizeof(int), TRUE );
+     WKBStreamRead ( stream_obj, &nParts, 1, sizeof(int) );
      pRings = totParts;     
      /* pRings is the number of rings prior to the Ring loop below			*/
      
      if ( nParts > 1 ) {
        totParts += nParts - 1;
-       SfRealloc ( psC->panPartStart, totParts * sizeof(int) );
-       SfRealloc ( psC->panPartType, totParts * sizeof(int) );
+       SfRealloc ( psC->panPartStart, totParts * sizeof(int));
+       SfRealloc ( psC->panPartType, totParts * sizeof(int));
       }
 
      rPart = 0;
      for ( ring = 0; ring < (nParts - 1); ring ++) {
-       WKBStreamRead ( stream_obj, &rVertices, 1, sizeof(int), TRUE );
+       WKBStreamRead ( stream_obj, &rVertices, 1, sizeof(int) );
        totVertices += rVertices;
                
        psC->panPartStart[ring+pRings] = rPart;
@@ -732,8 +732,8 @@ SHPObject* SHPReadOGisLine ( WKBStreamObj *stream_obj ) {
        SfRealloc ( psC->padfY, totVertices * sizeof (double));
               
        for ( j=rPart; j < (rPart + rVertices); j++ ) {
-         WKBStreamRead ( stream_obj, &(psC->padfX[j]), 1, sizeof(double), TRUE );
-         WKBStreamRead ( stream_obj, &(psC->padfY[j]), 1, sizeof(double), TRUE );        
+         WKBStreamRead ( stream_obj, &(psC->padfX[j]), 1, sizeof(double) );
+         WKBStreamRead ( stream_obj, &(psC->padfY[j]), 1, sizeof(double) );        
         } /* for each vertex */
        rPart += rVertices;
 
@@ -759,14 +759,14 @@ SHPObject* SHPReadOGisPoint ( WKBStreamObj *stream_obj ) {
         	NULL, NULL, NULL, NULL ); 
    /* initialize a blank SHPObject 											*/        	
 
-   WKBStreamRead ( stream_obj, &nVertices, 1, sizeof(int), TRUE );
+   WKBStreamRead ( stream_obj, &nVertices, 1, sizeof(int) );
 
    SfRealloc ( psC->padfX, nVertices * sizeof (double));
    SfRealloc ( psC->padfY, nVertices * sizeof (double));
               
    for ( j=0; j < nVertices; j++ ) {
-     WKBStreamRead ( stream_obj, &(psC->padfX[j]), 1, sizeof(double), TRUE );
-     WKBStreamRead ( stream_obj, &(psC->padfY[j]), 1, sizeof(double), TRUE );        
+     WKBStreamRead ( stream_obj, &(psC->padfX[j]), 1, sizeof(double) );
+     WKBStreamRead ( stream_obj, &(psC->padfY[j]), 1, sizeof(double) );        
     } /* for each vertex */
     
     return ( psC );
@@ -1484,7 +1484,7 @@ SHPObject* SHPClone ( SHPObject *psCShape, int lowPart, int highPart ) {
     if ( psCShape->padfM ) {
       psObject->padfM = (double*) calloc (newVertices, sizeof (double)); 
       memcpy ( psObject->padfM,
-	(double *) &( psCShape->padfM[ psCShape->panPartStart[lowPart] ] ),
+	(double *) &(psCShape->padfM[psCShape->panPartStart[lowPart]]),
       		newVertices * sizeof (double) );
      }
 
@@ -1508,8 +1508,6 @@ SHPObject* SHPClone ( SHPObject *psCShape, int lowPart, int highPart ) {
 /*  SwapG 							                              	*/
 /*                                                                      */
 /*      Swap a 2, 4 or 8 byte word.                                     */
-/*	Make safe for 1 byte data too!!									*/
-/*      Based on warmerda's Swap, but this handles multiples			*/
 /************************************************************************/
 void SwapG( void *so, void *in, int this_cnt, int this_size ) {
     int		i, j;
@@ -1520,7 +1518,7 @@ void SwapG( void *so, void *in, int this_cnt, int this_size ) {
 
     for( j=0; j < this_cnt; j++ )
      {
-      for( i=0; i < this_size / 2 ; i++ )
+      for( i=0; i < this_size/2; i++ )
       {
 	((unsigned char *) so)[i] = ((unsigned char *) in)[this_size-i-1];
 	((unsigned char *) so)[this_size-i-1] = ((unsigned char *) in)[i];
@@ -1542,10 +1540,10 @@ void swapW (void *so, unsigned char *in, long bytes) {
   unsigned char *out;
 
   out = so;
-  for ( i=0; i <= ( bytes / 4 ); i++ )
-   for ( j=0; j < 4; j++ )
-      out[ ( i * 4 ) + map[j] ] = in[ ( i * 4 ) + j ]; 
-} 
+  for (i=0; i <= (bytes/4); i++)
+   for (j=0; j < 4; j++)
+      out[(i*4)+map[j]] = in[(i*4)+j]; 
+}
 
 
 /* **************************************************************************
@@ -1561,8 +1559,8 @@ void swapD (void *so, unsigned char *in, long bytes) {
   unsigned char *out;
 
   out = so;
-  for ( i=0; i <= ( bytes / 8 ); i++ )
-   for ( j=0; j < 8; j++)
-      out[ ( i * 8 ) + map[j] ] = in[ ( i * 8 ) + j ]; 
+  for (i=0; i <= (bytes/8); i++)
+   for (j=0; j < 8; j++)
+      out[(i*8)+map[j]] = in[(i*8)+j]; 
 }
 

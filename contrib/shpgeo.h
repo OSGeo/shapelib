@@ -27,8 +27,8 @@
  *
  *
  * $Log$
- * Revision 1.1  1999-05-26 02:16:01  candrsn
- * prototype for shpgeo, move wrappers for PROJ4.3 over from shpproj.c
+ * Revision 1.2  1999-05-26 02:56:31  candrsn
+ * updates to shpdxf, dbfinfo, port from Shapelib 1.1.5 of dbfcat and shpinfo
  *
  * 
  */
@@ -98,8 +98,6 @@ typedef struct { int		cParts;
 
 
 #define   	LSB_ORDER  (int) 1
-#define		TRUE			 1
-#define		FALSE		     0
 
 
 extern char * asFileName ( const char *fil, char *ext );

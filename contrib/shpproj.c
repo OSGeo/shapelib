@@ -33,8 +33,8 @@
  * SHPGeo must be compiled with -DPROJ4 support
  *
  * $Log$
- * Revision 1.5  1999-05-26 02:16:01  candrsn
- * prototype for shpgeo, move wrappers for PROJ4.3 over from shpproj.c
+ * Revision 1.6  1999-05-26 02:56:31  candrsn
+ * updates to shpdxf, dbfinfo, port from Shapelib 1.1.5 of dbfcat and shpinfo
  *
  * Revision 1.2  1999/05/13 19:30:52  warmerda
  * Removed libgen.h, added url for PROJ.4, and corrected unsafe return of

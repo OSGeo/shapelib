@@ -22,26 +22,17 @@
  * DEALINGS IN THE SOFTWARE.
  ******************************************************************************
  *
- * shpcentrd.c  - compute XY centroid for complex shapes 
- *			and create a new SHPT_PT file of then
- * 			specifically undo compound objects but not complex ones
+ * shpdata.c  - utility program for testing elements of the libraries
  *
  *
  * $Log$
- * Revision 1.1  1999-05-26 02:16:01  candrsn
- * prototype for shpgeo, move wrappers for PROJ4.3 over from shpproj.c
+ * Revision 1.2  1999-05-26 02:56:31  candrsn
+ * updates to shpdxf, dbfinfo, port from Shapelib 1.1.5 of dbfcat and shpinfo
  *
  *
  * 
  */
-
-
-/* the centroid is defined as
- *
- *      Cx = sum (x dArea ) / Total Area
- *  and
- *      Cy = sum (y dArea ) / Total Area
- */           
+      
 
 #include "shapefil.h"
 #include "shpgeo.h"
