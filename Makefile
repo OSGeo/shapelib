@@ -1,8 +1,11 @@
 
-#LINKOPT	=	/usr/local/lib/libdbmalloc.a
+#LINKOPT	=	/usr/local/lib/libdbmalloc.a 
+#LINKOPT = 	/usr/local/lib/cpl.a
 CFLAGS	=	-g
+#CFLAGS  =       -g -DUSE_CPL
 INSTALL = /usr/bin/install
 LD = /usr/bin/ld
+#CC = g++
 
 default:	all
 
