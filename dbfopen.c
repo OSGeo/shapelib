@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.48  2003-03-10 14:51:27  warmerda
+ * Revision 1.49  2003-04-21 18:30:37  warmerda
+ * added header write/update public methods
+ *
+ * Revision 1.48  2003/03/10 14:51:27  warmerda
  * DBFWrite* calls now return FALSE if they have to truncate
  *
  * Revision 1.47  2002/11/20 03:32:22  warmerda
@@ -244,7 +247,12 @@ static void DBFWriteHeader(DBFHandle psDBF)
 
     abyHeader[0] = 0x03;		/* memo field? - just copying 	*/
 
-    /* date updated on close, record count preset at zero */
+    /* write out a dummy date */
+    abyHeader[1] = 95;			/* YY */
+    abyHeader[2] = 7;			/* MM */
+    abyHeader[3] = 26;			/* DD */
+
+    /* record count preset at zero */
 
     abyHeader[8] = psDBF->nHeaderLength % 256;
     abyHeader[9] = psDBF->nHeaderLength / 256;
@@ -293,6 +301,33 @@ static void DBFFlushRecord( DBFHandle psDBF )
 	fseek( psDBF->fp, nRecordOffset, 0 );
 	fwrite( psDBF->pszCurrentRecord, psDBF->nRecordLength, 1, psDBF->fp );
     }
+}
+
+/************************************************************************/
+/*                          DBFUpdateHeader()                           */
+/************************************************************************/
+
+void SHPAPI_CALL
+DBFUpdateHeader( DBFHandle psDBF )
+
+{
+    unsigned char		abyFileHeader[32];
+
+    if( psDBF->bNoHeader )
+        DBFWriteHeader( psDBF );
+
+    fseek( psDBF->fp, 0, 0 );
+    fread( abyFileHeader, 32, 1, psDBF->fp );
+    
+    abyFileHeader[4] = psDBF->nRecords % 256;
+    abyFileHeader[5] = (psDBF->nRecords/256) % 256;
+    abyFileHeader[6] = (psDBF->nRecords/(256*256)) % 256;
+    abyFileHeader[7] = (psDBF->nRecords/(256*256*256)) % 256;
+    
+    fseek( psDBF->fp, 0, 0 );
+    fwrite( abyFileHeader, 32, 1, psDBF->fp );
+
+    fflush( psDBF->fp );
 }
 
 /************************************************************************/
@@ -454,24 +489,7 @@ DBFClose(DBFHandle psDBF)
 /*	write access.                					*/
 /* -------------------------------------------------------------------- */
     if( psDBF->bUpdated )
-    {
-	unsigned char		abyFileHeader[32];
-
-	fseek( psDBF->fp, 0, 0 );
-	fread( abyFileHeader, 32, 1, psDBF->fp );
-
-	abyFileHeader[1] = 95;			/* YY */
-	abyFileHeader[2] = 7;			/* MM */
-	abyFileHeader[3] = 26;			/* DD */
-
-	abyFileHeader[4] = psDBF->nRecords % 256;
-	abyFileHeader[5] = (psDBF->nRecords/256) % 256;
-	abyFileHeader[6] = (psDBF->nRecords/(256*256)) % 256;
-	abyFileHeader[7] = (psDBF->nRecords/(256*256*256)) % 256;
-
-	fseek( psDBF->fp, 0, 0 );
-	fwrite( abyFileHeader, 32, 1, psDBF->fp );
-    }
+        DBFUpdateHeader( psDBF );
 
 /* -------------------------------------------------------------------- */
 /*      Close, and free resources.                                      */

@@ -37,7 +37,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.26  2002-09-29 00:00:08  warmerda
+ * Revision 1.27  2003-04-21 18:30:37  warmerda
+ * added header write/update public methods
+ *
+ * Revision 1.26  2002/09/29 00:00:08  warmerda
  * added FTLogical and logical attribute read/write calls
  *
  * Revision 1.25  2002/05/07 13:46:30  warmerda
@@ -305,8 +308,8 @@ SHPObject SHPAPI_CALL1(*)
 int SHPAPI_CALL
       SHPRewindObject( SHPHandle hSHP, SHPObject * psObject );
 
-void SHPAPI_CALL
-      SHPClose( SHPHandle hSHP );
+void SHPAPI_CALL SHPClose( SHPHandle hSHP );
+void SHPAPI_CALL SHPWriteHeader( SHPHandle hSHP );
 
 const char SHPAPI_CALL1(*)
       SHPTypeName( int nSHPType );
@@ -474,6 +477,8 @@ DBFHandle SHPAPI_CALL
  
 void	SHPAPI_CALL
       DBFClose( DBFHandle hDBF );
+void    SHPAPI_CALL
+      DBFUpdateHeader( DBFHandle hDBF );
 char    SHPAPI_CALL
       DBFGetNativeFieldType( DBFHandle hDBF, int iField );
 
