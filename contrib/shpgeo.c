@@ -32,7 +32,10 @@
  * use -DPROJ4 to compile in Projection support
  *
  * $Log$
- * Revision 1.3  2000-03-17 14:15:16  warmerda
+ * Revision 1.4  2000-04-26 13:17:15  warmerda
+ * check if projUV or UV
+ *
+ * Revision 1.3  2000/03/17 14:15:16  warmerda
  * Don't try to use system nan.h ... doesn't always exist.
  *
  * Revision 1.2  1999/05/26 02:56:31  candrsn
@@ -135,7 +138,11 @@ static void * SfRealloc( void * pMem, int nNewSize )
 int SHPProject ( SHPObject *psCShape, PJ *inproj, PJ *outproj ) {
 #ifdef	PROJ4
    int	j;
+#ifdef USE_PROJUV
+   projUV   p;    /* struct { double u, double v } */
+#else
    UV   p;    /* struct { double u, double v } */
+#endif
 
    /* for each vertex project it and stuff the projeted point back into 	*/
    /*	same SHPObject.  Proj assumes data is in radians so convert it.		*/
