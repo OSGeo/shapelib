@@ -1257,3 +1257,56 @@ Shape:15 (Polygon)  nVertices=28, nParts=1
      (  479099.594, 4763977.500, 0, 0)  
      (  479080.812, 4763930.000, 0, 0)  
      (  478999.812, 4763864.500, 0, 0)  
+-------------------------------------------------------------------------
+Test 4: dump pline.dbf - uses new F field type
+-------------------------------------------------------------------------
+Field 0: Type=Integer, Title=`FNODE_', Width=11, Decimals=0
+Field 1: Type=Integer, Title=`TNODE_', Width=11, Decimals=0
+Field 2: Type=Integer, Title=`LPOLY_', Width=11, Decimals=0
+Field 3: Type=Integer, Title=`RPOLY_', Width=11, Decimals=0
+Field 4: Type=Double, Title=`LENGTH', Width=13, Decimals=3
+Field 5: Type=Integer, Title=`PLINE_', Width=11, Decimals=0
+Field 6: Type=Integer, Title=`PLINE_ID', Width=11, Decimals=0
+Field 7: Type=Integer, Title=`UID', Width=11, Decimals=0
+Field 8: Type=Integer, Title=`GISO_TYPE_', Width=11, Decimals=0
+Field 9: Type=Integer, Title=`SYMBOL', Width=6, Decimals=0
+Field 10: Type=Integer, Title=`LOCK__ID', Width=11, Decimals=0
+Field 11: Type=Integer, Title=`PHASE__ID', Width=6, Decimals=0
+Field 12: Type=Integer, Title=`OBJECT__ID', Width=11, Decimals=0
+Field 13: Type=String, Title=`TYPE', Width=50, Decimals=0
+Field 14: Type=Integer, Title=`SYM_NBR', Width=6, Decimals=0
+Field 15: Type=String, Title=`PHASE', Width=4, Decimals=0
+Field 16: Type=String, Title=`CKT_NM', Width=30, Decimals=0
+Field 17: Type=String, Title=`VOLTAGE', Width=30, Decimals=0
+Field 18: Type=String, Title=`CMPN', Width=30, Decimals=0
+
+Record: 0
+FNODE_:         351
+TNODE_:         352
+LPOLY_:           0
+RPOLY_:           0
+LENGTH:       139.451
+PLINE_:           1
+PLINE_ID:        8588
+UID:      544484
+GISO_TYPE_:          13
+SYMBOL:    101
+LOCK__ID:           0
+PHASE__ID:      0
+OBJECT__ID:      131978
+TYPE: Overhead Primary                                  
+SYM_NBR:    101
+PHASE: ABC 
+CKT_NM: MED36                         
+VOLTAGE:                               
+CMPN:                               
+
+Record: 1
+FNODE_:         352
+TNODE_:         362
+LPOLY_:           0
+RPOLY_:           0
+LENGTH:       158.033
+PLINE_:           2
+PLINE_ID:        8695
+UID:      544591
