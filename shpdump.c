@@ -35,7 +35,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.9  2002-01-15 14:36:07  warmerda
+ * Revision 1.10  2002-04-10 16:59:29  warmerda
+ * added -validate switch
+ *
+ * Revision 1.9  2002/01/15 14:36:07  warmerda
  * updated email address
  *
  * Revision 1.8  2000/07/07 13:39:45  warmerda
@@ -70,16 +73,23 @@ int main( int argc, char ** argv )
 
 {
     SHPHandle	hSHP;
-    int		nShapeType, nEntities, i, iPart;
+    int		nShapeType, nEntities, i, iPart, bValidate = 0,nInvalidCount=0;
     const char 	*pszPlus;
     double 	adfMinBound[4], adfMaxBound[4];
+
+    if( argc > 1 && strcmp(argv[1],"-validate") == 0 )
+    {
+        bValidate = 1;
+        argv++;
+        argc--;
+    }
 
 /* -------------------------------------------------------------------- */
 /*      Display a usage message.                                        */
 /* -------------------------------------------------------------------- */
     if( argc != 2 )
     {
-	printf( "shpdump shp_file\n" );
+	printf( "shpdump [-validate] shp_file\n" );
 	exit( 1 );
     }
 
@@ -158,11 +168,28 @@ int main( int argc, char ** argv )
                    psShape->padfM[j],
                    pszPartType );
 	}
+
+        if( bValidate )
+        {
+            int nAltered = SHPRewindObject( hSHP, psShape );
+
+            if( nAltered > 0 )
+            {
+                printf( "  %d rings wound in the wrong direction.\n",
+                        nAltered );
+                nInvalidCount++;
+            }
+        }
         
         SHPDestroyObject( psShape );
     }
 
     SHPClose( hSHP );
+
+    if( bValidate )
+    {
+        printf( "%d object has invalid ring orderings.\n", nInvalidCount );
+    }
 
 #ifdef USE_DBMALLOC
     malloc_dump(2);
