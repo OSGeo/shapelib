@@ -7,7 +7,10 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.3  1995-08-23 02:24:05  warmerda
+ * Revision 1.4  1998-11-09 20:19:33  warmerda
+ * Added 3D support, and use of SHPObject.
+ *
+ * Revision 1.3  1995/08/23 02:24:05  warmerda
  * Added support for reading bounds.
  *
  * Revision 1.2  1995/08/04  03:17:39  warmerda
@@ -16,6 +19,10 @@
  */
 
 #include <stdio.h>
+
+#ifdef USE_DBMALLOC
+#include <dbmalloc.h>
+#endif
 
 /************************************************************************/
 /*                             SHP Support.                             */
@@ -33,28 +40,98 @@ typedef	struct
     int		*panRecOffset;
     int		*panRecSize;
 
-    double	adBoundsMin[2];
-    double	adBoundsMax[2];
+    double	adBoundsMin[4];
+    double	adBoundsMax[4];
 
     int		bUpdated;
 } SHPInfo;
 
 typedef SHPInfo * SHPHandle;
 
+/* -------------------------------------------------------------------- */
+/*      Shape types (nSHPType)                                          */
+/* -------------------------------------------------------------------- */
 #define SHPT_POINT	1
 #define SHPT_ARC	3
 #define SHPT_POLYGON	5
 #define SHPT_MULTIPOINT	8
+#define SHPT_POINTZ	11
+#define SHPT_ARCZ	13
+#define SHPT_POLYGONZ	15
+#define SHPT_MULTIPOINTZ 18
+#define SHPT_POINTM	21
+#define SHPT_ARCM	23
+#define SHPT_POLYGONM	25
+#define SHPT_MULTIPOINTM 28
+#define SHPT_MULTIPATCH 31
 
+
+/* -------------------------------------------------------------------- */
+/*      Part types - everything but SHPT_MULTIPATCH just uses           */
+/*      SHPP_RING.                                                      */
+/* -------------------------------------------------------------------- */
+
+#define SHPP_TRISTRIP	0
+#define SHPP_TRIFAN	1
+#define SHPP_OUTERRING	2
+#define SHPP_INNERRING	3
+#define SHPP_FIRSTRING	4
+#define SHPP_RING	5
+
+/* -------------------------------------------------------------------- */
+/*      SHPObject - represents on shape (without attributes) read       */
+/*      from the .shp file.                                             */
+/* -------------------------------------------------------------------- */
+typedef struct
+{
+    int		nSHPType;
+
+    int		nShapeId; /* -1 is unknown/unassigned */
+
+    int		nParts;
+    int		*panPartStart;
+    int		*panPartType;
+    
+    int		nVertices;
+    double	*padfX;
+    double	*padfY;
+    double	*padfZ;
+    double	*padfM;
+
+    double	dfXMin;
+    double	dfYMin;
+    double	dfZMin;
+    double	dfMMin;
+
+    double	dfXMax;
+    double	dfYMax;
+    double	dfZMax;
+    double	dfMMax;
+} SHPObject;
+
+/* -------------------------------------------------------------------- */
+/*      SHP API Prototypes                                              */
+/* -------------------------------------------------------------------- */
 SHPHandle SHPOpen( const char * pszShapeFile, const char * pszAccess );
 SHPHandle SHPCreate( const char * pszShapeFile, int nShapeType );
 void	SHPGetInfo( SHPHandle hSHP, int * pnEntities, int * pnShapeType );
-double *SHPReadVertices( SHPHandle hSHP, int iShape, int *pnVCount,
-			 int * pnPartCount, int ** ppanParts );
-int	SHPWriteVertices( SHPHandle hSHP, int nVCount, int nPartCount, 
-			  int * panParts, double * pdVertices);
+
+SHPObject *SHPReadObject( SHPHandle hSHP, int iShape );
+int	SHPWriteObject( SHPHandle hSHP, int iShape, SHPObject * psObject );
+
+void	SHPDestroyObject( SHPObject * psObject );
+SHPObject *SHPCreateObject( int nSHPType, int nShapeId,
+                            int nParts, int * panPartStart, int * panPartType,
+                            int nVertices, double * padfX, double * padfY,
+                            double * padfZ, double * padfM );
+SHPObject *SHPCreateSimpleObject( int nSHPType, int nVertices,
+                              double * padfX, double * padfY, double * padfZ );
+
 void	SHPReadBounds( SHPHandle hSHP, int iShape, double * padBounds );
 void	SHPClose( SHPHandle hSHP );
+
+const char *SHPTypeName( int nSHPType );
+const char *SHPPartTypeName( int nPartType );
 
 /************************************************************************/
 /*                             DBF Support.                             */
@@ -82,6 +159,7 @@ typedef	struct
     int		bNoHeader;
     int		bUpdated;
 } DBFInfo;
+
 typedef DBFInfo * DBFHandle;
 
 typedef enum {
