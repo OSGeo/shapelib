@@ -4,7 +4,10 @@
  * This code is in the public domain.
  *
  * $Log$
- * Revision 1.6  1996-02-12 04:54:41  warmerda
+ * Revision 1.7  1997-03-06 14:02:10  warmerda
+ * Ensure bUpdated is initialized.
+ *
+ * Revision 1.6  1996/02/12 04:54:41  warmerda
  * Ensure that DBFWriteAttribute() returns TRUE if it succeeds.
  *
  * Revision 1.5  1995/10/21  03:15:12  warmerda
@@ -380,6 +383,7 @@ int	DBFAddField(DBFHandle psDBF, const char * pszFieldName,
 /*      Extend the required header information.                         */
 /* -------------------------------------------------------------------- */
     psDBF->nHeaderLength += 32;
+    psDBF->bUpdated = FALSE;
 
     psDBF->pszHeader = (char *) SfRealloc(psDBF->pszHeader,psDBF->nFields*32);
 
