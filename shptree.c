@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.8  2002-05-07 13:07:45  warmerda
+ * Revision 1.9  2003-01-28 15:53:41  warmerda
+ * Avoid build warnings.
+ *
+ * Revision 1.8  2002/05/07 13:07:45  warmerda
  * use qsort() - patch from Bernhard Herzog
  *
  * Revision 1.7  2002/01/15 14:36:07  warmerda
@@ -67,6 +70,8 @@ static char rcsid[] =
 
 #include <math.h>
 #include <assert.h>
+#include <stdlib.h>
+#include <string.h>
 
 #ifndef TRUE
 #  define TRUE 1
@@ -590,7 +595,7 @@ SHPTreeCollectShapeIds( SHPTree *hTree, SHPTreeNode * psTreeNode,
 
 /* helper for qsort */
 static int
-compare_ints(void * a, void * b)
+compare_ints( const void * a, const void * b)
 {
     return (*(int*)a) - (*(int*)b);
 }
@@ -602,7 +607,6 @@ SHPTreeFindLikelyShapes( SHPTree * hTree,
 
 {
     int	*panShapeList=NULL, nMaxShapes = 0;
-    int	i, j;
 
 /* -------------------------------------------------------------------- */
 /*      Perform the search by recursive descent.                        */
