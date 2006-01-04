@@ -34,7 +34,11 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.46  2005-02-11 17:17:46  fwarmerdam
+ * Revision 1.47  2006-01-04 20:07:23  fwarmerdam
+ * In SHPWriteObject() make sure that the record length is updated
+ * when rewriting an existing record.
+ *
+ * Revision 1.46  2005/02/11 17:17:46  fwarmerdam
  * added panPartStart[0] validation
  *
  * Revision 1.45  2004/09/26 20:09:48  fwarmerdam
@@ -1331,6 +1335,7 @@ SHPWriteObject(SHPHandle psSHP, int nShapeId, SHPObject * psObject )
     else
     {
         nRecordOffset = psSHP->panRecOffset[nShapeId];
+        psSHP->panRecSize[nShapeId] = nRecordSize-8;
     }
     
 /* -------------------------------------------------------------------- */
