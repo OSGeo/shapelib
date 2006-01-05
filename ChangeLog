@@ -1,3 +1,8 @@
+2006-01-04  Frank Warmerdam  <warmerdam@pobox.com>
+
+	* dbfopen.c/shapefil.h: Added functions to check if dbf record is
+	deleted, and to mark it as deleted.
+
 2005-02-11  Frank Warmerdam  <warmerdam@pobox.com>
 
 	* shpopen.c: Check panPartStart[0] is 0 in SHPCreateObject().
