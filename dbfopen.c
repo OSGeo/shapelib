@@ -34,7 +34,11 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.60  2006-01-05 01:27:27  fwarmerdam
+ * Revision 1.61  2006-01-10 16:26:29  fwarmerdam
+ * Push loading record buffer into DBFLoadRecord.
+ * Implement CPL error reporting if USE_CPL defined.
+ *
+ * Revision 1.60  2006/01/05 01:27:27  fwarmerdam
  * added dbf deletion mark/fetch
  *
  * Revision 1.59  2005/03/14 15:20:28  fwarmerdam
@@ -317,7 +321,7 @@ static void DBFWriteHeader(DBFHandle psDBF)
 /*      Write out the current record if there is one.                   */
 /************************************************************************/
 
-static void DBFFlushRecord( DBFHandle psDBF )
+static int DBFFlushRecord( DBFHandle psDBF )
 
 {
     int		nRecordOffset;
@@ -329,9 +333,72 @@ static void DBFFlushRecord( DBFHandle psDBF )
 	nRecordOffset = psDBF->nRecordLength * psDBF->nCurrentRecord 
 	                                             + psDBF->nHeaderLength;
 
-	fseek( psDBF->fp, nRecordOffset, 0 );
-	fwrite( psDBF->pszCurrentRecord, psDBF->nRecordLength, 1, psDBF->fp );
+	if( fseek( psDBF->fp, nRecordOffset, 0 ) != 0 
+            || fwrite( psDBF->pszCurrentRecord, psDBF->nRecordLength, 
+                       1, psDBF->fp ) != 1 )
+        {
+#ifdef USE_CPL
+            CPLError( CE_Failure, CPLE_FileIO, 
+                      "Failure writing DBF record %d.", 
+                      psDBF->nCurrentRecord );
+#else           
+            fprintf( stderr, "Failure writing DBF record %d.", 
+                     psDBF->nCurrentRecord );
+#endif
+            return FALSE;
+        }
     }
+
+    return TRUE;
+}
+
+/************************************************************************/
+/*                           DBFLoadRecord()                            */
+/************************************************************************/
+
+static int DBFLoadRecord( DBFHandle psDBF, int iRecord )
+
+{
+    if( psDBF->nCurrentRecord != iRecord )
+    {
+        int nRecordOffset;
+
+	if( !DBFFlushRecord( psDBF ) )
+            return FALSE;
+
+	nRecordOffset = psDBF->nRecordLength * iRecord + psDBF->nHeaderLength;
+
+	if( fseek( psDBF->fp, nRecordOffset, 0 ) != 0 )
+        {
+#ifdef USE_CPL
+            CPLError( CE_Failure, CPLE_FileIO,
+                      "fseek(%d) failed on DBF file.\n",
+                      nRecordOffset );
+#else
+            fprintf( stderr, "fseek(%d) failed on DBF file.\n",
+                     nRecordOffset );
+#endif
+            return FALSE;
+        }
+
+	if( fread( psDBF->pszCurrentRecord, psDBF->nRecordLength, 
+                   1, psDBF->fp ) != 1 )
+        {
+#ifdef USE_CPL
+            CPLError( CE_Failure, CPL_FileIO, 
+                      "fread(%d) failed on DBF file.\n",
+                      psDBF->nRecordLength );
+#else
+            fprintf( stderr, "fread(%d) failed on DBF file.\n",
+                     psDBF->nRecordLength );
+#endif
+            return FALSE;
+        }
+
+	psDBF->nCurrentRecord = iRecord;
+    }
+
+    return TRUE;
 }
 
 /************************************************************************/
@@ -731,7 +798,6 @@ static void *DBFReadAttribute(DBFHandle psDBF, int hEntity, int iField,
                               char chReqType )
 
 {
-    int	       	nRecordOffset;
     unsigned char	*pabyRec;
     void	*pReturnField = NULL;
 
@@ -750,29 +816,8 @@ static void *DBFReadAttribute(DBFHandle psDBF, int hEntity, int iField,
 /* -------------------------------------------------------------------- */
 /*	Have we read the record?					*/
 /* -------------------------------------------------------------------- */
-    if( psDBF->nCurrentRecord != hEntity )
-    {
-	DBFFlushRecord( psDBF );
-
-	nRecordOffset = psDBF->nRecordLength * hEntity + psDBF->nHeaderLength;
-
-	if( fseek( psDBF->fp, nRecordOffset, 0 ) != 0 )
-        {
-            fprintf( stderr, "fseek(%d) failed on DBF file.\n",
-                     nRecordOffset );
-            return NULL;
-        }
-
-	if( fread( psDBF->pszCurrentRecord, psDBF->nRecordLength, 
-                   1, psDBF->fp ) != 1 )
-        {
-            fprintf( stderr, "fread(%d) failed on DBF file.\n",
-                     psDBF->nRecordLength );
-            return NULL;
-        }
-
-	psDBF->nCurrentRecord = hEntity;
-    }
+    if( !DBFLoadRecord( psDBF, hEntity ) )
+        return NULL;
 
     pabyRec = (unsigned char *) psDBF->pszCurrentRecord;
 
@@ -1024,7 +1069,7 @@ static int DBFWriteAttribute(DBFHandle psDBF, int hEntity, int iField,
 			     void * pValue )
 
 {
-    int	       	nRecordOffset, i, j, nRetResult = TRUE;
+    int	       	i, j, nRetResult = TRUE;
     unsigned char	*pabyRec;
     char	szSField[400], szFormat[20];
 
@@ -1042,7 +1087,8 @@ static int DBFWriteAttribute(DBFHandle psDBF, int hEntity, int iField,
 /* -------------------------------------------------------------------- */
     if( hEntity == psDBF->nRecords )
     {
-	DBFFlushRecord( psDBF );
+	if( !DBFFlushRecord( psDBF ) )
+            return FALSE;
 
 	psDBF->nRecords++;
 	for( i = 0; i < psDBF->nRecordLength; i++ )
@@ -1055,17 +1101,8 @@ static int DBFWriteAttribute(DBFHandle psDBF, int hEntity, int iField,
 /*      Is this an existing record, but different than the last one     */
 /*      we accessed?                                                    */
 /* -------------------------------------------------------------------- */
-    if( psDBF->nCurrentRecord != hEntity )
-    {
-	DBFFlushRecord( psDBF );
-
-	nRecordOffset = psDBF->nRecordLength * hEntity + psDBF->nHeaderLength;
-
-	fseek( psDBF->fp, nRecordOffset, 0 );
-	fread( psDBF->pszCurrentRecord, psDBF->nRecordLength, 1, psDBF->fp );
-
-	psDBF->nCurrentRecord = hEntity;
-    }
+    if( !DBFLoadRecord( psDBF, hEntity ) )
+        return FALSE;
 
     pabyRec = (unsigned char *) psDBF->pszCurrentRecord;
 
@@ -1195,7 +1232,7 @@ DBFWriteAttributeDirectly(DBFHandle psDBF, int hEntity, int iField,
                               void * pValue )
 
 {
-    int	       	nRecordOffset, i, j;
+    int	       		i, j;
     unsigned char	*pabyRec;
 
 /* -------------------------------------------------------------------- */
@@ -1212,7 +1249,8 @@ DBFWriteAttributeDirectly(DBFHandle psDBF, int hEntity, int iField,
 /* -------------------------------------------------------------------- */
     if( hEntity == psDBF->nRecords )
     {
-	DBFFlushRecord( psDBF );
+	if( !DBFFlushRecord( psDBF ) )
+            return FALSE;
 
 	psDBF->nRecords++;
 	for( i = 0; i < psDBF->nRecordLength; i++ )
@@ -1225,17 +1263,8 @@ DBFWriteAttributeDirectly(DBFHandle psDBF, int hEntity, int iField,
 /*      Is this an existing record, but different than the last one     */
 /*      we accessed?                                                    */
 /* -------------------------------------------------------------------- */
-    if( psDBF->nCurrentRecord != hEntity )
-    {
-	DBFFlushRecord( psDBF );
-
-	nRecordOffset = psDBF->nRecordLength * hEntity + psDBF->nHeaderLength;
-
-	fseek( psDBF->fp, nRecordOffset, 0 );
-	fread( psDBF->pszCurrentRecord, psDBF->nRecordLength, 1, psDBF->fp );
-
-	psDBF->nCurrentRecord = hEntity;
-    }
+    if( !DBFLoadRecord( psDBF, hEntity ) )
+        return FALSE;
 
     pabyRec = (unsigned char *) psDBF->pszCurrentRecord;
 
@@ -1341,7 +1370,7 @@ int SHPAPI_CALL
 DBFWriteTuple(DBFHandle psDBF, int hEntity, void * pRawTuple )
 
 {
-    int	       	nRecordOffset, i;
+    int	       		i;
     unsigned char	*pabyRec;
 
 /* -------------------------------------------------------------------- */
@@ -1371,17 +1400,8 @@ DBFWriteTuple(DBFHandle psDBF, int hEntity, void * pRawTuple )
 /*      Is this an existing record, but different than the last one     */
 /*      we accessed?                                                    */
 /* -------------------------------------------------------------------- */
-    if( psDBF->nCurrentRecord != hEntity )
-    {
-	DBFFlushRecord( psDBF );
-
-	nRecordOffset = psDBF->nRecordLength * hEntity + psDBF->nHeaderLength;
-
-	fseek( psDBF->fp, nRecordOffset, 0 );
-	fread( psDBF->pszCurrentRecord, psDBF->nRecordLength, 1, psDBF->fp );
-
-	psDBF->nCurrentRecord = hEntity;
-    }
+    if( !DBFLoadRecord( psDBF, hEntity ) )
+        return FALSE;
 
     pabyRec = (unsigned char *) psDBF->pszCurrentRecord;
 
@@ -1403,7 +1423,6 @@ const char SHPAPI_CALL1(*)
 DBFReadTuple(DBFHandle psDBF, int hEntity )
 
 {
-    int	       	nRecordOffset;
     unsigned char	*pabyRec;
     static char	*pReturnTuple = NULL;
 
@@ -1415,23 +1434,14 @@ DBFReadTuple(DBFHandle psDBF, int hEntity )
     if( hEntity < 0 || hEntity >= psDBF->nRecords )
         return( NULL );
 
-    if( psDBF->nCurrentRecord != hEntity )
-    {
-	DBFFlushRecord( psDBF );
-
-	nRecordOffset = psDBF->nRecordLength * hEntity + psDBF->nHeaderLength;
-
-	fseek( psDBF->fp, nRecordOffset, 0 );
-	fread( psDBF->pszCurrentRecord, psDBF->nRecordLength, 1, psDBF->fp );
-
-	psDBF->nCurrentRecord = hEntity;
-    }
+    if( !DBFLoadRecord( psDBF, hEntity ) )
+        return NULL;
 
     pabyRec = (unsigned char *) psDBF->pszCurrentRecord;
 
     if ( nTupleLen < psDBF->nRecordLength) {
-      nTupleLen = psDBF->nRecordLength;
-      pReturnTuple = (char *) SfRealloc(pReturnTuple, psDBF->nRecordLength);
+        nTupleLen = psDBF->nRecordLength;
+        pReturnTuple = (char *) SfRealloc(pReturnTuple, psDBF->nRecordLength);
     }
     
     memcpy ( pReturnTuple, pabyRec, psDBF->nRecordLength );
@@ -1567,31 +1577,8 @@ int SHPAPI_CALL DBFIsRecordDeleted( DBFHandle psDBF, int iShape )
 /* -------------------------------------------------------------------- */
 /*	Have we read the record?					*/
 /* -------------------------------------------------------------------- */
-    if( psDBF->nCurrentRecord != iShape )
-    {
-        int		nRecordOffset;
-
-	DBFFlushRecord( psDBF );
-
-	nRecordOffset = psDBF->nRecordLength * iShape + psDBF->nHeaderLength;
-
-	if( fseek( psDBF->fp, nRecordOffset, 0 ) != 0 )
-        {
-            fprintf( stderr, "fseek(%d) failed on DBF file.\n",
-                     nRecordOffset );
-            return TRUE;
-        }
-
-	if( fread( psDBF->pszCurrentRecord, psDBF->nRecordLength, 
-                   1, psDBF->fp ) != 1 )
-        {
-            fprintf( stderr, "fread(%d) failed on DBF file.\n",
-                     psDBF->nRecordLength );
-            return TRUE;
-        }
-
-	psDBF->nCurrentRecord = iShape;
-    }
+    if( !DBFLoadRecord( psDBF, iShape ) )
+        return FALSE;
 
 /* -------------------------------------------------------------------- */
 /*      '*' means deleted.                                              */
@@ -1619,31 +1606,8 @@ int SHPAPI_CALL DBFMarkRecordDeleted( DBFHandle psDBF, int iShape,
 /*      Is this an existing record, but different than the last one     */
 /*      we accessed?                                                    */
 /* -------------------------------------------------------------------- */
-    if( psDBF->nCurrentRecord != iShape )
-    {
-        int		nRecordOffset;
-
-	DBFFlushRecord( psDBF );
-
-	nRecordOffset = psDBF->nRecordLength * iShape + psDBF->nHeaderLength;
-
-	if( fseek( psDBF->fp, nRecordOffset, 0 ) != 0 )
-        {
-            fprintf( stderr, "fseek(%d) failed on DBF file.\n",
-                     nRecordOffset );
-            return TRUE;
-        }
-
-	if( fread( psDBF->pszCurrentRecord, psDBF->nRecordLength, 
-                   1, psDBF->fp ) != 1 )
-        {
-            fprintf( stderr, "fread(%d) failed on DBF file.\n",
-                     psDBF->nRecordLength );
-            return TRUE;
-        }
-
-	psDBF->nCurrentRecord = iShape;
-    }
+    if( !DBFLoadRecord( psDBF, iShape ) )
+        return FALSE;
 
 /* -------------------------------------------------------------------- */
 /*      Assign value, marking record as dirty if it changes.            */
