@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.61  2006-01-10 16:26:29  fwarmerdam
+ * Revision 1.62  2006-01-10 16:28:03  fwarmerdam
+ * Fixed typo in CPLError.
+ *
+ * Revision 1.61  2006/01/10 16:26:29  fwarmerdam
  * Push loading record buffer into DBFLoadRecord.
  * Implement CPL error reporting if USE_CPL defined.
  *
@@ -385,7 +388,7 @@ static int DBFLoadRecord( DBFHandle psDBF, int iRecord )
                    1, psDBF->fp ) != 1 )
         {
 #ifdef USE_CPL
-            CPLError( CE_Failure, CPL_FileIO, 
+            CPLError( CE_Failure, CPLE_FileIO, 
                       "fread(%d) failed on DBF file.\n",
                       psDBF->nRecordLength );
 #else
