@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.62  2006-01-10 16:28:03  fwarmerdam
+ * Revision 1.63  2006-01-25 15:35:43  fwarmerdam
+ * check success on DBFFlushRecord
+ *
+ * Revision 1.62  2006/01/10 16:28:03  fwarmerdam
  * Fixed typo in CPLError.
  *
  * Revision 1.61  2006/01/10 16:26:29  fwarmerdam
@@ -1390,7 +1393,8 @@ DBFWriteTuple(DBFHandle psDBF, int hEntity, void * pRawTuple )
 /* -------------------------------------------------------------------- */
     if( hEntity == psDBF->nRecords )
     {
-	DBFFlushRecord( psDBF );
+	if( !DBFFlushRecord( psDBF ) )
+            return FALSE;
 
 	psDBF->nRecords++;
 	for( i = 0; i < psDBF->nRecordLength; i++ )
