@@ -11,7 +11,7 @@ shpadd test -84.01681518              34.67275985
 shpadd test -84.15596023              34.64862437
 shpadd test -83.61951463              34.54927047
 
-dbfcreate test -s 30 fd
+dbfcreate test -s fd 30
 dbfadd test "1"
 dbfadd test "2"
 dbfadd test "3"
