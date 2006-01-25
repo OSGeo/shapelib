@@ -32,7 +32,10 @@
  * use -DPROJ4 to compile in Projection support
  *
  * $Log$
- * Revision 1.8  2002-01-15 14:36:56  warmerda
+ * Revision 1.9  2006-01-25 15:33:50  fwarmerdam
+ * fixed ppsC assignment maptools bug 1263
+ *
+ * Revision 1.8  2002/01/15 14:36:56  warmerda
  * upgrade to use proj_api.h
  *
  * Revision 1.7  2002/01/11 15:22:04  warmerda
@@ -543,8 +546,8 @@ int SHPWriteOGisPolygon ( WKBStreamObj *stream_obj, SHPObject *psCShape ) {
    nextring = 0;
    cParts=0;
    while ( nextring >= 0 ) {
-     (SHPObject*) ppsC[cParts] = SHPUnCompound ( psCShape, &nextring ); 
-     cParts++;
+       ppsC[cParts] = SHPUnCompound ( psCShape, &nextring ); 
+       cParts++;
     }
    
 #ifdef DEBUG2
