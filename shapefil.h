@@ -37,7 +37,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.31  2006-01-05 01:27:27  fwarmerdam
+ * Revision 1.32  2006-01-26 15:07:32  fwarmerdam
+ * add bMeasureIsUsed flag from Craig Bruce: Bug 1249
+ *
+ * Revision 1.31  2006/01/05 01:27:27  fwarmerdam
  * added dbf deletion mark/fetch
  *
  * Revision 1.30  2005/01/03 22:30:13  fwarmerdam
@@ -240,6 +243,8 @@ typedef struct
     double	dfYMax;
     double	dfZMax;
     double	dfMMax;
+
+    int		bMeasureIsUsed;
 } SHPObject;
 
 /* -------------------------------------------------------------------- */

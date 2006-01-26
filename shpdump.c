@@ -35,7 +35,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.14  2005-02-11 17:17:46  fwarmerdam
+ * Revision 1.15  2006-01-26 15:07:32  fwarmerdam
+ * add bMeasureIsUsed flag from Craig Bruce: Bug 1249
+ *
+ * Revision 1.14  2005/02/11 17:17:46  fwarmerdam
  * added panPartStart[0] validation
  *
  * Revision 1.13  2004/09/26 20:09:35  fwarmerdam
@@ -154,15 +157,26 @@ int main( int argc, char ** argv )
 
 	psShape = SHPReadObject( hSHP, i );
 
-	printf( "\nShape:%d (%s)  nVertices=%d, nParts=%d\n"
-                "  Bounds:(%12.3f,%12.3f, %g, %g)\n"
-                "      to (%12.3f,%12.3f, %g, %g)\n",
-	        i, SHPTypeName(psShape->nSHPType),
-                psShape->nVertices, psShape->nParts,
-                psShape->dfXMin, psShape->dfYMin,
-                psShape->dfZMin, psShape->dfMMin,
-                psShape->dfXMax, psShape->dfYMax,
-                psShape->dfZMax, psShape->dfMMax );
+        if( psShape->bMeasureIsUsed )
+            printf( "\nShape:%d (%s)  nVertices=%d, nParts=%d\n"
+                    "  Bounds:(%12.3f,%12.3f, %g, %g)\n"
+                    "      to (%12.3f,%12.3f, %g, %g)\n",
+                    i, SHPTypeName(psShape->nSHPType),
+                    psShape->nVertices, psShape->nParts,
+                    psShape->dfXMin, psShape->dfYMin,
+                    psShape->dfZMin, psShape->dfMMin,
+                    psShape->dfXMax, psShape->dfYMax,
+                    psShape->dfZMax, psShape->dfMMax );
+        else
+            printf( "\nShape:%d (%s)  nVertices=%d, nParts=%d\n"
+                    "  Bounds:(%12.3f,%12.3f, %g)\n"
+                    "      to (%12.3f,%12.3f, %g)\n",
+                    i, SHPTypeName(psShape->nSHPType),
+                    psShape->nVertices, psShape->nParts,
+                    psShape->dfXMin, psShape->dfYMin,
+                    psShape->dfZMin,
+                    psShape->dfXMax, psShape->dfYMax,
+                    psShape->dfZMax );
 
         if( psShape->nParts > 0 && psShape->panPartStart[0] != 0 )
         {
@@ -187,13 +201,21 @@ int main( int argc, char ** argv )
 	    else
 	        pszPlus = " ";
 
-	    printf("   %s (%12.3f,%12.3f, %g, %g) %s \n",
-                   pszPlus,
-                   psShape->padfX[j],
-                   psShape->padfY[j],
-                   psShape->padfZ[j],
-                   psShape->padfM[j],
-                   pszPartType );
+            if( psShape->bMeasureIsUsed )
+                printf("   %s (%12.3f,%12.3f, %g, %g) %s \n",
+                       pszPlus,
+                       psShape->padfX[j],
+                       psShape->padfY[j],
+                       psShape->padfZ[j],
+                       psShape->padfM[j],
+                       pszPartType );
+            else
+                printf("   %s (%12.3f,%12.3f, %g) %s \n",
+                       pszPlus,
+                       psShape->padfX[j],
+                       psShape->padfY[j],
+                       psShape->padfZ[j],
+                       pszPartType );
 	}
 
         if( bValidate )
