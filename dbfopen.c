@@ -34,7 +34,11 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.63  2006-01-25 15:35:43  fwarmerdam
+ * Revision 1.64  2006-02-09 00:29:04  fwarmerdam
+ * Changed to put spaces into string fields that are NULL as
+ * per http://bugzilla.maptools.org/show_bug.cgi?id=316.
+ *
+ * Revision 1.63  2006/01/25 15:35:43  fwarmerdam
  * check success on DBFFlushRecord
  *
  * Revision 1.62  2006/01/10 16:28:03  fwarmerdam
@@ -1145,7 +1149,7 @@ static int DBFWriteAttribute(DBFHandle psDBF, int hEntity, int iField,
 
           default:
             /* empty string fields are considered NULL */
-            memset( (char *) (pabyRec+psDBF->panFieldOffset[iField]), '\0', 
+            memset( (char *) (pabyRec+psDBF->panFieldOffset[iField]), ' ', 
                     psDBF->panFieldSize[iField] );
             break;
         }

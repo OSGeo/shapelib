@@ -1,3 +1,8 @@
+2006-02-08  Frank Warmerdam  <warmerdam@pobox.com>
+
+	* dbfopen.c: Changed to put spaces into string fields that are NULL
+	as per http://bugzilla.maptools.org/show_bug.cgi?id=316.
+
 2006-01-26  Frank Warmerdam  <warmerdam@pobox.com>
 
 	* shpopen.c, shapefil.h, shpdump.c: Added bMeasureIsUsed support as
