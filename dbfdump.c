@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.10  2004-09-26 20:09:35  fwarmerdam
+ * Revision 1.11  2006-02-15 01:11:27  fwarmerdam
+ * added reporting of native type
+ *
+ * Revision 1.10  2004/09/26 20:09:35  fwarmerdam
  * avoid rcsid warnings
  *
  * Revision 1.9  2002/01/15 14:36:07  warmerda
@@ -136,6 +139,9 @@ int main( int argc, char ** argv )
         {
             DBFFieldType	eType;
             const char	 	*pszTypeName;
+            char chNativeType;
+
+            chNativeType = DBFGetNativeFieldType( hDBF, i );
 
             eType = DBFGetFieldInfo( hDBF, i, szTitle, &nWidth, &nDecimals );
             if( eType == FTString )
@@ -147,8 +153,8 @@ int main( int argc, char ** argv )
             else if( eType == FTInvalid )
                 pszTypeName = "Invalid";
 
-            printf( "Field %d: Type=%s, Title=`%s', Width=%d, Decimals=%d\n",
-                    i, pszTypeName, szTitle, nWidth, nDecimals );
+            printf( "Field %d: Type=%c/%s, Title=`%s', Width=%d, Decimals=%d\n",
+                    i, chNativeType, pszTypeName, szTitle, nWidth, nDecimals );
         }
     }
 
