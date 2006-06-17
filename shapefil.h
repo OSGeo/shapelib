@@ -37,7 +37,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.33  2006-02-15 01:14:30  fwarmerdam
+ * Revision 1.34  2006-06-17 15:33:32  fwarmerdam
+ * added pszWorkField - bug 1202 (rso)
+ *
+ * Revision 1.33  2006/02/15 01:14:30  fwarmerdam
  * added DBFAddNativeFieldType
  *
  * Revision 1.32  2006/01/26 15:07:32  fwarmerdam
@@ -384,6 +387,9 @@ typedef	struct
     int		nCurrentRecord;
     int		bCurrentRecordModified;
     char	*pszCurrentRecord;
+
+    int         nWorkFieldLength;
+    char        *pszWorkField;
     
     int		bNoHeader;
     int		bUpdated;
