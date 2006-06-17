@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.67  2006-06-17 00:24:53  fwarmerdam
+ * Revision 1.68  2006-06-17 15:12:40  fwarmerdam
+ * Fixed C++ style comments.
+ *
+ * Revision 1.67  2006/06/17 00:24:53  fwarmerdam
  * Don't treat non-zero decimals values as high order byte for length
  * for strings.  It causes serious corruption for some files.
  * http://bugzilla.remotesensing.org/show_bug.cgi?id=1202
@@ -416,12 +419,14 @@ DBFOpen( const char * pszFilename, const char * pszAccess )
 	    psDBF->panFieldSize[iField] = pabyFInfo[16];
 	    psDBF->panFieldDecimals[iField] = 0;
 
-// The following seemed to be used sometimes to handle files with long
-// string fields, but in other cases (such as bug 1202) the decimals field
-// just seems to indicate some sort of preferred formatting, not very
-// wide fields.  So I have disabled this code.  FrankW.
-//	    psDBF->panFieldSize[iField] = pabyFInfo[16] + pabyFInfo[17]*256;
-//	    psDBF->panFieldDecimals[iField] = 0;
+/*
+** The following seemed to be used sometimes to handle files with long
+** string fields, but in other cases (such as bug 1202) the decimals field
+** just seems to indicate some sort of preferred formatting, not very
+** wide fields.  So I have disabled this code.  FrankW.
+	    psDBF->panFieldSize[iField] = pabyFInfo[16] + pabyFInfo[17]*256;
+	    psDBF->panFieldDecimals[iField] = 0;
+*/
 	}
 
 	psDBF->pachFieldType[iField] = (char) pabyFInfo[11];
