@@ -1,3 +1,17 @@
+2006-06-17  Frank Warmerdam  <warmerdam@pobox.com>
+
+	* dbfopen.c: Don't allow creation of string fields with width larger
+	than 255 per http://bugzilla.maptools.org/show_bug.cgi?id=1434
+
+2006-06-16  Frank Warmerdam  <warmerdam@pobox.com>
+
+	* dbfopen.c: Don't treat decimals value as high order field length
+	for strings, as it causes serious bugs in some cases such as
+	http://bugzilla.remotesensing.org/show_bug.cgi?id=1202
+
+	* dbfopen.c: Made static field buffer in DBFReadAttribute() into a
+	field in the DBFInfo structure to avoid multi-threading problems.
+
 2006-03-29  Frank Warmerdam  <warmerdam@pobox.com>
 
 	* dbfopen.c: Fixed bug in DBFCloneEmpty() (treating pachFieldType as

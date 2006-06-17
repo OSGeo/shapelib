@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.68  2006-06-17 15:12:40  fwarmerdam
+ * Revision 1.69  2006-06-17 15:34:32  fwarmerdam
+ * disallow creating fields wider than 255
+ *
+ * Revision 1.68  2006/06/17 15:12:40  fwarmerdam
  * Fixed C++ style comments.
  *
  * Revision 1.67  2006/06/17 00:24:53  fwarmerdam
@@ -610,6 +613,9 @@ DBFAddNativeFieldType(DBFHandle psDBF, const char * pszFieldName,
 
     if( nWidth < 1 )
         return -1;
+
+    if( nWidth > 255 )
+        nWidth = 255;
 
 /* -------------------------------------------------------------------- */
 /*      SfRealloc all the arrays larger to hold the additional field      */
