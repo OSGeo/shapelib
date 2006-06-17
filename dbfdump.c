@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.11  2006-02-15 01:11:27  fwarmerdam
+ * Revision 1.12  2006-06-17 00:15:08  fwarmerdam
+ * Free panWidth for better memory testing.
+ *
+ * Revision 1.11  2006/02/15 01:11:27  fwarmerdam
  * added reporting of native type
  *
  * Revision 1.10  2004/09/26 20:09:35  fwarmerdam
@@ -274,6 +277,7 @@ int main( int argc, char ** argv )
     }
 
     DBFClose( hDBF );
+    free( panWidth );
 
     return( 0 );
 }
