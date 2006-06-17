@@ -1,5 +1,8 @@
 2006-06-17  Frank Warmerdam  <warmerdam@pobox.com>
 
+	* dbfopen.c: use calloc() for DBFInfo in DBFCreate() to ensure
+	all fields initialized to zero if not otherwise mentioned.
+
 	* dbfopen.c: Don't allow creation of string fields with width larger
 	than 255 per http://bugzilla.maptools.org/show_bug.cgi?id=1434
 

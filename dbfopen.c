@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.69  2006-06-17 15:34:32  fwarmerdam
+ * Revision 1.70  2006-06-17 17:47:05  fwarmerdam
+ * use calloc() for dbfinfo in DBFCreate
+ *
+ * Revision 1.69  2006/06/17 15:34:32  fwarmerdam
  * disallow creating fields wider than 255
  *
  * Revision 1.68  2006/06/17 15:12:40  fwarmerdam
@@ -539,7 +542,7 @@ DBFCreate( const char * pszFilename )
 /* -------------------------------------------------------------------- */
 /*	Create the info structure.					*/
 /* -------------------------------------------------------------------- */
-    psDBF = (DBFHandle) malloc(sizeof(DBFInfo));
+    psDBF = (DBFHandle) calloc(1,sizeof(DBFInfo));
 
     psDBF->fp = fp;
     psDBF->nRecords = 0;
