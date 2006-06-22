@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.70  2006-06-17 17:47:05  fwarmerdam
+ * Revision 1.71  2006-06-22 14:37:18  fwarmerdam
+ * avoid memory leak if dbfopen fread fails
+ *
+ * Revision 1.70  2006/06/17 17:47:05  fwarmerdam
  * use calloc() for dbfinfo in DBFCreate
  *
  * Revision 1.69  2006/06/17 15:34:32  fwarmerdam
@@ -400,6 +403,7 @@ DBFOpen( const char * pszFilename, const char * pszAccess )
     {
         fclose( psDBF->fp );
         free( pabyBuf );
+        free( psDBF->pszCurrentRecord );
         free( psDBF );
         return NULL;
     }
