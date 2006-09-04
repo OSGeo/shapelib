@@ -34,7 +34,12 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.48  2006-01-26 15:07:32  fwarmerdam
+ * Revision 1.49  2006-09-04 15:17:44  fwarmerdam
+ * MLoskot: Added stronger test of Shapefile reading failures, e.g. truncated
+ * files.  The problem was discovered by Tim Sutton and reported here
+ *   https://svn.qgis.org/trac/ticket/200
+ *
+ * Revision 1.48  2006/01/26 15:07:32  fwarmerdam
  * add bMeasureIsUsed flag from Craig Bruce: Bug 1249
  *
  * Revision 1.47  2006/01/04 20:07:23  fwarmerdam
@@ -1452,6 +1457,11 @@ SHPReadObject( SHPHandle psSHP, int hEntity )
         || fread( psSHP->pabyRec, psSHP->panRecSize[hEntity]+8, 1, 
                   psSHP->fpSHP ) != 1 )
     {
+        /*
+         * TODO - mloskot: Consider detailed diagnostics of shape file,
+         * for example to detect if file is truncated.
+         */
+
 #ifdef USE_CPL
         CPLError( CE_Failure, CPLE_FileIO, 
                 "Error in fseek() or fread() reading object from .shp file." );
