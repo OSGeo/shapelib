@@ -32,7 +32,10 @@
  * use -DPROJ4 to compile in Projection support
  *
  * $Log$
- * Revision 1.10  2006-11-06 20:44:58  fwarmerdam
+ * Revision 1.11  2006-11-06 20:45:58  fwarmerdam
+ * Fixed SHPProject.
+ *
+ * Revision 1.10  2006/11/06 20:44:58  fwarmerdam
  * SHPProject() uses pj_transform now
  *
  * Revision 1.9  2006/01/25 15:33:50  fwarmerdam
@@ -156,7 +159,7 @@ int SHPProject ( SHPObject *psCShape, projPJ inproj, projPJ outproj ) {
 
     int    j;
 
-    if ( pj_is_latlong(outproj) ) {
+    if ( pj_is_latlong(inproj) ) {
         for(j=0; j < psCShape->nVertices; j++) {
             psCShape->padfX[j] *= DEG_TO_RAD;
             psCShape->padfY[j] *= DEG_TO_RAD;
