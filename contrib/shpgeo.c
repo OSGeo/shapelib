@@ -32,7 +32,10 @@
  * use -DPROJ4 to compile in Projection support
  *
  * $Log$
- * Revision 1.9  2006-01-25 15:33:50  fwarmerdam
+ * Revision 1.10  2006-11-06 20:44:58  fwarmerdam
+ * SHPProject() uses pj_transform now
+ *
+ * Revision 1.9  2006/01/25 15:33:50  fwarmerdam
  * fixed ppsC assignment maptools bug 1263
  *
  * Revision 1.8  2002/01/15 14:36:56  warmerda
@@ -150,41 +153,31 @@ static void * SfRealloc( void * pMem, int nNewSize )
  * **************************************************************************/ 
 int SHPProject ( SHPObject *psCShape, projPJ inproj, projPJ outproj ) {
 #ifdef	PROJ4
-   int	j;
-   projUV   p;    /* struct { double u, double v } */
 
-   /* for each vertex project it and stuff the projeted point back into 	*/
-   /*	same SHPObject.  Proj assumes data is in radians so convert it.		*/
-   /*   Proj will convert Geographic -> <proj> and <proj> -> Geographic		*/
-   /*	so <proj1> -> <proj2> requires bouncing though geographic			*/
-   
-   for ( j=0; j < psCShape->nVertices; j++ ) {
-     p.u = psCShape->padfX[j];
-     p.v = psCShape->padfY[j];
+    int    j;
 
-     if ( inproj )
-       p = pj_inv ( p, inproj );
-     else
-      { p.u *= DEG_TO_RAD;
-        p.v *= DEG_TO_RAD;
-      }
+    if ( pj_is_latlong(outproj) ) {
+        for(j=0; j < psCShape->nVertices; j++) {
+            psCShape->padfX[j] *= DEG_TO_RAD;
+            psCShape->padfY[j] *= DEG_TO_RAD;
+        }
+    }   
 
-     if ( outproj ) 
-       p = pj_fwd ( p, outproj );
-     else
-     { p.u *= RAD_TO_DEG;
-       p.v *= RAD_TO_DEG;
-     } 
+    pj_transform(inproj, outproj, psCShape->nVertices, 0, psCShape->padfX,
+                 psCShape->padfY, NULL);
 
-     psCShape->padfX[j] = p.u;
-     psCShape->padfY[j] = p.v;
-   }
-   
-   /* Recompute new Extents of projected Object								*/
-   SHPComputeExtents ( psCShape );
+    if ( pj_is_latlong(outproj) ) {
+        for(j=0; j < psCShape->nVertices; j++) {
+            psCShape->padfX[j] *= RAD_TO_DEG;
+            psCShape->padfY[j] *= RAD_TO_DEG;
+        }
+    }   
+
+    /* Recompute new Extents of projected Object								*/
+    SHPComputeExtents ( psCShape );
 #endif  
 
-   return ( 1 );
+    return ( 1 );
 }
 
 
