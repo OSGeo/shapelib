@@ -7,7 +7,7 @@ Building on Unix
 1) Edit Makefile, and set CFLAGS, and CC macros as required for the
    target system.  Often the defaults will work fine.
 
-2) "type make" 
+2) type "make" 
 
 The result should be:
 
