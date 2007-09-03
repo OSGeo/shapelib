@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.71  2006-06-22 14:37:18  fwarmerdam
+ * Revision 1.72  2007-09-03 19:34:06  fwarmerdam
+ * Avoid use of static tuple buffer in DBFReadTuple()
+ *
+ * Revision 1.71  2006/06/22 14:37:18  fwarmerdam
  * avoid memory leak if dbfopen fread fails
  *
  * Revision 1.70  2006/06/17 17:47:05  fwarmerdam
@@ -1329,39 +1332,23 @@ DBFWriteTuple(DBFHandle psDBF, int hEntity, void * pRawTuple )
 }
 
 /************************************************************************/
-/*                          DBFReadTuple()                              */
+/*                            DBFReadTuple()                            */
 /*                                                                      */
-/*      Read one of the attribute fields of a record.                   */
+/*      Read a complete record.  Note that the result is only valid     */
+/*      till the next record read for any reason.                       */
 /************************************************************************/
 
 const char SHPAPI_CALL1(*)
 DBFReadTuple(DBFHandle psDBF, int hEntity )
 
 {
-    unsigned char	*pabyRec;
-    static char	*pReturnTuple = NULL;
-
-    static int	nTupleLen = 0;
-
-/* -------------------------------------------------------------------- */
-/*	Have we read the record?					*/
-/* -------------------------------------------------------------------- */
     if( hEntity < 0 || hEntity >= psDBF->nRecords )
         return( NULL );
 
     if( !DBFLoadRecord( psDBF, hEntity ) )
         return NULL;
 
-    pabyRec = (unsigned char *) psDBF->pszCurrentRecord;
-
-    if ( nTupleLen < psDBF->nRecordLength) {
-        nTupleLen = psDBF->nRecordLength;
-        pReturnTuple = (char *) SfRealloc(pReturnTuple, psDBF->nRecordLength);
-    }
-    
-    memcpy ( pReturnTuple, pabyRec, psDBF->nRecordLength );
-        
-    return( pReturnTuple );
+    return (const char *) psDBF->pszCurrentRecord;
 }
 
 /************************************************************************/
