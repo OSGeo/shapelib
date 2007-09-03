@@ -1,5 +1,11 @@
 2007-09-03  Frank Warmerdam  <warmerdam@pobox.com>
 
+	* shpgeo.c: Fixed SHPDimension() (missing breaks) in shpgeo.c.
+	Fix contributed by Andrea Peri.
+
+	* dbfopen.c: Move the static dDoubleField return buffer into DBFInfo
+	structure to avoid multithreaded risks. 
+
 	* dbfopen.c: Simplify DBFReadTuple() to avoid use of static tuple.
 	Note that this means DBFReadTuple() results are only valid till the 
 	next record is read for any reason.

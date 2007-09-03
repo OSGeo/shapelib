@@ -32,7 +32,10 @@
  * use -DPROJ4 to compile in Projection support
  *
  * $Log$
- * Revision 1.11  2006-11-06 20:45:58  fwarmerdam
+ * Revision 1.12  2007-09-03 23:17:46  fwarmerdam
+ * fix SHPDimension() function
+ *
+ * Revision 1.11  2006/11/06 20:45:58  fwarmerdam
  * Fixed SHPProject.
  *
  * Revision 1.10  2006/11/06 20:44:58  fwarmerdam
@@ -827,22 +830,22 @@ int SHPDimension ( int SHPType ) {
     dimension = 0;
       
     switch ( SHPType ) {
-    	case  SHPT_POINT       :	dimension = SHPD_POINT ;
-    	case  SHPT_ARC         :	dimension = SHPD_LINE;
-    	case  SHPT_POLYGON     :	dimension = SHPD_AREA;    	
-    	case  SHPT_MULTIPOINT  :	dimension = SHPD_POINT;    	
-    	case  SHPT_POINTZ      :	dimension = SHPD_POINT | SHPD_Z;    	
-    	case  SHPT_ARCZ        :	dimension = SHPD_LINE | SHPD_Z;
-    	case  SHPT_POLYGONZ    :	dimension = SHPD_AREA | SHPD_Z;
-    	case  SHPT_MULTIPOINTZ :	dimension = SHPD_POINT | SHPD_Z;    	
-    	case  SHPT_POINTM      :	dimension = SHPD_POINT | SHPD_MEASURE;    	
-    	case  SHPT_ARCM        :	dimension = SHPD_LINE | SHPD_MEASURE;
-    	case  SHPT_POLYGONM    :	dimension = SHPD_AREA | SHPD_MEASURE;
-    	case  SHPT_MULTIPOINTM :	dimension = SHPD_POINT | SHPD_MEASURE;   	 	
-    	case  SHPT_MULTIPATCH  :	dimension = SHPD_AREA;  
+      case  SHPT_POINT       :	dimension = SHPD_POINT; break;
+      case  SHPT_ARC         :	dimension = SHPD_LINE; break;  
+      case  SHPT_POLYGON     :	dimension = SHPD_AREA; break;   	
+      case  SHPT_MULTIPOINT  :	dimension = SHPD_POINT; break;
+      case  SHPT_POINTZ      :	dimension = SHPD_POINT | SHPD_Z; break;
+      case  SHPT_ARCZ        :	dimension = SHPD_LINE | SHPD_Z; break;
+      case  SHPT_POLYGONZ    :	dimension = SHPD_AREA | SHPD_Z; break;
+      case  SHPT_MULTIPOINTZ :	dimension = SHPD_POINT | SHPD_Z; break;
+      case  SHPT_POINTM      :	dimension = SHPD_POINT | SHPD_MEASURE; break;
+      case  SHPT_ARCM        :	dimension = SHPD_LINE | SHPD_MEASURE; break;
+      case  SHPT_POLYGONM    :	dimension = SHPD_AREA | SHPD_MEASURE; break;
+      case  SHPT_MULTIPOINTM :	dimension = SHPD_POINT | SHPD_MEASURE; break;
+      case  SHPT_MULTIPATCH  :	dimension = SHPD_AREA; break;
     }
 
-   return ( dimension );
+    return ( dimension );
 }
 
 
