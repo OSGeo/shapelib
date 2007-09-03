@@ -37,7 +37,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.34  2006-06-17 15:33:32  fwarmerdam
+ * Revision 1.35  2007-09-03 19:48:10  fwarmerdam
+ * move DBFReadAttribute() static dDoubleField into dbfinfo
+ *
+ * Revision 1.34  2006/06/17 15:33:32  fwarmerdam
  * added pszWorkField - bug 1202 (rso)
  *
  * Revision 1.33  2006/02/15 01:14:30  fwarmerdam
@@ -393,6 +396,8 @@ typedef	struct
     
     int		bNoHeader;
     int		bUpdated;
+
+    double      dfDoubleField;
 } DBFInfo;
 
 typedef DBFInfo * DBFHandle;

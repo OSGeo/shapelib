@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.72  2007-09-03 19:34:06  fwarmerdam
+ * Revision 1.73  2007-09-03 19:48:11  fwarmerdam
+ * move DBFReadAttribute() static dDoubleField into dbfinfo
+ *
+ * Revision 1.72  2007/09/03 19:34:06  fwarmerdam
  * Avoid use of static tuple buffer in DBFReadTuple()
  *
  * Revision 1.71  2006/06/22 14:37:18  fwarmerdam
@@ -707,8 +710,6 @@ static void *DBFReadAttribute(DBFHandle psDBF, int hEntity, int iField,
     unsigned char	*pabyRec;
     void	*pReturnField = NULL;
 
-    static double dDoubleField;
-
 /* -------------------------------------------------------------------- */
 /*      Verify selection.                                               */
 /* -------------------------------------------------------------------- */
@@ -754,9 +755,9 @@ static void *DBFReadAttribute(DBFHandle psDBF, int hEntity, int iField,
 /* -------------------------------------------------------------------- */
     if( chReqType == 'N' )
     {
-        dDoubleField = atof(psDBF->pszWorkField);
+        psDBF->dfDoubleField = atof(psDBF->pszWorkField);
 
-	pReturnField = &dDoubleField;
+	pReturnField = &(psDBF->dfDoubleField);
     }
 
 /* -------------------------------------------------------------------- */
