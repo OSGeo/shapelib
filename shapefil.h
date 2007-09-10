@@ -37,7 +37,11 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.35  2007-09-03 19:48:10  fwarmerdam
+ * Revision 1.36  2007-09-10 23:33:15  fwarmerdam
+ * Upstreamed support for visibility flag in SHPAPI_CALL for the needs
+ * of GDAL (gdal ticket #1810).
+ *
+ * Revision 1.35  2007/09/03 19:48:10  fwarmerdam
  * move DBFReadAttribute() static dDoubleField into dbfinfo
  *
  * Revision 1.34  2006/06/17 15:33:32  fwarmerdam
@@ -146,7 +150,12 @@ extern "C" {
 #endif
 
 #ifndef SHPAPI_CALL
-#  define SHPAPI_CALL
+#  if defined(USE_GCC_VISIBILITY_FLAG)
+#    define SHPAPI_CALL     __attribute__ ((visibility("default")))
+#    define SHPAPI_CALL1(x) __attribute__ ((visibility("default")))     x
+#  else
+#    define SHPAPI_CALL
+#  endif
 #endif
 
 #ifndef SHPAPI_CALL1
