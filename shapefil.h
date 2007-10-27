@@ -37,7 +37,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.36  2007-09-10 23:33:15  fwarmerdam
+ * Revision 1.37  2007-10-27 03:31:14  fwarmerdam
+ * limit default depth of tree to 12 levels (gdal ticket #1594)
+ *
+ * Revision 1.36  2007/09/10 23:33:15  fwarmerdam
  * Upstreamed support for visibility flag in SHPAPI_CALL for the needs
  * of GDAL (gdal ticket #1810).
  *
@@ -314,6 +317,9 @@ const char SHPAPI_CALL1(*)
 
 /* this can be two or four for binary or quad tree */
 #define MAX_SUBNODE	4
+
+/* upper limit of tree levels for automatic estimation */
+#define MAX_DEFAULT_TREE_DEPTH 12
 
 typedef struct shape_tree_node
 {
