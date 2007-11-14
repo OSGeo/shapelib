@@ -1,3 +1,8 @@
+2007-11-14  Frank Warmerdam  <warmerdam@pobox.com>
+
+	* shpopen.c: checks after mallocs to detect for corrupted/voluntary 
+	broken shapefiles.  http://trac.osgeo.org/gdal/ticket/1991
+
 2007-09-03  Frank Warmerdam  <warmerdam@pobox.com>
 
 	* shpgeo.c: Fixed SHPDimension() (missing breaks) in shpgeo.c.
