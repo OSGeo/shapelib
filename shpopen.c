@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.53  2007-11-14 22:31:08  fwarmerdam
+ * Revision 1.54  2007-11-15 00:12:47  mloskot
+ * Backported recent changes from GDAL (Ticket #1415) to Shapelib.
+ *
+ * Revision 1.53  2007/11/14 22:31:08  fwarmerdam
  * checks after mallocs to detect for corrupted/voluntary broken shapefiles.
  * http://trac.osgeo.org/gdal/ticket/1991
  *
@@ -350,7 +353,7 @@ void SHPWriteHeader( SHPHandle psSHP )
     {
 #ifdef USE_CPL
         CPLError( CE_Failure, CPLE_OpenFailed, 
-                  "Failure writing .shp header." );
+                  "Failure writing .shp header (%s)", VSIStrerror( errno ) );
 #endif
         return;
     }
@@ -367,7 +370,7 @@ void SHPWriteHeader( SHPHandle psSHP )
     {
 #ifdef USE_CPL
         CPLError( CE_Failure, CPLE_OpenFailed, 
-                  "Failure writing .shx header." );
+                  "Failure writing .shx header (%s)", VSIStrerror( errno ) );
 #endif
         return;
     }
@@ -390,7 +393,7 @@ void SHPWriteHeader( SHPHandle psSHP )
     {
 #ifdef USE_CPL
         CPLError( CE_Failure, CPLE_OpenFailed, 
-                  "Failure writing .shx contents." );
+                  "Failure writing .shx contents (%s)", VSIStrerror( errno ) );
 #endif
     }
 
