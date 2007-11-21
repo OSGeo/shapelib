@@ -1,3 +1,8 @@
+2007-11-21  Frank Warmerdam  <warmerdam@pobox.com>
+
+	* shpopen.c/shapefil.h: Don't keep .shx file open in read-only mode.
+	http://trac.osgeo.org/gdal/ticket/1956
+
 2007-11-14  Frank Warmerdam  <warmerdam@pobox.com>
 
 	* shpopen.c: checks after mallocs to detect for corrupted/voluntary 
