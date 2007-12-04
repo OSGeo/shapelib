@@ -37,7 +37,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.38  2007-11-21 22:39:56  fwarmerdam
+ * Revision 1.39  2007-12-04 20:37:56  fwarmerdam
+ * preliminary implementation of hooks api for io and errors
+ *
+ * Revision 1.38  2007/11/21 22:39:56  fwarmerdam
  * close shx file in readonly mode (GDAL #1956)
  *
  * Revision 1.37  2007/10/27 03:31:14  fwarmerdam
@@ -120,7 +123,7 @@ extern "C" {
 /*      is disabled.                                                    */
 /* -------------------------------------------------------------------- */
 #define DISABLE_MULTIPATCH_MEASURE
-
+    
 /* -------------------------------------------------------------------- */
 /*      SHPAPI_CALL                                                     */
 /*                                                                      */
@@ -178,12 +181,34 @@ static char *cvsid_aw() { return( cvsid_aw() ? ((char *) NULL) : cpl_cvsid ); }
 #else
 #  define SHP_CVSID(string)
 #endif
+    
+/* -------------------------------------------------------------------- */
+/*      IO/Error hook functions.                                        */
+/* -------------------------------------------------------------------- */
+typedef void *SAFile;
+typedef unsigned long SAOffset;
+
+typedef struct {
+    SAFile     (*FOpen) ( const char *filename, const char *path);
+    SAOffset   (*FRead) ( void *p, SAOffset size, SAOffset nmemb, SAFile file);
+    SAOffset   (*FWrite)( void *p, SAOffset size, SAOffset nmemb, SAFile file);
+    SAOffset   (*FSeek) ( SAFile file, SAOffset offset, int whence );
+    SAOffset   (*FTell) ( SAFile file );
+    int        (*FFlush)( SAFile file );
+    int        (*FClose)( SAFile file );
+
+    void       (*Error) ( const char *message );
+} SAHooks;
+
+void SHPAPI_CALL SASetupDefaultHooks( SAHooks *psHooks );
 
 /************************************************************************/
 /*                             SHP Support.                             */
 /************************************************************************/
 typedef	struct
 {
+    SAHooks sHooks;
+
     FILE        *fpSHP;
     FILE	*fpSHX;
 
@@ -280,7 +305,13 @@ typedef struct
 SHPHandle SHPAPI_CALL
       SHPOpen( const char * pszShapeFile, const char * pszAccess );
 SHPHandle SHPAPI_CALL
+      SHPOpenLL( const char *pszShapeFile, const char *pszAccess, 
+                 SAHooks *psHooks );
+SHPHandle SHPAPI_CALL
       SHPCreate( const char * pszShapeFile, int nShapeType );
+SHPHandle SHPAPI_CALL
+      SHPCreateLL( const char * pszShapeFile, int nShapeType,
+                   SAHooks *psHooks );
 void SHPAPI_CALL
       SHPGetInfo( SHPHandle hSHP, int * pnEntities, int * pnShapeType,
                   double * padfMinBound, double * padfMaxBound );
