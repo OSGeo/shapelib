@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.56  2007-12-04 20:37:56  fwarmerdam
+ * Revision 1.57  2007-12-06 07:00:25  fwarmerdam
+ * dbfopen now using SAHooks for fileio
+ *
+ * Revision 1.56  2007/12/04 20:37:56  fwarmerdam
  * preliminary implementation of hooks api for io and errors
  *
  * Revision 1.55  2007/11/21 22:39:56  fwarmerdam
@@ -800,7 +803,7 @@ SHPCreateLL( const char * pszLayer, int nShapeType, SAHooks *psHooks )
 {
     char	*pszBasename, *pszFullname;
     int		i;
-    FILE	*fpSHP, *fpSHX;
+    SAFile	fpSHP, fpSHX;
     uchar     	abyHeader[100];
     int32	i32;
     double	dValue;

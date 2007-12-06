@@ -35,20 +35,20 @@ shpdump:	shpdump.c shpopen.o safileio.o
 shprewind:	shprewind.c shpopen.o safileio.o
 	$(CC) $(CFLAGS) shprewind.c shpopen.o safileio.o $(LINKOPT) -o shprewind
 
-dbfcreate:	dbfcreate.c dbfopen.o
-	$(CC) $(CFLAGS) dbfcreate.c dbfopen.o $(LINKOPT) -o dbfcreate
+dbfcreate:	dbfcreate.c dbfopen.o safileio.o
+	$(CC) $(CFLAGS) dbfcreate.c dbfopen.o safileio.o $(LINKOPT) -o dbfcreate
 
-dbfadd:		dbfadd.c dbfopen.o
-	$(CC) $(CFLAGS) dbfadd.c dbfopen.o $(LINKOPT) -o dbfadd
+dbfadd:		dbfadd.c dbfopen.o safileio.o
+	$(CC) $(CFLAGS) dbfadd.c dbfopen.o safileio.o $(LINKOPT) -o dbfadd
 
-dbfdump:	dbfdump.c dbfopen.o
-	$(CC) $(CFLAGS) dbfdump.c dbfopen.o $(LINKOPT) -o dbfdump
+dbfdump:	dbfdump.c dbfopen.o safileio.o
+	$(CC) $(CFLAGS) dbfdump.c dbfopen.o safileio.o $(LINKOPT) -o dbfdump
 
 shptest:	shptest.c shpopen.o safileio.o
 	$(CC) $(CFLAGS) shptest.c shpopen.o safileio.o $(LINKOPT) -o shptest
 
-shputils:	shputils.c shpopen.o safileio.o dbfopen.o
-	$(CC) $(CFLAGS) shputils.c shpopen.o safileio.o dbfopen.o $(LINKOPT) -o shputils
+shputils:	shputils.c shpopen.o safileio.o dbfopen.o safileio.o
+	$(CC) $(CFLAGS) shputils.c shpopen.o safileio.o dbfopen.o safileio.o $(LINKOPT) -o shputils
 
 shptreedump:	shptreedump.c shptree.o shpopen.o safileio.o
 	$(CC) $(CFLAGS) shptreedump.c shptree.o shpopen.o safileio.o $(LINKOPT) \

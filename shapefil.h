@@ -37,7 +37,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.39  2007-12-04 20:37:56  fwarmerdam
+ * Revision 1.40  2007-12-06 07:00:25  fwarmerdam
+ * dbfopen now using SAHooks for fileio
+ *
+ * Revision 1.39  2007/12/04 20:37:56  fwarmerdam
  * preliminary implementation of hooks api for io and errors
  *
  * Revision 1.38  2007/11/21 22:39:56  fwarmerdam
@@ -185,8 +188,11 @@ static char *cvsid_aw() { return( cvsid_aw() ? ((char *) NULL) : cpl_cvsid ); }
 /* -------------------------------------------------------------------- */
 /*      IO/Error hook functions.                                        */
 /* -------------------------------------------------------------------- */
-typedef void *SAFile;
+typedef int *SAFile;
+
+#ifndef SAOffset
 typedef unsigned long SAOffset;
+#endif
 
 typedef struct {
     SAFile     (*FOpen) ( const char *filename, const char *path);
@@ -209,8 +215,8 @@ typedef	struct
 {
     SAHooks sHooks;
 
-    FILE        *fpSHP;
-    FILE	*fpSHX;
+    SAFile      fpSHP;
+    SAFile 	fpSHX;
 
     int		nShapeType;				/* SHPT_* */
     
@@ -425,7 +431,9 @@ SHPSearchDiskTree( FILE *fp,
 /************************************************************************/
 typedef	struct
 {
-    FILE	*fp;
+    SAHooks sHooks;
+
+    SAFile	fp;
 
     int         nRecords;
 
@@ -464,10 +472,16 @@ typedef enum {
 
 #define XBASE_FLDHDR_SZ       32
 
+
 DBFHandle SHPAPI_CALL
       DBFOpen( const char * pszDBFFile, const char * pszAccess );
 DBFHandle SHPAPI_CALL
+      DBFOpenLL( const char * pszDBFFile, const char * pszAccess,
+                 SAHooks *psHooks );
+DBFHandle SHPAPI_CALL
       DBFCreate( const char * pszDBFFile );
+DBFHandle SHPAPI_CALL
+      DBFCreateLL( const char * pszDBFFile, SAHooks *psHooks );
 
 int	SHPAPI_CALL
       DBFGetFieldCount( DBFHandle psDBF );
