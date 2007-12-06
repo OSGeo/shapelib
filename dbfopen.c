@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.74  2007-12-06 07:00:25  fwarmerdam
+ * Revision 1.75  2007-12-06 13:58:19  fwarmerdam
+ * make sure file offset calculations are done in as SAOffset
+ *
+ * Revision 1.74  2007/12/06 07:00:25  fwarmerdam
  * dbfopen now using SAHooks for fileio
  *
  * Revision 1.73  2007/09/03 19:48:11  fwarmerdam
@@ -205,14 +208,15 @@ static void DBFWriteHeader(DBFHandle psDBF)
 static int DBFFlushRecord( DBFHandle psDBF )
 
 {
-    int		nRecordOffset;
+    SAOffset	nRecordOffset;
 
     if( psDBF->bCurrentRecordModified && psDBF->nCurrentRecord > -1 )
     {
 	psDBF->bCurrentRecordModified = FALSE;
 
-	nRecordOffset = psDBF->nRecordLength * psDBF->nCurrentRecord 
-	                                             + psDBF->nHeaderLength;
+	nRecordOffset = 
+            psDBF->nRecordLength * (SAOffset) psDBF->nCurrentRecord 
+            + psDBF->nHeaderLength;
 
 	if( psDBF->sHooks.FSeek( psDBF->fp, nRecordOffset, 0 ) != 0 
             || psDBF->sHooks.FWrite( psDBF->pszCurrentRecord, 
@@ -243,28 +247,29 @@ static int DBFLoadRecord( DBFHandle psDBF, int iRecord )
 {
     if( psDBF->nCurrentRecord != iRecord )
     {
-        int nRecordOffset;
+        SAOffset nRecordOffset;
 
 	if( !DBFFlushRecord( psDBF ) )
             return FALSE;
 
-	nRecordOffset = psDBF->nRecordLength * iRecord + psDBF->nHeaderLength;
+	nRecordOffset = 
+            psDBF->nRecordLength * (SAOffset) iRecord + psDBF->nHeaderLength;
 
-	if( psDBF->sHooks.FSeek( psDBF->fp, nRecordOffset, 0 ) != 0 )
+	if( psDBF->sHooks.FSeek( psDBF->fp, nRecordOffset, SEEK_SET ) != 0 )
         {
 #ifdef USE_CPL
             CPLError( CE_Failure, CPLE_FileIO,
-                      "fseek(%d) failed on DBF file.\n",
-                      nRecordOffset );
+                      "fseek(%ld) failed on DBF file.\n",
+                      (long) nRecordOffset );
 #else
-            fprintf( stderr, "fseek(%d) failed on DBF file.\n",
-                     nRecordOffset );
+            fprintf( stderr, "fseek(%ld) failed on DBF file.\n",
+                     (long) nRecordOffset );
 #endif
             return FALSE;
         }
 
-	if( psDBF->sHooks.FRead( psDBF->pszCurrentRecord, psDBF->nRecordLength, 
-                   1, psDBF->fp ) != 1 )
+	if( psDBF->sHooks.FRead( psDBF->pszCurrentRecord, 
+                                 psDBF->nRecordLength, 1, psDBF->fp ) != 1 )
         {
 #ifdef USE_CPL
             CPLError( CE_Failure, CPLE_FileIO, 
@@ -554,6 +559,7 @@ DBFCreateLL( const char * pszFilename, SAHooks *psHooks )
     SAFile	fp;
     char	*pszFullname, *pszBasename;
     int		i;
+    char chZero = '\0';
 
 /* -------------------------------------------------------------------- */
 /*	Compute the base (layer) name.  If there is any extension	*/
@@ -576,8 +582,6 @@ DBFCreateLL( const char * pszFilename, SAHooks *psHooks )
 /* -------------------------------------------------------------------- */
 /*      Create the file.                                                */
 /* -------------------------------------------------------------------- */
-    char chZero = '\0';
-
     fp = psHooks->FOpen( pszFullname, "wb" );
     if( fp == NULL )
         return( NULL );
