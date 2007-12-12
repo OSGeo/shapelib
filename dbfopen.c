@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.75  2007-12-06 13:58:19  fwarmerdam
+ * Revision 1.76  2007-12-12 22:21:32  bram
+ * DBFClose: check for NULL psDBF handle before trying to close it.
+ *
+ * Revision 1.75  2007/12/06 13:58:19  fwarmerdam
  * make sure file offset calculations are done in as SAOffset
  *
  * Revision 1.74  2007/12/06 07:00:25  fwarmerdam
@@ -491,6 +494,9 @@ DBFOpenLL( const char * pszFilename, const char * pszAccess, SAHooks *psHooks )
 void SHPAPI_CALL
 DBFClose(DBFHandle psDBF)
 {
+    if( psDBF == NULL )
+        return;
+
 /* -------------------------------------------------------------------- */
 /*      Write out header if not already written.                        */
 /* -------------------------------------------------------------------- */
