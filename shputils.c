@@ -53,7 +53,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.9  2004-01-14 14:56:00  fwarmerdam
+ * Revision 1.10  2007-12-13 19:59:23  fwarmerdam
+ * reindent code, avoid some warnings.
+ *
+ * Revision 1.9  2004/01/14 14:56:00  fwarmerdam
  * Some cleanlyness improvements.
  *
  * Revision 1.8  2004/01/14 14:40:22  fwarmerdam
@@ -82,12 +85,11 @@
  * Initial revision
  */
 
-static char rcsid[] = 
-  "$Id$";
-
 #include "shapefil.h"
 #include "string.h"
 #include <stdlib.h>
+
+SHP_CVSID("$Id$")
 
 #ifndef FALSE
 #  define FALSE		0
@@ -266,7 +268,7 @@ int main( int argc, char ** argv )
                 iclip=TRUE;
             } /*** End CLIP & ERASE ***/
             else if (strncasecmp2(argv[i],  "FACTOR",0) == 0)
-                {
+            {
                 i++;
     	        if (i >= argc) error();
     	        infactor=findunit(argv[i]);
@@ -277,20 +279,20 @@ int main( int argc, char ** argv )
     	        outfactor=findunit(argv[i]);
     	        if (outfactor == 0)
     	        {
-                   sscanf(argv[i],"%lf",&factor);
-                   if (factor == 0) error();
+                    sscanf(argv[i],"%lf",&factor);
+                    if (factor == 0) error();
                 }
                 if (factor == 0)
                 {
-                  if (infactor ==0)
-                  { puts("ERROR: Input unit must be defined before output unit"); exit(1); }
-                  factor=infactor/outfactor;
+                    if (infactor ==0)
+                    { puts("ERROR: Input unit must be defined before output unit"); exit(1); }
+                    factor=infactor/outfactor;
                 }
                 printf("Output file coordinate values will be factored by %lg\n",factor);
                 ifactor=(factor != 1); /* True if a valid factor */
-             } /*** End FACTOR ***/
-             else if (strncasecmp2(argv[i],"SHIFT",5) == 0)
-                {
+            } /*** End FACTOR ***/
+            else if (strncasecmp2(argv[i],"SHIFT",5) == 0)
+            {
                 i++;
                 if (i >= argc) error();
                 sscanf(argv[i],"%lf",&xshift);
@@ -299,10 +301,10 @@ int main( int argc, char ** argv )
                 sscanf(argv[i],"%lf",&yshift);
                 iunit=TRUE;
                 printf("X Shift: %lg   Y Shift: %lg\n",xshift,yshift);
-             } /*** End SHIFT ***/
-             else {
+            } /*** End SHIFT ***/
+            else {
                 printf("ERROR: Unknown function %s\n",argv[i]);  error();
-                }
+            }
     }
 /* -------------------------------------------------------------------- */
 /*	If there is no data in this file let the user know.		*/
@@ -389,6 +391,7 @@ int main( int argc, char ** argv )
                 switch( DBFGetFieldInfo( hDBF, i, NULL, &iWidth, &iDecimals ) )
                 {
                   case FTString:
+                  case FTLogical:
                     DBFWriteStringAttribute(hDBFappend, jRecord, pt[i],
                                             (DBFReadStringAttribute( hDBF, iRecord, i )) );
                     break;
@@ -402,6 +405,9 @@ int main( int argc, char ** argv )
                     DBFWriteDoubleAttribute(hDBFappend, jRecord, pt[i],
                                             (DBFReadDoubleAttribute( hDBF, iRecord, i )) );
                     break;
+
+                  case FTInvalid:
+                    break;
                 }
             }
 	}
@@ -409,7 +415,7 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
 /*      Change FACTOR and SHIFT coordinates of shapes if needed.        */
 /* -------------------------------------------------------------------- */
-         if (iunit)
+        if (iunit)
         {
 	    for( j = 0; j < psCShape->nVertices; j++ ) 
 	    {
@@ -450,13 +456,13 @@ int main( int argc, char ** argv )
     DBFClose( hDBF );
     DBFClose( hDBFappend );
     if (nEntitiesAppend == 0) {
-       puts("Remove the output files.");
-       setext(outfile, "dbf");
-       remove(outfile);
-       setext(outfile, "shp");
-       remove(outfile);
-       setext(outfile, "shx");
-       remove(outfile);
+        puts("Remove the output files.");
+        setext(outfile, "dbf");
+        remove(outfile);
+        setext(outfile, "shp");
+        remove(outfile);
+        setext(outfile, "shx");
+        remove(outfile);
     }
     return( 0 );
 }
@@ -571,7 +577,7 @@ void mergefields()
     
     for( i = 0; i < ti; i++ )
     {
-       pt[i]= -1;  /* Initial pt values to -1 */
+        pt[i]= -1;  /* Initial pt values to -1 */
     }
     /* DBF must be empty before adding items */
     jRecord = DBFGetRecordCount( hDBFappend );
@@ -616,7 +622,7 @@ void mergefields()
                 == -1 )
 	    {
 		printf( "Warning: DBFAddField(%s, TYPE:%d, WIDTH:%d  DEC:%d, ITEM#:%d of %d) failed.\n",
-		         iszTitle, iType, iWidth, iDecimals, (i+1), (ti+1) );
+                        iszTitle, iType, iWidth, iDecimals, (i+1), (ti+1) );
 		pt[i]=-1;
 	    }
 	}
@@ -647,92 +653,96 @@ void findselect()
 
 void showitems()
 {
-char      stmp[40],slow[40],shigh[40];
-double    dtmp,dlow,dhigh,dsum,mean;
-long int  itmp,ilow,ihigh,isum;
-long int  maxrec;
-char      *pt;
+    char      stmp[40],slow[40],shigh[40];
+    double    dtmp,dlow,dhigh,dsum,mean;
+    long int  itmp,ilow,ihigh,isum;
+    long int  maxrec;
+    char      *pt;
 
-        printf("Available Items: (%d)",ti);
-        maxrec = DBFGetRecordCount(hDBF);
-        if (maxrec > 5000 && ! iall) 
-                { maxrec=5000; printf("  ** ESTIMATED RANGES (MEAN)  For more records use \"All\""); }
-          else  { printf("          RANGES (MEAN)"); }
+    printf("Available Items: (%d)",ti);
+    maxrec = DBFGetRecordCount(hDBF);
+    if (maxrec > 5000 && ! iall) 
+    { maxrec=5000; printf("  ** ESTIMATED RANGES (MEAN)  For more records use \"All\""); }
+    else  { printf("          RANGES (MEAN)"); }
           
-        for( i = 0; i < ti; i++ )
+    for( i = 0; i < ti; i++ )
+    {
+        switch( DBFGetFieldInfo( hDBF, i, iszTitle, &iWidth, &iDecimals ) )
         {
-	    switch( DBFGetFieldInfo( hDBF, i, iszTitle, &iWidth, &iDecimals ) )
-	    {
-	      case FTString:
-	        strcpy(slow, "~");
-	        strcpy(shigh,"\0");
-                printf("\n  String  %3d  %-16s",iWidth,iszTitle);
-	        for( iRecord = 0; iRecord < maxrec; iRecord++ ) {
-		        strncpy(stmp,DBFReadStringAttribute( hDBF, iRecord, i ),39);
-		        if (strcmp(stmp,"!!") > 0) {
-		          if (strncasecmp2(stmp,slow,0)  < 0) strncpy(slow, stmp,39);
-		          if (strncasecmp2(stmp,shigh,0) > 0) strncpy(shigh,stmp,39);
-		        }
-		}
-		pt=slow+strlen(slow)-1; 
-		while(*pt == ' ') { *pt='\0'; pt--; }
-		pt=shigh+strlen(shigh)-1;
-		while(*pt == ' ') { *pt='\0'; pt--; }
-		if (strncasecmp2(slow,shigh,0) < 0)		printf("%s to %s",slow,shigh);
-		else if (strncasecmp2(slow,shigh,0) == 0)	printf("= %s",slow);
-						    else	printf("No Values");
-		break;
-	      case FTInteger:
-		printf("\n  Integer %3d  %-16s",iWidth,iszTitle);
-		ilow =  1999999999;
-		ihigh= -1999999999;
-		isum =  0;
-	        for( iRecord = 0; iRecord < maxrec; iRecord++ ) {
-		        itmp = DBFReadIntegerAttribute( hDBF, iRecord, i );
-		        if (ilow > itmp)  ilow = itmp;
-		        if (ihigh < itmp) ihigh = itmp;
-		        isum = isum + itmp;
-		}
-		mean=isum/maxrec;
-		if (ilow < ihigh)       printf("%d to %d \t(%.1f)",ilow,ihigh,mean);
-		else if (ilow == ihigh) printf("= %d",ilow);
-		                   else printf("No Values");
-		break;
+          case FTString:
+          case FTLogical:
+            strcpy(slow, "~");
+            strcpy(shigh,"\0");
+            printf("\n  String  %3d  %-16s",iWidth,iszTitle);
+            for( iRecord = 0; iRecord < maxrec; iRecord++ ) {
+                strncpy(stmp,DBFReadStringAttribute( hDBF, iRecord, i ),39);
+                if (strcmp(stmp,"!!") > 0) {
+                    if (strncasecmp2(stmp,slow,0)  < 0) strncpy(slow, stmp,39);
+                    if (strncasecmp2(stmp,shigh,0) > 0) strncpy(shigh,stmp,39);
+                }
+            }
+            pt=slow+strlen(slow)-1; 
+            while(*pt == ' ') { *pt='\0'; pt--; }
+            pt=shigh+strlen(shigh)-1;
+            while(*pt == ' ') { *pt='\0'; pt--; }
+            if (strncasecmp2(slow,shigh,0) < 0)		printf("%s to %s",slow,shigh);
+            else if (strncasecmp2(slow,shigh,0) == 0)	printf("= %s",slow);
+            else	printf("No Values");
+            break;
+          case FTInteger:
+            printf("\n  Integer %3d  %-16s",iWidth,iszTitle);
+            ilow =  1999999999;
+            ihigh= -1999999999;
+            isum =  0;
+            for( iRecord = 0; iRecord < maxrec; iRecord++ ) {
+                itmp = DBFReadIntegerAttribute( hDBF, iRecord, i );
+                if (ilow > itmp)  ilow = itmp;
+                if (ihigh < itmp) ihigh = itmp;
+                isum = isum + itmp;
+            }
+            mean=isum/maxrec;
+            if (ilow < ihigh)       printf("%ld to %ld \t(%.1f)",ilow,ihigh,mean);
+            else if (ilow == ihigh) printf("= %ld",ilow);
+            else printf("No Values");
+            break;
 
-	      case FTDouble:
-		printf("\n  Real  %3d,%d  %-16s",iWidth,iDecimals,iszTitle);
-		dlow =  999999999999999.0;
-		dhigh= -999999999999999.0;
-		dsum =  0;
-	        for( iRecord = 0; iRecord < maxrec; iRecord++ ) {
-		        dtmp = DBFReadDoubleAttribute( hDBF, iRecord, i );
-		        if (dlow > dtmp) dlow = dtmp;
-		        if (dhigh < dtmp) dhigh = dtmp;
-		        dsum = dsum + dtmp;
-		}
-		mean=dsum/maxrec;
-		sprintf(stmp,"%%.%df to %%.%df \t(%%.%df)",iDecimals,iDecimals,iDecimals);
-		if (dlow < dhigh)       printf(stmp,dlow,dhigh,mean);
-		else if (dlow == dhigh) {
-				        sprintf(stmp,"= %%.%df",iDecimals);
-		                        printf(stmp,dlow);
-		                        }
-		else printf("No Values");
-		break;
+          case FTDouble:
+            printf("\n  Real  %3d,%d  %-16s",iWidth,iDecimals,iszTitle);
+            dlow =  999999999999999.0;
+            dhigh= -999999999999999.0;
+            dsum =  0;
+            for( iRecord = 0; iRecord < maxrec; iRecord++ ) {
+                dtmp = DBFReadDoubleAttribute( hDBF, iRecord, i );
+                if (dlow > dtmp) dlow = dtmp;
+                if (dhigh < dtmp) dhigh = dtmp;
+                dsum = dsum + dtmp;
+            }
+            mean=dsum/maxrec;
+            sprintf(stmp,"%%.%df to %%.%df \t(%%.%df)",iDecimals,iDecimals,iDecimals);
+            if (dlow < dhigh)       printf(stmp,dlow,dhigh,mean);
+            else if (dlow == dhigh) {
+                sprintf(stmp,"= %%.%df",iDecimals);
+                printf(stmp,dlow);
+            }
+            else printf("No Values");
+            break;
 
-	    }
+          case FTInvalid:
+            break;
 
         }
-	printf("\n");
+
+    }
+    printf("\n");
 }
 
 int selectrec()
 {
-long int value, ty;
+    long int value, ty;
 
-   ty = DBFGetFieldInfo( hDBF, iselectitem, NULL, &iWidth, &iDecimals);
-      switch(ty)
-      {
+    ty = DBFGetFieldInfo( hDBF, iselectitem, NULL, &iWidth, &iDecimals);
+    switch(ty)
+    {
       case FTString:
         puts("Invalid Item");
         iselect=FALSE;
@@ -740,19 +750,21 @@ long int value, ty;
       case FTInteger:
         value = DBFReadIntegerAttribute( hDBF, iRecord, iselectitem );
         for (j = 0; j<selcount; j++)
-          {
-          if (selectvalues[j] == value)
-               if (iunselect) return(0);  /* Keep this record */
-                        else  return(1);  /* Skip this record */
-          }
+        {
+            if (selectvalues[j] == value)
+            {
+                if (iunselect) return(0);  /* Keep this record */
+                else  return(1);  /* Skip this record */
+            }
+        }
 	break;
       case FTDouble:
         puts("Invalid Item");
         iselect=FALSE;
         break;
-      }
-      if (iunselect) return(1);  /* Skip this record */
-               else  return(0);  /* Keep this record */
+    }
+    if (iunselect) return(1);  /* Skip this record */
+    else  return(0);  /* Keep this record */
 }
 
 
@@ -785,104 +797,106 @@ int clip_boundary()
     int  i2;
     int  j2;
     
-       /*** FIRST check the boundary of the feature ***/
-       if ( ( (psCShape->dfXMin < cxmin) && (psCShape->dfXMax < cxmin) ) ||
-            ( (psCShape->dfYMin < cymin) && (psCShape->dfYMax < cymin) ) ||
-            ( (psCShape->dfXMin > cxmax) && (psCShape->dfXMax > cxmax) ) ||
-            ( (psCShape->dfYMin > cymax) && (psCShape->dfYMax > cymax) ) )
-            {   /** Feature is totally outside clip area **/
-            	if (ierase) return(1); /** WRITE RECORD **/
-            	     else   return(0); /** SKIP  RECORD **/
-            }
+    /*** FIRST check the boundary of the feature ***/
+    if ( ( (psCShape->dfXMin < cxmin) && (psCShape->dfXMax < cxmin) ) ||
+         ( (psCShape->dfYMin < cymin) && (psCShape->dfYMax < cymin) ) ||
+         ( (psCShape->dfXMin > cxmax) && (psCShape->dfXMax > cxmax) ) ||
+         ( (psCShape->dfYMin > cymax) && (psCShape->dfYMax > cymax) ) )
+    {   /** Feature is totally outside clip area **/
+        if (ierase) return(1); /** WRITE RECORD **/
+        else   return(0); /** SKIP  RECORD **/
+    }
        
-       if ( (psCShape->dfXMin >= cxmin) && (psCShape->dfXMax <= cxmax) &&
-            (psCShape->dfYMin >= cymin) && (psCShape->dfYMax <= cymax) )
-            {   /** Feature is totally inside clip area **/
-            	if (ierase) return(0); /** SKIP  RECORD **/
-            	     else   return(1); /** WRITE RECORD **/
-            }
+    if ( (psCShape->dfXMin >= cxmin) && (psCShape->dfXMax <= cxmax) &&
+         (psCShape->dfYMin >= cymin) && (psCShape->dfYMax <= cymax) )
+    {   /** Feature is totally inside clip area **/
+        if (ierase) return(0); /** SKIP  RECORD **/
+        else   return(1); /** WRITE RECORD **/
+    }
             
-       if (iinside) 
-            { /** INSIDE * Feature might touch the boundary or could be outside **/
-            if (ierase)  return(1); /** WRITE RECORD **/
-                 else    return(0); /** SKIP  RECORD **/
-            }
+    if (iinside) 
+    { /** INSIDE * Feature might touch the boundary or could be outside **/
+        if (ierase)  return(1); /** WRITE RECORD **/
+        else    return(0); /** SKIP  RECORD **/
+    }
        
-       if (itouch)
-          {   /** TOUCH **/
-          if ( ( (psCShape->dfXMin <= cxmin) || (psCShape->dfXMax >= cxmax) ) && 
-                 (psCShape->dfYMin >= cymin) && (psCShape->dfYMax <= cymax)    )
-               {   /** Feature intersects the clip boundary only on the X axis **/
-               if (ierase) return(0); /** SKIP  RECORD **/
-                    else   return(1); /** WRITE RECORD **/
-               }
+    if (itouch)
+    {   /** TOUCH **/
+        if ( ( (psCShape->dfXMin <= cxmin) || (psCShape->dfXMax >= cxmax) ) && 
+             (psCShape->dfYMin >= cymin) && (psCShape->dfYMax <= cymax)    )
+        {   /** Feature intersects the clip boundary only on the X axis **/
+            if (ierase) return(0); /** SKIP  RECORD **/
+            else   return(1); /** WRITE RECORD **/
+        }
 
-          if (   (psCShape->dfXMin >= cxmin) && (psCShape->dfXMax <= cxmax)   && 
+        if (   (psCShape->dfXMin >= cxmin) && (psCShape->dfXMax <= cxmax)   && 
                ( (psCShape->dfYMin <= cymin) || (psCShape->dfYMax >= cymax) )  )
-               {   /** Feature intersects the clip boundary only on the Y axis **/
-               if (ierase) return(0); /** SKIP  RECORD **/
-                    else   return(1); /** WRITE RECORD **/
-               }
+        {   /** Feature intersects the clip boundary only on the Y axis **/
+            if (ierase) return(0); /** SKIP  RECORD **/
+            else   return(1); /** WRITE RECORD **/
+        }
                
-          for( j2 = 0; j2 < psCShape->nVertices; j2++ ) 
-               {   /** At least one vertex must be inside the clip boundary **/
-               if ( (psCShape->padfX[j2] >= cxmin  &&  psCShape->padfX[j2] <= cxmax) ||
-                    (psCShape->padfY[j2] >= cymin  &&  psCShape->padfY[j2] <= cymax)  )
-                    if (ierase) return(0); /** SKIP  RECORD **/
-                         else   return(1); /** WRITE RECORD **/
-               }
+        for( j2 = 0; j2 < psCShape->nVertices; j2++ ) 
+        {   /** At least one vertex must be inside the clip boundary **/
+            if ( (psCShape->padfX[j2] >= cxmin  &&  psCShape->padfX[j2] <= cxmax) ||
+                 (psCShape->padfY[j2] >= cymin  &&  psCShape->padfY[j2] <= cymax)  )
+            {
+                if (ierase) return(0); /** SKIP  RECORD **/
+                else   return(1); /** WRITE RECORD **/
+            }
+        }
                
-          /** All vertices are outside the clip boundary **/ 
-          if (ierase) return(1); /** WRITE RECORD **/
-               else   return(0); /** SKIP  RECORD **/
-          }   /** End TOUCH **/
+        /** All vertices are outside the clip boundary **/ 
+        if (ierase) return(1); /** WRITE RECORD **/
+        else   return(0); /** SKIP  RECORD **/
+    }   /** End TOUCH **/
           
-       if (icut)
-          {   /** CUT **/
-          /*** Check each vertex in the feature with the Boundary and "CUT" ***/
-          /*** THIS CODE WAS NOT COMPLETED!  READ NOTE AT THE BOTTOM ***/
-          i2=0;
-          prev_outside=FALSE;
-          for( j2 = 0; j2 < psCShape->nVertices; j2++ ) 
-             {
-             inside = psCShape->padfX[j2] >= cxmin  &&  psCShape->padfX[j2] <= cxmax  &&
-                      psCShape->padfY[j2] >= cymin  &&  psCShape->padfY[j2] <= cymax ;
+    if (icut)
+    {   /** CUT **/
+        /*** Check each vertex in the feature with the Boundary and "CUT" ***/
+        /*** THIS CODE WAS NOT COMPLETED!  READ NOTE AT THE BOTTOM ***/
+        i2=0;
+        prev_outside=FALSE;
+        for( j2 = 0; j2 < psCShape->nVertices; j2++ ) 
+        {
+            inside = psCShape->padfX[j2] >= cxmin  &&  psCShape->padfX[j2] <= cxmax  &&
+                psCShape->padfY[j2] >= cymin  &&  psCShape->padfY[j2] <= cymax ;
                       
-             if (ierase) inside=(! inside);
-             if (inside)
-                 {
-                 if (i2 != j2)
-                     {
-                     if (prev_outside)
-                         {
-                         /*** AddIntersection(i2);   /*** Add intersection ***/
-                         prev_outside=FALSE;
-                         }
-                     psCShape->padfX[i2]=psCShape->padfX[j2];     /** move vertex **/
-                     psCShape->padfY[i2]=psCShape->padfY[j2];
-                     }
-                 i2++;
-                 } else {
-                 if ( (! prev_outside) && (j2 > 0) )
-                     {
-                     /*** AddIntersection(i2);   /*** Add intersection (Watch out for j2==i2-1) ***/
-                     /*** Also a polygon may overlap twice and will split into a several parts  ***/
-                     prev_outside=TRUE;
-                     }
-                 }
-             }
+            if (ierase) inside=(! inside);
+            if (inside)
+            {
+                if (i2 != j2)
+                {
+                    if (prev_outside)
+                    {
+                        /*** AddIntersection(i2); ***/  /*** Add intersection ***/
+                        prev_outside=FALSE;
+                    }
+                    psCShape->padfX[i2]=psCShape->padfX[j2];     /** move vertex **/
+                    psCShape->padfY[i2]=psCShape->padfY[j2];
+                }
+                i2++;
+            } else {
+                if ( (! prev_outside) && (j2 > 0) )
+                {
+                    /*** AddIntersection(i2); ***//*** Add intersection (Watch out for j2==i2-1) ***/
+                    /*** Also a polygon may overlap twice and will split into a several parts  ***/
+                    prev_outside=TRUE;
+                }
+            }
+        }
              
         printf("Vertices:%d   OUT:%d   Number of Parts:%d\n",
-                psCShape->nVertices,i2, psCShape->nParts );
+               psCShape->nVertices,i2, psCShape->nParts );
                
-             psCShape->nVertices = i2;
+        psCShape->nVertices = i2;
              
-             if (i2 < 2) return(0); /** SKIP RECORD **/
-             /*** (WE ARE NOT CREATING INTERESECTIONS and some lines could be reduced to one point) **/
+        if (i2 < 2) return(0); /** SKIP RECORD **/
+        /*** (WE ARE NOT CREATING INTERESECTIONS and some lines could be reduced to one point) **/
         
-             if (i2 == 0) return(0); /** SKIP  RECORD **/
-                  else    return(1); /** WRITE RECORD **/
-          }  /** End CUT **/
+        if (i2 == 0) return(0); /** SKIP  RECORD **/
+        else    return(1); /** WRITE RECORD **/
+    }  /** End CUT **/
 }
 
 
@@ -954,65 +968,65 @@ double findunit(char *unit)
 /*      Display a usage message.                                        */
 /* -------------------------------------------------------------------- */
 void error()
-    {	
-	puts( "The program will append to an existing shape file or it will" );
-	puts( "create a new file if needed." );
-	puts( "Only the items in the first output file will be preserved." );
-	puts( "When an item does not match with the append theme then the item");
-	puts( "might be placed to an existing item at the same position and type." );
-	puts( "  OTHER FUNCTIONS:" );
-	puts( "  - Describe all items in the dbase file (Use ALL for more than 5000 recs.)");
-	puts( "  - Select a group of shapes from a comma separated selection list.");
-	puts( "  - UnSelect a group of shapes from a comma separated selection list.");
-	puts( "  - Clip boundary extent or by theme boundary." );
-	puts( "      Touch writes all the shapes that touch the boundary.");
-	puts( "      Inside writes all the shapes that are completely within the boundary.");
-	puts( "      Boundary clips are only the min and max of a theme boundary." );
-	puts( "  - Erase boundary extent or by theme boundary." );
-	puts( "      Erase is the direct opposite of the Clip function." );
-	puts( "  - Change coordinate value units between meters and feet.");
-	puts( "      There is no way to determine the input unit of a shape file.");
-	puts( "      Skip this function if the shape file is already in the correct unit.");
-	puts( "      Clip and Erase will be done before the unit is changed.");
-	puts( "      A shift will be done after the unit is changed."); 
-	puts( "  - Shift X and Y coordinates.\n" );
-	puts( "Finally, There can only be one select or unselect in the command line.");
-	puts( "         There can only be one clip or erase in the command line.");
-	puts( "         There can only be one unit and only one shift in the command line.\n");
-	puts( "Ex: shputils in.shp out.shp   SELECT countycode 3,5,9,13,17,27");
-	puts( "    shputils in.shp out.shp   CLIP   10 10 90 90 Touch   FACTOR Meter Feet");
-	puts( "    shputils in.shp out.shp   FACTOR Meter 3.0");
-	puts( "    shputils in.shp out.shp   CLIP   clip.shp Boundary Touch   SHIFT 40 40");
-	puts( "    shputils in.shp out.shp   SELECT co 112   CLIP clip.shp Boundary Touch\n");
-	puts( "USAGE: shputils  <DescribeShape>   {ALL}");
-	puts( "USAGE: shputils  <InputShape>  <OutShape|AppendShape>" );
-	puts( "   { <FACTOR>       <FEET|MILES|METERS|KM> <FEET|MILES|METERS|KM|factor> }" );
-	puts( "   { <SHIFT>        <xshift> <yshift> }" );
-	puts( "   { <SELECT|UNSEL> <Item> <valuelist> }" );
-	puts( "   { <CLIP|ERASE>   <xmin> <ymin> <xmax> <ymax> <TOUCH|INSIDE|CUT> }" );
-	puts( "   { <CLIP|ERASE>   <theme>      <BOUNDARY>     <TOUCH|INSIDE|CUT> }" );
-	puts( "     Note: CUT is not complete and does not create intersections.");
-	puts( "           For more information read programmer comment.");
+{	
+    puts( "The program will append to an existing shape file or it will" );
+    puts( "create a new file if needed." );
+    puts( "Only the items in the first output file will be preserved." );
+    puts( "When an item does not match with the append theme then the item");
+    puts( "might be placed to an existing item at the same position and type." );
+    puts( "  OTHER FUNCTIONS:" );
+    puts( "  - Describe all items in the dbase file (Use ALL for more than 5000 recs.)");
+    puts( "  - Select a group of shapes from a comma separated selection list.");
+    puts( "  - UnSelect a group of shapes from a comma separated selection list.");
+    puts( "  - Clip boundary extent or by theme boundary." );
+    puts( "      Touch writes all the shapes that touch the boundary.");
+    puts( "      Inside writes all the shapes that are completely within the boundary.");
+    puts( "      Boundary clips are only the min and max of a theme boundary." );
+    puts( "  - Erase boundary extent or by theme boundary." );
+    puts( "      Erase is the direct opposite of the Clip function." );
+    puts( "  - Change coordinate value units between meters and feet.");
+    puts( "      There is no way to determine the input unit of a shape file.");
+    puts( "      Skip this function if the shape file is already in the correct unit.");
+    puts( "      Clip and Erase will be done before the unit is changed.");
+    puts( "      A shift will be done after the unit is changed."); 
+    puts( "  - Shift X and Y coordinates.\n" );
+    puts( "Finally, There can only be one select or unselect in the command line.");
+    puts( "         There can only be one clip or erase in the command line.");
+    puts( "         There can only be one unit and only one shift in the command line.\n");
+    puts( "Ex: shputils in.shp out.shp   SELECT countycode 3,5,9,13,17,27");
+    puts( "    shputils in.shp out.shp   CLIP   10 10 90 90 Touch   FACTOR Meter Feet");
+    puts( "    shputils in.shp out.shp   FACTOR Meter 3.0");
+    puts( "    shputils in.shp out.shp   CLIP   clip.shp Boundary Touch   SHIFT 40 40");
+    puts( "    shputils in.shp out.shp   SELECT co 112   CLIP clip.shp Boundary Touch\n");
+    puts( "USAGE: shputils  <DescribeShape>   {ALL}");
+    puts( "USAGE: shputils  <InputShape>  <OutShape|AppendShape>" );
+    puts( "   { <FACTOR>       <FEET|MILES|METERS|KM> <FEET|MILES|METERS|KM|factor> }" );
+    puts( "   { <SHIFT>        <xshift> <yshift> }" );
+    puts( "   { <SELECT|UNSEL> <Item> <valuelist> }" );
+    puts( "   { <CLIP|ERASE>   <xmin> <ymin> <xmax> <ymax> <TOUCH|INSIDE|CUT> }" );
+    puts( "   { <CLIP|ERASE>   <theme>      <BOUNDARY>     <TOUCH|INSIDE|CUT> }" );
+    puts( "     Note: CUT is not complete and does not create intersections.");
+    puts( "           For more information read programmer comment.");
 	
-	/****   Clip functions for Polygon and Cut is not supported
-	There are several web pages that describe methods of doing this function.
-	It seem easy to impliment until you start writting code.  I don't have the
-	time to add these functions but a did leave a simple cut routine in the 
-	program that can be called by using CUT instead of TOUCH in the 
-	CLIP or ERASE functions.  It does not add the intersection of the line and
-	the clip box, so polygons could look incomplete and lines will come up short.
+    /****   Clip functions for Polygon and Cut is not supported
+            There are several web pages that describe methods of doing this function.
+            It seem easy to impliment until you start writting code.  I don't have the
+            time to add these functions but a did leave a simple cut routine in the 
+            program that can be called by using CUT instead of TOUCH in the 
+            CLIP or ERASE functions.  It does not add the intersection of the line and
+            the clip box, so polygons could look incomplete and lines will come up short.
 	
-	Information about clipping lines with a box:
-           http://www.csclub.uwaterloo.ca/u/mpslager/articles/sutherland/wr.html
-        Information about finding the intersection of two lines:
-	   http://www.whisqu.se/per/docs/math28.htm
+            Information about clipping lines with a box:
+            http://www.csclub.uwaterloo.ca/u/mpslager/articles/sutherland/wr.html
+            Information about finding the intersection of two lines:
+            http://www.whisqu.se/per/docs/math28.htm
 	   
-THE CODE LOOKS LIKE THIS:
- ********************************************************	  
-void Intersect_Lines(float x0,float y0,float x1,float y1,
-                     float x2,float y2,float x3,float y3,
-                     float *xi,float *yi)
-                     {
+            THE CODE LOOKS LIKE THIS:
+            ********************************************************	  
+            void Intersect_Lines(float x0,float y0,float x1,float y1,
+            float x2,float y2,float x3,float y3,
+            float *xi,float *yi)
+            {
 //  this function computes the intersection of the sent lines
 //  and returns the intersection point, note that the function assumes
 //  the lines intersect. the function can handle vertical as well
@@ -1022,22 +1036,22 @@ void Intersect_Lines(float x0,float y0,float x1,float y1,
 //  The Intersect_lines program came from (http://www.whisqu.se/per/docs/math28.htm)
 
 float a1,b1,c1, // constants of linear equations 
-      a2,b2,c2,
-      det_inv,  // the inverse of the determinant of the coefficientmatrix
-      m1,m2;    // the slopes of each line
+a2,b2,c2,
+det_inv,  // the inverse of the determinant of the coefficientmatrix
+m1,m2;    // the slopes of each line
       
 // compute slopes, note the cludge for infinity, however, this will
 // be close enough
 if ((x1-x0)!=0)
-   m1 = (y1-y0)/(x1-x0);
+m1 = (y1-y0)/(x1-x0);
 else
-   m1 = (float)1e+10;  // close enough to infinity
+m1 = (float)1e+10;  // close enough to infinity
    
    
 if ((x3-x2)!=0) 
-   m2 = (y3-y2)/(x3-x2);
+m2 = (y3-y2)/(x3-x2);
 else
-   m2 = (float)1e+10;  // close enough to infinity
+m2 = (float)1e+10;  // close enough to infinity
    
 // compute constants
 a1 = m1;
@@ -1052,7 +1066,7 @@ det_inv = 1/(a1*b2 - a2*b1);
 *xi=((b1*c2 - b2*c1)*det_inv);
 *yi=((a2*c1 - a1*c2)*det_inv);
 } // end Intersect_Lines
- **********************************************************/
+    **********************************************************/
 
-	exit( 1 );
-    }
+    exit( 1 );
+}
