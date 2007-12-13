@@ -47,8 +47,8 @@ dbfdump:	dbfdump.c dbfopen.o safileio.o
 shptest:	shptest.c shpopen.o safileio.o
 	$(CC) $(CFLAGS) shptest.c shpopen.o safileio.o $(LINKOPT) -o shptest
 
-shputils:	shputils.c shpopen.o safileio.o dbfopen.o safileio.o
-	$(CC) $(CFLAGS) shputils.c shpopen.o safileio.o dbfopen.o safileio.o $(LINKOPT) -o shputils
+shputils:	shputils.c shpopen.o safileio.o dbfopen.o 
+	$(CC) $(CFLAGS) shputils.c shpopen.o safileio.o dbfopen.o  $(LINKOPT) -o shputils
 
 shptreedump:	shptreedump.c shptree.o shpopen.o safileio.o
 	$(CC) $(CFLAGS) shptreedump.c shptree.o shpopen.o safileio.o $(LINKOPT) \
