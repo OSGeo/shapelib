@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.1  2007-12-06 06:56:41  fwarmerdam
+ * Revision 1.2  2007-12-15 20:25:30  bram
+ * dbfopen.c now reads the Code Page information from the DBF file, and exports this information as a string through the DBFGetCodePage function.  This is either the number from the LDID header field ("LDID/<number>") or as the content of an accompanying .CPG file.  When creating a DBF file, the code can be set using DBFCreateEx.
+ *
+ * Revision 1.1  2007/12/06 06:56:41  fwarmerdam
  * new
  *
  */
@@ -119,7 +122,19 @@ int SADFFlush( SAFile file )
 int SADFClose( SAFile file )
 
 {
+    if( file == NULL )
+        return;
     return fclose( (FILE *) file );
+}
+
+/************************************************************************/
+/*                             SADFClose()                              */
+/************************************************************************/
+
+int SADRemove( const char *filename )
+
+{
+    return remove( filename );
 }
 
 /************************************************************************/
@@ -146,6 +161,7 @@ void SASetupDefaultHooks( SAHooks *psHooks )
     psHooks->FTell   = SADFTell;
     psHooks->FFlush  = SADFFlush;
     psHooks->FClose  = SADFClose;
+    psHooks->Remove  = SADRemove;
 
     psHooks->Error   = SADError;
 }

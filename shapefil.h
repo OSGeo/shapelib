@@ -37,7 +37,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.40  2007-12-06 07:00:25  fwarmerdam
+ * Revision 1.41  2007-12-15 20:25:32  bram
+ * dbfopen.c now reads the Code Page information from the DBF file, and exports this information as a string through the DBFGetCodePage function.  This is either the number from the LDID header field ("LDID/<number>") or as the content of an accompanying .CPG file.  When creating a DBF file, the code can be set using DBFCreateEx.
+ *
+ * Revision 1.40  2007/12/06 07:00:25  fwarmerdam
  * dbfopen now using SAHooks for fileio
  *
  * Revision 1.39  2007/12/04 20:37:56  fwarmerdam
@@ -195,13 +198,14 @@ typedef unsigned long SAOffset;
 #endif
 
 typedef struct {
-    SAFile     (*FOpen) ( const char *filename, const char *path);
+    SAFile     (*FOpen) ( const char *filename, const char *access);
     SAOffset   (*FRead) ( void *p, SAOffset size, SAOffset nmemb, SAFile file);
     SAOffset   (*FWrite)( void *p, SAOffset size, SAOffset nmemb, SAFile file);
     SAOffset   (*FSeek) ( SAFile file, SAOffset offset, int whence );
     SAOffset   (*FTell) ( SAFile file );
     int        (*FFlush)( SAFile file );
     int        (*FClose)( SAFile file );
+    int        (*Remove) ( const char *filename );
 
     void       (*Error) ( const char *message );
 } SAHooks;
@@ -458,6 +462,9 @@ typedef	struct
     int		bUpdated;
 
     double      dfDoubleField;
+
+    int         iLanguageDriver;
+    char        *pszCodePage;
 } DBFInfo;
 
 typedef DBFInfo * DBFHandle;
@@ -481,7 +488,9 @@ DBFHandle SHPAPI_CALL
 DBFHandle SHPAPI_CALL
       DBFCreate( const char * pszDBFFile );
 DBFHandle SHPAPI_CALL
-      DBFCreateLL( const char * pszDBFFile, SAHooks *psHooks );
+      DBFCreateEx( const char * pszDBFFile, const char * pszCodePage );
+DBFHandle SHPAPI_CALL
+      DBFCreateLL( const char * pszDBFFile, const char * pszCodePage, SAHooks *psHooks );
 
 int	SHPAPI_CALL
       DBFGetFieldCount( DBFHandle psDBF );
@@ -549,6 +558,9 @@ void    SHPAPI_CALL
       DBFUpdateHeader( DBFHandle hDBF );
 char    SHPAPI_CALL
       DBFGetNativeFieldType( DBFHandle hDBF, int iField );
+
+const char SHPAPI_CALL1(*)
+      DBFGetCodePage(DBFHandle psDBF );
 
 #ifdef __cplusplus
 }
