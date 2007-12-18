@@ -34,8 +34,16 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.77  2007-12-15 20:25:21  bram
- * dbfopen.c now reads the Code Page information from the DBF file, and exports this information as a string through the DBFGetCodePage function.  This is either the number from the LDID header field ("LDID/<number>") or as the content of an accompanying .CPG file.  When creating a DBF file, the code can be set using DBFCreateEx.
+ * Revision 1.78  2007-12-18 18:28:07  bram
+ * - create hook for client specific atof (bugzilla ticket 1615)
+ * - check for NULL handle before closing cpCPG file, and close after reading.
+ *
+ * Revision 1.77  2007/12/15 20:25:21  bram
+ * dbfopen.c now reads the Code Page information from the DBF file, and exports
+ * this information as a string through the DBFGetCodePage function.  This is 
+ * either the number from the LDID header field ("LDID/<number>") or as the 
+ * content of an accompanying .CPG file.  When creating a DBF file, the code can
+ * be set using DBFCreateEx.
  *
  * Revision 1.76  2007/12/12 22:21:32  bram
  * DBFClose: check for NULL psDBF handle before trying to close it.
@@ -414,7 +422,7 @@ DBFOpenLL( const char * pszFilename, const char * pszAccess, SAHooks *psHooks )
     if( psDBF->fp == NULL )
     {
         free( psDBF );
-        psHooks->FClose( pfCPG );
+        if( pfCPG ) psHooks->FClose( pfCPG );
         return( NULL );
     }
 
@@ -429,7 +437,7 @@ DBFOpenLL( const char * pszFilename, const char * pszAccess, SAHooks *psHooks )
     if( psDBF->sHooks.FRead( pabyBuf, 32, 1, psDBF->fp ) != 1 )
     {
         psDBF->sHooks.FClose( psDBF->fp );
-        psDBF->sHooks.FClose( pfCPG );
+        if( pfCPG ) psDBF->sHooks.FClose( pfCPG );
         free( pabyBuf );
         free( psDBF );
         return NULL;
@@ -464,6 +472,7 @@ DBFOpenLL( const char * pszFilename, const char * pszAccess, SAHooks *psHooks )
             psDBF->pszCodePage = (char *) malloc(n + 1);
             memcpy( psDBF->pszCodePage, pabyBuf, n + 1 );
         }
+		psDBF->sHooks.FClose( pfCPG );
     }
     if( psDBF->pszCodePage == NULL && pabyBuf[29] != 0 )
     {
@@ -896,7 +905,7 @@ static void *DBFReadAttribute(DBFHandle psDBF, int hEntity, int iField,
 /* -------------------------------------------------------------------- */
     if( chReqType == 'N' )
     {
-        psDBF->dfDoubleField = atof(psDBF->pszWorkField);
+        psDBF->dfDoubleField = psDBF->sHooks.Atof(psDBF->pszWorkField);
 
 	pReturnField = &(psDBF->dfDoubleField);
     }

@@ -37,8 +37,16 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.41  2007-12-15 20:25:32  bram
- * dbfopen.c now reads the Code Page information from the DBF file, and exports this information as a string through the DBFGetCodePage function.  This is either the number from the LDID header field ("LDID/<number>") or as the content of an accompanying .CPG file.  When creating a DBF file, the code can be set using DBFCreateEx.
+ * Revision 1.42  2007-12-18 18:28:14  bram
+ * - create hook for client specific atof (bugzilla ticket 1615)
+ * - check for NULL handle before closing cpCPG file, and close after reading.
+ *
+ * Revision 1.41  2007/12/15 20:25:32  bram
+ * dbfopen.c now reads the Code Page information from the DBF file, and exports
+ * this information as a string through the DBFGetCodePage function.  This is 
+ * either the number from the LDID header field ("LDID/<number>") or as the 
+ * content of an accompanying .CPG file.  When creating a DBF file, the code can
+ * be set using DBFCreateEx.
  *
  * Revision 1.40  2007/12/06 07:00:25  fwarmerdam
  * dbfopen now using SAHooks for fileio
@@ -208,6 +216,7 @@ typedef struct {
     int        (*Remove) ( const char *filename );
 
     void       (*Error) ( const char *message );
+    double     (*Atof)  ( const char *str );
 } SAHooks;
 
 void SHPAPI_CALL SASetupDefaultHooks( SAHooks *psHooks );
