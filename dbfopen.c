@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.78  2007-12-18 18:28:07  bram
+ * Revision 1.79  2007-12-30 14:35:48  fwarmerdam
+ * Avoid char*/unsigned char* warnings.
+ *
+ * Revision 1.78  2007/12/18 18:28:07  bram
  * - create hook for client specific atof (bugzilla ticket 1615)
  * - check for NULL handle before closing cpCPG file, and close after reading.
  *
@@ -465,7 +468,7 @@ DBFOpenLL( const char * pszFilename, const char * pszAccess, SAHooks *psHooks )
         char *buffer = (char *) pabyBuf;
         buffer[0] = '\0';
         psDBF->sHooks.FRead( pabyBuf, nBufSize - 1, 1, pfCPG );
-        n = strcspn( pabyBuf, "\n\r" );
+        n = strcspn( (char *) pabyBuf, "\n\r" );
         if( n > 0 )
         {
             pabyBuf[n] = '\0';
@@ -476,9 +479,9 @@ DBFOpenLL( const char * pszFilename, const char * pszAccess, SAHooks *psHooks )
     }
     if( psDBF->pszCodePage == NULL && pabyBuf[29] != 0 )
     {
-        sprintf( pabyBuf, "LDID/%i", psDBF->iLanguageDriver );
-        psDBF->pszCodePage = (char *) malloc(strlen(pabyBuf) + 1);
-        strcpy( psDBF->pszCodePage, pabyBuf );
+        sprintf( (char *) pabyBuf, "LDID/%d", psDBF->iLanguageDriver );
+        psDBF->pszCodePage = (char *) malloc(strlen((char*)pabyBuf) + 1);
+        strcpy( psDBF->pszCodePage, (char *) pabyBuf );
     }
 
 /* -------------------------------------------------------------------- */
