@@ -34,8 +34,11 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.79  2007-12-30 14:35:48  fwarmerdam
- * Avoid char*/unsigned char* warnings.
+ * Revision 1.80  2007-12-30 14:36:39  fwarmerdam
+ * avoid syntax issue with last comment.
+ *
+ * Revision 1.79  2007/12/30 14:35:48  fwarmerdam
+ * Avoid char* / unsigned char* warnings.
  *
  * Revision 1.78  2007/12/18 18:28:07  bram
  * - create hook for client specific atof (bugzilla ticket 1615)
