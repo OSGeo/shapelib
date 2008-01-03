@@ -34,7 +34,12 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.80  2007-12-30 14:36:39  fwarmerdam
+ * Revision 1.81  2008-01-03 17:48:13  bram
+ * in DBFCreate, use default code page LDID/87 (= 0x57, ANSI)
+ * instead of LDID/3.  This seems to be the same as what ESRI
+ * would be doing by default.
+ *
+ * Revision 1.80  2007/12/30 14:36:39  fwarmerdam
  * avoid syntax issue with last comment.
  *
  * Revision 1.79  2007/12/30 14:35:48  fwarmerdam
@@ -597,14 +602,14 @@ DBFClose(DBFHandle psDBF)
 /************************************************************************/
 /*                             DBFCreate()                              */
 /*                                                                      */
-/*      Create a new .dbf file with default code page LDID/3            */
+/* Create a new .dbf file with default code page LDID/87 (0x57)         */
 /************************************************************************/
 
 DBFHandle SHPAPI_CALL
 DBFCreate( const char * pszFilename )
 
 {
-    return DBFCreateEx( pszFilename, "LDID/3" );
+    return DBFCreateEx( pszFilename, "LDID/87" ); // 0x57
 }
 
 /************************************************************************/

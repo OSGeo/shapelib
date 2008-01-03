@@ -1,8 +1,35 @@
+2008-01-03  Bram de Greve <bram.degreve@bramz.net>
+
+	* dbfopen.c: in DBFCreate, use default code page
+	LDID/87 (= 0x57, ANSI) instead of LDID/3.  This seems 
+	to be the same as what ESRI would be doing by default.
+
 2007-12-30  Frank Warmerdam  <warmerdam@pobox.com>
 
 	* shpadd.c/shpcreate.c: Add support for z and m files.
 
 	* Massive overhaul to use hooks for file io, etc. 
+
+2007-12-18  Bram de Greve <bram.degreve@bramz.net>
+
+	* dbfopen.c/shapefil.h/safileio.c:  create hook for client 
+	specific atof http://bugzilla.maptools.org/show_bug.cgi?id=1615
+	
+	* dbfopen.c: check for NULL handle before closing cpCPG file, 
+	and close after reading.
+
+2007-12-15  Bram de Greve <bram.degreve@bramz.net>
+
+	* dbfopen.c/shapefil.h/safileio.c: read the Code Page information 
+	from the DBF file, and exports this information as a string through 
+	the DBFGetCodePage function.  This is either the number from the LDID
+	header field ("LDID/<number>") or as the content of an accompanying 
+	.CPG file.	When creating a DBF file, the code can be set using 
+	DBFCreateEx.
+
+2007-12-12  Bram de Greve <bram.degreve@bramz.net>
+
+	* dbfopen.c: check for NULL handle in DBFClose.
 
 2007-11-21  Frank Warmerdam  <warmerdam@pobox.com>
 
