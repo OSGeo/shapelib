@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.57  2007-12-06 07:00:25  fwarmerdam
+ * Revision 1.58  2008-01-08 23:28:26  bram
+ * on line 2095, use a float instead of a double to avoid a compiler warning
+ *
+ * Revision 1.57  2007/12/06 07:00:25  fwarmerdam
  * dbfopen now using SAHooks for fileio
  *
  * Revision 1.56  2007/12/04 20:37:56  fwarmerdam
@@ -2092,7 +2095,7 @@ SHPRewindObject( SHPHandle hSHP, SHPObject * psObject )
                     /* Rule #2:
                     * Test if edge-ray intersection is on the right from the test point (dfTestY,dfTestY)
                     */
-                    float const intersect = 
+                    double const intersect = 
                         ( psObject->padfX[iEdge+nVertStart]
                           + ( dfTestY - psObject->padfY[iEdge+nVertStart] ) 
                           / ( psObject->padfY[iNext+nVertStart] - psObject->padfY[iEdge+nVertStart] )
