@@ -1,5 +1,5 @@
-#ifndef _SHAPEFILE_H_INCLUDED
-#define _SHAPEFILE_H_INCLUDED
+#ifndef SHAPEFILE_H_INCLUDED
+#define SHAPEFILE_H_INCLUDED
 
 /******************************************************************************
  * $Id$
@@ -37,7 +37,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.42  2007-12-18 18:28:14  bram
+ * Revision 1.43  2008-01-10 16:35:30  fwarmerdam
+ * avoid _ prefix on #defined symbols (bug 1840)
+ *
+ * Revision 1.42  2007/12/18 18:28:14  bram
  * - create hook for client specific atof (bugzilla ticket 1615)
  * - check for NULL handle before closing cpCPG file, and close after reading.
  *
@@ -575,4 +578,4 @@ const char SHPAPI_CALL1(*)
 }
 #endif
 
-#endif /* ndef _SHAPEFILE_H_INCLUDED */
+#endif /* ndef SHAPEFILE_H_INCLUDED */
