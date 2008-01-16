@@ -37,7 +37,13 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.43  2008-01-10 16:35:30  fwarmerdam
+ * Revision 1.44  2008-01-16 20:05:19  bram
+ * Add file hooks that accept UTF-8 encoded filenames on some platforms.  Use SASetupUtf8Hooks
+ *  tosetup the hooks and check SHPAPI_UTF8_HOOKS for its availability.  Currently, this
+ *  is only available on the Windows platform that decodes the UTF-8 filenames to wide
+ *  character strings and feeds them to _wfopen and _wremove.
+ *
+ * Revision 1.43  2008/01/10 16:35:30  fwarmerdam
  * avoid _ prefix on #defined symbols (bug 1840)
  *
  * Revision 1.42  2007/12/18 18:28:14  bram
@@ -198,7 +204,16 @@ static char *cvsid_aw() { return( cvsid_aw() ? ((char *) NULL) : cpl_cvsid ); }
 #else
 #  define SHP_CVSID(string)
 #endif
-    
+
+/* -------------------------------------------------------------------- */
+/*      On some platforms, additional file IO hooks are defined that    */
+/*      UTF-8 encoded filenames Unicode filenames                       */
+/* -------------------------------------------------------------------- */
+#if defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
+#	define SHPAPI_WINDOWS
+#	define SHPAPI_UTF8_HOOKS
+#endif
+
 /* -------------------------------------------------------------------- */
 /*      IO/Error hook functions.                                        */
 /* -------------------------------------------------------------------- */
@@ -223,6 +238,9 @@ typedef struct {
 } SAHooks;
 
 void SHPAPI_CALL SASetupDefaultHooks( SAHooks *psHooks );
+#ifdef SHPAPI_UTF8_HOOKS
+void SHPAPI_CALL SASetupUtf8Hooks( SAHooks *psHooks );
+#endif
 
 /************************************************************************/
 /*                             SHP Support.                             */
