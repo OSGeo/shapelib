@@ -1,9 +1,8 @@
-PROJ_DIR = 	D:\warmerda\proj
 
-CFLAGS	=	/I.. /I$(PROJ_DIR)\src /D_LITTLE_ENDIAN -DPROJ4 
+CFLAGS	=	/Ox /MD /nologo /I.. /IC:\OSGeo4W\include \
+		/D_LITTLE_ENDIAN -DPROJ4 
 
-LINKARGS =	shpgeo.obj ..\shpopen.obj ..\dbfopen.obj \
-		D:\warmerda\proj\src\proj_i.lib
+LINKARGS =	..\shapelib_i.lib C:\OSGeo4W\lib\proj_i.lib
 
 default:	all
 
@@ -13,10 +12,10 @@ shpcat.exe:	shpcat.obj shpgeo.obj
 	$(CC) $(CFLAGS) shpcat.obj  $(LINKARGS) 
 
 shpcentrd.exe:	shpcentrd.obj shpgeo.obj 
-	$(CC) $(CFLAGS) shpcentrd.obj  $(LINKARGS) 
+	$(CC) $(CFLAGS) shpcentrd.obj  shpgeo.obj $(LINKARGS) 
 
 shpproj.exe:	shpproj.obj shpgeo.obj 
-	$(CC) $(CFLAGS) shpproj.obj  $(LINKARGS) 
+	$(CC) $(CFLAGS) shpproj.obj shpgeo.obj $(LINKARGS) 
 
 shpdxf.exe:	shpdxf.obj shpgeo.obj 
 	$(CC) $(CFLAGS) shpdxf.obj  $(LINKARGS) 
@@ -25,5 +24,6 @@ shpinfo.exe:	shpinfo.obj shpgeo.obj
 	$(CC) $(CFLAGS) shpinfo.obj  $(LINKARGS) 
 
 clean:
-	del *.obj *.exe
-
+	-del *.obj
+	-del *.exe
+	-del *.manifest
