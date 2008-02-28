@@ -1,10 +1,17 @@
 
 #CFLAGS	=	/DSHPAPI_CALL=__stdcall
+CFLAGS =	/nologo /Ox /MD /DSHAPELIB_DLLEXPORT
 
-default:	all
+IMPORT_LIB	= shapelib_i.lib
+STATIC_LIB	= shapelib.lib
+DLLNAME 	= shapelib.dll
+LINK_LIB 	= $(IMPORT_LIB)
 
-all:	shpcreate.exe shpadd.exe shpdump.exe shprewind.exe dbfcreate.exe \
-	dbfadd.exe dbfdump.exe shptest.exe shptreedump.exe shapelib.dll
+OBJ 		= shpopen.obj dbfopen.obj shptree.obj safileio.obj 
+
+all:	$(STATIC_LIB) $(DLLNAME) \
+	shpcreate.exe shpadd.exe shpdump.exe shprewind.exe dbfcreate.exe \
+	dbfadd.exe dbfdump.exe shptest.exe shptreedump.exe
 
 shpopen.obj:	shpopen.c shapefil.h
 	$(CC) $(CFLAGS) -c shpopen.c
@@ -15,41 +22,51 @@ shptree.obj:	shptree.c shapefil.h
 dbfopen.obj:	dbfopen.c shapefil.h
 	$(CC) $(CFLAGS) -c dbfopen.c
 
-shpcreate.exe:	shpcreate.c shpopen.obj
-	$(CC) $(CFLAGS) shpcreate.c shpopen.obj $(LINKOPT) -o shpcreate
+safileio.obj:	safileio.c shapefil.h
+	$(CC) $(CFLAGS) -c safileio.c
 
-shpadd.exe:		shpadd.c shpopen.obj
-	$(CC) $(CFLAGS) shpadd.c shpopen.obj $(LINKOPT)
+shpcreate.exe:	shpcreate.c $(LINK_LIB)
+	$(CC) $(CFLAGS) shpcreate.c $(LINK_LIB) $(LINKOPT)
 
-shpdump.exe:	shpdump.c shpopen.obj
-	$(CC) $(CFLAGS) shpdump.c shpopen.obj $(LINKOPT)
+shpadd.exe:		shpadd.c $(LINK_LIB)
+	$(CC) $(CFLAGS) shpadd.c $(LINK_LIB) $(LINKOPT)
 
-shprewind.exe:	shprewind.c shpopen.obj
-	$(CC) $(CFLAGS) shprewind.c shpopen.obj $(LINKOPT)
+shpdump.exe:	shpdump.c $(LINK_LIB)
+	$(CC) $(CFLAGS) shpdump.c $(LINK_LIB) $(LINKOPT)
 
-dbfcreate.exe:	dbfcreate.c dbfopen.obj
-	$(CC) $(CFLAGS) dbfcreate.c dbfopen.obj $(LINKOPT)
+shprewind.exe:	shprewind.c $(LINK_LIB)
+	$(CC) $(CFLAGS) shprewind.c $(LINK_LIB) $(LINKOPT)
 
-dbfadd.exe:	dbfadd.c dbfopen.obj
-	$(CC) $(CFLAGS) dbfadd.c dbfopen.obj $(LINKOPT)
+dbfcreate.exe:	dbfcreate.c $(LINK_LIB)
+	$(CC) $(CFLAGS) dbfcreate.c $(LINK_LIB) $(LINKOPT)
 
-dbfdump.exe:	dbfdump.c dbfopen.obj
-	$(CC) $(CFLAGS) dbfdump.c dbfopen.obj $(LINKOPT)
+dbfadd.exe:	dbfadd.c $(LINK_LIB)
+	$(CC) $(CFLAGS) dbfadd.c $(LINK_LIB) $(LINKOPT)
 
-shptest.exe:	shptest.c shpopen.obj
-	$(CC) $(CFLAGS) shptest.c shpopen.obj $(LINKOPT)
+dbfdump.exe:	dbfdump.c $(LINK_LIB)
+	$(CC) $(CFLAGS) dbfdump.c $(LINK_LIB) $(LINKOPT)
 
-shputils.exe:	shputils.c shpopen.obj dbfopen.obj
-	$(CC) $(CFLAGS) shputils.c shpopen.obj dbfopen.obj $(LINKOPT) 
+shptest.exe:	shptest.c $(LINK_LIB)
+	$(CC) $(CFLAGS) shptest.c $(LINK_LIB) $(LINKOPT)
 
-shptreedump.exe:	shptreedump.c shptree.obj shpopen.obj
-	$(CC) $(CFLAGS) shptreedump.c shptree.obj shpopen.obj $(LINKOPT)
+shputils.exe:	shputils.c $(LINK_LIB)
+	$(CC) $(CFLAGS) shputils.c $(LINK_LIB) $(LINKOPT) 
+
+shptreedump.exe:	shptreedump.c $(LINK_LIB)
+	$(CC) $(CFLAGS) shptreedump.c $(LINK_LIB) $(LINKOPT)
 
 clean:
-	-del *.obj dbfdump dbfcreate dbfadd shpdump shpcreate shpadd shputils
+	-del *.obj 
+	-del *.exe
 	-del *.lib
 	-del *.dll
+	-del *.manifest
 
-shapelib.dll:    shpopen.obj dbfopen.obj shptree.obj shapelib.def
-	link /dll /def:shapelib.def /out:shapelib.dll /implib:shapelib.lib \
-		shpopen.obj dbfopen.obj shptree.obj 
+$(STATIC_LIB):	$(OBJ)
+	lib /nologo /out:$(STATIC_LIB) $(OBJ)
+
+$(IMPORT_LIB):	$(DLLNAME)
+
+$(DLLNAME):     $(OBJ)
+	link /nologo /dll /out:$(DLLNAME) /implib:$(IMPORT_LIB) $(OBJ)
+	if exist $(DLLNAME).manifest mt /nologo -manifest $(DLLNAME).manifest -outputresource:$(DLLNAME);2
