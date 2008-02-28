@@ -27,33 +27,47 @@ safileio.obj:	safileio.c shapefil.h
 
 shpcreate.exe:	shpcreate.c $(LINK_LIB)
 	$(CC) $(CFLAGS) shpcreate.c $(LINK_LIB) $(LINKOPT)
+	if exist $@.manifest mt -manifest $@.manifest -outputresource:$@;1
 
 shpadd.exe:		shpadd.c $(LINK_LIB)
 	$(CC) $(CFLAGS) shpadd.c $(LINK_LIB) $(LINKOPT)
+	if exist $@.manifest mt -manifest $@.manifest -outputresource:$@;1
 
 shpdump.exe:	shpdump.c $(LINK_LIB)
 	$(CC) $(CFLAGS) shpdump.c $(LINK_LIB) $(LINKOPT)
+	if exist $@.manifest mt -manifest $@.manifest -outputresource:$@;1
 
 shprewind.exe:	shprewind.c $(LINK_LIB)
 	$(CC) $(CFLAGS) shprewind.c $(LINK_LIB) $(LINKOPT)
+	if exist $@.manifest mt -manifest $@.manifest -outputresource:$@;1
 
 dbfcreate.exe:	dbfcreate.c $(LINK_LIB)
 	$(CC) $(CFLAGS) dbfcreate.c $(LINK_LIB) $(LINKOPT)
+	if exist $@.manifest mt -manifest $@.manifest -outputresource:$@;1
 
 dbfadd.exe:	dbfadd.c $(LINK_LIB)
 	$(CC) $(CFLAGS) dbfadd.c $(LINK_LIB) $(LINKOPT)
+	if exist $@.manifest mt -manifest $@.manifest -outputresource:$@;1
 
 dbfdump.exe:	dbfdump.c $(LINK_LIB)
 	$(CC) $(CFLAGS) dbfdump.c $(LINK_LIB) $(LINKOPT)
+	if exist $@.manifest mt -manifest $@.manifest -outputresource:$@;1
 
 shptest.exe:	shptest.c $(LINK_LIB)
 	$(CC) $(CFLAGS) shptest.c $(LINK_LIB) $(LINKOPT)
+	if exist $@.manifest mt -manifest $@.manifest -outputresource:$@;1
 
 shputils.exe:	shputils.c $(LINK_LIB)
 	$(CC) $(CFLAGS) shputils.c $(LINK_LIB) $(LINKOPT) 
+	if exist $@.manifest mt -manifest $@.manifest -outputresource:$@;1
 
 shptreedump.exe:	shptreedump.c $(LINK_LIB)
 	$(CC) $(CFLAGS) shptreedump.c $(LINK_LIB) $(LINKOPT)
+	if exist $@.manifest mt -manifest $@.manifest -outputresource:$@;1
+
+shpdiff.exe:	shpdiff.c $(LINK_LIB)
+	$(CC) $(CFLAGS) shpdiff.c $(LINK_LIB) $(LINKOPT)
+	if exist $@.manifest mt -manifest $@.manifest -outputresource:$@;1
 
 clean:
 	-del *.obj 
