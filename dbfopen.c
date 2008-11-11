@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.81  2008-01-03 17:48:13  bram
+ * Revision 1.82  2008-11-11 17:47:09  fwarmerdam
+ * added DBFDeleteField() function
+ *
+ * Revision 1.81  2008/01/03 17:48:13  bram
  * in DBFCreate, use default code page LDID/87 (= 0x57, ANSI)
  * instead of LDID/3.  This seems to be the same as what ESRI
  * would be doing by default.
@@ -1701,4 +1704,112 @@ DBFGetCodePage(DBFHandle psDBF )
     if( psDBF == NULL )
         return NULL;
     return psDBF->pszCodePage;
+}
+
+/************************************************************************/
+/*                          DBFDeleteField()                            */
+/*                                                                      */
+/*      Remove a field from a .dbf file                                 */
+/************************************************************************/
+
+int SHPAPI_CALL
+DBFDeleteField(DBFHandle psDBF, int iField)
+{
+    int nOldRecordLength, nOldHeaderLength;
+    int nDeletedFieldOffset, nDeletedFieldSize;
+    SAOffset nRecordOffset;
+    char* pszRecord;
+    int i, iRecord;
+
+    if (iField < 0 || iField >= psDBF->nFields)
+        return FALSE;
+
+    /* make sure that everything is written in .dbf */
+    if( !DBFFlushRecord( psDBF ) )
+        return FALSE;
+
+    /* get information about field to be deleted */
+    nOldRecordLength = psDBF->nRecordLength;
+    nOldHeaderLength = psDBF->nHeaderLength;
+    nDeletedFieldOffset = psDBF->panFieldOffset[iField];
+    nDeletedFieldSize = psDBF->panFieldSize[iField];
+
+    /* update fields info */
+    for (i = iField + 1; i < psDBF->nFields; i++)
+    {
+        psDBF->panFieldOffset[i-1] = psDBF->panFieldOffset[i] - nDeletedFieldSize;
+        psDBF->panFieldSize[i-1] = psDBF->panFieldSize[i];
+        psDBF->panFieldDecimals[i-1] = psDBF->panFieldDecimals[i];
+        psDBF->pachFieldType[i-1] = psDBF->pachFieldType[i];
+    }
+
+    /* resize fields arrays */
+    psDBF->nFields--;
+
+    psDBF->panFieldOffset = (int *) 
+        SfRealloc( psDBF->panFieldOffset, sizeof(int) * psDBF->nFields );
+
+    psDBF->panFieldSize = (int *) 
+        SfRealloc( psDBF->panFieldSize, sizeof(int) * psDBF->nFields );
+
+    psDBF->panFieldDecimals = (int *) 
+        SfRealloc( psDBF->panFieldDecimals, sizeof(int) * psDBF->nFields );
+
+    psDBF->pachFieldType = (char *) 
+        SfRealloc( psDBF->pachFieldType, sizeof(char) * psDBF->nFields );
+
+    /* update header information */
+    psDBF->nHeaderLength -= 32;
+    psDBF->nRecordLength -= nDeletedFieldSize;
+
+    /* overwrite field information in header */
+    memcpy(psDBF->pszHeader + iField*32,
+           psDBF->pszHeader + (iField+1)*32,
+           sizeof(char) * (psDBF->nFields - iField)*32);
+
+    psDBF->pszHeader = (char *) SfRealloc(psDBF->pszHeader,psDBF->nFields*32);
+
+    /* update size of current record appropriately */
+    psDBF->pszCurrentRecord = (char *) SfRealloc(psDBF->pszCurrentRecord,
+                                                 psDBF->nRecordLength);
+
+    /* we're done if we're dealing with not yet created .dbf */
+    if ( psDBF->bNoHeader && psDBF->nRecords == 0 )
+        return TRUE;
+
+    /* force update of header with new header and record length */
+    psDBF->bNoHeader = TRUE;
+    DBFUpdateHeader( psDBF );
+
+    /* alloc record */
+    pszRecord = (char *) malloc(sizeof(char) * nOldRecordLength);
+
+    /* shift records to their new positions */
+    for (iRecord = 0; iRecord < psDBF->nRecords; iRecord++)
+    {
+        nRecordOffset = 
+            nOldRecordLength * (SAOffset) iRecord + nOldHeaderLength;
+
+        /* load record */
+        psDBF->sHooks.FSeek( psDBF->fp, nRecordOffset, 0 );
+        psDBF->sHooks.FRead( pszRecord, nOldRecordLength, 1, psDBF->fp );
+
+        nRecordOffset = 
+            psDBF->nRecordLength * (SAOffset) iRecord + psDBF->nHeaderLength;
+
+        /* move record in two steps */
+        psDBF->sHooks.FSeek( psDBF->fp, nRecordOffset, 0 );
+        psDBF->sHooks.FWrite( pszRecord, nDeletedFieldOffset, 1, psDBF->fp );
+        psDBF->sHooks.FWrite( pszRecord + nDeletedFieldOffset + nDeletedFieldSize,
+                              nOldRecordLength - nDeletedFieldOffset - nDeletedFieldSize,
+                              1, psDBF->fp );
+
+    }
+
+    /* TODO: truncate file */
+
+    /* free record */
+    free(pszRecord);
+
+    return TRUE;
 }

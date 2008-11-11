@@ -37,7 +37,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.44  2008-01-16 20:05:19  bram
+ * Revision 1.45  2008-11-11 17:47:10  fwarmerdam
+ * added DBFDeleteField() function
+ *
+ * Revision 1.44  2008/01/16 20:05:19  bram
  * Add file hooks that accept UTF-8 encoded filenames on some platforms.  Use SASetupUtf8Hooks
  *  tosetup the hooks and check SHPAPI_UTF8_HOOKS for its availability.  Currently, this
  *  is only available on the Windows platform that decodes the UTF-8 filenames to wide
@@ -533,6 +536,9 @@ int	SHPAPI_CALL
 int	SHPAPI_CALL
       DBFAddNativeFieldType( DBFHandle hDBF, const char * pszFieldName,
                              char chType, int nWidth, int nDecimals );
+
+int	SHPAPI_CALL
+      DBFDeleteField( DBFHandle hDBF, int iField );
 
 DBFFieldType SHPAPI_CALL
       DBFGetFieldInfo( DBFHandle psDBF, int iField, 
