@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.11  2007-10-27 03:31:14  fwarmerdam
+ * Revision 1.12  2008-11-12 15:39:50  fwarmerdam
+ * improve safety in face of buggy .shp file.
+ *
+ * Revision 1.11  2007/10/27 03:31:14  fwarmerdam
  * limit default depth of tree to 12 levels (gdal ticket #1594)
  *
  * Revision 1.10  2005/01/03 22:30:13  fwarmerdam
@@ -259,8 +262,11 @@ SHPCreateTree( SHPHandle hSHP, int nDimension, int nMaxDepth,
             SHPObject	*psShape;
             
             psShape = SHPReadObject( hSHP, iShape );
-            SHPTreeAddShapeId( psTree, psShape );
-            SHPDestroyObject( psShape );
+            if( psShape != NULL )
+            {
+                SHPTreeAddShapeId( psTree, psShape );
+                SHPDestroyObject( psShape );
+            }
         }
     }        
 
