@@ -37,7 +37,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.45  2008-11-11 17:47:10  fwarmerdam
+ * Revision 1.46  2008-11-12 14:28:15  fwarmerdam
+ * DBFCreateField() now works on files with records
+ *
+ * Revision 1.45  2008/11/11 17:47:10  fwarmerdam
  * added DBFDeleteField() function
  *
  * Revision 1.44  2008/01/16 20:05:19  bram
@@ -127,6 +130,7 @@
 
 #ifdef USE_CPL
 #include "cpl_error.h"
+#include "cpl_vsi.h"
 #endif
 
 #ifdef __cplusplus

@@ -34,7 +34,10 @@
  ******************************************************************************
  *
  * $Log$
- * Revision 1.82  2008-11-11 17:47:09  fwarmerdam
+ * Revision 1.83  2008-11-12 14:28:15  fwarmerdam
+ * DBFCreateField() now works on files with records
+ *
+ * Revision 1.82  2008/11/11 17:47:09  fwarmerdam
  * added DBFDeleteField() function
  *
  * Revision 1.81  2008/01/03 17:48:13  bram
@@ -742,8 +745,7 @@ DBFCreateLL( const char * pszFilename, const char * pszCodePage, SAHooks *psHook
 /************************************************************************/
 /*                            DBFAddField()                             */
 /*                                                                      */
-/*      Add a field to a newly created .dbf file before any records     */
-/*      are written.                                                    */
+/*      Add a field to a newly created .dbf or to an existing one       */
 /************************************************************************/
 
 int SHPAPI_CALL
@@ -778,21 +780,22 @@ DBFAddNativeFieldType(DBFHandle psDBF, const char * pszFieldName,
 {
     char	*pszFInfo;
     int		i;
+    int         nOldRecordLength, nOldHeaderLength;
+    char        *pszRecord;
+    char        chFieldFill;
+    SAOffset    nRecordOffset;
 
 /* -------------------------------------------------------------------- */
 /*      Do some checking to ensure we can add records to this file.     */
 /* -------------------------------------------------------------------- */
-    if( psDBF->nRecords > 0 )
-        return( -1 );
-
-    if( !psDBF->bNoHeader )
-        return( -1 );
-
     if( nWidth < 1 )
         return -1;
 
     if( nWidth > 255 )
         nWidth = 255;
+
+    nOldRecordLength = psDBF->nRecordLength;
+    nOldHeaderLength = psDBF->nHeaderLength;
 
 /* -------------------------------------------------------------------- */
 /*      SfRealloc all the arrays larger to hold the additional field      */
@@ -857,6 +860,59 @@ DBFAddNativeFieldType(DBFHandle psDBF, const char * pszFieldName,
 /* -------------------------------------------------------------------- */
     psDBF->pszCurrentRecord = (char *) SfRealloc(psDBF->pszCurrentRecord,
                                                  psDBF->nRecordLength);
+
+    /* we're done if dealing with new .dbf */
+    if( psDBF->bNoHeader )
+        return( psDBF->nFields - 1 );
+
+/* -------------------------------------------------------------------- */
+/*      For existing .dbf file, shift records                           */
+/* -------------------------------------------------------------------- */
+
+    /* alloc record */
+    pszRecord = (char *) malloc(sizeof(char) * psDBF->nRecordLength);
+
+    switch (chType)
+    {
+      case 'N':
+      case 'F':
+        chFieldFill = '*';
+        break;
+      case 'D':
+        chFieldFill = '0';
+        break;
+      case 'L':
+       chFieldFill = '?';
+       break;
+      default:
+       chFieldFill = ' ';
+       break;
+    }
+
+    for (i = psDBF->nRecords-1; i >= 0; --i)
+    {
+        nRecordOffset = nOldRecordLength * (SAOffset) i + nOldHeaderLength;
+
+        /* load record */
+        psDBF->sHooks.FSeek( psDBF->fp, nRecordOffset, 0 );
+        psDBF->sHooks.FRead( pszRecord, nOldRecordLength, 1, psDBF->fp );
+
+        /* set new field's value to NULL */
+        memset(pszRecord + nOldRecordLength, chFieldFill, nWidth);
+
+        nRecordOffset = psDBF->nRecordLength * (SAOffset) i + psDBF->nHeaderLength;
+
+        /* move record to the new place*/
+        psDBF->sHooks.FSeek( psDBF->fp, nRecordOffset, 0 );
+        psDBF->sHooks.FWrite( pszRecord, psDBF->nRecordLength, 1, psDBF->fp );
+    }
+
+    /* free record */
+    free(pszRecord);
+
+    /* force update of header with new header, record length and new field */
+    psDBF->bNoHeader = TRUE;
+    DBFUpdateHeader( psDBF );
 
     return( psDBF->nFields-1 );
 }
