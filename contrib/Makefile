@@ -5,13 +5,13 @@
 # Endian: define either _LITTLE_ENDIAN or _BIG_ENDIAN
 ENDIAN	=	-D_LITTLE_ENDIAN
 
-CFLAGS	=	-g -I.. -DPROJ4 $(ENDIAN) -DDEBUG -DDEBUG2 
+CFLAGS	=	-g -I.. -I$(HOME)/bld/include -DPROJ4 $(ENDIAN) -DDEBUG -DDEBUG2 
 
-SHPOBJ	=	../shpopen.o ../dbfopen.o 
+SHPOBJ	=	../shpopen.o ../dbfopen.o ../safileio.o
 
-SHPGOBJ =	../shpopen.o ../dbfopen.o shpgeo.o
+SHPGOBJ =	../shpopen.o ../dbfopen.o ../safileio.o shpgeo.o
 
-GEOOBJ	=	./shpgeo.o -lm -lproj
+GEOOBJ	=	./shpgeo.o -lm -L$(HOME)/bld/lib -lproj
 
 default:	all
 
