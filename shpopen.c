@@ -34,6 +34,9 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.61  2010-01-16 05:07:42  fwarmerdam
+ * allow 0/nulls in shpcreateobject (#2148)
+ *
  * Revision 1.60  2009-09-17 20:50:02  bram
  * on Win32, define snprintf as alias to _snprintf
  *
@@ -1049,7 +1052,7 @@ SHPCreateObject( int nSHPType, int nShapeId, int nParts,
         psObject->nParts = MAX(1,nParts);
 
         psObject->panPartStart = (int *)
-            malloc(sizeof(int) * psObject->nParts);
+            calloc(sizeof(int), psObject->nParts);
         psObject->panPartType = (int *)
             malloc(sizeof(int) * psObject->nParts);
 
@@ -1058,7 +1061,8 @@ SHPCreateObject( int nSHPType, int nShapeId, int nParts,
         
         for( i = 0; i < nParts; i++ )
         {
-            psObject->panPartStart[i] = panPartStart[i];
+            if( psObject->panPartStart != NULL )
+                psObject->panPartStart[i] = panPartStart[i];
 
             if( panPartType != NULL )
                 psObject->panPartType[i] = panPartType[i];
@@ -1071,8 +1075,7 @@ SHPCreateObject( int nSHPType, int nShapeId, int nParts,
     }
 
 /* -------------------------------------------------------------------- */
-/*      Capture vertices.  Note that Z and M are optional, but X and    */
-/*      Y are not.                                                      */
+/*      Capture vertices.  Note that X, Y, Z and M are optional.        */
 /* -------------------------------------------------------------------- */
     if( nVertices > 0 )
     {
@@ -1086,8 +1089,10 @@ SHPCreateObject( int nSHPType, int nShapeId, int nParts,
     
         for( i = 0; i < nVertices; i++ )
         {
-            psObject->padfX[i] = padfX[i];
-            psObject->padfY[i] = padfY[i];
+            if( padfX != NULL )
+                psObject->padfX[i] = padfX[i];
+            if( padfY != NULL )
+                psObject->padfY[i] = padfY[i];
             if( padfZ != NULL && bHasZ )
                 psObject->padfZ[i] = padfZ[i];
             if( padfM != NULL && bHasM )
