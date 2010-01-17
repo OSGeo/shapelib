@@ -34,6 +34,9 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.62  2010-01-17 05:34:13  fwarmerdam
+ * Remove asserts on x/y being null (#2148).
+ *
  * Revision 1.61  2010-01-16 05:07:42  fwarmerdam
  * allow 0/nulls in shpcreateobject (#2148)
  *
@@ -1084,9 +1087,6 @@ SHPCreateObject( int nSHPType, int nShapeId, int nParts,
         psObject->padfZ = (double *) calloc(sizeof(double),nVertices);
         psObject->padfM = (double *) calloc(sizeof(double),nVertices);
 
-        assert( padfX != NULL );
-        assert( padfY != NULL );
-    
         for( i = 0; i < nVertices; i++ )
         {
             if( padfX != NULL )
