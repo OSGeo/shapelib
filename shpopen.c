@@ -34,6 +34,9 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.63  2010-01-28 04:04:40  fwarmerdam
+ * improve numerical accuracy of SHPRewind() algs (gdal #3363)
+ *
  * Revision 1.62  2010-01-17 05:34:13  fwarmerdam
  * Remove asserts on x/y being null (#2148).
  *
@@ -2239,15 +2242,16 @@ SHPRewindObject( SHPHandle hSHP, SHPObject * psObject )
             nVertCount = psObject->panPartStart[iOpRing+1] 
                 - psObject->panPartStart[iOpRing];
 
-        dfSum = 0.0;
-        for( iVert = nVertStart; iVert < nVertStart+nVertCount-1; iVert++ )
+        if (nVertCount < 2)
+            continue;
+
+        dfSum = psObject->padfX[nVertStart] * (psObject->padfY[nVertStart+1] - psObject->padfY[nVertStart+nVertCount-1]);
+        for( iVert = nVertStart + 1; iVert < nVertStart+nVertCount-1; iVert++ )
         {
-            dfSum += psObject->padfX[iVert] * psObject->padfY[iVert+1]
-                - psObject->padfY[iVert] * psObject->padfX[iVert+1];
+            dfSum += psObject->padfX[iVert] * (psObject->padfY[iVert+1] - psObject->padfY[iVert-1]);
         }
 
-        dfSum += psObject->padfX[iVert] * psObject->padfY[nVertStart]
-               - psObject->padfY[iVert] * psObject->padfX[nVertStart];
+        dfSum += psObject->padfX[iVert] * (psObject->padfY[nVertStart] - psObject->padfY[iVert-1]);
 
 /* -------------------------------------------------------------------- */
 /*      Reverse if necessary.                                           */
