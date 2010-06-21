@@ -34,6 +34,9 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.16  2010-06-21 20:41:52  fwarmerdam
+ * reformat white space
+ *
  * Revision 1.15  2007-12-30 16:57:32  fwarmerdam
  * add support for z and m
  *
@@ -99,14 +102,14 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
     if( argc < 2 )
     {
-	printf( "shpadd shp_file [[x y] [+]]*\n" );
+        printf( "shpadd shp_file [[x y] [+]]*\n" );
         printf( "  or\n" );
-	printf( "shpadd shp_file -m [[x y m] [+]]*\n" );
+        printf( "shpadd shp_file -m [[x y m] [+]]*\n" );
         printf( "  or\n" );
-	printf( "shpadd shp_file -z [[x y z] [+]]*\n" );
+        printf( "shpadd shp_file -z [[x y z] [+]]*\n" );
         printf( "  or\n" );
-	printf( "shpadd shp_file -zm [[x y z m] [+]]*\n" );
-	exit( 1 );
+        printf( "shpadd shp_file -zm [[x y z m] [+]]*\n" );
+        exit( 1 );
     }
 
     filename = argv[1];
@@ -133,8 +136,8 @@ int main( int argc, char ** argv )
 
     if( hSHP == NULL )
     {
-	printf( "Unable to open:%s\n", filename );
-	exit( 1 );
+        printf( "Unable to open:%s\n", filename );
+        exit( 1 );
     }
 
     SHPGetInfo( hSHP, NULL, &nShapeType, NULL, NULL );
@@ -167,13 +170,13 @@ int main( int argc, char ** argv )
 
     for( i = 1; i < argc;  )
     {
-	if( argv[i][0] == '+' )
-	{
-	    panParts[nParts++] = nVertices;
-	    i++;
-	}
-	else if( i < argc-1-strlen(tuple) )
-	{
+        if( argv[i][0] == '+' )
+        {
+            panParts[nParts++] = nVertices;
+            i++;
+        }
+        else if( i < argc-1-strlen(tuple) )
+        {
             if( nVertices == nVMax )
             {
                 nVMax = nVMax * 2;
@@ -185,15 +188,15 @@ int main( int argc, char ** argv )
                     padfM = (double *) realloc(padfM,sizeof(double)*nVMax);
             }
 
-	    sscanf( argv[i++], "%lg", padfX+nVertices );
-	    sscanf( argv[i++], "%lg", padfY+nVertices );
+            sscanf( argv[i++], "%lg", padfX+nVertices );
+            sscanf( argv[i++], "%lg", padfY+nVertices );
             if( padfZ )
                 sscanf( argv[i++], "%lg", padfZ+nVertices );
             if( padfM )
                 sscanf( argv[i++], "%lg", padfM+nVertices );
                 
-	    nVertices += 1;
-	}
+            nVertices += 1;
+        }
     }
 
 /* -------------------------------------------------------------------- */
