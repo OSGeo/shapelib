@@ -34,6 +34,9 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.13  2010-06-29 05:50:15  fwarmerdam
+ * fix sign of Z/M comparisons in SHPCheckObjectContained (#2223)
+ *
  * Revision 1.12  2008-11-12 15:39:50  fwarmerdam
  * improve safety in face of buggy .shp file.
  *
@@ -367,14 +370,14 @@ static int SHPCheckObjectContained( SHPObject * psObject, int nDimension,
         return TRUE;
     
     if( psObject->dfZMin < padfBoundsMin[2]
-        || psObject->dfZMax < padfBoundsMax[2] )
+        || psObject->dfZMax > padfBoundsMax[2] )
         return FALSE;
         
     if( nDimension == 3 )
         return TRUE;
 
     if( psObject->dfMMin < padfBoundsMin[3]
-        || psObject->dfMMax < padfBoundsMax[3] )
+        || psObject->dfMMax > padfBoundsMax[3] )
         return FALSE;
 
     return TRUE;
