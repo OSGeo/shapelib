@@ -35,6 +35,9 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.17  2010-07-01 07:33:04  fwarmerdam
+ * do not crash in shpdump if null object returned
+ *
  * Revision 1.16  2010-07-01 07:27:13  fwarmerdam
  * white space formatting adjustments
  *
@@ -159,6 +162,14 @@ int main( int argc, char ** argv )
         SHPObject	*psShape;
 
         psShape = SHPReadObject( hSHP, i );
+
+        if( psShape == NULL )
+        {
+            fprintf( stderr,
+                     "Unable to read shape %d, terminating object reading.\n",
+                    i );
+            break;
+        }
 
         if( psShape->bMeasureIsUsed )
             printf( "\nShape:%d (%s)  nVertices=%d, nParts=%d\n"

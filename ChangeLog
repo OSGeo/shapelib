@@ -1,3 +1,7 @@
+2010-07-01  Frank Warmerdam  <warmerdam@pobox.com>
+
+	* shpdump.c: do not crash if null shape returned by read object.
+
 2010-06-29  Frank Warmerdam  <warmerdam@pobox.com>
 
 	* shptree.c: fix sign of Z and M comparisons in SHPCheckObjectContained.
@@ -5,7 +9,7 @@
 
 2010-01-28  Frank Warmerdam  <warmerdam@pobox.com>
 
-	* shpopen.c/shapefil.h: Handle the .shp file length limits more 
+	* shpopen.c/shapefil.h: Handle the .shp file length limits more
 	gracefully. (http://trac.osgeo.org/gdal/ticket/3236)
 
 	* shpopen.c: Improve the numerical accurancy of algorithms in
@@ -18,7 +22,7 @@
 
 2009-10-29  Frank Warmerdam  <warmerdam@pobox.com>
 
-	* dbfopen.c: avoid crash risk for truncated files. 
+	* dbfopen.c: avoid crash risk for truncated files.
 	http://trac.osgeo.org/gdal/ticket/3093
 
 2009-09-17  Bram de Greve <bram.degreve@bramz.net>
@@ -27,11 +31,11 @@
 
 2008-11-12  Frank Warmerdam  <warmerdam@pobox.com>
 
-	* shptree.c: improve safety in face of buggy .shp file. 
+	* shptree.c: improve safety in face of buggy .shp file.
 	http://trac.osgeo.org/gdal/ticket/2610
 
 	* dbfopen.c: DBFCreateField() can now also operate on files with
-	records, c/o Martin Dobias. 
+	records, c/o Martin Dobias.
 	https://trac.osgeo.org/gdal/ticket/2672
 
 2008-11-11  Frank Warmerdam  <warmerdam@pobox.com>
@@ -50,9 +54,9 @@
 	encoded filenames on some platforms.  Use SASetupUtf8Hooks
 	to setup the hooks and check SHPAPI_UTF8_HOOKS for its
 	availability.  Currently, this is only available on the Windows
-	platform that decodes the UTF-8 filenames to wide character 
+	platform that decodes the UTF-8 filenames to wide character
 	strings and feed them to _wfopen and _wremove.
-	
+
 2008-01-10  Frank Warmerdam  <warmerdam@pobox.com>
 
 	* shapefil.h: Avoid _ prefix on #defines.
@@ -61,21 +65,21 @@
 2008-01-03  Bram de Greve <bram.degreve@bramz.net>
 
 	* dbfopen.c: in DBFCreate, use default code page
-	LDID/87 (= 0x57, ANSI) instead of LDID/3.  This seems 
+	LDID/87 (= 0x57, ANSI) instead of LDID/3.  This seems
 	to be the same as what ESRI would be doing by default.
 
 2007-12-30  Frank Warmerdam  <warmerdam@pobox.com>
 
 	* shpadd.c/shpcreate.c: Add support for z and m files.
 
-	* Massive overhaul to use hooks for file io, etc. 
+	* Massive overhaul to use hooks for file io, etc.
 
 2007-12-18  Bram de Greve <bram.degreve@bramz.net>
 
-	* dbfopen.c/shapefil.h/safileio.c:  create hook for client 
+	* dbfopen.c/shapefil.h/safileio.c:  create hook for client
 	specific atof http://bugzilla.maptools.org/show_bug.cgi?id=1615
-	
-	* dbfopen.c: check for NULL handle before closing cpCPG file, 
+
+	* dbfopen.c: check for NULL handle before closing cpCPG file,
 	and close after reading.
 
 2007-12-15  Bram de Greve <bram.degreve@bramz.net>
