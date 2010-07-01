@@ -35,6 +35,9 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.16  2010-07-01 07:27:13  fwarmerdam
+ * white space formatting adjustments
+ *
  * Revision 1.15  2006-01-26 15:07:32  fwarmerdam
  * add bMeasureIsUsed flag from Craig Bruce: Bug 1249
  *
@@ -113,8 +116,8 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
     if( argc != 2 )
     {
-	printf( "shpdump [-validate] [-ho] shp_file\n" );
-	exit( 1 );
+        printf( "shpdump [-validate] [-ho] shp_file\n" );
+        exit( 1 );
     }
 
 /* -------------------------------------------------------------------- */
@@ -124,8 +127,8 @@ int main( int argc, char ** argv )
 
     if( hSHP == NULL )
     {
-	printf( "Unable to open:%s\n", argv[1] );
-	exit( 1 );
+        printf( "Unable to open:%s\n", argv[1] );
+        exit( 1 );
     }
 
 /* -------------------------------------------------------------------- */
@@ -152,10 +155,10 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
     for( i = 0; i < nEntities && !bHeaderOnly; i++ )
     {
-	int		j;
+        int		j;
         SHPObject	*psShape;
 
-	psShape = SHPReadObject( hSHP, i );
+        psShape = SHPReadObject( hSHP, i );
 
         if( psShape->bMeasureIsUsed )
             printf( "\nShape:%d (%s)  nVertices=%d, nParts=%d\n"
@@ -184,22 +187,22 @@ int main( int argc, char ** argv )
                      psShape->panPartStart[0] );
         }
 
-	for( j = 0, iPart = 1; j < psShape->nVertices; j++ )
-	{
+        for( j = 0, iPart = 1; j < psShape->nVertices; j++ )
+        {
             const char	*pszPartType = "";
 
             if( j == 0 && psShape->nParts > 0 )
                 pszPartType = SHPPartTypeName( psShape->panPartType[0] );
             
-	    if( iPart < psShape->nParts
+            if( iPart < psShape->nParts
                 && psShape->panPartStart[iPart] == j )
-	    {
+            {
                 pszPartType = SHPPartTypeName( psShape->panPartType[iPart] );
-		iPart++;
-		pszPlus = "+";
-	    }
-	    else
-	        pszPlus = " ";
+                iPart++;
+                pszPlus = "+";
+            }
+            else
+                pszPlus = " ";
 
             if( psShape->bMeasureIsUsed )
                 printf("   %s (%12.3f,%12.3f, %g, %g) %s \n",
@@ -216,7 +219,7 @@ int main( int argc, char ** argv )
                        psShape->padfY[j],
                        psShape->padfZ[j],
                        pszPartType );
-	}
+        }
 
         if( bValidate )
         {
