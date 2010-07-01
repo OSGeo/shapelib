@@ -6,3 +6,6 @@ shpcreate
 shpdump
 shprewind
 shptest
+*.dll
+*.lib
+*.exp
