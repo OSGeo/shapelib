@@ -34,6 +34,9 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.66  2010-07-01 07:58:57  fwarmerdam
+ * minor cleanup of error handling
+ *
  * Revision 1.65  2010-07-01 07:27:13  fwarmerdam
  * white space formatting adjustments
  *
@@ -1543,7 +1546,7 @@ SHPReadObject( SHPHandle psSHP, int hEntity )
 {
     int                  nEntitySize, nRequiredSize;
     SHPObject           *psShape;
-    char                 pszErrorMsg[128];
+    char                 szErrorMsg[128];
 
 /* -------------------------------------------------------------------- */
 /*      Validate the record/entity number.                              */
@@ -1624,9 +1627,10 @@ SHPReadObject( SHPHandle psSHP, int hEntity )
 
     if ( 8 + 4 > nEntitySize )
     {
-        snprintf(pszErrorMsg, 128, "Corrupted .shp file : shape %d : nEntitySize = %d",
+        snprintf(szErrorMsg, sizeof(szErrorMsg),
+                 "Corrupted .shp file : shape %d : nEntitySize = %d",
                  hEntity, nEntitySize); 
-        psSHP->sHooks.Error( pszErrorMsg );
+        psSHP->sHooks.Error( szErrorMsg );
         SHPDestroyObject(psShape);
         return NULL;
     }
@@ -1649,9 +1653,10 @@ SHPReadObject( SHPHandle psSHP, int hEntity )
 
         if ( 40 + 8 + 4 > nEntitySize )
         {
-            snprintf(pszErrorMsg, 128, "Corrupted .shp file : shape %d : nEntitySize = %d",
+            snprintf(szErrorMsg, sizeof(szErrorMsg),
+                     "Corrupted .shp file : shape %d : nEntitySize = %d",
                      hEntity, nEntitySize); 
-            psSHP->sHooks.Error( pszErrorMsg );
+            psSHP->sHooks.Error( szErrorMsg );
             SHPDestroyObject(psShape);
             return NULL;
         }
@@ -1681,9 +1686,10 @@ SHPReadObject( SHPHandle psSHP, int hEntity )
         if (nPoints < 0 || nParts < 0 ||
             nPoints > 50 * 1000 * 1000 || nParts > 10 * 1000 * 1000)
         {
-            snprintf(pszErrorMsg, 128, "Corrupted .shp file : shape %d, nPoints=%d, nParts=%d.",
+            snprintf(szErrorMsg, sizeof(szErrorMsg),
+                     "Corrupted .shp file : shape %d, nPoints=%d, nParts=%d.",
                      hEntity, nPoints, nParts);
-            psSHP->sHooks.Error( pszErrorMsg );
+            psSHP->sHooks.Error( szErrorMsg );
             SHPDestroyObject(psShape);
             return NULL;
         }
@@ -1704,9 +1710,10 @@ SHPReadObject( SHPHandle psSHP, int hEntity )
         }
         if (nRequiredSize > nEntitySize)
         {
-            snprintf(pszErrorMsg, 128, "Corrupted .shp file : shape %d, nPoints=%d, nParts=%d, nEntitySize=%d.",
+            snprintf(szErrorMsg, sizeof(szErrorMsg),
+                     "Corrupted .shp file : shape %d, nPoints=%d, nParts=%d, nEntitySize=%d.",
                      hEntity, nPoints, nParts, nEntitySize);
-            psSHP->sHooks.Error( pszErrorMsg );
+            psSHP->sHooks.Error( szErrorMsg );
             SHPDestroyObject(psShape);
             return NULL;
         }
@@ -1728,10 +1735,10 @@ SHPReadObject( SHPHandle psSHP, int hEntity )
             psShape->panPartStart == NULL ||
             psShape->panPartType == NULL)
         {
-            snprintf(pszErrorMsg, 128,
+            snprintf(szErrorMsg, sizeof(szErrorMsg),
                      "Not enough memory to allocate requested memory (nPoints=%d, nParts=%d) for shape %d. "
                      "Probably broken SHP file", hEntity, nPoints, nParts );
-            psSHP->sHooks.Error( pszErrorMsg );
+            psSHP->sHooks.Error( szErrorMsg );
             SHPDestroyObject(psShape);
             return NULL;
         }
@@ -1751,17 +1758,19 @@ SHPReadObject( SHPHandle psSHP, int hEntity )
             if (psShape->panPartStart[i] < 0 ||
                 psShape->panPartStart[i] >= psShape->nVertices)
             {
-                snprintf(pszErrorMsg, 128, "Corrupted .shp file : shape %d : panPartStart[%d] = %d, nVertices = %d",
+                snprintf(szErrorMsg, sizeof(szErrorMsg),
+                         "Corrupted .shp file : shape %d : panPartStart[%d] = %d, nVertices = %d",
                          hEntity, i, psShape->panPartStart[i], psShape->nVertices); 
-                psSHP->sHooks.Error( pszErrorMsg );
+                psSHP->sHooks.Error( szErrorMsg );
                 SHPDestroyObject(psShape);
                 return NULL;
             }
             if (i > 0 && psShape->panPartStart[i] <= psShape->panPartStart[i-1])
             {
-                snprintf(pszErrorMsg, 128, "Corrupted .shp file : shape %d : panPartStart[%d] = %d, panPartStart[%d] = %d",
+                snprintf(szErrorMsg, sizeof(szErrorMsg),
+                         "Corrupted .shp file : shape %d : panPartStart[%d] = %d, panPartStart[%d] = %d",
                          hEntity, i, psShape->panPartStart[i], i - 1, psShape->panPartStart[i - 1]); 
-                psSHP->sHooks.Error( pszErrorMsg );
+                psSHP->sHooks.Error( szErrorMsg );
                 SHPDestroyObject(psShape);
                 return NULL;
             }
@@ -1861,9 +1870,10 @@ SHPReadObject( SHPHandle psSHP, int hEntity )
 
         if ( 44 + 4 > nEntitySize )
         {
-            snprintf(pszErrorMsg, 128, "Corrupted .shp file : shape %d : nEntitySize = %d",
+            snprintf(szErrorMsg, sizeof(szErrorMsg),
+                     "Corrupted .shp file : shape %d : nEntitySize = %d",
                      hEntity, nEntitySize); 
-            psSHP->sHooks.Error( pszErrorMsg );
+            psSHP->sHooks.Error( szErrorMsg );
             SHPDestroyObject(psShape);
             return NULL;
         }
@@ -1873,9 +1883,10 @@ SHPReadObject( SHPHandle psSHP, int hEntity )
 
         if (nPoints < 0 || nPoints > 50 * 1000 * 1000)
         {
-            snprintf(pszErrorMsg, 128, "Corrupted .shp file : shape %d : nPoints = %d",
+            snprintf(szErrorMsg, sizeof(szErrorMsg),
+                     "Corrupted .shp file : shape %d : nPoints = %d",
                      hEntity, nPoints); 
-            psSHP->sHooks.Error( pszErrorMsg );
+            psSHP->sHooks.Error( szErrorMsg );
             SHPDestroyObject(psShape);
             return NULL;
         }
@@ -1887,9 +1898,10 @@ SHPReadObject( SHPHandle psSHP, int hEntity )
         }
         if (nRequiredSize > nEntitySize)
         {
-            snprintf(pszErrorMsg, 128, "Corrupted .shp file : shape %d : nPoints = %d, nEntitySize = %d",
+            snprintf(szErrorMsg, sizeof(szErrorMsg),
+                     "Corrupted .shp file : shape %d : nPoints = %d, nEntitySize = %d",
                      hEntity, nPoints, nEntitySize); 
-            psSHP->sHooks.Error( pszErrorMsg );
+            psSHP->sHooks.Error( szErrorMsg );
             SHPDestroyObject(psShape);
             return NULL;
         }
@@ -1905,10 +1917,10 @@ SHPReadObject( SHPHandle psSHP, int hEntity )
             psShape->padfZ == NULL ||
             psShape->padfM == NULL)
         {
-            snprintf(pszErrorMsg, 128,
+            snprintf(szErrorMsg, sizeof(szErrorMsg),
                      "Not enough memory to allocate requested memory (nPoints=%d) for shape %d. "
                      "Probably broken SHP file", hEntity, nPoints );
-            psSHP->sHooks.Error( pszErrorMsg );
+            psSHP->sHooks.Error( szErrorMsg );
             SHPDestroyObject(psShape);
             return NULL;
         }
@@ -1999,9 +2011,10 @@ SHPReadObject( SHPHandle psSHP, int hEntity )
 
         if (20 + 8 + (( psShape->nSHPType == SHPT_POINTZ ) ? 8 : 0)> nEntitySize)
         {
-            snprintf(pszErrorMsg, 128, "Corrupted .shp file : shape %d : nEntitySize = %d",
+            snprintf(szErrorMsg, sizeof(szErrorMsg),
+                     "Corrupted .shp file : shape %d : nEntitySize = %d",
                      hEntity, nEntitySize); 
-            psSHP->sHooks.Error( pszErrorMsg );
+            psSHP->sHooks.Error( szErrorMsg );
             SHPDestroyObject(psShape);
             return NULL;
         }
