@@ -1,5 +1,7 @@
 2010-07-01  Frank Warmerdam  <warmerdam@pobox.com>
 
+	* shpopen.c: do not error out on a shape with zero vertices.
+
 	* shpdump.c: do not crash if null shape returned by read object.
 
 2010-06-29  Frank Warmerdam  <warmerdam@pobox.com>

@@ -34,6 +34,9 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.67  2010-07-01 08:15:48  fwarmerdam
+ * do not error out on an object with zero vertices
+ *
  * Revision 1.66  2010-07-01 07:58:57  fwarmerdam
  * minor cleanup of error handling
  *
@@ -1611,8 +1614,8 @@ SHPReadObject( SHPHandle psSHP, int hEntity )
          */
         char str[128];
         sprintf( str,
-                 "Error in fread() reading object of size %u from .shp file",
-                 nEntitySize);
+                 "Error in fread() reading object of size %u at offset %u from .shp file",
+                 nEntitySize, psSHP->panRecOffset[hEntity] );
 
         psSHP->sHooks.Error( str );
         return NULL;
@@ -1755,8 +1758,9 @@ SHPReadObject( SHPHandle psSHP, int hEntity )
             if( bBigEndian ) SwapWord( 4, psShape->panPartStart+i );
 
             /* We check that the offset is inside the vertex array */
-            if (psShape->panPartStart[i] < 0 ||
-                psShape->panPartStart[i] >= psShape->nVertices)
+            if (psShape->panPartStart[i] < 0
+                || (psShape->panPartStart[i] >= psShape->nVertices
+                    && psShape->nVertices > 0) )
             {
                 snprintf(szErrorMsg, sizeof(szErrorMsg),
                          "Corrupted .shp file : shape %d : panPartStart[%d] = %d, nVertices = %d",
