@@ -34,6 +34,9 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.68  2010-08-27 23:42:52  fwarmerdam
+ * add SHPAPI_CALL attribute in code
+ *
  * Revision 1.67  2010-07-01 08:15:48  fwarmerdam
  * do not error out on an object with zero vertices
  *
@@ -328,7 +331,7 @@ static void * SfRealloc( void * pMem, int nNewSize )
 /*	contents of the index (.shx) file.				*/
 /************************************************************************/
 
-void SHPWriteHeader( SHPHandle psSHP )
+void SHPAPI_CALL SHPWriteHeader( SHPHandle psSHP )
 
 {
     uchar     	abyHeader[100];

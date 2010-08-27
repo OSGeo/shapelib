@@ -34,6 +34,9 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.14  2010-08-27 23:43:27  fwarmerdam
+ * add SHPAPI_CALL attribute in code
+ *
  * Revision 1.13  2010-06-29 05:50:15  fwarmerdam
  * fix sign of Z/M comparisons in SHPCheckObjectContained (#2223)
  *
@@ -988,7 +991,7 @@ static void SHPWriteTreeNode( FILE *fp, SHPTreeNode *node)
 /*                            SHPWriteTree()                            */
 /************************************************************************/
 
-int SHPWriteTree(SHPTree *tree, const char *filename )
+int SHPAPI_CALL SHPWriteTree(SHPTree *tree, const char *filename )
 {
     char		signature[4] = "SQT";
     int		        i;

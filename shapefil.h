@@ -37,6 +37,9 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.48  2010-08-27 23:42:52  fwarmerdam
+ * add SHPAPI_CALL attribute in code
+ *
  * Revision 1.47  2010-01-28 11:34:34  fwarmerdam
  * handle the shape file length limits more gracefully (#3236)
  *
@@ -444,8 +447,6 @@ void    SHPAPI_CALL
 
 int	SHPAPI_CALL
       SHPWriteTree( SHPTree *hTree, const char * pszFilename );
-SHPTree SHPAPI_CALL
-      SHPReadTree( const char * pszFilename );
 
 int	SHPAPI_CALL
       SHPTreeAddObject( SHPTree * hTree, SHPObject * psObject );
