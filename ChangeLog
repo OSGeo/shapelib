@@ -1,3 +1,8 @@
+2010-12-06  Frank Warmerdam  <warmerdam@pobox.com>
+
+	* dbfopen.c: fix read past end of init data fetching code page 
+	http://bugzilla.maptools.org/show_bug.cgi?id=2276
+
 2010-07-01  Frank Warmerdam  <warmerdam@pobox.com>
 
 	* shpopen.c: do not error out on a shape with zero vertices.
