@@ -34,6 +34,9 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.86  2011-04-17 15:15:29  fwarmerdam
+ * Removed unused variable.
+ *
  * Revision 1.85  2010-12-06 16:09:34  fwarmerdam
  * fix buffer read overrun fetching code page (bug 2276)
  *
@@ -494,8 +497,7 @@ DBFOpenLL( const char * pszFilename, const char * pszAccess, SAHooks *psHooks )
     if( pfCPG )
     {
         size_t n;
-        char *buffer = (char *) pabyBuf;
-        memset( buffer, 0, nBufSize);
+        memset( pabyBuf, 0, nBufSize);
         psDBF->sHooks.FRead( pabyBuf, nBufSize - 1, 1, pfCPG );
         n = strcspn( (char *) pabyBuf, "\n\r" );
         if( n > 0 )
