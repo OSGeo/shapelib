@@ -34,6 +34,9 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.87  2011-05-07 22:41:02  fwarmerdam
+ * ensure pending record is flushed when adding a native field (GDAL #4073)
+ *
  * Revision 1.86  2011-04-17 15:15:29  fwarmerdam
  * Removed unused variable.
  *
@@ -801,6 +804,10 @@ DBFAddNativeFieldType(DBFHandle psDBF, const char * pszFieldName,
     char        *pszRecord;
     char        chFieldFill;
     SAOffset    nRecordOffset;
+
+    /* make sure that everything is written in .dbf */
+    if( !DBFFlushRecord( psDBF ) )
+        return -1;
 
 /* -------------------------------------------------------------------- */
 /*      Do some checking to ensure we can add records to this file.     */
