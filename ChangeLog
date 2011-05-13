@@ -1,3 +1,8 @@
+2011-05-13  Frank Warmerdam  <warmerdam@pobox.com>
+
+	* dbfopen.c, shapelib.h: Add functions to reorder and alter
+	field definitions.  DBFReorderFields() and DBFAlterFields().
+
 2011-05-07  Frank Warmerdam  <warmerdam@pobox.com>
 
 	* dbfopen.c: Ensure pending record is flushed when adding a native
