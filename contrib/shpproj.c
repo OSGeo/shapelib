@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
- *******************************************************************************
+ ******************************************************************************
  *
  * requires shapelib 1.2
  *   gcc shpproj ../shpopen.o ../dbfopen.o shpgeo.o -lm -lproj -o shpproj
@@ -33,6 +33,9 @@
  * SHPGeo must be compiled with -DPROJ4 support
  *
  * $Log$
+ * Revision 1.10  2011-07-24 03:17:46  fwarmerdam
+ * include string.h and stdlib.h where needed in contrib (#2146)
+ *
  * Revision 1.9  2002-01-15 14:37:08  warmerda
  * upgrade to use proj_api.h
  *
@@ -52,9 +55,11 @@
  */
 
 
+#include <stdlib.h>
+#include <string.h>
+#include <stdarg.h>
 #include "shapefil.h"
 #include "shpgeo.h"
-#include <stdarg.h>
 
 int main( int argc, char ** argv )
 {

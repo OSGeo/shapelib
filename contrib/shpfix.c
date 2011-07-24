@@ -34,6 +34,8 @@
  *
  */
 
+#include <stdlib.h>
+#include <string.h>
 #include "shapefil.h"
 
 int main( int argc, char ** argv )

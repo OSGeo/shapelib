@@ -1,5 +1,7 @@
 2011-07-23    <warmerdam@pobox.com>
 
+	* contrib/*.c: Include stdlib.h and strings.h (#2146)
+
 	* shpdump.c: change to use %.15g for coordinate reporting. (#2277)
 
 2011-05-13  Frank Warmerdam  <warmerdam@pobox.com>

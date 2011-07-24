@@ -28,6 +28,9 @@
  *
  *
  * $Log$
+ * Revision 1.3  2011-07-24 03:17:46  fwarmerdam
+ * include string.h and stdlib.h where needed in contrib (#2146)
+ *
  * Revision 1.2  1999-05-26 02:56:31  candrsn
  * updates to shpdxf, dbfinfo, port from Shapelib 1.1.5 of dbfcat and shpinfo
  *
@@ -43,6 +46,8 @@
  *      Cy = sum (y dArea ) / Total Area
  */           
 
+#include <stdlib.h>
+#include <string.h>
 #include "shapefil.h"
 #include "shpgeo.h"
 

@@ -37,8 +37,9 @@
  *
  */
 
+#include <stdlib.h>
+#include <string.h>
 #include "shapefil.h"
-
 
 #define FLOAT_PREC "%16.5f\r\n"
 

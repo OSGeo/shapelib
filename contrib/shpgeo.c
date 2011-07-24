@@ -32,6 +32,9 @@
  * use -DPROJ4 to compile in Projection support
  *
  * $Log$
+ * Revision 1.13  2011-07-24 03:17:46  fwarmerdam
+ * include string.h and stdlib.h where needed in contrib (#2146)
+ *
  * Revision 1.12  2007-09-03 23:17:46  fwarmerdam
  * fix SHPDimension() function
  *
@@ -67,6 +70,8 @@
  *
  */
 
+#include <stdlib.h>
+#include <string.h>
 #include "shapefil.h"
 
 #ifndef NAN
