@@ -5,6 +5,7 @@ shpadd
 shpcreate
 shpdump
 shprewind
+shptreedump
 shptest
 *.dll
 *.lib
