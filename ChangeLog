@@ -1,3 +1,7 @@
+2011-07-23    <warmerdam@pobox.com>
+
+	* shpdump.c: change to use %.15g for coordinate reporting. (#2277)
+
 2011-05-13  Frank Warmerdam  <warmerdam@pobox.com>
 
 	* dbfopen.c, shapelib.h: Add functions to reorder and alter

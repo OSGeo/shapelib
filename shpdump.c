@@ -35,6 +35,9 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.18  2011-07-24 03:05:14  fwarmerdam
+ * use %.15g for formatting coordiantes in shpdump
+ *
  * Revision 1.17  2010-07-01 07:33:04  fwarmerdam
  * do not crash in shpdump if null object returned
  *
@@ -142,8 +145,8 @@ int main( int argc, char ** argv )
     printf( "Shapefile Type: %s   # of Shapes: %d\n\n",
             SHPTypeName( nShapeType ), nEntities );
     
-    printf( "File Bounds: (%12.3f,%12.3f,%g,%g)\n"
-            "         to  (%12.3f,%12.3f,%g,%g)\n",
+    printf( "File Bounds: (%.15g,%.15g,%.15g,%.15g)\n"
+            "         to  (%.15g,%.15g,%.15g,%.15g)\n",
             adfMinBound[0], 
             adfMinBound[1], 
             adfMinBound[2], 
@@ -173,8 +176,8 @@ int main( int argc, char ** argv )
 
         if( psShape->bMeasureIsUsed )
             printf( "\nShape:%d (%s)  nVertices=%d, nParts=%d\n"
-                    "  Bounds:(%12.3f,%12.3f, %g, %g)\n"
-                    "      to (%12.3f,%12.3f, %g, %g)\n",
+                    "  Bounds:(%.15g,%.15g, %.15g, %.15g)\n"
+                    "      to (%.15g,%.15g, %.15g, %.15g)\n",
                     i, SHPTypeName(psShape->nSHPType),
                     psShape->nVertices, psShape->nParts,
                     psShape->dfXMin, psShape->dfYMin,
@@ -183,8 +186,8 @@ int main( int argc, char ** argv )
                     psShape->dfZMax, psShape->dfMMax );
         else
             printf( "\nShape:%d (%s)  nVertices=%d, nParts=%d\n"
-                    "  Bounds:(%12.3f,%12.3f, %g)\n"
-                    "      to (%12.3f,%12.3f, %g)\n",
+                    "  Bounds:(%.15g,%.15g, %.15g)\n"
+                    "      to (%.15g,%.15g, %.15g)\n",
                     i, SHPTypeName(psShape->nSHPType),
                     psShape->nVertices, psShape->nParts,
                     psShape->dfXMin, psShape->dfYMin,
@@ -216,7 +219,7 @@ int main( int argc, char ** argv )
                 pszPlus = " ";
 
             if( psShape->bMeasureIsUsed )
-                printf("   %s (%12.3f,%12.3f, %g, %g) %s \n",
+                printf("   %s (%.15g,%.15g, %.15g, %.15g) %s \n",
                        pszPlus,
                        psShape->padfX[j],
                        psShape->padfY[j],
@@ -224,7 +227,7 @@ int main( int argc, char ** argv )
                        psShape->padfM[j],
                        pszPartType );
             else
-                printf("   %s (%12.3f,%12.3f, %g) %s \n",
+                printf("   %s (%.15g,%.15g, %.15g) %s \n",
                        pszPlus,
                        psShape->padfX[j],
                        psShape->padfY[j],
