@@ -1,5 +1,7 @@
 2011-07-23    <warmerdam@pobox.com>
 
+	* shpopen.c: fix memory leaks in error cases (#2061)
+
 	* contrib/*.c: Include stdlib.h and strings.h (#2146)
 
 	* shpdump.c: change to use %.15g for coordinate reporting. (#2277)

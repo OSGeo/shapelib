@@ -34,6 +34,9 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.69  2011-07-24 03:24:22  fwarmerdam
+ * fix memory leaks in error cases creating shapefiles (#2061)
+ *
  * Revision 1.68  2010-08-27 23:42:52  fwarmerdam
  * add SHPAPI_CALL attribute in code
  *
@@ -840,9 +843,9 @@ SHPHandle SHPAPI_CALL
 SHPCreateLL( const char * pszLayer, int nShapeType, SAHooks *psHooks )
 
 {
-    char	*pszBasename, *pszFullname;
+    char	*pszBasename = NULL, *pszFullname = NULL;
     int		i;
-    SAFile	fpSHP, fpSHX;
+    SAFile	fpSHP = NULL, fpSHX = NULL;
     uchar     	abyHeader[100];
     int32	i32;
     double	dValue;
@@ -879,7 +882,7 @@ SHPCreateLL( const char * pszLayer, int nShapeType, SAHooks *psHooks )
     if( fpSHP == NULL )
     {
         psHooks->Error( "Failed to create file .shp file." );
-        return( NULL );
+        goto error;
     }
 
     sprintf( pszFullname, "%s.shx", pszBasename );
@@ -887,11 +890,11 @@ SHPCreateLL( const char * pszLayer, int nShapeType, SAHooks *psHooks )
     if( fpSHX == NULL )
     {
         psHooks->Error( "Failed to create file .shx file." );
-        return( NULL );
+        goto error;
     }
 
-    free( pszFullname );
-    free( pszBasename );
+    free( pszFullname ); pszFullname = NULL;
+    free( pszBasename ); pszBasename = NULL;
 
 /* -------------------------------------------------------------------- */
 /*      Prepare header block for .shp file.                             */
@@ -926,7 +929,7 @@ SHPCreateLL( const char * pszLayer, int nShapeType, SAHooks *psHooks )
     if( psHooks->FWrite( abyHeader, 100, 1, fpSHP ) != 1 )
     {
         psHooks->Error( "Failed to write .shp header." );
-        return NULL;
+        goto error;
     }
 
 /* -------------------------------------------------------------------- */
@@ -939,7 +942,7 @@ SHPCreateLL( const char * pszLayer, int nShapeType, SAHooks *psHooks )
     if( psHooks->FWrite( abyHeader, 100, 1, fpSHX ) != 1 )
     {
         psHooks->Error( "Failed to write .shx header." );
-        return NULL;
+        goto error;
     }
 
 /* -------------------------------------------------------------------- */
@@ -949,6 +952,13 @@ SHPCreateLL( const char * pszLayer, int nShapeType, SAHooks *psHooks )
     psHooks->FClose( fpSHX );
 
     return( SHPOpenLL( pszLayer, "r+b", psHooks ) );
+
+error:
+    if (pszFullname) free(pszFullname);
+    if (pszBasename) free(pszBasename);
+    if (fpSHP) psHooks->FClose( fpSHP );
+    if (fpSHX) psHooks->FClose( fpSHX );
+    return NULL;
 }
 
 /************************************************************************/
