@@ -16,7 +16,7 @@ Core shapelib support.
   dbfopen.o
 
 Utility/demonstration programs:
-  shpcreate, shpdump, shpadd, dbfcreate, dbfdump, dbfadd
+  shpcreate, shpdump, shpadd, dbfcreate, dbfdump, dbfadd, shptreedump
 
 To test type:
   make test

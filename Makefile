@@ -9,7 +9,8 @@ LD = /usr/bin/ld
 
 default:	all
 
-all:	shpcreate shpadd shpdump shprewind dbfcreate dbfadd dbfdump shptest
+all:	shpcreate shpadd shpdump shprewind dbfcreate dbfadd dbfdump \
+	shptest shptreedump
 
 shpopen.o:	shpopen.c shapefil.h
 	$(CC) $(CFLAGS) -c shpopen.c

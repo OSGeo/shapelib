@@ -1,5 +1,7 @@
 2011-07-23    <warmerdam@pobox.com>
 
+	* Makefile: build shpdumptree as part of all target (#1648).
+
 	* shpopen.c: fix memory leaks in error cases (#2061)
 
 	* contrib/*.c: Include stdlib.h and strings.h (#2146)
