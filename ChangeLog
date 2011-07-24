@@ -1,5 +1,8 @@
 2011-07-24    <warmerdam@pobox.com>
 
+	* shpopen.c, dbfopen.c, shptree.c, shapefil.h: Minimize use of 
+	CPL services in favor of SAHooks.Error(). 
+
 	* Makefile: Remove all the shared library building stuff, it is just
 	too half assed, and results in all sorts of bug reports and complaints.
 	Instead just install a static libshp.a.

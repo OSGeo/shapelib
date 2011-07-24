@@ -34,6 +34,9 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.70  2011-07-24 05:59:25  fwarmerdam
+ * minimize use of CPLError in favor of SAHooks.Error()
+ *
  * Revision 1.69  2011-07-24 03:24:22  fwarmerdam
  * fix memory leaks in error cases creating shapefiles (#2061)
  *
@@ -544,15 +547,11 @@ SHPOpenLL( const char * pszLayer, const char * pszAccess, SAHooks *psHooks )
     
     if( psSHP->fpSHP == NULL )
     {
-#ifdef USE_CPL
-        CPLError( CE_Failure, CPLE_OpenFailed, 
-                  "Unable to open %s.shp or %s.SHP.", 
+        char *pszMessage = (char *) malloc(strlen(pszBasename)*2+256);
+        sprintf( pszMessage, "Unable to open %s.shp or %s.SHP.", 
                   pszBasename, pszBasename );
-#endif
-        free( psSHP );
-        free( pszBasename );
-        free( pszFullname );
-        return( NULL );
+        psHooks->Error( pszMessage );
+        free( pszMessage );
     }
 
     sprintf( pszFullname, "%s.shx", pszBasename );
@@ -565,11 +564,12 @@ SHPOpenLL( const char * pszLayer, const char * pszAccess, SAHooks *psHooks )
     
     if( psSHP->fpSHX == NULL )
     {
-#ifdef USE_CPL
-        CPLError( CE_Failure, CPLE_OpenFailed, 
-                  "Unable to open %s.shx or %s.SHX.", 
+        char *pszMessage = (char *) malloc(strlen(pszBasename)*2+256);
+        sprintf( pszMessage, "Unable to open %s.shx or %s.SHX.", 
                   pszBasename, pszBasename );
-#endif
+        psHooks->Error( pszMessage );
+        free( pszMessage );
+
         psSHP->sHooks.FClose( psSHP->fpSHP );
         free( psSHP );
         free( pszBasename );

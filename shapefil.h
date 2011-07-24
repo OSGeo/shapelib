@@ -37,6 +37,9 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.51  2011-07-24 05:59:25  fwarmerdam
+ * minimize use of CPLError in favor of SAHooks.Error()
+ *
  * Revision 1.50  2011-05-13 17:35:17  fwarmerdam
  * added DBFReorderFields() and DBFAlterFields() functions (from Even)
  *
@@ -138,11 +141,6 @@
 
 #ifdef USE_DBMALLOC
 #include <dbmalloc.h>
-#endif
-
-#ifdef USE_CPL
-#include "cpl_error.h"
-#include "cpl_vsi.h"
 #endif
 
 #ifdef __cplusplus

@@ -34,6 +34,9 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.89  2011-07-24 05:59:25  fwarmerdam
+ * minimize use of CPLError in favor of SAHooks.Error()
+ *
  * Revision 1.88  2011-05-13 17:35:17  fwarmerdam
  * added DBFReorderFields() and DBFAlterFields() functions (from Even)
  *
@@ -271,14 +274,10 @@ static int DBFFlushRecord( DBFHandle psDBF )
                                      psDBF->nRecordLength, 
                                      1, psDBF->fp ) != 1 )
         {
-#ifdef USE_CPL
-            CPLError( CE_Failure, CPLE_FileIO, 
-                      "Failure writing DBF record %d.", 
-                      psDBF->nCurrentRecord );
-#else           
-            fprintf( stderr, "Failure writing DBF record %d.", 
+            char szMessage[128];
+            sprintf( szMessage, "Failure writing DBF record %d.", 
                      psDBF->nCurrentRecord );
-#endif
+            psDBF->sHooks.Error( szMessage );
             return FALSE;
         }
     }
@@ -305,28 +304,20 @@ static int DBFLoadRecord( DBFHandle psDBF, int iRecord )
 
 	if( psDBF->sHooks.FSeek( psDBF->fp, nRecordOffset, SEEK_SET ) != 0 )
         {
-#ifdef USE_CPL
-            CPLError( CE_Failure, CPLE_FileIO,
-                      "fseek(%ld) failed on DBF file.\n",
-                      (long) nRecordOffset );
-#else
-            fprintf( stderr, "fseek(%ld) failed on DBF file.\n",
+            char szMessage[128];
+            sprintf( szMessage, "fseek(%ld) failed on DBF file.\n",
                      (long) nRecordOffset );
-#endif
+            psDBF->sHooks.Error( szMessage );
             return FALSE;
         }
 
 	if( psDBF->sHooks.FRead( psDBF->pszCurrentRecord, 
                                  psDBF->nRecordLength, 1, psDBF->fp ) != 1 )
         {
-#ifdef USE_CPL
-            CPLError( CE_Failure, CPLE_FileIO, 
-                      "fread(%d) failed on DBF file.\n",
-                      psDBF->nRecordLength );
-#else
-            fprintf( stderr, "fread(%d) failed on DBF file.\n",
+            char szMessage[128];
+            sprintf( szMessage, "fread(%d) failed on DBF file.\n",
                      psDBF->nRecordLength );
-#endif
+            psDBF->sHooks.Error( szMessage );
             return FALSE;
         }
 
