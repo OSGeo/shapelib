@@ -1,3 +1,9 @@
+2011-07-24    <warmerdam@pobox.com>
+
+	* Makefile: Remove all the shared library building stuff, it is just
+	too half assed, and results in all sorts of bug reports and complaints.
+	Instead just install a static libshp.a.
+
 2011-07-23    <warmerdam@pobox.com>
 
 	* Makefile: build shpdumptree as part of all target (#1648).

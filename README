@@ -14,12 +14,18 @@ The result should be:
 Core shapelib support.  
   shpopen.o
   dbfopen.o
+  safileio.o
+  shptree.o
+  libshp.a
 
 Utility/demonstration programs:
   shpcreate, shpdump, shpadd, dbfcreate, dbfdump, dbfadd, shptreedump
 
-To test type:
+3) To test type:
   make test
+
+4) To libshp.a and the test binaries in /usr/local:
+  make install 
 
 
 Building on Windows
