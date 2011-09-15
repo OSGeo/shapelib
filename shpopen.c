@@ -34,6 +34,9 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.71  2011-09-15 03:33:58  fwarmerdam
+ * fix missing cast (#2344)
+ *
  * Revision 1.70  2011-07-24 05:59:25  fwarmerdam
  * minimize use of CPLError in favor of SAHooks.Error()
  *
@@ -1582,7 +1585,7 @@ SHPReadObject( SHPHandle psSHP, int hEntity )
             char szError[200];
 
             /* Reallocate previous successfull size for following features */
-            psSHP->pabyRec = malloc(psSHP->nBufSize);
+            psSHP->pabyRec = (uchar *) malloc(psSHP->nBufSize);
 
             sprintf( szError, 
                      "Not enough memory to allocate requested memory (nBufSize=%d). "

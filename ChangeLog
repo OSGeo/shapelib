@@ -1,3 +1,7 @@
+2011-09-14  Frank Warmerdam  <warmerdam@pobox.com>
+
+	* shpopen.c: fix missing cast (#2344)
+
 2011-07-24    <warmerdam@pobox.com>
 
 	* shpopen.c, dbfopen.c, shptree.c, shapefil.h: Minimize use of 
