@@ -1,3 +1,7 @@
+2011-12-11  Frank Warmerdam  <warmerdam@pobox.com>
+
+	* shptree.c,h: Use SAHooks for .qix access (gdal #3365)
+
 2011-09-14  Frank Warmerdam  <warmerdam@pobox.com>
 
 	* shpopen.c: fix missing cast (#2344)
