@@ -34,6 +34,9 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.72  2011-12-11 22:45:28  fwarmerdam
+ * fix failure return from SHPOpenLL.
+ *
  * Revision 1.71  2011-09-15 03:33:58  fwarmerdam
  * fix missing cast (#2344)
  *
@@ -555,6 +558,7 @@ SHPOpenLL( const char * pszLayer, const char * pszAccess, SAHooks *psHooks )
                   pszBasename, pszBasename );
         psHooks->Error( pszMessage );
         free( pszMessage );
+        return NULL;
     }
 
     sprintf( pszFullname, "%s.shx", pszBasename );
