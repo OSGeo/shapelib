@@ -10,3 +10,6 @@ shptest
 *.dll
 *.lib
 *.exp
+*.la
+*.lo
+.libs
