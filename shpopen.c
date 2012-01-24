@@ -34,6 +34,9 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.73  2012-01-24 22:33:01  fwarmerdam
+ * fix memory leak on failure to open .shp (gdal #4410)
+ *
  * Revision 1.72  2011-12-11 22:45:28  fwarmerdam
  * fix failure return from SHPOpenLL.
  *
@@ -558,6 +561,11 @@ SHPOpenLL( const char * pszLayer, const char * pszAccess, SAHooks *psHooks )
                   pszBasename, pszBasename );
         psHooks->Error( pszMessage );
         free( pszMessage );
+
+        free( psSHP );
+        free( pszBasename );
+        free( pszFullname );
+
         return NULL;
     }
 
