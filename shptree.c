@@ -34,6 +34,9 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.17  2012-01-27 21:09:26  fwarmerdam
+ * optimize .qix output (gdal #4472)
+ *
  * Revision 1.16  2011-12-11 22:26:46  fwarmerdam
  * upgrade .qix access code to use SAHooks (gdal #3365)
  *
@@ -723,6 +726,29 @@ static int SHPTreeNodeTrim( SHPTreeNode * psTreeNode )
 
             i--; /* process the new occupant of this subnode entry */
         }
+    }
+
+/* -------------------------------------------------------------------- */
+/*      If the current node has 1 subnode and no shapes, promote that   */
+/*      subnode to the current node position.                           */
+/* -------------------------------------------------------------------- */
+    if( psTreeNode->nSubNodes == 1 && psTreeNode->nShapeCount == 0)
+    {
+        SHPTreeNode* psSubNode = psTreeNode->apsSubNode[0];
+
+        memcpy(psTreeNode->adfBoundsMin, psSubNode->adfBoundsMin,
+               sizeof(psSubNode->adfBoundsMin));
+        memcpy(psTreeNode->adfBoundsMax, psSubNode->adfBoundsMax,
+               sizeof(psSubNode->adfBoundsMax));
+        psTreeNode->nShapeCount = psSubNode->nShapeCount;
+        assert(psTreeNode->panShapeIds == NULL);
+        psTreeNode->panShapeIds = psSubNode->panShapeIds;
+        assert(psTreeNode->papsShapeObj == NULL);
+        psTreeNode->papsShapeObj = psSubNode->papsShapeObj;
+        psTreeNode->nSubNodes = psSubNode->nSubNodes;
+        for( i = 0; i < psSubNode->nSubNodes; i++ )
+            psTreeNode->apsSubNode[i] = psSubNode->apsSubNode[i];
+        free(psSubNode);
     }
 
 /* -------------------------------------------------------------------- */
