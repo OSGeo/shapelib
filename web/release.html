@@ -12,10 +12,17 @@ the project at www.freshmeat.net.  This is currently the only reliable
 way of finding out about new releases since there is no shapelib specific
 mailing list.<p>
 
-<b>Release ???</a>: Added contrib/Shape_PointInPoly.cpp from Marko
-Podgorsek.  Added (optional) use of CPLError() in shpopen.c.  Added 
-shapelib tools documentation from Eduardo Patto Kanegae.  Added dbf deletion
-support.  Added DBFAddNativeFieldType().<p>
+<b>Release 1.3.0</b>:
+<ul>
+<li> Major rework to us application provided hooks for file io, and error reporting (SAHooks).  
+<li> Added contrib/Shape_PointInPoly.cpp from Marko Podgorsek.  
+<li> Added shapelib tools documentation from Eduardo Patto Kanegae.
+<li> Added dbf deletion support.  
+<li> Added DBFAddNativeFieldType().
+<li> Added DBFDeleteField(), DBFReorderFields() and DBFAlterFields() to 
+rework DBF schema.
+<li> likely a variety of other changes - it has been eight years since 1.2.10!
+</ul>
 
 <b>Release 1.2.10</b>: Added SHPRewindObject() function, and shprewind utility
 program.  Added FTLogical, DBFReadLogicalAttribute() and 
@@ -71,6 +78,3 @@ documentation.<p>
 
 </body>
 </html>
-
-
-
