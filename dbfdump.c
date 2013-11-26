@@ -34,6 +34,9 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.13  2013-11-26 21:52:33  fwarmerdam
+ * report deleted rows in dbfdump
+ *
  * Revision 1.12  2006-06-17 00:15:08  fwarmerdam
  * Free panWidth for better memory testing.
  *
@@ -273,6 +276,10 @@ int main( int argc, char ** argv )
 
 	    fflush( stdout );
 	}
+
+        if( DBFIsRecordDeleted(hDBF, iRecord) )
+            printf( "(DELETED)" );
+        
 	printf( "\n" );
     }
 
