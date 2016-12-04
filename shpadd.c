@@ -34,6 +34,23 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.17  2016-12-04 15:30:15  erouault
+ * * shpopen.c, dbfopen.c, shptree.c, shapefil.h: resync with
+ * GDAL Shapefile driver. Mostly cleanups. SHPObject and DBFInfo
+ * structures extended with new members. New functions:
+ * DBFSetLastModifiedDate, SHPOpenLLEx, SHPRestoreSHX,
+ * SHPSetFastModeReadObject
+ *
+ * * sbnsearch.c: new file to implement original ESRI .sbn spatial
+ * index reading. (no write support). New functions:
+ * SBNOpenDiskTree, SBNCloseDiskTree, SBNSearchDiskTree,
+ * SBNSearchDiskTreeInteger, SBNSearchFreeIds
+ *
+ * * Makefile, makefile.vc, CMakeLists.txt, shapelib.def: updates
+ * with new file and symbols.
+ *
+ * * commit: helper script to cvs commit
+ *
  * Revision 1.16  2010-06-21 20:41:52  fwarmerdam
  * reformat white space
  *
@@ -175,7 +192,7 @@ int main( int argc, char ** argv )
             panParts[nParts++] = nVertices;
             i++;
         }
-        else if( i < argc-1-strlen(tuple) )
+        else if( i < argc-1-(int)strlen(tuple) )
         {
             if( nVertices == nVMax )
             {

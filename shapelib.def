@@ -44,3 +44,12 @@ EXPORTS SHPOpen
 	SHPRewindObject
 	DBFIsRecordDeleted
 	DBFMarkRecordDeleted
+	DBFSetLastModifiedDate
+	SHPOpenLLEx
+	SHPRestoreSHX
+	SHPSetFastModeReadObject
+	SBNOpenDiskTree
+	SBNCloseDiskTree
+	SBNSearchDiskTree
+	SBNSearchDiskTreeInteger
+	SBNSearchFreeIds

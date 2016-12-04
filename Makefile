@@ -1,10 +1,10 @@
 
 PREFIX	=	/usr/local
-CFLAGS	=	-g -Wall -fPIC
+CFLAGS	=	-g -Wall -Wextra -fPIC
 #CFLAGS  =       -g -DUSE_CPL
 #CC = g++
 
-LIBOBJ	=	shpopen.o dbfopen.o safileio.o shptree.o 
+LIBOBJ	=	shpopen.o dbfopen.o safileio.o shptree.o sbnsearch.o
 SHPBIN	=	shpcreate shpadd shpdump shprewind dbfcreate dbfadd dbfdump \
 		shptreedump 
 
@@ -17,6 +17,9 @@ shpopen.o:	shpopen.c shapefil.h
 
 shptree.o:	shptree.c shapefil.h
 	$(CC) $(CFLAGS) -c shptree.c
+
+sbnsearch.o:	sbnsearch.c shapefil.h
+	$(CC) $(CFLAGS) -c sbnsearch.c
 
 dbfopen.o:	dbfopen.c shapefil.h
 	$(CC) $(CFLAGS) -c dbfopen.c

@@ -83,8 +83,8 @@ set(lib_SRC
   dbfopen.c
   safileio.c
   shptree.c
+  sbnsearch.c
   )
-
 option(SHP_DROP_UNABLE_TO_OPEN_MSG "Drop \"unable to open\" error messages" ON)
 if(SHP_DROP_UNABLE_TO_OPEN_MSG)
   #define the SHP_DROP_UNABLE_TO_OPEN_MSG C macro for this source file.
@@ -102,6 +102,13 @@ if(WIN32 AND NOT CYGWIN)
     COMPILE_DEFINITIONS SHAPELIB_DLLEXPORT
     )
 endif(WIN32 AND NOT CYGWIN)
+
+if(UNIX)
+    find_library(M_LIB m)
+    if(M_LIB)
+      TARGET_LINK_LIBRARIES(shp -lm)
+    endif()
+endif(UNIX)
 
 set(shp_SOVERSION 1)
 set(shp_VERSION ${shp_SOVERSION}.0.1)
