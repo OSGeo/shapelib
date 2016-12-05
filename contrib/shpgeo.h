@@ -27,6 +27,11 @@
  *
  *
  * $Log$
+ * Revision 1.4  2016-12-05 12:44:07  erouault
+ * * Major overhaul of Makefile build system to use autoconf/automake.
+ *
+ * * Warning fixes in contrib/
+ *
  * Revision 1.3  2002-01-15 14:36:56  warmerda
  * upgrade to use proj_api.h
  *
@@ -67,8 +72,11 @@
 extern "C" {
 #endif
 
+#ifdef	PROJ4
 #include "proj_api.h"
-
+#else
+typedef void* projPJ;
+#endif
 
 #define		SHPD_POINT	 		1
 #define		SHPD_LINE	 		2

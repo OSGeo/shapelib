@@ -203,35 +203,35 @@ if(BUILD_TEST)
   file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/script.sh "${SED_EXECUTABLE} -f script.sed < $1 >| $2")
   execute_process(
     COMMAND
-    ${BASH_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/script.sh ${CMAKE_CURRENT_SOURCE_DIR}/stream1.sh ${CMAKE_CURRENT_BINARY_DIR}/sed_scripted_stream1.sh
+    ${BASH_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/script.sh ${CMAKE_CURRENT_SOURCE_DIR}/tests/test1.sh ${CMAKE_CURRENT_BINARY_DIR}/sed_scripted_test1.sh
     )
 
   execute_process(
     COMMAND
-    ${BASH_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/script.sh ${CMAKE_CURRENT_SOURCE_DIR}/stream2.sh ${CMAKE_CURRENT_BINARY_DIR}/sed_scripted_stream2.sh
+    ${BASH_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/script.sh ${CMAKE_CURRENT_SOURCE_DIR}/tests/test2.sh ${CMAKE_CURRENT_BINARY_DIR}/sed_scripted_test2.sh
     )
 
   execute_process(
     COMMAND
-    ${BASH_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/script.sh ${CMAKE_CURRENT_SOURCE_DIR}/makeshape.sh ${CMAKE_CURRENT_BINARY_DIR}/sed_scripted_makeshape.sh
+    ${BASH_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/script.sh ${CMAKE_CURRENT_SOURCE_DIR}/tests/test3.sh ${CMAKE_CURRENT_BINARY_DIR}/sed_scripted_test3.sh
     )
 
   if(EG_DATA)
-    # These tests correspond to everything in stream1.sh
+    # These tests correspond to everything in test1.sh
     add_test(
-      NAME stream1
-      COMMAND ${BASH_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/sed_scripted_stream1.sh
+      NAME test1
+      COMMAND ${BASH_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/sed_scripted_test1.sh
       )
   endif(EG_DATA)
-  # These tests correspond to everything in stream1.sh
+  # These tests correspond to everything in test2.sh
   add_test(
-    NAME stream2
-    COMMAND ${BASH_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/sed_scripted_stream2.sh
+    NAME test2
+    COMMAND ${BASH_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/sed_scripted_test2.sh
     )
 
-  # These tests correspond to everything in makeshape.sh
+  # These tests correspond to everything in test3.sh
   add_test(
-    NAME makeshape
-    COMMAND ${BASH_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/sed_scripted_makeshape.sh
+    NAME test3
+    COMMAND ${BASH_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/sed_scripted_test3.sh
     )
 endif(BUILD_TEST)

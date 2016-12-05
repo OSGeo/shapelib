@@ -10,7 +10,7 @@
  * Copyright (c) 2002, Keven Meyer (Kevin@CyberTracker.co.za)
  *
  * This software is available under the following "MIT Style" license,
- * or at the option of the licensee under the LGPL (see LICENSE.LGPL).  This
+ * or at the option of the licensee under the LGPL (see COPYING).  This
  * option is discussed in more detail in shapelib.html.
  *
  * --
@@ -35,6 +35,11 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.4  2016-12-05 12:44:07  erouault
+ * * Major overhaul of Makefile build system to use autoconf/automake.
+ *
+ * * Warning fixes in contrib/
+ *
  * Revision 1.3  2003-05-14 20:04:51  warmerda
  * Changed fpSHP and fpSHX to integer at suggestion of Ivan Lucena.
  *

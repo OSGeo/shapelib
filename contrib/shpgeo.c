@@ -32,6 +32,11 @@
  * use -DPROJ4 to compile in Projection support
  *
  * $Log$
+ * Revision 1.14  2016-12-05 12:44:07  erouault
+ * * Major overhaul of Makefile build system to use autoconf/automake.
+ *
+ * * Warning fixes in contrib/
+ *
  * Revision 1.13  2011-07-24 03:17:46  fwarmerdam
  * include string.h and stdlib.h where needed in contrib (#2146)
  *
@@ -72,11 +77,8 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "shapefil.h"
-
-#ifndef NAN
-#include "my_nan.h"
-#endif
 
 #include "shpgeo.h"
 
@@ -205,7 +207,14 @@ projPJ SHPSetProjection ( int param_cnt, char **params ) {
   projPJ	*p = NULL;
 
   if ( param_cnt > 0 && params[0] )
-  { p = pj_init ( param_cnt, params ); }
+  {
+      p = pj_init ( param_cnt, params );
+  }
+  else
+  {
+      char* params_local[] = { "+proj=longlat", NULL };
+      p = pj_init ( 1, params_local );
+  }
 
   return ( p );
 #else
@@ -335,7 +344,7 @@ int	use_M = 0;
  * **************************************************************************/
 int SHPWriteSHPStream ( WKBStreamObj *stream_obj, SHPObject *psCShape ) {
 
-int	obj_storage = 0;
+/*int	obj_storage = 0;*/
 int	need_swap = 0, my_order, GeoType;
 int	use_Z = 0;
 int	use_M = 0;
@@ -343,7 +352,7 @@ int	use_M = 0;
   need_swap = 1;
   need_swap = ((char*) (&need_swap))[0];
   
-  realloc (stream_obj, obj_storage );
+  /*realloc (stream_obj, obj_storage );*/
   
   if ( need_swap ) {
   
@@ -479,9 +488,9 @@ int SHPWriteOGisWKB ( WKBStreamObj* stream_obj, SHPObject *psCShape ) {
   
  #ifdef DEBUG2
    printf (" I just allocated %d bytes to wkbObj \n", 
-  	sizeof (int) + sizeof (int) + sizeof(int) +
+  	(int)(sizeof (int) + sizeof (int) + sizeof(int) +
         ( sizeof(int) * psCShape->nParts + 1 ) +
-  	( sizeof(double) * 2 * psCShape->nVertices ) + 10 );
+  	( sizeof(double) * 2 * psCShape->nVertices ) + 10) );
  #endif 
  
   my_order = 1;
@@ -499,7 +508,7 @@ int SHPWriteOGisWKB ( WKBStreamObj* stream_obj, SHPObject *psCShape ) {
   WKBStreamWrite ( stream_obj, & LSB, 1, sizeof(char) );
   
   #ifdef DEBUG2
-    printf ("this system in (%d) LSB \n");
+    printf ("this system in LSB \n");
   #endif
 
   

@@ -138,7 +138,7 @@ FILE *df;
     default:  fprintf(df, "POINT\r\n");
   }	   
 
-  fprintf( df, "  8\r\n", df);
+  fprintf( df, "  8\r\n");
   fprintf( df, "%s\r\n", id );
   switch ( dxf_type ) {
     case SHPT_ARC:
@@ -190,7 +190,7 @@ int dxf_type;
 FILE *df;
 {
   if ((dxf_type == SHPT_ARC) || ( dxf_type == SHPT_POLYGON)) 
-    fprintf( df, "  0\r\nSEQEND\r\n  8\r\n0\r\n", df);
+    fprintf( df, "  0\r\nSEQEND\r\n  8\r\n0\r\n");
 }
 
 

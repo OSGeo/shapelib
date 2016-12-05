@@ -10,6 +10,11 @@
  * 
  *
  * $Log$
+ * Revision 1.4  2016-12-05 12:44:07  erouault
+ * * Major overhaul of Makefile build system to use autoconf/automake.
+ *
+ * * Warning fixes in contrib/
+ *
  * Revision 1.3  2011-07-24 03:17:46  fwarmerdam
  * include string.h and stdlib.h where needed in contrib (#2146)
  *
@@ -29,7 +34,7 @@ int main( int argc, char ** argv )
     DBFHandle	hDBF;
     int		*panWidth, i, iRecord;
     char	szFormat[32], szField[1024];
-    char	ftype[15], cTitle[32], nTitle[32];
+    char	ftype[32], cTitle[32], nTitle[32];
     int		nWidth, nDecimals;
     int		cnWidth, cnDecimals;
     DBFHandle	cDBF;
@@ -61,7 +66,7 @@ int main( int argc, char ** argv )
 /*	If there is no data in this file let the user know.		*/
 /* -------------------------------------------------------------------- */
     i = DBFGetFieldCount(hDBF);
-    printf ("%ld Columns,  %ld Records in file\n",i,DBFGetRecordCount(hDBF));
+    printf ("%d Columns,  %d Records in file\n",i,DBFGetRecordCount(hDBF));
     
 /* -------------------------------------------------------------------- */
 /*	Compute offsets to use when printing each of the field 		*/

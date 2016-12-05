@@ -9,7 +9,7 @@
  * Copyright (c) 1999, Frank Warmerdam
  *
  * This software is available under the following "MIT Style" license,
- * or at the option of the licensee under the LGPL (see LICENSE.LGPL).  This
+ * or at the option of the licensee under the LGPL (see COPYING).  This
  * option is discussed in more detail in shapelib.html.
  *
  * --
@@ -34,6 +34,11 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.18  2016-12-05 12:44:05  erouault
+ * * Major overhaul of Makefile build system to use autoconf/automake.
+ *
+ * * Warning fixes in contrib/
+ *
  * Revision 1.17  2016-12-04 15:30:15  erouault
  * * shpopen.c, dbfopen.c, shptree.c, shapefil.h: resync with
  * GDAL Shapefile driver. Mostly cleanups. SHPObject and DBFInfo

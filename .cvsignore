@@ -13,3 +13,16 @@ shptest
 *.la
 *.lo
 .libs
+configure
+config.sub
+config.guess
+Makefile.in
+aclocal.m4
+ar-lib
+compile
+depcomp
+install-sh
+ltmain.sh
+missing
+test-driver
+autom4te.cache

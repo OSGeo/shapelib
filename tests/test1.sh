@@ -1,7 +1,11 @@
 #!/bin/sh
-	
+
 EG_DATA=/u/www/projects/shapelib/eg_data
 
+testdir="$(dirname "$(readlink -f $0)")"
+
+(
+cd "$top_builddir"
 echo -------------------------------------------------------------------------
 echo Test 1: dump anno.shp
 echo -------------------------------------------------------------------------
@@ -26,3 +30,16 @@ echo -------------------------------------------------------------------------
 echo Test 5: NULL Shapes.
 echo -------------------------------------------------------------------------
 ./shpdump $EG_DATA/csah.dbf | head -150
+) > "$testdir/s1.out"
+
+result="$(diff "$testdir/s1.out" "$testdir/stream1.out")"
+if [ "$result" == "" ]; then
+	echo "******* Stream 1 Succeeded *********"
+	rm "$testdir/s1.out"
+	exit 0
+else
+	echo "******* Stream 1 Failed *********"
+	echo "$result"
+	rm "$testdir/s1.out"
+	exit 1
+fi

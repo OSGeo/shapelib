@@ -1,3 +1,10 @@
+2016-12-05  Even Rouault  <even.rouault at spatialys.com>
+
+	* Major overhaul of Makefile build system to use autoconf/automake.
+        Contributed by Sandro Mani: https://github.com/manisandro/shapelib/tree/autotools
+
+	* Warning fixes in contrib/
+
 2016-12-04  Even Rouault  <even.rouault at spatialys.com>
 
 	* shpopen.c, dbfopen.c, shptree.c, shapefil.h: resync with

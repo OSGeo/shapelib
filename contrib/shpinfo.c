@@ -27,6 +27,11 @@
  * 
  *
  * $Log$
+ * Revision 1.5  2016-12-05 12:44:07  erouault
+ * * Major overhaul of Makefile build system to use autoconf/automake.
+ *
+ * * Warning fixes in contrib/
+ *
  * Revision 1.4  2011-07-24 03:17:46  fwarmerdam
  * include string.h and stdlib.h where needed in contrib (#2146)
  *
@@ -99,7 +104,7 @@ int main( int argc, char ** argv )
 
 /* -------------------------------------------------------------------- */
    printf ("Info for %s\n",argv[1]);
-   printf ("%s(%d), %ld Records in file\n",sType,nShapeType,nEntities);
+   printf ("%s(%d), %d Records in file\n",sType,nShapeType,nEntities);
 
 /* -------------------------------------------------------------------- */
 /*      Print out the file bounds.                                      */

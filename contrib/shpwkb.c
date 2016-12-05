@@ -26,6 +26,11 @@
  *
  *
  * $Log$
+ * Revision 1.2  2016-12-05 12:44:07  erouault
+ * * Major overhaul of Makefile build system to use autoconf/automake.
+ *
+ * * Warning fixes in contrib/
+ *
  * Revision 1.1  1999-05-26 02:29:36  candrsn
  * OGis Well Known Binary test program (output only)
  *
@@ -33,6 +38,7 @@
  * 
  */
 
+#include <stdlib.h>
 #include "shapefil.h"
 #include "shpgeo.h"
 

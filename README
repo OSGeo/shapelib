@@ -1,34 +1,15 @@
 
-API documentation and other supporting information is available on the
-web site (also in the web subdirectory of this release).
-
-   http://shapelib.maptools.org/
-
 Building on Unix
 ----------------
 
-1) Edit Makefile, and set CFLAGS, and CC macros as required for the
-   target system.  Often the defaults will work fine.
+1) run ./configure to generate build scripts
+   Note: type ./configure --help for a list of fine-tuning options
 
 2) type "make" 
 
-The result should be:
+3) type "make check" to perform self-tests
 
-Core shapelib support.  
-  shpopen.o
-  dbfopen.o
-  safileio.o
-  shptree.o
-  libshp.a
-
-Utility/demonstration programs:
-  shpcreate, shpdump, shpadd, dbfcreate, dbfdump, dbfadd, shptreedump
-
-3) To test type:
-  make test
-
-4) To libshp.a and the test binaries in /usr/local:
-  make install 
+4) type "make install" to install
 
 
 Building on Windows

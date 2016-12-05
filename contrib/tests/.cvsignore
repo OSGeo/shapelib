@@ -1,0 +1,5 @@
+test*.dbf
+test*.shp
+test*.shx
+test*.prj
+test*.out

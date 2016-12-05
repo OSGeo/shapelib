@@ -5,7 +5,8 @@
 
 2) Build the release files. 
 
-   ./mkrelease.sh 1.3.0
+   ./autogen.sh
+   make distcheck
 
 3) Upload:
 
