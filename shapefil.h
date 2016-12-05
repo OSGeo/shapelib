@@ -38,6 +38,11 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.55  2016-12-05 18:44:08  erouault
+ * * dbfopen.c, shapefil.h: write DBF end-of-file character 0x1A by default.
+ * This behaviour can be controlled with the DBFSetWriteEndOfFileChar()
+ * function.
+ *
  * Revision 1.54  2016-12-05 12:44:05  erouault
  * * Major overhaul of Makefile build system to use autoconf/automake.
  *
@@ -615,6 +620,8 @@ typedef struct
     int         nUpdateYearSince1900; /* 0-255 */
     int         nUpdateMonth; /* 1-12 */
     int         nUpdateDay; /* 1-31 */
+
+    int         bWriteEndOfFileChar; /* defaults to TRUE */
 } DBFInfo;
 
 typedef DBFInfo * DBFHandle;
@@ -730,6 +737,8 @@ const char SHPAPI_CALL1(*)
 
 void SHPAPI_CALL
     DBFSetLastModifiedDate( DBFHandle psDBF, int nYYSince1900, int nMM, int nDD );
+
+void SHPAPI_CALL DBFSetWriteEndOfFileChar( DBFHandle psDBF, int bWriteFlag );
 
 #ifdef __cplusplus
 }

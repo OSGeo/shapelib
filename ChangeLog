@@ -1,5 +1,11 @@
 2016-12-05  Even Rouault  <even.rouault at spatialys.com>
 
+	* dbfopen.c, shapefil.h: write DBF end-of-file character 0x1A by default.
+	This behaviour can be controlled with the DBFSetWriteEndOfFileChar()
+	function.
+
+2016-12-05  Even Rouault  <even.rouault at spatialys.com>
+
 	* Major overhaul of Makefile build system to use autoconf/automake.
         Contributed by Sandro Mani: https://github.com/manisandro/shapelib/tree/autotools
 

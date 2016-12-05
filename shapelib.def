@@ -45,6 +45,7 @@ EXPORTS SHPOpen
 	DBFIsRecordDeleted
 	DBFMarkRecordDeleted
 	DBFSetLastModifiedDate
+	DBFSetWriteEndOfFileChar
 	SHPOpenLLEx
 	SHPRestoreSHX
 	SHPSetFastModeReadObject
