@@ -1,3 +1,8 @@
+2016-12-06  Even Rouault  <even.rouault at spatialys.com>
+
+	* web/release.html, HOWTO-RELEASE, configure.ac, CMakeLists.txt: prepare
+	for 1.4.0 release.
+
 2016-12-05  Even Rouault  <even.rouault at spatialys.com>
 
 	* dbfopen.c, shapefil.h: write DBF end-of-file character 0x1A by default.

@@ -12,6 +12,23 @@ the project at www.freshmeat.net.  This is currently the only reliable
 way of finding out about new releases since there is no shapelib specific
 mailing list.<p>
 
+<b>Release 1.4.0</b>:
+<ul>
+<li> Old Makefile build replaced by autoconf/automake (by Sandro Mani)
+<li> CMake build system added (by Alan W. Irwin)
+<li> Added read support for ESRI .sbn spatial index
+<li> Resynchronization with GDAL's Shapefile driver. Mostly cleanups.
+     SHPObject and DBFInfo structures extended with new members
+<li> Add DBFSetLastModifiedDate() to modify the update date in the .dbf
+<li> Add SHPSetFastModeReadObject() to read faster (but shapes got that way
+     share state in the handle, so only one shape at a time can be used)
+<li> Add SHPRestoreSHX() to recreate a missing .shx from the .shp and
+     SHPOpenLLEx().
+<li> Write DBF end-of-file character 0x1A by default.
+     This behaviour can be controlled with the DBFSetWriteEndOfFileChar()
+     function.
+</ul>
+
 <b>Release 1.3.0</b>:
 <ul>
 <li> Major rework to us application provided hooks for file io, and error reporting (SAHooks).  

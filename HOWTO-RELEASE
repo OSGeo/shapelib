@@ -1,6 +1,14 @@
 	Producing Shapelib Releases
 	===========================
 
+0) Update shapelib_version_major/minor/micro and SHAPELIB_SO_VERSION in configure.ac
+   For SHAPELIB_SO_VERSION (CURRENT:REVISION:AGE)
+   - For a release with no interface changes just bump REVISION.
+   - Adding interfaces, bump CURRENT and AGE, set REVISION to 0.
+   - Deleting interfaces / compatibility issues - bump CURRENT, others to zero.
+
+  In CMakeLists.txt, update shp_SOVERSION and shp_VERSION
+
 1) Update web/release.html with change notes on the new release and commit.
 
 2) Build the release files. 

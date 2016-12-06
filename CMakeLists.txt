@@ -111,7 +111,7 @@ if(UNIX)
 endif(UNIX)
 
 set(shp_SOVERSION 1)
-set(shp_VERSION ${shp_SOVERSION}.0.1)
+set(shp_VERSION 1.4.0)
 set_target_properties(shp
   PROPERTIES 
   SOVERSION ${shp_SOVERSION}
