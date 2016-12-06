@@ -23,7 +23,7 @@ I wrote this function for the Autodesk Autocad 2004 MPolygon, because there was
 no function to do this in the Object Arx SDK (the Acad programming SDK). Well, 
 it will be in the 2005 release...but, still. There is a function in the 
 Autodesk Map 2004 version...in the menu.
-Not usefull when you need the coordinates, not the point on the screen...
+Not useful when you need the coordinates, not the point on the screen...
 So when the Acad version was done I was thinking of doing it on the Shape files,
 too. A little bit of changing the structures and variable
 types (so they're not using Object Arx) and I was done.

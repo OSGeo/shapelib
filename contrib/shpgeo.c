@@ -32,6 +32,23 @@
  * use -DPROJ4 to compile in Projection support
  *
  * $Log$
+ * Revision 1.15  2016-12-06 21:13:33  erouault
+ * * configure.ac: change soname to 2:1:0 to be in sync with Debian soname.
+ * http://bugzilla.maptools.org/show_bug.cgi?id=2628
+ * Patch by Bas Couwenberg
+ *
+ * * contrib/doc/Shape_PointInPoly_README.txt, contrib/shpgeo.c: typo fixes.
+ * http://bugzilla.maptools.org/show_bug.cgi?id=2629
+ * Patch by Bas Couwenberg
+ *
+ * * web/*: use a local .css file to avoid a privacy breach issue reported
+ * by the lintian QA tool.
+ * http://bugzilla.maptools.org/show_bug.cgi?id=2630
+ * Patch by Bas Couwenberg
+ *
+ *
+ * Contributed by Sandro Mani: https://github.com/manisandro/shapelib/tree/autotools
+ *
  * Revision 1.14  2016-12-05 12:44:07  erouault
  * * Major overhaul of Makefile build system to use autoconf/automake.
  *
@@ -1459,7 +1476,7 @@ SHPObject* SHPClone ( SHPObject *psCShape, int lowPart, int highPart ) {
 	highPart = psCShape->nParts ;
 
 #ifdef DEBUG
-    printf (" cloning SHP (%d parts) from ring %d upto ring %d \n",
+    printf (" cloning SHP (%d parts) from ring %d to ring %d \n",
 	 psCShape->nParts, lowPart, highPart);
 #endif
 

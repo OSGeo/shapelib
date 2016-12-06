@@ -1,5 +1,20 @@
 2016-12-06  Even Rouault  <even.rouault at spatialys.com>
 
+	* configure.ac: change soname to 2:1:0 to be in sync with Debian soname.
+	http://bugzilla.maptools.org/show_bug.cgi?id=2628
+	Patch by Bas Couwenberg 
+
+	* contrib/doc/Shape_PointInPoly_README.txt, contrib/shpgeo.c: typo fixes.
+	http://bugzilla.maptools.org/show_bug.cgi?id=2629
+	Patch by Bas Couwenberg
+
+	* web/*: use a local .css file to avoid a privacy breach issue reported
+	by the lintian QA tool. 
+	http://bugzilla.maptools.org/show_bug.cgi?id=2630
+	Patch by Bas Couwenberg
+
+2016-12-06  Even Rouault  <even.rouault at spatialys.com>
+
 	* web/release.html, HOWTO-RELEASE, configure.ac, CMakeLists.txt: prepare
 	for 1.4.0 release.
 
@@ -12,7 +27,7 @@
 2016-12-05  Even Rouault  <even.rouault at spatialys.com>
 
 	* Major overhaul of Makefile build system to use autoconf/automake.
-        Contributed by Sandro Mani: https://github.com/manisandro/shapelib/tree/autotools
+	Contributed by Sandro Mani: https://github.com/manisandro/shapelib/tree/autotools
 
 	* Warning fixes in contrib/
 

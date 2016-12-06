@@ -16,7 +16,7 @@ AM_SILENT_RULES([yes])
 m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 
 dnl See http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
-AC_SUBST([SHAPELIB_SO_VERSION], [2:1:1])
+AC_SUBST([SHAPELIB_SO_VERSION], [2:1:0])
 
 AC_PROG_CC
 AC_PROG_CXX
