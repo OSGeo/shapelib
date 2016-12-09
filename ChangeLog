@@ -1,3 +1,9 @@
+2016-12-09  Even Rouault  <even.rouault at spatialys.com>
+
+	* Makefile.am: install web/maptools.css
+
+	* Shapelib 1.4.0 released
+
 2016-12-06  Even Rouault  <even.rouault at spatialys.com>
 
 	* configure.ac: change soname to 2:1:0 to be in sync with Debian soname.

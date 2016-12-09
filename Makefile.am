@@ -13,6 +13,7 @@ endif
 EXTRA_DIST = makefile.vc CMakeLists.txt autogen.sh \
 		tests/test1.sh tests/test2.sh tests/test3.sh \
 		tests/stream1.out tests/stream1.out tests/stream1.out \
+		web/maptools.css \
 		web/codepage.html \
 		web/index.html \
 		web/shapelib-tools.html \
