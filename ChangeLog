@@ -1,6 +1,6 @@
 2016-12-09  Even Rouault  <even.rouault at spatialys.com>
 
-	* Makefile.am: install web/maptools.css
+	* Makefile.am: add web/maptools.css to EXTRA_DIST
 
 	* Shapelib 1.4.0 released
 
