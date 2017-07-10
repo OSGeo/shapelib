@@ -32,6 +32,10 @@
  * use -DPROJ4 to compile in Projection support
  *
  * $Log$
+ * Revision 1.16  2017-07-10 18:01:35  erouault
+ * * contrib/shpgeo.c: fix compilation on _MSC_VER < 1800 regarding lack
+ * of NAN macro.
+ *
  * Revision 1.15  2016-12-06 21:13:33  erouault
  * * configure.ac: change soname to 2:1:0 to be in sync with Debian soname.
  * http://bugzilla.maptools.org/show_bug.cgi?id=2628
@@ -98,6 +102,12 @@
 #include "shapefil.h"
 
 #include "shpgeo.h"
+
+#if defined(_MSC_VER) && _MSC_VER < 1800
+#include <float.h>
+#define INFINITY (DBL_MAX + DBL_MAX)
+#define NAN (INFINITY - INFINITY)
+#endif
 
 
  /* I'm using some shorthand throughout this file

@@ -1,3 +1,8 @@
+2017-07-10  Even Rouault  <even.rouault at spatialys.com>
+
+	* contrib/shpgeo.c: fix compilation on _MSC_VER < 1800 regarding lack
+	of NAN macro.
+
 2016-12-09  Even Rouault  <even.rouault at spatialys.com>
 
 	* Makefile.am: add web/maptools.css to EXTRA_DIST
