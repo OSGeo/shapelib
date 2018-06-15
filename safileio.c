@@ -34,6 +34,10 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.6  2018-06-15 19:56:32  erouault
+ * * safileio.c: remove duplicate test. Patch by Jaroslav Fojtik.
+ * Fixes http://bugzilla.maptools.org/show_bug.cgi?id=2744
+ *
  * Revision 1.5  2016-12-05 12:44:05  erouault
  * * Major overhaul of Makefile build system to use autoconf/automake.
  *
@@ -236,7 +240,7 @@ SAFile SAUtf8WFOpen( const char *pszFilename, const char *pszAccess )
     const wchar_t *pwszFileName, *pwszAccess;
     pwszFileName = Utf8ToWideChar( pszFilename );
     pwszAccess = Utf8ToWideChar( pszAccess );
-    if( pwszFileName != NULL && pwszFileName != NULL)
+    if( pwszFileName != NULL && pwszAccess != NULL)
     {
         file = (SAFile) _wfopen( pwszFileName, pwszAccess );
     }

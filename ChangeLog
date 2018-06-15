@@ -1,3 +1,8 @@
+2018-06-15  Even Rouault  <even.rouault at spatialys.com>
+
+	* safileio.c: remove duplicate test. Patch by Jaroslav Fojtik.
+	Fixes http://bugzilla.maptools.org/show_bug.cgi?id=2744
+
 2017-09-14  Even Rouault  <even.rouault at spatialys.com>
 
 	* Shapelib 1.4.1 released
