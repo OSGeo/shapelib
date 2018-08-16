@@ -1,3 +1,10 @@
+2018-08-16  Even Rouault  <even.rouault at spatialys.com>
+
+	* dbfopen.c: fix a bug where the end of file character was
+	written on top of the first character of the first field name
+	when deleting a field on a .dbf without records.
+	Fixes https://github.com/OSGeo/gdal/issues/863
+
 2018-06-15  Even Rouault  <even.rouault at spatialys.com>
 
 	* safileio.c: remove duplicate test. Patch by Jaroslav Fojtik.

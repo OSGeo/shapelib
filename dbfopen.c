@@ -35,6 +35,12 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.93  2018-08-16 15:24:46  erouault
+ * * dbfopen.c: fix a bug where the end of file character was
+ * written on top of the first character of the first field name
+ * when deleting a field on a .dbf without records.
+ * Fixes https://github.com/OSGeo/gdal/issues/863
+ *
  * Revision 1.92  2016-12-05 18:44:08  erouault
  * * dbfopen.c, shapefil.h: write DBF end-of-file character 0x1A by default.
  * This behaviour can be controlled with the DBFSetWriteEndOfFileChar()
@@ -2025,6 +2031,10 @@ DBFDeleteField(DBFHandle psDBF, int iField)
     if( psDBF->bWriteEndOfFileChar )
     {
         char ch = END_OF_FILE_CHARACTER;
+        SAOffset nEOFOffset =
+            psDBF->nRecordLength * (SAOffset)psDBF->nRecords + psDBF->nHeaderLength;
+
+        psDBF->sHooks.FSeek( psDBF->fp, nEOFOffset, 0 );
         psDBF->sHooks.FWrite( &ch, 1, 1, psDBF->fp );
     }
 
