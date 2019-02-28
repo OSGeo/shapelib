@@ -1,8 +1,8 @@
 
 CFLAGS	=	/Ox /MD /nologo /I.. /IC:\OSGeo4W\include \
-		/D_LITTLE_ENDIAN -DPROJ4 
+		/D_LITTLE_ENDIAN
 
-LINKARGS =	..\shapelib_i.lib C:\OSGeo4W\lib\proj_i.lib
+LINKARGS =	..\shapelib_i.lib
 
 default:	all
 
@@ -14,10 +14,6 @@ shpcat.exe:	shpcat.obj shpgeo.obj
 
 shpcentrd.exe:	shpcentrd.obj shpgeo.obj 
 	$(CC) $(CFLAGS) shpcentrd.obj  shpgeo.obj $(LINKARGS) 
-	if exist $@.manifest mt -manifest $@.manifest -outputresource:$@;1
-
-shpproj.exe:	shpproj.obj shpgeo.obj 
-	$(CC) $(CFLAGS) shpproj.obj shpgeo.obj $(LINKARGS) 
 	if exist $@.manifest mt -manifest $@.manifest -outputresource:$@;1
 
 shpdxf.exe:	shpdxf.obj shpgeo.obj 

@@ -1,3 +1,9 @@
+2019-02-28  Even Rouault  <even.rouault at spatialys.com>
+
+	* contrib/shpgeo.h/.c: Remove PROJ.4 dependency and functionality,
+	 causing removal of SHPProject(), SHPSetProjection() and SHPFreeProjection()
+	* contrib/shpproj.c: removed
+
 2018-08-16  Even Rouault  <even.rouault at spatialys.com>
 
 	* shpopen.c, dbfopen.c, shptree.c, sbnsearch.c: resyc with GDAL

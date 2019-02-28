@@ -32,6 +32,11 @@
  * use -DPROJ4 to compile in Projection support
  *
  * $Log$
+ * Revision 1.17  2019-02-28 15:51:49  erouault
+ * * contrib/shpgeo.h/.c: Remove PROJ.4 dependency and functionality,
+ *  causing removal of SHPProject(), SHPSetProjection() and SHPFreeProjection()
+ * * contrib/shpproj.c: removed
+ *
  * Revision 1.16  2017-07-10 18:01:35  erouault
  * * contrib/shpgeo.c: fix compilation on _MSC_VER < 1800 regarding lack
  * of NAN macro.
@@ -181,91 +186,6 @@ static void * SfRealloc( void * pMem, int nNewSize )
     else
         return( (void *) realloc(pMem,nNewSize) );
 }
-
-
-/* **************************************************************************
- * SHPPRoject
- *
- * Project points using projection handles, for use with PROJ4.3
- *
- * act as a wrapper to protect against library changes in PROJ
- * 
- * **************************************************************************/ 
-int SHPProject ( SHPObject *psCShape, projPJ inproj, projPJ outproj ) {
-#ifdef	PROJ4
-
-    int    j;
-
-    if ( pj_is_latlong(inproj) ) {
-        for(j=0; j < psCShape->nVertices; j++) {
-            psCShape->padfX[j] *= DEG_TO_RAD;
-            psCShape->padfY[j] *= DEG_TO_RAD;
-        }
-    }   
-
-    pj_transform(inproj, outproj, psCShape->nVertices, 0, psCShape->padfX,
-                 psCShape->padfY, NULL);
-
-    if ( pj_is_latlong(outproj) ) {
-        for(j=0; j < psCShape->nVertices; j++) {
-            psCShape->padfX[j] *= RAD_TO_DEG;
-            psCShape->padfY[j] *= RAD_TO_DEG;
-        }
-    }   
-
-    /* Recompute new Extents of projected Object								*/
-    SHPComputeExtents ( psCShape );
-#endif  
-
-    return ( 1 );
-}
-
-
-/* **************************************************************************
- * SHPSetProjection
- *
- * establish a projection handle for use with PROJ4.3
- *
- * act as a wrapper to protect against library changes in PROJ
- *
- * **************************************************************************/
-projPJ SHPSetProjection ( int param_cnt, char **params ) {
-#ifdef PROJ4
-  projPJ	*p = NULL;
-
-  if ( param_cnt > 0 && params[0] )
-  {
-      p = pj_init ( param_cnt, params );
-  }
-  else
-  {
-      char* params_local[] = { "+proj=longlat", NULL };
-      p = pj_init ( 1, params_local );
-  }
-
-  return ( p );
-#else
-  return ( NULL );
-#endif
-}
-
-
-/* **************************************************************************
- * SHPFreeProjection
- *
- * release a projection handle for use with PROJ4.3
- *
- * act as a wrapper to protect against library changes in PROJ
- * 
- * **************************************************************************/
-int SHPFreeProjection ( projPJ p) {
-#ifdef PROJ4
-  if ( p )
-    pj_free ( p );
-#endif
-  return ( 1 );
-}
-
 
 /* **************************************************************************
  * SHPOGisType

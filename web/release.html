@@ -8,9 +8,16 @@
 <h1>Shapelib Release Notes</h1>
 
 To get notification of new releases of Shapelib <i>subscribe</i> to 
-the project at www.freshmeat.net.  This is currently the only reliable
-way of finding out about new releases since there is no shapelib specific
-mailing list.<p>
+the project mailing list at https://lists.osgeo.org/pipermail/shapelib/.<p>
+
+<b>Release 1.5.0</b>:
+<ul>
+<li> Add FTDate entry in DBFFieldType
+	(see <a href="https://github.com/OSGeo/gdal/pull/308">GDAL Pull request 308</a>)
+<li> Remove PROJ.4 dependency and functionality, causing removal of
+     SHPProject(), SHPSetProjection() and SHPFreeProjection() from contrib/shpgeo.h,
+     and removal of the contrib shpproj utility.
+</ul>
 
 <b>Release 1.4.1</b>:
 <ul>

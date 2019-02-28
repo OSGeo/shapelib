@@ -27,6 +27,11 @@
  *
  *
  * $Log$
+ * Revision 1.5  2019-02-28 15:51:49  erouault
+ * * contrib/shpgeo.h/.c: Remove PROJ.4 dependency and functionality,
+ *  causing removal of SHPProject(), SHPSetProjection() and SHPFreeProjection()
+ * * contrib/shpproj.c: removed
+ *
  * Revision 1.4  2016-12-05 12:44:07  erouault
  * * Major overhaul of Makefile build system to use autoconf/automake.
  *
@@ -72,12 +77,6 @@
 extern "C" {
 #endif
 
-#ifdef	PROJ4
-#include "proj_api.h"
-#else
-typedef void* projPJ;
-#endif
-
 #define		SHPD_POINT	 		1
 #define		SHPD_LINE	 		2
 #define		SHPD_AREA			4
@@ -112,10 +111,6 @@ typedef struct { int		cParts;
 
 
 extern char * asFileName ( const char *fil, char *ext );
-extern int 	SHPProject ( SHPObject *psCShape, 
-                             projPJ inproj, projPJ outproj );
-extern projPJ 	SHPSetProjection ( int param_cnt, char **params );
-extern int 	SHPFreeProjection ( projPJ p);
 
 extern int 	SHPDimension ( int SHPType );
 
