@@ -1,7 +1,7 @@
 CONTRIB_CFLAGS = -I$(top_srcdir) -DDEBUG -DDEBUG2
 
 # Extra files to distribute in the source tarball
-EXTRA_DIST = makefile.vc doc/Shape_PointInPoly_README.txt doc/shpsort.txt ShapeFileII.pas
+EXTRA_DIST = makefile.vc tests/shpproj.sh doc/Shape_PointInPoly_README.txt doc/shpsort.txt ShapeFileII.pas
 
 # Installed executables
 bin_PROGRAMS = dbfcat dbfinfo shpcat shpdxf shpfix shpsort Shape_PointInPoly shpcentrd shpdata shpinfo shpwkb

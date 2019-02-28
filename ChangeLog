@@ -1,4 +1,8 @@
 2019-02-28  Even Rouault  <even.rouault at spatialys.com>
+	* Fix 'make distcheck' broken by nth-2 commit
+	* Shapelib 1.5.0 released
+
+2019-02-28  Even Rouault  <even.rouault at spatialys.com>
 
 	* shpopen.c: resync with GDAL internal shapelib to avoid being dependent
 	on correctness of file size field in .shp. Fixes

@@ -6,7 +6,7 @@ LINKARGS =	..\shapelib_i.lib
 
 default:	all
 
-all:	shpcat.exe shpcentrd.exe shpdxf.exe shpinfo.exe shpproj.exe
+all:	shpcat.exe shpcentrd.exe shpdxf.exe shpinfo.exe
 
 shpcat.exe:	shpcat.obj shpgeo.obj 
 	$(CC) $(CFLAGS) shpcat.obj  $(LINKARGS) 
