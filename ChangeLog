@@ -1,5 +1,11 @@
 2019-02-28  Even Rouault  <even.rouault at spatialys.com>
 
+	* shpopen.c: resync with GDAL internal shapelib to avoid being dependent
+	on correctness of file size field in .shp. Fixes
+	https://lists.osgeo.org/pipermail/gdal-dev/2018-October/049218.html
+
+2019-02-28  Even Rouault  <even.rouault at spatialys.com>
+
 	* contrib/shpgeo.h/.c: Remove PROJ.4 dependency and functionality,
 	 causing removal of SHPProject(), SHPSetProjection() and SHPFreeProjection()
 	* contrib/shpproj.c: removed

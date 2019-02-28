@@ -17,6 +17,8 @@ the project mailing list at https://lists.osgeo.org/pipermail/shapelib/.<p>
 <li> Remove PROJ.4 dependency and functionality, causing removal of
      SHPProject(), SHPSetProjection() and SHPFreeProjection() from contrib/shpgeo.h,
      and removal of the contrib shpproj utility.
+<li> shpopen.c: avoid being dependent on correctness of file size field in .shp. Fixes
+      <a href="https://lists.osgeo.org/pipermail/gdal-dev/2018-October/049218.html">https://lists.osgeo.org/pipermail/gdal-dev/2018-October/049218.html</a>
 </ul>
 
 <b>Release 1.4.1</b>:

@@ -35,6 +35,11 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.78  2019-02-28 15:55:23  erouault
+ * * shpopen.c: resync with GDAL internal shapelib to avoid being dependent
+ * on correctness of file size field in .shp. Fixes
+ * https://lists.osgeo.org/pipermail/gdal-dev/2018-October/049218.html
+ *
  * Revision 1.77  2018-08-16 15:39:07  erouault
  * * shpopen.c, dbfopen.c, shptree.c, sbnsearch.c: resyc with GDAL
  * internal shapelib. Mostly to allow building those files as C++
@@ -2163,33 +2168,35 @@ SHPReadObject( SHPHandle psSHP, int hEntity )
         /* Before allocating too much memory, check that the file is big enough */
         /* and do not trust the file size in the header the first time we */
         /* need to allocate more than 10 MB */
-        if( nNewBufSize >= 10 * 1024 * 1024 &&
-            psSHP->nBufSize < 10 * 1024 * 1024 )
+        if( nNewBufSize >= 10 * 1024 * 1024 )
         {
-            SAOffset nFileSize;
-            psSHP->sHooks.FSeek( psSHP->fpSHP, 0, 2 );
-            nFileSize = psSHP->sHooks.FTell(psSHP->fpSHP);
-            if( nFileSize >= UINT_MAX )
-                psSHP->nFileSize = UINT_MAX;
-            else
-                psSHP->nFileSize = STATIC_CAST(unsigned int, nFileSize);
-        }
+            if( psSHP->nBufSize < 10 * 1024 * 1024 )
+            {
+                SAOffset nFileSize;
+                psSHP->sHooks.FSeek( psSHP->fpSHP, 0, 2 );
+                nFileSize = psSHP->sHooks.FTell(psSHP->fpSHP);
+                if( nFileSize >= UINT_MAX )
+                    psSHP->nFileSize = UINT_MAX;
+                else
+                    psSHP->nFileSize = STATIC_CAST(unsigned int, nFileSize);
+            }
 
-        if( psSHP->panRecOffset[hEntity] >= psSHP->nFileSize ||
-            /* We should normally use nEntitySize instead of*/
-            /* psSHP->panRecSize[hEntity] in the below test, but because of */
-            /* the case of non conformant .shx files detailed a bit below, */
-            /* let be more tolerant */
-            psSHP->panRecSize[hEntity] > psSHP->nFileSize - psSHP->panRecOffset[hEntity] )
-        {
-            char str[128];
-            snprintf( str, sizeof(str),
-                        "Error in fread() reading object of size %d at offset %u from .shp file",
-                        nEntitySize, psSHP->panRecOffset[hEntity] );
-            str[sizeof(str)-1] = '\0';
+            if( psSHP->panRecOffset[hEntity] >= psSHP->nFileSize ||
+                /* We should normally use nEntitySize instead of*/
+                /* psSHP->panRecSize[hEntity] in the below test, but because of */
+                /* the case of non conformant .shx files detailed a bit below, */
+                /* let be more tolerant */
+                psSHP->panRecSize[hEntity] > psSHP->nFileSize - psSHP->panRecOffset[hEntity] )
+            {
+                char str[128];
+                snprintf( str, sizeof(str),
+                            "Error in fread() reading object of size %d at offset %u from .shp file",
+                            nEntitySize, psSHP->panRecOffset[hEntity] );
+                str[sizeof(str)-1] = '\0';
 
-            psSHP->sHooks.Error( str );
-            return SHPLIB_NULLPTR;
+                psSHP->sHooks.Error( str );
+                return SHPLIB_NULLPTR;
+            }
         }
 
         pabyRecNew = STATIC_CAST(uchar *, SfRealloc(psSHP->pabyRec,nNewBufSize));
