@@ -368,10 +368,25 @@ static int DBFFlushRecord( DBFHandle psDBF )
             psDBF->nRecordLength * STATIC_CAST(SAOffset, psDBF->nCurrentRecord)
             + psDBF->nHeaderLength;
 
-	if( psDBF->sHooks.FSeek( psDBF->fp, nRecordOffset, 0 ) != 0
-            || psDBF->sHooks.FWrite( psDBF->pszCurrentRecord,
-                                     psDBF->nRecordLength,
-                                     1, psDBF->fp ) != 1 )
+/* -------------------------------------------------------------------- */
+/*      Guard FSeek with check for whether we're already at position;   */
+/*      no-op FSeeks defeat network filesystems' write buffering.       */
+/* -------------------------------------------------------------------- */
+        if ( psDBF->bRequireNextWriteSeek ||
+	     psDBF->sHooks.FTell( psDBF->fp ) != nRecordOffset ) {
+            if ( psDBF->sHooks.FSeek( psDBF->fp, nRecordOffset, 0 ) != 0 ) {
+                char szMessage[128];
+                snprintf( szMessage, sizeof(szMessage),
+                          "Failure seeking to position before writing DBF record %d.",
+                          psDBF->nCurrentRecord );
+                psDBF->sHooks.Error( szMessage );
+                return FALSE;
+            }
+        }
+
+	if ( psDBF->sHooks.FWrite( psDBF->pszCurrentRecord,
+                               psDBF->nRecordLength,
+                               1, psDBF->fp ) != 1 )
         {
             char szMessage[128];
             snprintf( szMessage, sizeof(szMessage), "Failure writing DBF record %d.",
@@ -379,6 +394,11 @@ static int DBFFlushRecord( DBFHandle psDBF )
             psDBF->sHooks.Error( szMessage );
             return FALSE;
         }
+
+/* -------------------------------------------------------------------- */
+/*      If next op is also a write, allow possible skipping of FSeek.   */
+/* -------------------------------------------------------------------- */
+	psDBF->bRequireNextWriteSeek = FALSE;
 
         if( psDBF->nCurrentRecord == psDBF->nRecords - 1 )
         {
@@ -430,6 +450,10 @@ static int DBFLoadRecord( DBFHandle psDBF, int iRecord )
         }
 
 	psDBF->nCurrentRecord = iRecord;
+/* -------------------------------------------------------------------- */
+/*      Require a seek for next write in case of mixed R/W operations.  */
+/* -------------------------------------------------------------------- */
+	psDBF->bRequireNextWriteSeek = TRUE;
     }
 
     return TRUE;
@@ -725,6 +749,8 @@ DBFOpenLL( const char * pszFilename, const char * pszAccess, SAHooks *psHooks )
 
     DBFSetWriteEndOfFileChar( psDBF, TRUE );
 
+    psDBF->bRequireNextWriteSeek = TRUE;
+
     return( psDBF );
 }
 
@@ -909,6 +935,8 @@ DBFCreateLL( const char * pszFilename, const char * pszCodePage, SAHooks *psHook
     DBFSetLastModifiedDate(psDBF, 95, 7, 26); /* dummy date */
 
     DBFSetWriteEndOfFileChar(psDBF, TRUE);
+
+    psDBF->bRequireNextWriteSeek = TRUE;
 
     return( psDBF );
 }
