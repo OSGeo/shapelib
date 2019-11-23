@@ -368,10 +368,24 @@ static int DBFFlushRecord( DBFHandle psDBF )
             psDBF->nRecordLength * STATIC_CAST(SAOffset, psDBF->nCurrentRecord)
             + psDBF->nHeaderLength;
 
-	if( psDBF->sHooks.FSeek( psDBF->fp, nRecordOffset, 0 ) != 0
-            || psDBF->sHooks.FWrite( psDBF->pszCurrentRecord,
-                                     psDBF->nRecordLength,
-                                     1, psDBF->fp ) != 1 )
+/* -------------------------------------------------------------------- */
+/*      Guard FSeek with check for whether we're already at position;   */
+/*      no-op FSeeks defeat network filesystems' write buffering.       */
+/* -------------------------------------------------------------------- */
+    if ( psDBF->sHooks.FTell( psDBF->fp ) != nRecordOffset ) {
+      if ( psDBF->sHooks.FSeek( psDBF->fp, nRecordOffset, 0 ) != 0 ) {
+        char szMessage[128];
+        snprintf( szMessage, sizeof(szMessage),
+                  "Failure seeking to position before writing DBF record %d.",
+                  psDBF->nCurrentRecord );
+        psDBF->sHooks.Error( szMessage );
+        return FALSE;
+      }
+    }
+
+	if ( psDBF->sHooks.FWrite( psDBF->pszCurrentRecord,
+                               psDBF->nRecordLength,
+                               1, psDBF->fp ) != 1 )
         {
             char szMessage[128];
             snprintf( szMessage, sizeof(szMessage), "Failure writing DBF record %d.",
