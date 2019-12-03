@@ -137,6 +137,8 @@ int main( int argc, char ** argv )
 	    switch( cType )
 	    {
 	      case FTString:
+              case FTLogical:
+              case FTDate:
 	        DBFWriteStringAttribute(cDBF, ciRecord, ci,
      			(char *) DBFReadStringAttribute( hDBF, iRecord, i ) );
 		break;
@@ -153,6 +155,9 @@ int main( int argc, char ** argv )
 	    	DBFWriteDoubleAttribute(cDBF, ciRecord, ci, 
 			(double) DBFReadDoubleAttribute( hDBF, iRecord, i ) );
 		break;
+
+              case FTInvalid:
+                break;
 	    }
 	  }
 	}   /* fields names match */

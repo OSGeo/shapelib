@@ -397,6 +397,7 @@ int main( int argc, char ** argv )
                 {
                   case FTString:
                   case FTLogical:
+                  case FTDate:
                     DBFWriteStringAttribute(hDBFappend, jRecord, pt[i],
                                             (DBFReadStringAttribute( hDBF, iRecord, i )) );
                     break;
@@ -676,6 +677,7 @@ void showitems()
         {
           case FTString:
           case FTLogical:
+          case FTDate:
             strcpy(slow, "~");
             strcpy(shigh,"\0");
             printf("\n  String  %3d  %-16s",iWidth,iszTitle);
@@ -902,6 +904,8 @@ int clip_boundary()
         if (i2 == 0) return(0); /** SKIP  RECORD **/
         else    return(1); /** WRITE RECORD **/
     }  /** End CUT **/
+
+    return 0;
 }
 
 
