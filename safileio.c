@@ -89,7 +89,7 @@ SHP_CVSID("$Id$");
 /*                              SADFOpen()                              */
 /************************************************************************/
 
-SAFile SADFOpen( const char *pszFilename, const char *pszAccess )
+static SAFile SADFOpen( const char *pszFilename, const char *pszAccess )
 
 {
     return (SAFile) fopen( pszFilename, pszAccess );
@@ -99,7 +99,7 @@ SAFile SADFOpen( const char *pszFilename, const char *pszAccess )
 /*                              SADFRead()                              */
 /************************************************************************/
 
-SAOffset SADFRead( void *p, SAOffset size, SAOffset nmemb, SAFile file )
+static SAOffset SADFRead( void *p, SAOffset size, SAOffset nmemb, SAFile file )
 
 {
     return (SAOffset) fread( p, (size_t) size, (size_t) nmemb, 
@@ -110,7 +110,7 @@ SAOffset SADFRead( void *p, SAOffset size, SAOffset nmemb, SAFile file )
 /*                             SADFWrite()                              */
 /************************************************************************/
 
-SAOffset SADFWrite( void *p, SAOffset size, SAOffset nmemb, SAFile file )
+static SAOffset SADFWrite( void *p, SAOffset size, SAOffset nmemb, SAFile file )
 
 {
     return (SAOffset) fwrite( p, (size_t) size, (size_t) nmemb, 
@@ -121,7 +121,7 @@ SAOffset SADFWrite( void *p, SAOffset size, SAOffset nmemb, SAFile file )
 /*                              SADFSeek()                              */
 /************************************************************************/
 
-SAOffset SADFSeek( SAFile file, SAOffset offset, int whence )
+static SAOffset SADFSeek( SAFile file, SAOffset offset, int whence )
 
 {
     return (SAOffset) fseek( (FILE *) file, (long) offset, whence );
@@ -131,7 +131,7 @@ SAOffset SADFSeek( SAFile file, SAOffset offset, int whence )
 /*                              SADFTell()                              */
 /************************************************************************/
 
-SAOffset SADFTell( SAFile file )
+static SAOffset SADFTell( SAFile file )
 
 {
     return (SAOffset) ftell( (FILE *) file );
@@ -141,7 +141,7 @@ SAOffset SADFTell( SAFile file )
 /*                             SADFFlush()                              */
 /************************************************************************/
 
-int SADFFlush( SAFile file )
+static int SADFFlush( SAFile file )
 
 {
     return fflush( (FILE *) file );
@@ -151,7 +151,7 @@ int SADFFlush( SAFile file )
 /*                             SADFClose()                              */
 /************************************************************************/
 
-int SADFClose( SAFile file )
+static int SADFClose( SAFile file )
 
 {
     return fclose( (FILE *) file );
@@ -161,7 +161,7 @@ int SADFClose( SAFile file )
 /*                             SADFClose()                              */
 /************************************************************************/
 
-int SADRemove( const char *filename )
+static int SADRemove( const char *filename )
 
 {
     return remove( filename );
@@ -171,7 +171,7 @@ int SADRemove( const char *filename )
 /*                              SADError()                              */
 /************************************************************************/
 
-void SADError( const char *message )
+static void SADError( const char *message )
 
 {
     fprintf( stderr, "%s\n", message );

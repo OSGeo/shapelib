@@ -43,7 +43,7 @@
 
 #define FLOAT_PREC "%16.5f\r\n"
 
-void dxf_hdr (x1,y1,x2,y2,df)
+static void dxf_hdr (x1,y1,x2,y2,df)
 double x1,y1,x2,y2;
 FILE  *df;
 {
@@ -122,7 +122,7 @@ FILE  *df;
 }
 
 
-void
+static void
 dxf_ent_preamble (dxf_type, id, df)
 int dxf_type;
 char *id;
@@ -159,7 +159,7 @@ FILE *df;
 
 }
 
-void
+static void
 dxf_ent (id, x, y, z, dxf_type, df)
 char *id;
 double x,y,z;
@@ -184,7 +184,7 @@ FILE *df;
 }
 
 
-void
+static void
 dxf_ent_postamble (dxf_type, df)
 int dxf_type;
 FILE *df;

@@ -231,7 +231,7 @@ int SHPOGisType ( int GeomType, int toOGis) {
  * Encapsulate entire SHPObject for use with Postgresql
  *
  * **************************************************************************/
-int SHPReadSHPStream ( SHPObject *psCShape, char *stream_obj) {
+static int SHPReadSHPStream ( SHPObject *psCShape, char *stream_obj) {
 
 int	obj_storage;
 int	my_order, need_swap =0, GeoType ;
@@ -289,7 +289,7 @@ int	use_M = 0;
  * Encapsulate entire SHPObject for use with Postgresql
  *
  * **************************************************************************/
-int SHPWriteSHPStream ( WKBStreamObj *stream_obj, SHPObject *psCShape ) {
+static int SHPWriteSHPStream ( WKBStreamObj *stream_obj, SHPObject *psCShape ) {
 
 /*int	obj_storage = 0;*/
 int	need_swap = 0, my_order, GeoType;
@@ -329,7 +329,7 @@ int	use_M = 0;
  * Encapsulate entire SHPObject for use with Postgresql
  *
  * **************************************************************************/
-int WKBStreamWrite ( WKBStreamObj* wso, void* this, int tcount, int tsize ) {
+static int WKBStreamWrite ( WKBStreamObj* wso, void* this, int tcount, int tsize ) {
 
    if ( wso->NeedSwap )
      SwapG ( &(wso->wStream[wso->StreamPos]), this, tcount, tsize );
@@ -349,7 +349,7 @@ int WKBStreamWrite ( WKBStreamObj* wso, void* this, int tcount, int tsize ) {
  * Encapsulate entire SHPObject for use with Postgresql
  *
  * **************************************************************************/
-int WKBStreamRead ( WKBStreamObj* wso, void* this, int tcount, int tsize ) {
+static int WKBStreamRead ( WKBStreamObj* wso, void* this, int tcount, int tsize ) {
 
    if ( wso->NeedSwap )
      SwapG ( this, &(wso->wStream[wso->StreamPos]), tcount, tsize );
@@ -759,7 +759,7 @@ SHPObject* SHPReadOGisPoint ( WKBStreamObj *stream_obj ) {
  * Encapsulate entire SHPObject for use with Postgresql
  *
  * **************************************************************************/
-int RingReadOgisWKB ( SHPObject *psCShape, char *stream_obj) {
+static int RingReadOgisWKB ( SHPObject *psCShape, char *stream_obj) {
     return 0;
 }
 
@@ -772,7 +772,7 @@ int RingReadOgisWKB ( SHPObject *psCShape, char *stream_obj) {
  * Encapsulate entire SHPObject for use with Postgresql
  *
  * **************************************************************************/
-int RingWriteOgisWKB ( SHPObject *psCShape, char *stream_obj) {
+static int RingWriteOgisWKB ( SHPObject *psCShape, char *stream_obj) {
 
     return 0;
 }
