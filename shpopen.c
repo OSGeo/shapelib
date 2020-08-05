@@ -947,7 +947,7 @@ void SHPAPI_CALL SHPSetFastModeReadObject( SHPHandle hSHP, int bFastMode )
 
 void SHPAPI_CALL
 SHPGetInfo(SHPHandle psSHP, int * pnEntities, int * pnShapeType,
-           double * padfMinBound, double * padfMaxBound )
+           double * padfMinBound[], double * padfMaxBound[] )
 
 {
     int		i;
@@ -964,9 +964,9 @@ SHPGetInfo(SHPHandle psSHP, int * pnEntities, int * pnShapeType,
     for( i = 0; i < 4; i++ )
     {
         if( padfMinBound != SHPLIB_NULLPTR )
-            padfMinBound[i] = psSHP->adBoundsMin[i];
+            *padfMinBound[i] = psSHP->adBoundsMin[i];
         if( padfMaxBound != SHPLIB_NULLPTR )
-            padfMaxBound[i] = psSHP->adBoundsMax[i];
+            *padfMaxBound[i] = psSHP->adBoundsMax[i];
     }
 }
 

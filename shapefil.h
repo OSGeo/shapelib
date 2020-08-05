@@ -438,7 +438,7 @@ SHPHandle SHPAPI_CALL
                    SAHooks *psHooks );
 void SHPAPI_CALL
       SHPGetInfo( SHPHandle hSHP, int * pnEntities, int * pnShapeType,
-                  double * padfMinBound, double * padfMaxBound );
+                  double * padfMinBound[], double * padfMaxBound[] );
 
 SHPObject SHPAPI_CALL1(*)
       SHPReadObject( SHPHandle hSHP, int iShape );
