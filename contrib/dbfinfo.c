@@ -32,14 +32,9 @@ int main( int argc, char ** argv )
 
 {
     DBFHandle	hDBF;
-    int		*panWidth, i, iRecord;
-    char	szFormat[32], szField[1024];
-    char	ftype[32], cTitle[32], nTitle[32];
+    int		*panWidth, i;
+    char	ftype[32];
     int		nWidth, nDecimals;
-    int		cnWidth, cnDecimals;
-    DBFHandle	cDBF;
-    DBFFieldType	hType,cType;
-    int		ci, ciRecord;
 
 /* -------------------------------------------------------------------- */
 /*      Display a usage message.                                        */
@@ -78,7 +73,6 @@ int main( int argc, char ** argv )
     for( i = 0; i < DBFGetFieldCount(hDBF); i++ )
     {
 	char		szTitle[12];
-	DBFFieldType	eType;
 
 	switch ( DBFGetFieldInfo( hDBF, i, szTitle, &nWidth, &nDecimals )) {
 	      case FTString:

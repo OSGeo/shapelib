@@ -45,23 +45,13 @@
 int main( int argc, char ** argv )
 
 {
-    SHPHandle	old_SHP, new_SHP;
-    DBFHandle   old_DBF, new_DBF;
-    int		nShapeType, nEntities, nVertices, nParts, *panParts, i, iPart;
-    double	*padVertices, adBounds[4];
-    const char 	*pszPlus;
-    DBFFieldType  idfld_type;
-    int		idfld, nflds;
-    char	kv[257] = "";
-    char	idfldName[120] = "";
-    char	fldName[120] = "";
-    char	shpFileName[120] = "";
-    char	dbfFileName[120] = "";
+    SHPHandle	old_SHP;
+    DBFHandle   old_DBF;
+    int		nShapeType, nEntities, i;
     char	*DBFRow = NULL;
-    int		Cpan[2] = { 0,0 };
     int		byRing = 1;
     PT		oCentrd, ringCentrd;
-    SHPObject	*psCShape, *cent_pt;
+    SHPObject	*psCShape;
     double	oArea = 0.0, oLen = 0.0;
 
     if( argc < 2 )
@@ -81,8 +71,6 @@ int main( int argc, char ** argv )
     SHPGetInfo( old_SHP, &nEntities, &nShapeType, NULL, NULL );
     for( i = 0; i < nEntities; i++ )
     {
-	int		res ;
-
 	psCShape = SHPReadObject( old_SHP, i );
 
         if ( byRing == 1 ) {
@@ -92,7 +80,7 @@ int main( int argc, char ** argv )
           prevStart = psCShape->nVertices;
           for ( ring = (psCShape->nParts - 1); ring >= 0; ring-- ) {
 	    SHPObject 	*psO;
-	    int		j, numVtx, rStart;
+	    int		numVtx, rStart;
             
             rStart = psCShape->panPartStart[ring];
             if ( ring == (psCShape->nParts -1) )

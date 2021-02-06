@@ -54,13 +54,9 @@
 int main( int argc, char ** argv )
 
 {
-    SHPHandle	hSHP, cSHP;
-    int		nShapeType, nEntities, nVertices, nParts, *panParts, i, iPart;
-    double	*padVertices, adfBndsMin[4], adfBndsMax[4];
-    const char 	*pszPlus;
-    int		cShapeType, cEntities, cVertices, cParts, *cpanParts, ci, cPart;
-    double	*cpadVertices, cadBounds[4];
-    const char 	*cpszPlus;
+    SHPHandle	hSHP;
+    int		nShapeType, nEntities;
+    double	adfBndsMin[4], adfBndsMax[4];
     char	sType [15]= "";
 /* -------------------------------------------------------------------- */
 /*      Display a usage message.                                        */
