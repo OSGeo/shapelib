@@ -29,8 +29,7 @@ int main( int argc, char ** argv )
 
 {
     DBFHandle	hDBF;
-    int		*panWidth, i, iRecord;
-    char	szFormat[32], szField[1024];
+    int		i, iRecord;
     char	cTitle[32], nTitle[32];
     int		nWidth, nDecimals;
     int		cnWidth, cnDecimals;
@@ -38,7 +37,7 @@ int main( int argc, char ** argv )
     DBFFieldType	hType,cType;
     int		ci, ciRecord;
     char	tfile[160];
-    int		hflds, j, cflds;
+    int		hflds, cflds;
     int 	verbose				= 0;
     int		force 				= 0;
     int		mismatch			= 0;
@@ -127,7 +126,6 @@ int main( int argc, char ** argv )
       ciRecord = DBFGetRecordCount( cDBF );
       for ( i = 0; i < hflds;i ++ )
 	{	
-	double	cf;
 	ci = fld_m[i];
 	if ( ci != -1 )
 	{
