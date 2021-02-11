@@ -1,0 +1,29 @@
+
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Setup
+        run: sudo apt-get install build-essential libtool-bin
+
+      - name: Autogen
+        run: ./autogen.sh
+
+      - name: Configure
+        run: ./configure
+
+      - name: Make
+        run: make
+
+      - name: Check
+        run: make check
