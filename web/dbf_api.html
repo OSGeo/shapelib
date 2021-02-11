@@ -240,7 +240,7 @@ const char *DBFReadStringAttribute( DBFHandle hDBF, int iShape, int iField );
   it as a string.  This function may be used on any field type (including 
   FTInteger and FTDouble) and will return the string representation stored
   in the .dbf file.  The returned pointer is to an internal buffer
-  which is only valid untill the next DBF function call.  It's contents may
+  which is only valid until the next DBF function call.  It's contents may
   be copied with normal string functions such as strcpy(), or strdup().  If
   the TRIM_DBF_WHITESPACE macro is defined in shapefil.h (it is by default)
   then all leading and trailing space (ASCII 32) characters will be stripped

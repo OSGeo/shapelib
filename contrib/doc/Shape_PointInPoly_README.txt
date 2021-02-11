@@ -13,7 +13,7 @@ Tested and created on platform:
 
 I just found out about the ShapeLib, GDAL and OGR and I must say that they're 
 all great projects.
-I belive I'll use some of those libraries in the future. Right now I'm using 
+I believe I'll use some of those libraries in the future. Right now I'm using 
 only shapelib.
 The thing that led me to the http://wwww.maptools.org was the need of finding 
 the point in poly...but as I found out that even OGR didn't support it. So 
@@ -46,9 +46,9 @@ quality = 3 works very well, but anything below 5 is good.
 This doesn't mean that the execution will slow down, but it just finds a good
 point. That's all.
 
-The qality shows on the compound objects (multiple poligons with more than one
+The quality shows on the compound objects (multiple polygons with more than one
 exterior loop) - if not enough rays, then there may be no centroid.
-Or the U shaped thin polygon, only the bootom (below the y center line) is fat.
+Or the U shaped thin polygon, only the bottom (below the y center line) is fat.
 Autodesk Map with one scan line will create the centroid on one of the thin
 parts, because it only uses the y center line. If you have more rays, one will
 surely pass the fat area and centroid will be created there.

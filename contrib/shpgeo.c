@@ -427,7 +427,7 @@ int SHPWriteOGisPolygon ( WKBStreamObj *stream_obj, SHPObject *psCShape ) {
    char			Flag = 1;
    int			GeoType = OGIST_POLYGON;
 
-   /* cant have more than nParts complex objects in this object */
+   /* cannot have more than nParts complex objects in this object */
    ppsC = calloc ( psCShape->nParts, sizeof(int) );
 
 
@@ -1020,7 +1020,7 @@ int SHPRingDir_2d ( SHPObject *psCShape, int Ring ) {
      { last_vtx = psCShape->panPartStart[Ring + 1]; }
 
    /* All vertices at the corners of the extrema (rightmost lowest, leftmost lowest, 	*/
-   /* topmost rightest, ...) must be less than pi wide.  If they werent they couldnt be	*/
+   /* topmost rightest, ...) must be less than pi wide.  If they weren't, they couldn't be	*/
    /* extrema.																			*/
    /* of course the following will fail if the Extents are even a little wrong 			*/
 
@@ -1461,7 +1461,7 @@ void swapW (void *so, unsigned char *in, long bytes) {
  * SwapD
  *
  * change byte order on an array of (double) 32 bit words
- * need to change this over to shapelib, Frank Warmerdam's functons
+ * need to change this over to shapelib, Frank Warmerdam's functions
  *
  * **************************************************************************/
 void swapD (void *so, unsigned char *in, long bytes) {

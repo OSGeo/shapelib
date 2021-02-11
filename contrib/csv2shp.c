@@ -87,7 +87,7 @@ typedef struct column_t {
 	int nDecimals;
 } column;
 
-/* counts the number of occurances of the character in the string */
+/* counts the number of occurrences of the character in the string */
 int strnchr(const char *s, char c)
 {
 	int n = 0;
@@ -452,7 +452,7 @@ int main( int argc, char ** argv )
 	}
 
 
-	/* initilize output files */
+	/* initialize output files */
 
 	printf ("Initializing output files...\n");
 

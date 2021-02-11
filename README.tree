@@ -65,7 +65,7 @@ who's shapeids are 392, 394 ... 447.  This node has no children nodes.
             Shapes(10): 392 394 403 413 414 417 426 433 434 447 
           )
 
-The heirarchy of indentation is intended to show the parent, child 
+The hierarchy of indentation is intended to show the parent, child 
 relationship between nodes, with the tree being deeper the further to the
 right you go. 
 
@@ -145,11 +145,11 @@ The second phase is to fetch the actual shapes, and verify if their bounding
 box falls within the area of interest.  This is necessary because the shape 
 will tend to have a significantly smaller bounding rectangle than the tree 
 node in which it is found.  This can result ``false positives'' on the first
-phase search, as indicated by teh ``not in area of interest, but fetched''
+phase search, as indicated by the ``not in area of interest, but fetched''
 messages above.  This stage is done in the SHPTreeNodeSearchAndDump()
 function in shptreedump.c. 
 
-A possible third phase is to verify that the actualy line segments in the
+A possible third phase is to verify that the actually line segments in the
 shape actually cross the area of interest.  I don't both with this as it
 is complicated, and assuming that the drawing engine takes care of clipping
 it is quite a bit easier to let it fall through. 

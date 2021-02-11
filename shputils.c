@@ -10,7 +10,7 @@
  *     Clip and Erase boundary.  The program only passes thru the
  *     data once.
  *
- *   Bill Miller   North Carolina - Department of Transporation
+ *   Bill Miller   North Carolina - Department of Transportation
  *   Feb. 1997 -- bmiller@dot.state.nc.us
  *         There was not a lot of time to debug hidden problems;
  *         And the code is not very well organized or documented.
@@ -863,7 +863,7 @@ int clip_boundary()
         psCShape->nVertices = i2;
 
         if (i2 < 2) return(0); /** SKIP RECORD **/
-        /*** (WE ARE NOT CREATING INTERESECTIONS and some lines could be reduced to one point) **/
+        /*** (WE ARE NOT CREATING INTERSECTIONS and some lines could be reduced to one point) **/
 
         if (i2 == 0) return(0); /** SKIP  RECORD **/
         else    return(1); /** WRITE RECORD **/
@@ -983,7 +983,7 @@ void error()
 
     /****   Clip functions for Polygon and Cut is not supported
             There are several web pages that describe methods of doing this function.
-            It seem easy to impliment until you start writting code.  I don't have the
+            It seem easy to implement until you start writing code.  I don't have the
             time to add these functions but a did leave a simple cut routine in the
             program that can be called by using CUT instead of TOUCH in the
             CLIP or ERASE functions.  It does not add the intersection of the line and

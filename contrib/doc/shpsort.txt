@@ -1,7 +1,7 @@
 ============================= ABOUT =========================================== 
 
 The program "shpsort" is a standalone program for sorting shapefiles
-on one or more fields (including the pseudofield "SHAPE") and outputing
+on one or more fields (including the pseudofield "SHAPE") and outputting
 the results.  People may find it useful for forcing drawing order.
 
 ============================= AUTHOR ==========================================
