@@ -33,36 +33,6 @@
  * DEALINGS IN THE SOFTWARE.
  ******************************************************************************
  *
- * $Log$
- * Revision 1.6  2018-06-15 19:56:32  erouault
- * * safileio.c: remove duplicate test. Patch by Jaroslav Fojtik.
- * Fixes http://bugzilla.maptools.org/show_bug.cgi?id=2744
- *
- * Revision 1.5  2016-12-05 12:44:05  erouault
- * * Major overhaul of Makefile build system to use autoconf/automake.
- *
- * * Warning fixes in contrib/
- *
- * Revision 1.4  2008-01-16 20:05:14  bram
- * Add file hooks that accept UTF-8 encoded filenames on some platforms.  Use SASetupUtf8Hooks
- *  tosetup the hooks and check SHPAPI_UTF8_HOOKS for its availability.  Currently, this
- *  is only available on the Windows platform that decodes the UTF-8 filenames to wide
- *  character strings and feeds them to _wfopen and _wremove.
- *
- * Revision 1.3  2007/12/18 18:28:11  bram
- * - create hook for client specific atof (bugzilla ticket 1615)
- * - check for NULL handle before closing cpCPG file, and close after reading.
- *
- * Revision 1.2  2007/12/15 20:25:30  bram
- * dbfopen.c now reads the Code Page information from the DBF file, and exports
- * this information as a string through the DBFGetCodePage function.  This is 
- * either the number from the LDID header field ("LDID/<number>") or as the 
- * content of an accompanying .CPG file.  When creating a DBF file, the code can
- * be set using DBFCreateEx.
- *
- * Revision 1.1  2007/12/06 06:56:41  fwarmerdam
- * new
- *
  */
 
 #include "shapefil.h"

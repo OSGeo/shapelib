@@ -33,30 +33,6 @@
  * DEALINGS IN THE SOFTWARE.
  ******************************************************************************
  *
- * $Log$
- * Revision 1.8  2016-12-05 12:44:05  erouault
- * * Major overhaul of Makefile build system to use autoconf/automake.
- *
- * * Warning fixes in contrib/
- *
- * Revision 1.7  2004-09-26 20:09:35  fwarmerdam
- * avoid rcsid warnings
- *
- * Revision 1.6  2002/01/15 14:36:07  warmerda
- * updated email address
- *
- * Revision 1.5  2000/07/07 13:39:45  warmerda
- * removed unused variables, and added system include files
- *
- * Revision 1.4  1999/11/05 14:12:04  warmerda
- * updated license terms
- *
- * Revision 1.3  1999/04/01 18:47:44  warmerda
- * Fixed DBFAddField() call convention.
- *
- * Revision 1.2  1995/08/04 03:17:11  warmerda
- * Added header.
- *
  */
 
 #include <stdlib.h>

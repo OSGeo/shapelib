@@ -24,30 +24,8 @@
  * shpgeo.h
  * 
  * support for geometric and other additions to shapelib
- *
- *
- * $Log$
- * Revision 1.5  2019-02-28 15:51:49  erouault
- * * contrib/shpgeo.h/.c: Remove PROJ.4 dependency and functionality,
- *  causing removal of SHPProject(), SHPSetProjection() and SHPFreeProjection()
- * * contrib/shpproj.c: removed
- *
- * Revision 1.4  2016-12-05 12:44:07  erouault
- * * Major overhaul of Makefile build system to use autoconf/automake.
- *
- * * Warning fixes in contrib/
- *
- * Revision 1.3  2002-01-15 14:36:56  warmerda
- * upgrade to use proj_api.h
- *
- * Revision 1.2  1999/05/26 02:56:31  candrsn
- * updates to shpdxf, dbfinfo, port from Shapelib 1.1.5 of dbfcat and shpinfo
- *
- * 
  */
  
- 
-
  /* I'm using some shorthand throughout this file
  *      R+ is a Clockwise Ring and is the positive portion of an object
  *      R- is a CounterClockwise Ring and is a hole in a R+
@@ -67,9 +45,7 @@
  *
  */
 
-
 #ifndef SHPGEO_H
-
 #define SHPGEO_H
 
 

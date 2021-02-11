@@ -34,33 +34,6 @@
  * DEALINGS IN THE SOFTWARE.
  ******************************************************************************
  *
- * $Log$
- * Revision 1.8  2016-12-05 12:44:06  erouault
- * * Major overhaul of Makefile build system to use autoconf/automake.
- *
- * * Warning fixes in contrib/
- *
- * Revision 1.7  2004-09-26 20:09:35  fwarmerdam
- * avoid rcsid warnings
- *
- * Revision 1.6  2002/01/15 14:36:07  warmerda
- * updated email address
- *
- * Revision 1.5  2001/06/22 02:18:20  warmerda
- * Added null shape support
- *
- * Revision 1.4  2000/07/07 13:39:45  warmerda
- * removed unused variables, and added system include files
- *
- * Revision 1.3  1999/11/05 14:12:05  warmerda
- * updated license terms
- *
- * Revision 1.2  1998/12/16 05:15:20  warmerda
- * Added support for writing multipatch.
- *
- * Revision 1.1  1998/11/09 20:18:42  warmerda
- * Initial revision
- *
  */
 
 #include <stdlib.h>

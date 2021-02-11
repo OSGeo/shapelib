@@ -33,48 +33,6 @@
  * DEALINGS IN THE SOFTWARE.
  ******************************************************************************
  *
- * $Log$
- * Revision 1.14  2016-12-05 12:44:05  erouault
- * * Major overhaul of Makefile build system to use autoconf/automake.
- *
- * * Warning fixes in contrib/
- *
- * Revision 1.13  2013-11-26 21:52:33  fwarmerdam
- * report deleted rows in dbfdump
- *
- * Revision 1.12  2006-06-17 00:15:08  fwarmerdam
- * Free panWidth for better memory testing.
- *
- * Revision 1.11  2006/02/15 01:11:27  fwarmerdam
- * added reporting of native type
- *
- * Revision 1.10  2004/09/26 20:09:35  fwarmerdam
- * avoid rcsid warnings
- *
- * Revision 1.9  2002/01/15 14:36:07  warmerda
- * updated email address
- *
- * Revision 1.8  2001/05/31 18:15:40  warmerda
- * Added support for NULL fields in DBF files
- *
- * Revision 1.7  2000/09/20 13:13:55  warmerda
- * added break after default:
- *
- * Revision 1.6  2000/07/07 13:39:45  warmerda
- * removed unused variables, and added system include files
- *
- * Revision 1.5  1999/11/05 14:12:04  warmerda
- * updated license terms
- *
- * Revision 1.4  1998/12/31 15:30:13  warmerda
- * Added -m, -r, and -h commandline options.
- *
- * Revision 1.3  1995/10/21 03:15:01  warmerda
- * Changed to use binary file access.
- *
- * Revision 1.2  1995/08/04  03:16:22  warmerda
- * Added header.
- *
  */
 
 #include <stdlib.h>
