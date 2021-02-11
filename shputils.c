@@ -52,42 +52,6 @@
  * DEALINGS IN THE SOFTWARE.
  ******************************************************************************
  *
- * $Log$
- * Revision 1.11  2016-12-05 12:44:06  erouault
- * * Major overhaul of Makefile build system to use autoconf/automake.
- *
- * * Warning fixes in contrib/
- *
- * Revision 1.10  2007-12-13 19:59:23  fwarmerdam
- * reindent code, avoid some warnings.
- *
- * Revision 1.9  2004/01/14 14:56:00  fwarmerdam
- * Some cleanlyness improvements.
- *
- * Revision 1.8  2004/01/14 14:40:22  fwarmerdam
- * Fixed exit() call to include code.
- *
- * Revision 1.7  2003/02/25 17:20:22  warmerda
- * Set psCShape to NULL after SHPDestroyObject() to avoid multi-frees of
- * the same memory ... as submitted by Fred Fox.
- *
- * Revision 1.6  2001/08/28 13:57:14  warmerda
- * fixed DBFAddField return value check
- *
- * Revision 1.5  2000/11/02 13:52:48  warmerda
- * major upgrade from Bill Miller
- *
- * Revision 1.4  1999/11/05 14:12:05  warmerda
- * updated license terms
- *
- * Revision 1.3  1998/12/03 15:47:39  warmerda
- * Did a bunch of rewriting to make it work with the V1.2 API.
- *
- * Revision 1.2  1998/06/18 01:19:49  warmerda
- * Made C++ compilable.
- *
- * Revision 1.1  1997/05/27 20:40:27  warmerda
- * Initial revision
  */
 
 #include "shapefil.h"

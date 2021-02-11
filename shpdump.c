@@ -34,63 +34,6 @@
  * DEALINGS IN THE SOFTWARE.
  ******************************************************************************
  *
- * $Log$
- * Revision 1.19  2016-12-05 12:44:05  erouault
- * * Major overhaul of Makefile build system to use autoconf/automake.
- *
- * * Warning fixes in contrib/
- *
- * Revision 1.18  2011-07-24 03:05:14  fwarmerdam
- * use %.15g for formatting coordiantes in shpdump
- *
- * Revision 1.17  2010-07-01 07:33:04  fwarmerdam
- * do not crash in shpdump if null object returned
- *
- * Revision 1.16  2010-07-01 07:27:13  fwarmerdam
- * white space formatting adjustments
- *
- * Revision 1.15  2006-01-26 15:07:32  fwarmerdam
- * add bMeasureIsUsed flag from Craig Bruce: Bug 1249
- *
- * Revision 1.14  2005/02/11 17:17:46  fwarmerdam
- * added panPartStart[0] validation
- *
- * Revision 1.13  2004/09/26 20:09:35  fwarmerdam
- * avoid rcsid warnings
- *
- * Revision 1.12  2004/01/27 18:05:35  fwarmerdam
- * Added the -ho (header only) switch.
- *
- * Revision 1.11  2004/01/09 16:39:49  fwarmerdam
- * include standard include files
- *
- * Revision 1.10  2002/04/10 16:59:29  warmerda
- * added -validate switch
- *
- * Revision 1.9  2002/01/15 14:36:07  warmerda
- * updated email address
- *
- * Revision 1.8  2000/07/07 13:39:45  warmerda
- * removed unused variables, and added system include files
- *
- * Revision 1.7  1999/11/05 14:12:04  warmerda
- * updated license terms
- *
- * Revision 1.6  1998/12/03 15:48:48  warmerda
- * Added report of shapefile type, and total number of shapes.
- *
- * Revision 1.5  1998/11/09 20:57:36  warmerda
- * use SHPObject.
- *
- * Revision 1.4  1995/10/21 03:14:49  warmerda
- * Changed to use binary file access.
- *
- * Revision 1.3  1995/08/23  02:25:25  warmerda
- * Added support for bounds.
- *
- * Revision 1.2  1995/08/04  03:18:11  warmerda
- * Added header.
- *
  */
 
 #include <string.h>

@@ -25,27 +25,6 @@
  *
  * Rewrite a shapefile sorted by a field or by the geometry.  For polygons,
  * sort by area, for lines sort by length and do nothing for all others.
- *
- * $Log$
- * Revision 1.3  2004-07-06 21:23:17  fwarmerdam
- * minor const warning fix
- *
- * Revision 1.2  2004/07/06 21:20:49  fwarmerdam
- * major upgrade .. sort on multiple fields
- *
- * Revision 1.4  2004/06/30 18:19:53  emiller
- * handle POINTZ, POINTM
- *
- * Revision 1.3  2004/06/30 17:40:32  emiller
- * major rewrite allows sorting on multiple fields.
- *
- * Revision 1.2  2004/06/23 23:19:58  emiller
- * use tuple copy, misc changes
- *
- * Revision 1.1  2004/06/23 21:38:17  emiller
- * Initial revision
- *
- *
  */
 
 #include <stdio.h>

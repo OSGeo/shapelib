@@ -25,19 +25,7 @@
  * shpcentrd.c  - compute XY centroid for complex shapes 
  *			and create a new SHPT_PT file of then
  * 			specifically undo compound objects but not complex ones
- *
- *
- * $Log$
- * Revision 1.3  2011-07-24 03:17:46  fwarmerdam
- * include string.h and stdlib.h where needed in contrib (#2146)
- *
- * Revision 1.2  1999-05-26 02:56:31  candrsn
- * updates to shpdxf, dbfinfo, port from Shapelib 1.1.5 of dbfcat and shpinfo
- *
- *
- * 
  */
-
 
 /* the centroid is defined as
  *

@@ -34,36 +34,6 @@
  * DEALINGS IN THE SOFTWARE.
  ******************************************************************************
  *
- * $Log$
- * Revision 1.9  2016-12-05 12:44:06  erouault
- * * Major overhaul of Makefile build system to use autoconf/automake.
- *
- * * Warning fixes in contrib/
- *
- * Revision 1.8  2005-01-03 22:30:13  fwarmerdam
- * added support for saved quadtrees
- *
- * Revision 1.7  2002/04/10 16:59:12  warmerda
- * fixed email
- *
- * Revision 1.6  1999/11/05 14:12:05  warmerda
- * updated license terms
- *
- * Revision 1.5  1999/06/02 18:24:21  warmerda
- * added trimming code
- *
- * Revision 1.4  1999/06/02 17:56:12  warmerda
- * added quad'' subnode support for trees
- *
- * Revision 1.3  1999/05/18 19:13:13  warmerda
- * Use fabs() instead of abs().
- *
- * Revision 1.2  1999/05/18 19:11:11  warmerda
- * Added example searching capability
- *
- * Revision 1.1  1999/05/18 17:49:20  warmerda
- * New
- *
  */
 
 #include "shapefil.h"
