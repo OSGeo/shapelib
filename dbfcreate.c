@@ -13,7 +13,7 @@
  * option is discussed in more detail in shapelib.html.
  *
  * --
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
@@ -66,7 +66,7 @@ int main( int argc, char ** argv )
 	printf( "DBFCreate(%s) failed.\n", argv[1] );
 	exit( 2 );
     }
-    
+
 /* -------------------------------------------------------------------- */
 /*	Loop over the field definitions adding new fields.	       	*/
 /* -------------------------------------------------------------------- */
@@ -85,7 +85,7 @@ int main( int argc, char ** argv )
 	}
 	else if( strcmp(argv[i],"-n") == 0 && i < argc-3 )
 	{
-	    if( DBFAddField( hDBF, argv[i+1], FTDouble, atoi(argv[i+2]), 
+	    if( DBFAddField( hDBF, argv[i+1], FTDouble, atoi(argv[i+2]),
 			      atoi(argv[i+3]) ) == -1 )
 	    {
 		printf( "DBFAddField(%s,FTDouble,%d,%d) failed.\n",

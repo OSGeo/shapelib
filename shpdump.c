@@ -2,7 +2,7 @@
  * $Id$
  *
  * Project:  Shapelib
- * Purpose:  Sample application for dumping contents of a shapefile to 
+ * Purpose:  Sample application for dumping contents of a shapefile to
  *           the terminal in human readable form.
  * Author:   Frank Warmerdam, warmerdam@pobox.com
  *
@@ -14,7 +14,7 @@
  * option is discussed in more detail in shapelib.html.
  *
  * --
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
@@ -100,16 +100,16 @@ int main( int argc, char ** argv )
 
     printf( "Shapefile Type: %s   # of Shapes: %d\n\n",
             SHPTypeName( nShapeType ), nEntities );
-    
+
     printf( "File Bounds: (%.*g,%.*g,%.*g,%.*g)\n"
             "         to  (%.*g,%.*g,%.*g,%.*g)\n",
-            nPrecision, adfMinBound[0], 
-            nPrecision, adfMinBound[1], 
-            nPrecision, adfMinBound[2], 
-            nPrecision, adfMinBound[3], 
-            nPrecision, adfMaxBound[0], 
-            nPrecision, adfMaxBound[1], 
-            nPrecision, adfMaxBound[2], 
+            nPrecision, adfMinBound[0],
+            nPrecision, adfMinBound[1],
+            nPrecision, adfMinBound[2],
+            nPrecision, adfMinBound[3],
+            nPrecision, adfMaxBound[0],
+            nPrecision, adfMaxBound[1],
+            nPrecision, adfMaxBound[2],
             nPrecision, adfMaxBound[3] );
 
 /* -------------------------------------------------------------------- */
@@ -169,7 +169,7 @@ int main( int argc, char ** argv )
 
             if( j == 0 && psShape->nParts > 0 )
                 pszPartType = SHPPartTypeName( psShape->panPartType[0] );
-            
+
             if( iPart < psShape->nParts
                 && psShape->panPartStart[iPart] == j )
             {
@@ -208,7 +208,7 @@ int main( int argc, char ** argv )
                 nInvalidCount++;
             }
         }
-        
+
         SHPDestroyObject( psShape );
     }
 

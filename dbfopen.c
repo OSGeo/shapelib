@@ -304,7 +304,7 @@ void SHPAPI_CALL
 DBFUpdateHeader( DBFHandle psDBF )
 
 {
-    unsigned char abyFileHeader[XBASE_FILEHDR_SZ] = {0}; 
+    unsigned char abyFileHeader[XBASE_FILEHDR_SZ] = {0};
 
     if( psDBF->bNoHeader )
         DBFWriteHeader( psDBF );
@@ -962,7 +962,7 @@ DBFAddNativeFieldType(DBFHandle psDBF, const char * pszFieldName,
 
         /* load record */
         psDBF->sHooks.FSeek( psDBF->fp, nRecordOffset, 0 );
-        if (psDBF->sHooks.FRead(pszRecord, nOldRecordLength, 1, psDBF->fp) != 1) { 
+        if (psDBF->sHooks.FRead(pszRecord, nOldRecordLength, 1, psDBF->fp) != 1) {
           free(pszRecord);
           return -1;
         }
@@ -1977,7 +1977,7 @@ DBFReorderFields( DBFHandle psDBF, int* panMap )
     panFieldSizeNew = STATIC_CAST(int *, calloc(sizeof(int),  psDBF->nFields));
     panFieldDecimalsNew = STATIC_CAST(int *, calloc(sizeof(int), psDBF->nFields));
     pachFieldTypeNew = STATIC_CAST(char *, calloc(sizeof(char), psDBF->nFields));
-    pszHeaderNew = STATIC_CAST(char*, malloc(sizeof(char) * XBASE_FLDHDR_SZ * 
+    pszHeaderNew = STATIC_CAST(char*, malloc(sizeof(char) * XBASE_FLDHDR_SZ *
                                   psDBF->nFields));
 
     /* shuffle fields definitions */
@@ -2019,7 +2019,7 @@ DBFReorderFields( DBFHandle psDBF, int* panMap )
             psDBF->sHooks.FSeek( psDBF->fp, nRecordOffset, 0 );
             if (psDBF->sHooks.FRead(pszRecord, psDBF->nRecordLength, 1, psDBF->fp) != 1) {
               errorAbort = TRUE;
-              break; 
+              break;
             }
 
             pszRecordNew[0] = pszRecord[0];
@@ -2042,16 +2042,16 @@ DBFReorderFields( DBFHandle psDBF, int* panMap )
     }
 
     if (errorAbort) {
-      free(panFieldOffsetNew); 
+      free(panFieldOffsetNew);
       free(panFieldSizeNew);
-      free(panFieldDecimalsNew); 
+      free(panFieldDecimalsNew);
       free(pachFieldTypeNew);
       psDBF->nCurrentRecord = -1;
       psDBF->bCurrentRecordModified = FALSE;
-      psDBF->bUpdated = FALSE; 
-      return FALSE; 
+      psDBF->bUpdated = FALSE;
+      return FALSE;
     }
-    
+
     free(psDBF->panFieldOffset);
     free(psDBF->panFieldSize);
     free(psDBF->panFieldDecimals);
@@ -2184,7 +2184,7 @@ DBFAlterFieldDefn( DBFHandle psDBF, int iField, const char * pszFieldName,
             psDBF->sHooks.FSeek( psDBF->fp, nRecordOffset, 0 );
             if (psDBF->sHooks.FRead( pszRecord, nOldRecordLength, 1, psDBF->fp ) != 1) {
               errorAbort = TRUE;
-              break; 
+              break;
             }
 
             memcpy(pszOldField, pszRecord + nOffset, nOldWidth);
@@ -2254,7 +2254,7 @@ DBFAlterFieldDefn( DBFHandle psDBF, int iField, const char * pszFieldName,
             psDBF->sHooks.FSeek( psDBF->fp, nRecordOffset, 0 );
             if (psDBF->sHooks.FRead( pszRecord, nOldRecordLength, 1, psDBF->fp )!= 1) {
               errorAbort = TRUE;
-              break; 
+              break;
             }
 
             memcpy(pszOldField, pszRecord + nOffset, nOldWidth);
@@ -2313,11 +2313,11 @@ DBFAlterFieldDefn( DBFHandle psDBF, int iField, const char * pszFieldName,
 
     if (errorAbort) {
       psDBF->nCurrentRecord = -1;
-      psDBF->bCurrentRecordModified = TRUE; 
-      psDBF->bUpdated = FALSE; 
+      psDBF->bCurrentRecordModified = TRUE;
+      psDBF->bUpdated = FALSE;
 
-      return FALSE; 
-    } 
+      return FALSE;
+    }
     psDBF->nCurrentRecord = -1;
     psDBF->bCurrentRecordModified = FALSE;
     psDBF->bUpdated = TRUE;

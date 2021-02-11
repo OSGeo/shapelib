@@ -63,7 +63,7 @@ int main( int argc, char ** argv )
 	printf( "Unable to open:%s\n", argv[1] );
 	exit( 1 );
     }
-    
+
     SHPGetInfo( hSHP, &nEntities, &nShapeType, NULL, NULL );
     fprintf(stderr,"Opened From File %s, with %d shapes\n",argv[1],nEntities);
 
@@ -77,7 +77,7 @@ int main( int argc, char ** argv )
 	printf( "Unable to open:%s\n", argv[2] );
 	exit( 1 );
     }
-    
+
     SHPGetInfo( cSHP, &nShpInFile, NULL, NULL, NULL );
     fprintf(stderr,"Opened to file %s with %d shapes, ready to add %d\n",
             argv[2],nShpInFile,nEntities);

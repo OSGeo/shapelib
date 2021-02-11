@@ -2,7 +2,7 @@
  * Copyright (c) 1999, Carl Anderson
  *
  * This code is based in part on the earlier work of Frank Warmerdam
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
@@ -29,7 +29,7 @@
  *  Utility program to fix nulls and inconsistencies in Shapefiles
  *  as happens from time to time
  *
- *  Simply load and rewrite each record, parameter fixrex allow user to null 
+ *  Simply load and rewrite each record, parameter fixrex allow user to null
  *  a particularly nasty record if needed
  *
  */
@@ -45,7 +45,7 @@ int main( int argc, char ** argv )
     int		nShapeType, cShapeType, nEntities, i;
     double	adBounds[4];
     SHPObject	*shape;
-    int		fix_rec;	
+    int		fix_rec;
 
 /* -------------------------------------------------------------------- */
 /*      Display a usage message.                                        */
@@ -95,15 +95,15 @@ int main( int argc, char ** argv )
     {
 
         shape = SHPReadObject( hSHP, i );
-        if ( i == fix_rec ) 
+        if ( i == fix_rec )
           {  shape->nParts = 0;
              shape->nVertices = 0;
           }
-        SHPWriteObject( cSHP, -1, shape );          
+        SHPWriteObject( cSHP, -1, shape );
         SHPDestroyObject ( shape );
 
     }
-    
+
 
     SHPClose ( hSHP );
     SHPClose ( cSHP );

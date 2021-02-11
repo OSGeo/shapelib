@@ -2,7 +2,7 @@
  * $Id$
  *
  * Project:  Shapelib
- * Purpose:  
+ * Purpose:
  *   Altered "shpdump" and "dbfdump" to allow two files to be appended.
  *   Other Functions:
  *     Selecting from the DBF before the write occurs.
@@ -10,7 +10,7 @@
  *     Clip and Erase boundary.  The program only passes thru the
  *     data once.
  *
- *   Bill Miller   North Carolina - Department of Transporation 
+ *   Bill Miller   North Carolina - Department of Transporation
  *   Feb. 1997 -- bmiller@dot.state.nc.us
  *         There was not a lot of time to debug hidden problems;
  *         And the code is not very well organized or documented.
@@ -32,7 +32,7 @@
  * option is discussed in more detail in shapelib.html.
  *
  * --
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
@@ -79,10 +79,10 @@ double		adfBoundsMin[4], adfBoundsMax[4];
 /* Variables for DBF files */
 DBFHandle	hDBF;
 DBFHandle	hDBFappend;
-    
+
 DBFFieldType    iType;
 DBFFieldType    jType;
-    
+
 char	iszTitle[12];
 char	jszTitle[12];
 
@@ -123,7 +123,7 @@ void error();
 /* -------------------------------------------------------------------- */
 /* Variables for the CLIP and ERASE functions */
 /* -------------------------------------------------------------------- */
-   double  cxmin, cymin, cxmax, cymax; 
+   double  cxmin, cymin, cxmax, cymax;
    int     iclip  = FALSE, ierase = FALSE;
    int     itouch = FALSE, iinside = FALSE, icut = FALSE;
    int     ibound = FALSE, ipoly = FALSE;
@@ -136,12 +136,12 @@ void error();
    int     iunit = FALSE;
    int     ifactor = FALSE;
 
-   
+
 /* -------------------------------------------------------------------- */
 /* Variables for the SHIFT function */
 /* -------------------------------------------------------------------- */
    double  xshift = 0, yshift = 0;  /* NO SHIFT */
-      
+
 int main( int argc, char ** argv )
 {
 
@@ -154,7 +154,7 @@ int main( int argc, char ** argv )
         strcpy(outfile,argv[2]);
         if (strncasecmp2(outfile, "LIST",0) == 0) { ilist = TRUE; }
         if (strncasecmp2(outfile, "ALL",0) == 0)  { iall  = TRUE; }
-    } 
+    }
     if (ilist || iall || argc == 2 ) {
         setext(infile, "shp");
         printf("DESCRIBE: %s\n",infile);
@@ -182,9 +182,9 @@ int main( int argc, char ** argv )
     	    while (tj>0) {
                 selectvalues[selcount] = tj;
                 while( *cpt >= '0' && *cpt <= '9')
-                    cpt++; 
+                    cpt++;
                 while( *cpt > '\0' && (*cpt < '0' || *cpt > '9') )
-                    cpt++; 
+                    cpt++;
                 tj=atoi(cpt);
                 selcount++;
     	    }
@@ -294,16 +294,16 @@ int main( int argc, char ** argv )
 	    adfBoundsMin[0], adfBoundsMin[1],
             adfBoundsMax[0], adfBoundsMax[1],
             nEntities, iRecord );
-	    
+
     if (strcmp(outfile,"") == 0) /* Describe the shapefile; No other functions */
     {
     	ti = DBFGetFieldCount( hDBF );
 	showitems();
 	exit(0);
     }
-     
+
     if (iclip) check_theme_bnd();
-    
+
     jRecord = DBFGetRecordCount( hDBFappend );
     SHPGetInfo( hSHPappend, NULL, NULL, adfBoundsMin, adfBoundsMax );
     if (nEntitiesAppend == 0)
@@ -313,7 +313,7 @@ int main( int argc, char ** argv )
                 adfBoundsMin[0], adfBoundsMin[1],
                 adfBoundsMax[0], adfBoundsMax[1],
                 nEntitiesAppend, jRecord );
-    
+
 /* -------------------------------------------------------------------- */
 /*	Find matching fields in the append file or add new items.       */
 /* -------------------------------------------------------------------- */
@@ -387,13 +387,13 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
         if (iunit)
         {
-	    for( j = 0; j < psCShape->nVertices; j++ ) 
+	    for( j = 0; j < psCShape->nVertices; j++ )
 	    {
                 psCShape->padfX[j] = psCShape->padfX[j] * factor + xshift;
                 psCShape->padfY[j] = psCShape->padfY[j] * factor + yshift;
 	    }
         }
-        
+
 /* -------------------------------------------------------------------- */
 /*      Write the Shape record after recomputing current extents.       */
 /* -------------------------------------------------------------------- */
@@ -412,7 +412,7 @@ int main( int argc, char ** argv )
     jRecord = DBFGetRecordCount( hDBFappend );
     SHPGetInfo( hSHPappend, &nEntitiesAppend, &nShapeTypeAppend,
                 adfBoundsMin, adfBoundsMax );
-    
+
     printf( "Output Bounds: (%lg,%lg) - (%lg,%lg)   Entities: %d  DBF: %d\n\n",
 	    adfBoundsMin[0], adfBoundsMin[1],
             adfBoundsMax[0], adfBoundsMax[1],
@@ -505,7 +505,7 @@ void openfiles() {
         SHPGetInfo( hSHPappend, &nEntitiesAppend, &nShapeTypeAppend,
                     NULL, NULL );
 
-        if (nShapeType != nShapeTypeAppend) 
+        if (nShapeType != nShapeTypeAppend)
         {
             puts( "ERROR: Input and Append shape files are of different types.");
             exit( 1 );
@@ -520,13 +520,13 @@ void openfiles() {
 void setext(char *pt, char *ext)
 {
 int i;
-    for( i = strlen(pt)-1; 
+    for( i = strlen(pt)-1;
 	 i > 0 && pt[i] != '.' && pt[i] != '/' && pt[i] != '\\';
 	 i-- ) {}
 
     if( pt[i] == '.' )
         pt[i] = '\0';
-        
+
     strcat(pt,".");
     strcat(pt,ext);
 }
@@ -543,8 +543,8 @@ void mergefields()
     ti = DBFGetFieldCount( hDBF );
     tj = DBFGetFieldCount( hDBFappend );
     /* Create a pointer array for the max # of fields in the output file */
-    pt = (int *) malloc( (ti+tj+1) * sizeof(int) ); 
-    
+    pt = (int *) malloc( (ti+tj+1) * sizeof(int) );
+
     for( i = 0; i < ti; i++ )
     {
         pt[i]= -1;  /* Initial pt values to -1 */
@@ -570,16 +570,16 @@ void mergefields()
 	            }
 	            else
 	            {
-	            	pt[i]=j;  found=TRUE; 
+	            	pt[i]=j;  found=TRUE;
 	            }
 	        }
 	    }
 	}
-	
+
 	if (pt[i] == -1  && (! found) )  /* Try to force into an existing field */
 	{                                /* Ignore the field name, width, and decimal places */
 	    jType = DBFGetFieldInfo( hDBFappend, j, jszTitle, &jWidth, &jDecimals );
-	    if (iType == jType) 
+	    if (iType == jType)
 	    {
 	    	pt[i]=i;  found=1;
 	    }
@@ -609,7 +609,7 @@ void findselect()
 	iType = DBFGetFieldInfo( hDBF, i, iszTitle, &iWidth, &iDecimals );
         if (strncasecmp2(iszTitle, selectitem, 0) == 0) iselectitem = i;
     }
-    if (iselectitem == -1) 
+    if (iselectitem == -1)
     {
         printf("Warning: Item not found for selection (%s)\n",selectitem);
         iselect = FALSE;
@@ -618,7 +618,7 @@ void findselect()
         printf("Continued... (Selecting entire file)\n");
     }
     /* Extract all of the select values (by field type) */
-    
+
 }
 
 void showitems()
@@ -631,10 +631,10 @@ void showitems()
 
     printf("Available Items: (%d)",ti);
     maxrec = DBFGetRecordCount(hDBF);
-    if (maxrec > 5000 && ! iall) 
+    if (maxrec > 5000 && ! iall)
     { maxrec=5000; printf("  ** ESTIMATED RANGES (MEAN)  For more records use \"All\""); }
     else  { printf("          RANGES (MEAN)"); }
-          
+
     for( i = 0; i < ti; i++ )
     {
         switch( DBFGetFieldInfo( hDBF, i, iszTitle, &iWidth, &iDecimals ) )
@@ -652,7 +652,7 @@ void showitems()
                     if (strncasecmp2(stmp,shigh,0) > 0) strncpy(shigh,stmp,39);
                 }
             }
-            pt=slow+strlen(slow)-1; 
+            pt=slow+strlen(slow)-1;
             while(*pt == ' ') { *pt='\0'; pt--; }
             pt=shigh+strlen(shigh)-1;
             while(*pt == ' ') { *pt='\0'; pt--; }
@@ -747,7 +747,7 @@ void check_theme_bnd()
         if (ierase) nEntities=0; /** SKIP THEME  **/
         else   iclip=FALSE; /** WRITE THEME (Clip not needed) **/
     }
-            
+
     if ( ( (adfBoundsMin[0] < cxmin) && (adfBoundsMax[0] < cxmin) ) ||
          ( (adfBoundsMin[1] < cymin) && (adfBoundsMax[1] < cymin) ) ||
          ( (adfBoundsMin[0] > cxmax) && (adfBoundsMax[0] > cxmax) ) ||
@@ -756,7 +756,7 @@ void check_theme_bnd()
         if (ierase) iclip=FALSE; /** WRITE THEME (Clip not needed) **/
              else   nEntities=0; /** SKIP THEME  **/
     }
-            
+
     if (nEntities == 0)
         puts("WARNING: Theme is outside the clip area."); /** SKIP THEME  **/
 }
@@ -767,7 +767,7 @@ int clip_boundary()
     int  prev_outside;
     int  i2;
     int  j2;
-    
+
     /*** FIRST check the boundary of the feature ***/
     if ( ( (psCShape->dfXMin < cxmin) && (psCShape->dfXMax < cxmin) ) ||
          ( (psCShape->dfYMin < cymin) && (psCShape->dfYMax < cymin) ) ||
@@ -777,37 +777,37 @@ int clip_boundary()
         if (ierase) return(1); /** WRITE RECORD **/
         else   return(0); /** SKIP  RECORD **/
     }
-       
+
     if ( (psCShape->dfXMin >= cxmin) && (psCShape->dfXMax <= cxmax) &&
          (psCShape->dfYMin >= cymin) && (psCShape->dfYMax <= cymax) )
     {   /** Feature is totally inside clip area **/
         if (ierase) return(0); /** SKIP  RECORD **/
         else   return(1); /** WRITE RECORD **/
     }
-            
-    if (iinside) 
+
+    if (iinside)
     { /** INSIDE * Feature might touch the boundary or could be outside **/
         if (ierase)  return(1); /** WRITE RECORD **/
         else    return(0); /** SKIP  RECORD **/
     }
-       
+
     if (itouch)
     {   /** TOUCH **/
-        if ( ( (psCShape->dfXMin <= cxmin) || (psCShape->dfXMax >= cxmax) ) && 
+        if ( ( (psCShape->dfXMin <= cxmin) || (psCShape->dfXMax >= cxmax) ) &&
              (psCShape->dfYMin >= cymin) && (psCShape->dfYMax <= cymax)    )
         {   /** Feature intersects the clip boundary only on the X axis **/
             if (ierase) return(0); /** SKIP  RECORD **/
             else   return(1); /** WRITE RECORD **/
         }
 
-        if (   (psCShape->dfXMin >= cxmin) && (psCShape->dfXMax <= cxmax)   && 
+        if (   (psCShape->dfXMin >= cxmin) && (psCShape->dfXMax <= cxmax)   &&
                ( (psCShape->dfYMin <= cymin) || (psCShape->dfYMax >= cymax) )  )
         {   /** Feature intersects the clip boundary only on the Y axis **/
             if (ierase) return(0); /** SKIP  RECORD **/
             else   return(1); /** WRITE RECORD **/
         }
-               
-        for( j2 = 0; j2 < psCShape->nVertices; j2++ ) 
+
+        for( j2 = 0; j2 < psCShape->nVertices; j2++ )
         {   /** At least one vertex must be inside the clip boundary **/
             if ( (psCShape->padfX[j2] >= cxmin  &&  psCShape->padfX[j2] <= cxmax) ||
                  (psCShape->padfY[j2] >= cymin  &&  psCShape->padfY[j2] <= cymax)  )
@@ -816,23 +816,23 @@ int clip_boundary()
                 else   return(1); /** WRITE RECORD **/
             }
         }
-               
-        /** All vertices are outside the clip boundary **/ 
+
+        /** All vertices are outside the clip boundary **/
         if (ierase) return(1); /** WRITE RECORD **/
         else   return(0); /** SKIP  RECORD **/
     }   /** End TOUCH **/
-          
+
     if (icut)
     {   /** CUT **/
         /*** Check each vertex in the feature with the Boundary and "CUT" ***/
         /*** THIS CODE WAS NOT COMPLETED!  READ NOTE AT THE BOTTOM ***/
         i2=0;
         prev_outside=FALSE;
-        for( j2 = 0; j2 < psCShape->nVertices; j2++ ) 
+        for( j2 = 0; j2 < psCShape->nVertices; j2++ )
         {
             inside = psCShape->padfX[j2] >= cxmin  &&  psCShape->padfX[j2] <= cxmax  &&
                 psCShape->padfY[j2] >= cymin  &&  psCShape->padfY[j2] <= cymax ;
-                      
+
             if (ierase) inside=(! inside);
             if (inside)
             {
@@ -856,15 +856,15 @@ int clip_boundary()
                 }
             }
         }
-             
+
         printf("Vertices:%d   OUT:%d   Number of Parts:%d\n",
                psCShape->nVertices,i2, psCShape->nParts );
-               
+
         psCShape->nVertices = i2;
-             
+
         if (i2 < 2) return(0); /** SKIP RECORD **/
         /*** (WE ARE NOT CREATING INTERESECTIONS and some lines could be reduced to one point) **/
-        
+
         if (i2 == 0) return(0); /** SKIP  RECORD **/
         else    return(1); /** WRITE RECORD **/
     }  /** End CUT **/
@@ -895,7 +895,7 @@ int j,i;
          } else {
             if (*s1 >= 'A' && *s1 <= 'Z') { j=*s1+32; }
                                    else   { j=*s1;    }
-            if (j != *s2) return(*s1-*s2); 
+            if (j != *s2) return(*s1-*s2);
          }
       }
       s1++;
@@ -918,16 +918,16 @@ double findunit(char *unit)
      "METER",          3937,
      "METERS",         3937,
      "KM",          3937000,
-     "KILOMETER",   3937000, 
+     "KILOMETER",   3937000,
      "KILOMETERS",  3937000,
      "INCH",            100,
      "INCHES",          100,
      "FEET",           1200,
      "FOOT",           1200,
      "YARD",           3600,
-     "YARDS",          3600,       
+     "YARDS",          3600,
      "MILE",        6336000,
-     "MILES",       6336000  
+     "MILES",       6336000
    };
 
    double unitfactor=0;
@@ -941,7 +941,7 @@ double findunit(char *unit)
 /*      Display a usage message.                                        */
 /* -------------------------------------------------------------------- */
 void error()
-{	
+{
     puts( "The program will append to an existing shape file or it will" );
     puts( "create a new file if needed." );
     puts( "Only the items in the first output file will be preserved." );
@@ -961,7 +961,7 @@ void error()
     puts( "      There is no way to determine the input unit of a shape file.");
     puts( "      Skip this function if the shape file is already in the correct unit.");
     puts( "      Clip and Erase will be done before the unit is changed.");
-    puts( "      A shift will be done after the unit is changed."); 
+    puts( "      A shift will be done after the unit is changed.");
     puts( "  - Shift X and Y coordinates.\n" );
     puts( "Finally, There can only be one select or unselect in the command line.");
     puts( "         There can only be one clip or erase in the command line.");
@@ -980,22 +980,22 @@ void error()
     puts( "   { <CLIP|ERASE>   <theme>      <BOUNDARY>     <TOUCH|INSIDE|CUT> }" );
     puts( "     Note: CUT is not complete and does not create intersections.");
     puts( "           For more information read programmer comment.");
-	
+
     /****   Clip functions for Polygon and Cut is not supported
             There are several web pages that describe methods of doing this function.
             It seem easy to impliment until you start writting code.  I don't have the
-            time to add these functions but a did leave a simple cut routine in the 
-            program that can be called by using CUT instead of TOUCH in the 
+            time to add these functions but a did leave a simple cut routine in the
+            program that can be called by using CUT instead of TOUCH in the
             CLIP or ERASE functions.  It does not add the intersection of the line and
             the clip box, so polygons could look incomplete and lines will come up short.
-	
+
             Information about clipping lines with a box:
             http://www.csclub.uwaterloo.ca/u/mpslager/articles/sutherland/wr.html
             Information about finding the intersection of two lines:
             http://www.whisqu.se/per/docs/math28.htm
-	   
+
             THE CODE LOOKS LIKE THIS:
-            ********************************************************	  
+            ********************************************************
             void Intersect_Lines(float x0,float y0,float x1,float y1,
             float x2,float y2,float x3,float y3,
             float *xi,float *yi)
@@ -1008,24 +1008,24 @@ void error()
 //  pre-processing step
 //  The Intersect_lines program came from (http://www.whisqu.se/per/docs/math28.htm)
 
-float a1,b1,c1, // constants of linear equations 
+float a1,b1,c1, // constants of linear equations
 a2,b2,c2,
 det_inv,  // the inverse of the determinant of the coefficientmatrix
 m1,m2;    // the slopes of each line
-      
+
 // compute slopes, note the cludge for infinity, however, this will
 // be close enough
 if ((x1-x0)!=0)
 m1 = (y1-y0)/(x1-x0);
 else
 m1 = (float)1e+10;  // close enough to infinity
-   
-   
-if ((x3-x2)!=0) 
+
+
+if ((x3-x2)!=0)
 m2 = (y3-y2)/(x3-x2);
 else
 m2 = (float)1e+10;  // close enough to infinity
-   
+
 // compute constants
 a1 = m1;
 a2 = m2;

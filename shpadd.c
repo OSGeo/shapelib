@@ -13,7 +13,7 @@
  * option is discussed in more detail in shapelib.html.
  *
  * --
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
@@ -73,9 +73,9 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
 /*      Check for tuple description options.                            */
 /* -------------------------------------------------------------------- */
-    if( argc > 1 
-        && (strcmp(argv[1],"-z") == 0 
-            || strcmp(argv[1],"-m") == 0 
+    if( argc > 1
+        && (strcmp(argv[1],"-z") == 0
+            || strcmp(argv[1],"-m") == 0
             || strcmp(argv[1],"-zm") == 0) )
     {
         tuple = argv[1] + 1;
@@ -110,7 +110,7 @@ int main( int argc, char ** argv )
         padfZ = (double *) malloc(sizeof(double) * nVMax);
     if( strchr(tuple,'m') )
         padfM = (double *) malloc(sizeof(double) * nVMax);
-    
+
     nVertices = 0;
 
     if( (panParts = (int *) malloc(sizeof(int) * 1000 )) == NULL )
@@ -118,7 +118,7 @@ int main( int argc, char ** argv )
         printf( "Out of memory\n" );
         exit( 1 );
     }
-    
+
     nParts = 1;
     panParts[0] = 0;
 
@@ -148,7 +148,7 @@ int main( int argc, char ** argv )
                 sscanf( argv[i++], "%lg", padfZ+nVertices );
             if( padfM )
                 sscanf( argv[i++], "%lg", padfM+nVertices );
-                
+
             nVertices += 1;
         }
     }
@@ -160,7 +160,7 @@ int main( int argc, char ** argv )
                                 nVertices, padfX, padfY, padfZ, padfM );
     SHPWriteObject( hSHP, -1, psObject );
     SHPDestroyObject( psObject );
-    
+
     SHPClose( hSHP );
 
     free( panParts );

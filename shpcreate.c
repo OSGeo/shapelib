@@ -13,7 +13,7 @@
  * option is discussed in more detail in shapelib.html.
  *
  * --
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
@@ -73,7 +73,7 @@ int main( int argc, char ** argv )
         nShapeType = SHPT_ARCZ;
     else if( strcmp(argv[2],"POLYGONZ") == 0 || strcmp(argv[2],"polygonz") == 0)
         nShapeType = SHPT_POLYGONZ;
-    else if( strcmp(argv[2],"MULTIPOINTZ") == 0 
+    else if( strcmp(argv[2],"MULTIPOINTZ") == 0
              || strcmp(argv[2],"multipointz") == 0)
         nShapeType = SHPT_MULTIPOINTZ;
     else if( strcmp(argv[2],"POINTM") == 0 || strcmp(argv[2],"pointm") == 0 )
@@ -82,7 +82,7 @@ int main( int argc, char ** argv )
         nShapeType = SHPT_ARCM;
     else if( strcmp(argv[2],"POLYGONM") == 0 || strcmp(argv[2],"polygonm") == 0)
         nShapeType = SHPT_POLYGONM;
-    else if( strcmp(argv[2],"MULTIPOINTM") == 0 
+    else if( strcmp(argv[2],"MULTIPOINTM") == 0
              || strcmp(argv[2],"multipointm") == 0 )
         nShapeType = SHPT_MULTIPOINTM;
     else

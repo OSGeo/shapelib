@@ -14,7 +14,7 @@
  * option is discussed in more detail in shapelib.html.
  *
  * --
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
@@ -65,7 +65,7 @@ static void Test_WritePoints( int nSHPType, const char *pszFilename )
                                1, &x, &y, &z, &m );
     SHPWriteObject( hSHPHandle, -1, psShape );
     SHPDestroyObject( psShape );
-    
+
     x = 10.0;
     y = 20.0;
     z = 30.0;
@@ -103,12 +103,12 @@ static void Test_WriteMultiPoints( int nSHPType, const char *pszFilename )
             z[i] = iShape * 10 + i + 3.35;
             m[i] = iShape * 10 + i + 4.45;
         }
-        
+
         psShape = SHPCreateObject( nSHPType, -1, 0, NULL, NULL,
                                    4, x, y, z, m );
         SHPWriteObject( hSHPHandle, -1, psShape );
         SHPDestroyObject( psShape );
-    }    
+    }
 
     SHPClose( hSHPHandle );
 }
@@ -154,7 +154,7 @@ static void Test_WriteArcPoly( int nSHPType, const char *pszFilename )
             z[i] = iShape * 10 + i + 3.35;
             m[i] = iShape * 10 + i + 4.45;
         }
-        
+
         psShape = SHPCreateObject( nSHPType, -1, 0, NULL, NULL,
                                    5, x, y, z, m );
         SHPWriteObject( hSHPHandle, -1, psShape );
@@ -211,12 +211,12 @@ static void Test_WriteArcPoly( int nSHPType, const char *pszFilename )
     anPartType[0] = SHPP_RING;
     anPartType[1] = SHPP_INNERRING;
     anPartType[2] = SHPP_INNERRING;
-    
+
     psShape = SHPCreateObject( nSHPType, -1, 3, anPartStart, panPartType,
                                15, x, y, z, m );
     SHPWriteObject( hSHPHandle, -1, psShape );
     SHPDestroyObject( psShape );
-    
+
 
     SHPClose( hSHPHandle );
 }
@@ -270,7 +270,7 @@ int main( int argc, char ** argv )
         Test_WriteArcPoly( SHPT_POLYGONZ, "test11.shp" );
     else if( atoi(argv[1]) == 12 )
         Test_WriteArcPoly( SHPT_POLYGONM, "test12.shp" );
-    
+
     else if( atoi(argv[1]) == 13 )
         Test_WriteArcPoly( SHPT_MULTIPATCH, "test13.shp" );
     else

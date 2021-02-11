@@ -2,7 +2,7 @@
  * Copyright (c) 1999, Carl Anderson
  *
  * This code is based in part on the earlier work of Frank Warmerdam
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
@@ -33,7 +33,7 @@
  * converted to C code 12/98
  *
  * requires shapelib 1.2
- *   gcc shpdxf.c shpopen.o dbfopen.o -o shpdxf 
+ *   gcc shpdxf.c shpopen.o dbfopen.o -o shpdxf
  *
  */
 
@@ -107,7 +107,7 @@ FILE  *df;
   fprintf( df, "ENDSEC\r\n" );
 
   /* Create BLOCKS section  */
-  
+
   fprintf( df, "  0\r\n" );
   fprintf( df, "SECTION\r\n" );
   fprintf( df, "  2\r\n" );
@@ -118,7 +118,7 @@ FILE  *df;
   fprintf( df, "SECTION\r\n" );
   fprintf( df, "  2\r\n" );
   fprintf( df, "ENTITIES\r\n" );
-  
+
 }
 
 
@@ -136,7 +136,7 @@ FILE *df;
     case  SHPT_ARC:	  fprintf (df, "POLYLINE\r\n");
           break;
     default:  fprintf(df, "POINT\r\n");
-  }	   
+  }
 
   fprintf( df, "  8\r\n");
   fprintf( df, "%s\r\n", id );
@@ -155,7 +155,7 @@ FILE *df;
                     fprintf( df, " 70\r\n");
 		    fprintf (df, "1\r\n");
     default:     break;
-  } 
+  }
 
 }
 
@@ -171,16 +171,16 @@ FILE *df;
     fprintf( df, "VERTEX\r\n");
     fprintf( df, "  8\r\n");
     fprintf( df, "%s\r\n", id);
-  }  
+  }
   fprintf( df, " 10\r\n" );
   fprintf( df, FLOAT_PREC, x );
   fprintf( df, " 20\r\n" );
   fprintf( df, FLOAT_PREC, y );
   fprintf( df, " 30\r\n" );
-  if ( z != 0 ) 
+  if ( z != 0 )
     fprintf( df, FLOAT_PREC, z );
   else
-    fprintf( df, "0.0\r\n" );	       
+    fprintf( df, "0.0\r\n" );
 }
 
 
@@ -189,7 +189,7 @@ dxf_ent_postamble (dxf_type, df)
 int dxf_type;
 FILE *df;
 {
-  if ((dxf_type == SHPT_ARC) || ( dxf_type == SHPT_POLYGON)) 
+  if ((dxf_type == SHPT_ARC) || ( dxf_type == SHPT_POLYGON))
     fprintf( df, "  0\r\nSEQEND\r\n  8\r\n0\r\n");
 }
 
@@ -213,35 +213,35 @@ main (int argc, char **argv)
     double adfBoundsMin[4], adfBoundsMax[4];
     int	vrtx, shp_type, shp_numrec, zfld, idfld, nflds, recNum, part;
     unsigned int MaxElem = -1;
- 
+
     if ( argc < 2 )  {
         printf ("usage: shpdxf shapefile {idfield}\r\n");
         exit (-1);
     }
-   
+
     strcpy (shpFileName,argv[1]);
     strncpy (dbfFileName, shpFileName, strlen(shpFileName)-3);
-    strcat (dbfFileName,"dbf"); 
-  
+    strcat (dbfFileName,"dbf");
+
     strncpy (dxfFileName, shpFileName,strlen(shpFileName)-3);
     strcat( dxfFileName, "dxf");
-  
+
     shp = SHPOpen (shpFileName, "rb");
     dbf = DBFOpen (dbfFileName, "rb");
     dxf = fopen( dxfFileName, "w");
 
     printf("Starting conversion %s(%s) -> %s\r\n",
            shpFileName,dbfFileName,dxfFileName);
-  
+
     SHPGetInfo (shp, &shp_numrec, &shp_type, adfBoundsMin, adfBoundsMax );
     printf ("file has %d objects\r\n", shp_numrec);
     dxf_hdr(adfBoundsMin[0], adfBoundsMin[1], adfBoundsMax[0], adfBoundsMax[1],
             dxf);
-      
+
 /* Before proceeding, allow the user to specify the ID field to use or default to the record number.... */
 
     if ( argc > 3 )  MaxElem = atoi(argv[3]);
-  
+
     nflds = DBFGetFieldCount(dbf);
     if ( argc > 2 ) {
         strcpy (idfldName, argv[2]);
@@ -251,25 +251,25 @@ main (int argc, char **argv)
                 break;
         }
         if ( idfld >= nflds ) {
-            printf ("Id field %s not found, using default\r\n",idfldName); 
-            idfld = -1;  
+            printf ("Id field %s not found, using default\r\n",idfldName);
+            idfld = -1;
         } else
             printf ("proceeding with field %s for LayerNames\r\n",fldName);
     }
     else
-        idfld = -1;  
-    
+        idfld = -1;
+
     for ( zfld=0; zfld < nflds; zfld++ ) {
         DBFGetFieldInfo( dbf, zfld, fldName, NULL, NULL);
         if (!strcmp (zfldName, fldName  ))
             break;
     }
-    if ( zfld >= nflds ) 
+    if ( zfld >= nflds )
         zfld = -1;
 //  printf ("proceeding with id = %d, elevation = %d\r\n",idfld, zfld);
-  
+
 /* Proceed to process data..... */
-  
+
     for ( recNum = 0; (recNum < shp_numrec) && (recNum < MaxElem); recNum++)  {
 
         SHPObject	*shape;
@@ -281,38 +281,38 @@ main (int argc, char **argv)
               default:    sprintf(id, "%-20.0lf", DBFReadDoubleAttribute (dbf, recNum, idfld));
             }
         else
-            sprintf (id,"lvl_%-20d",(recNum +1 )); 
+            sprintf (id,"lvl_%-20d",(recNum +1 ));
 
-    
-        if ( zfld >= 0 ) 
+
+        if ( zfld >= 0 )
             elev = 0;
-        else  
+        else
             elev = DBFReadDoubleAttribute ( dbf, recNum, zfld );
-  
+
 #ifdef DEBUG
         printf("\r\nworking on obj %d", recNum);
 #endif
 
         shape = SHPReadObject( shp, recNum );
-   
+
         nVertices = shape->nVertices;
         nParts = shape->nParts;
         panParts = shape->panPartStart;
         part = 0;
-        for (vrtx=0; vrtx < nVertices; vrtx ++ ) { 
+        for (vrtx=0; vrtx < nVertices; vrtx ++ ) {
 #ifdef DEBUG
-        printf("\rworking on part %d, vertex %d", part,vrtx);     
-#endif 
+        printf("\rworking on part %d, vertex %d", part,vrtx);
+#endif
             if ( panParts[part] == vrtx ) {
 #ifdef DEBUG
        printf ("object preamble\r\n");
 #endif
                 dxf_ent_preamble (shp_type, id, dxf);
             }
-     
+
             dxf_ent (id, shape->padfX[vrtx], shape->padfY[vrtx],
                      elev, shp_type, dxf);
- 
+
             if ((panParts[part] == (vrtx + 1))|| (vrtx == (nVertices -1)) ) {
                 dxf_ent_postamble (shp_type, dxf);
                 part ++;

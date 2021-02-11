@@ -2,7 +2,7 @@
  * Copyright (c) 1999, Carl Anderson
  *
  * This code is based in part on the earlier work of Frank Warmerdam
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
@@ -22,10 +22,10 @@
  * DEALINGS IN THE SOFTWARE.
  ******************************************************************************
  * shpgeo.h
- * 
+ *
  * support for geometric and other additions to shapelib
  */
- 
+
  /* I'm using some shorthand throughout this file
  *      R+ is a Clockwise Ring and is the positive portion of an object
  *      R- is a CounterClockwise Ring and is a hole in a R+
@@ -39,7 +39,7 @@
  *
  *   SHPT_POLYGON, SHPT_POLYGONZ, SHPT_POLYGONM and SHPT_MULTIPATCH
  *   can have SHPObjects that are compound as well as complex
- *  
+ *
  *   SHP_POINT and its Z and M derivatives are strictly simple
  *   MULTI_POINT, SHPT_ARC and their derivatives may be simple or compound
  *
@@ -72,9 +72,9 @@ extern "C" {
 
 typedef struct { int	StreamPos;
 		 int	NeedSwap;
-		 char	*wStream;	
+		 char	*wStream;
 		} WKBStreamObj;
-		
+
 typedef struct { double x; double y; } PT;
 
 
@@ -97,7 +97,7 @@ extern PT 	SHPCentrd_2d ( SHPObject *psCShape );
 extern PT	SHPPointinPoly_2d ( SHPObject *psCShape );
 extern PT*	SHPPointsinPoly_2d ( SHPObject *psCShape );
 
-extern int 	RingCentroid_2d ( int nVertices, double *a, double *b, PT *C, 
+extern int 	RingCentroid_2d ( int nVertices, double *a, double *b, PT *C,
 	double *Area );
 extern double 	RingLength_2d ( int nVertices, double *a, double *b );
 extern int	RingDir_2d ( int nVertices, double *a, double *b );

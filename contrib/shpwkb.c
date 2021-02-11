@@ -45,7 +45,7 @@ int main( int argc, char ** argv )
 	printf( "shpwkb shp_file wkb_file\n" );
 	exit( 1 );
     }
-    
+
     old_SHP = SHPOpen (argv[1], "rb" );
     old_DBF = DBFOpen (argv[1], "rb");
     if( old_SHP == NULL || old_DBF == NULL )
@@ -56,7 +56,7 @@ int main( int argc, char ** argv )
 
     wkb_file = fopen ( argv[2], "wb");
     wkbObj = calloc ( 3, sizeof (int) );
-    
+
     SHPGetInfo( old_SHP, &nEntities, &nShapeType, NULL, NULL );
     for( i = 0; i < nEntities; i++ )
     {
@@ -71,14 +71,14 @@ int main( int argc, char ** argv )
           for ( ring = (psCShape->nParts - 1); ring >= 0; ring-- ) {
 	    SHPObject 	*psO;
 	    int		numVtx, rStart;
-            
+
             rStart = psCShape->panPartStart[ring];
             if ( ring == (psCShape->nParts -1) )
               { numVtx = psCShape->nVertices - rStart; }
              else
               { numVtx = psCShape->panPartStart[ring+1] - rStart; }
-              
-            printf ("(shpdata) Ring(%d) (%d for %d) \n", ring, rStart, numVtx);              
+
+            printf ("(shpdata) Ring(%d) (%d for %d) \n", ring, rStart, numVtx);
 	    psO = SHPClone ( psCShape, ring,  ring + 1 );
 
 	    SHPDestroyObject ( psO );
@@ -86,10 +86,10 @@ int main( int argc, char ** argv )
            }  /* (ring) [0,nParts  */
 
           }  /* by ring   */
-	   
+
 	   printf ("gonna build a wkb \n");
 	   res = SHPWriteOGisWKB ( wkbObj, psCShape );
-	   printf ("gonna write a wkb that is %d bytes long \n", wkbObj->StreamPos );	   
+	   printf ("gonna write a wkb that is %d bytes long \n", wkbObj->StreamPos );
 	   fwrite ( (void*) wkbObj->wStream, 1, wkbObj->StreamPos, wkb_file );
     }
 

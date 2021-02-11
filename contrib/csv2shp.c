@@ -40,17 +40,17 @@ USAGE NOTES
 This program operates on single points only (not polygons or lines).
 
 The input file may be a .csv file (comma separated values) or tab-separated
-values, or it may be separated by any other character.  The first row must 
-contain column names.  There must be each a column named longitude and 
+values, or it may be separated by any other character.  The first row must
+contain column names.  There must be each a column named longitude and
 latitude in the input file.
 
 The .csv parser does not understand text delimiters (e.g. quotation mark).
 It parses fields only by the given field delimiter (e.g. comma or tab).
 The program has not been tested with null values, and in this case, the
-behavior is undefined.  The program will not accept lines with a trailing 
+behavior is undefined.  The program will not accept lines with a trailing
 delimiter character.
 
-All columns (including longitude and latitude) in the input file are exported 
+All columns (including longitude and latitude) in the input file are exported
 to the .dbf file.
 
 The program attempts to find the best type (integer, decimal, string) and
@@ -126,7 +126,7 @@ char * delimited_column(char *s, char delim, int n)
 	x = 0;
 	pchar = strtok(szbuffer, szdelimiter);
 	while (x < n)
-	{	
+	{
 		pchar = strtok(NULL, szdelimiter);
 		x++;
 	}
@@ -152,7 +152,7 @@ DBFFieldType str_to_fieldtype(const char *s)
 		fprintf(stderr, "integer regex complication failed\n");
 		exit (EXIT_FAILURE);
 	}
-	
+
 	if (0 == regexec(&regex_i, s, 0, NULL, 0))
 	{
 		regfree(&regex_i);
@@ -256,7 +256,7 @@ int more_general_field_type(DBFFieldType t1, DBFFieldType t2)
 	{
 		return 1;
 	}
-	
+
 	return 0;
 }
 
@@ -372,7 +372,7 @@ int main( int argc, char ** argv )
 	strip_crlf(sbuffer);
 
 	for (x = 0; x <= n_columns; x++)
-	{	
+	{
 		if (0 == strcasecmp("Longitude", delimited_column(sbuffer, delimiter, x)))
 		{
 			n_longitude = x;
@@ -404,14 +404,14 @@ int main( int argc, char ** argv )
 	printf("debug: double type = %i\n", FTDouble);
 #endif
 	for (x = 0; x <= n_columns; x++)
-	{	
+	{
 #ifdef DEBUG
 		printf("debug: examining column %i\n", x);
 #endif
 		columns[x].eType = FTInteger;
 		columns[x].nWidth = 2;
 		columns[x].nDecimals = 0;
-	
+
 		fseek(csv_f, 0, SEEK_SET);
 		fgets(sbuffer, 4000, csv_f);
 
@@ -471,7 +471,7 @@ int main( int argc, char ** argv )
 	strip_crlf(sbuffer);
 
 	for (x = 0; x <= n_columns; x++)
-	{	
+	{
 #ifdef DEBUG
 		printf ("debug: final: column %i, type = %i, w = %i, d = %i, name=|%s|\n", x, columns[x].eType, columns[x].nWidth, columns[x].nDecimals, delimited_column(sbuffer, delimiter, x));
 #endif
@@ -502,7 +502,7 @@ int main( int argc, char ** argv )
 
 		n_line++;
 		fgets(sbuffer, 4000, csv_f);
-		
+
 		/* write to shape file */
 		x_pt = atof(delimited_column(sbuffer, delimiter, n_longitude));
 		y_pt = atof(delimited_column(sbuffer, delimiter, n_latitude));
@@ -519,7 +519,7 @@ int main( int argc, char ** argv )
 		/* write to dbf */
 
 		for (x = 0; x <= n_columns; x++)
-		{	
+		{
 			char szfield[4096];
 			int b;
 
@@ -539,7 +539,7 @@ int main( int argc, char ** argv )
 				default:
 					fprintf(stderr, "unexpected column type %i in column %i\n", columns[x].eType, x);
 			}
-			
+
 			if (!b)
 			{
 				fprintf(stderr, "DBFWrite*Attribute failed\n");
@@ -551,7 +551,7 @@ int main( int argc, char ** argv )
 	/* finish up */
 
 	SHPClose(shp_h);
-	
+
         DBFClose(dbf_h);
 
 	return EXIT_SUCCESS;

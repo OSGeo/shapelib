@@ -2,7 +2,7 @@
  * Copyright (c) 2004, Eric G. Miller
  *
  * This code is based in part on the earlier work of Frank Warmerdam
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
@@ -36,8 +36,8 @@
 
 enum FieldOrderEnum {DESCENDING, ASCENDING};
 enum FieldTypeEnum {
-  FIDType = -2, 
-  SHPType = -1, 
+  FIDType = -2,
+  SHPType = -1,
   StringType = FTString,
   LogicalType = FTLogical,
   IntegerType = FTInteger,
@@ -58,7 +58,7 @@ struct DataStruct {
   struct DataUnion *value;
 };
 
-/* 
+/*
    globals used in sorting, each element could have a pointer to
    a single data struct, but that's still nShapes pointers more
    memory.  Alternatively, write a custom sort rather than using
@@ -73,7 +73,7 @@ int nShapes;
 
 static struct DataStruct * build_index (SHPHandle shp, DBFHandle dbf);
 static char * dupstr (const char *);
-static void copy_related (const char *inName, const char *outName, 
+static void copy_related (const char *inName, const char *outName,
 			  const char *old_ext, const char *new_ext);
 static char ** split(const char *arg, const char *delim);
 static int compare(const void *, const void *);
@@ -86,7 +86,7 @@ int main (int argc, char *argv[]) {
 
   SHPHandle  inSHP, outSHP;
   DBFHandle  inDBF, outDBF;
-  int        len; 
+  int        len;
   int        i;
   char       **fieldNames;
   char       **strOrder = 0;
@@ -134,7 +134,7 @@ int main (int argc, char *argv[]) {
     len = (int)strlen(fieldNames[i]);
     while(len > 0) {
       --len;
-      fieldNames[i][len] = (char)toupper((unsigned char)fieldNames[i][len]); 
+      fieldNames[i][len] = (char)toupper((unsigned char)fieldNames[i][len]);
     }
     fldIdx[i] = DBFGetFieldIndex(inDBF, fieldNames[i]);
     if (fldIdx[i] < 0) {
@@ -206,7 +206,7 @@ int main (int argc, char *argv[]) {
 	    __FILE__, __LINE__);
     exit(EXIT_FAILURE);
   }
-  
+
   /* Create output dbf */
   outDBF = DBFCloneEmpty(inDBF, argv[2]);
   if (!outDBF) {
@@ -285,8 +285,8 @@ static char ** split(const char *arg, const char *delim)
 }
 
 
-static void copy_related (const char *inName, const char *outName, 
-			  const char *old_ext, const char *new_ext) 
+static void copy_related (const char *inName, const char *outName,
+			  const char *old_ext, const char *new_ext)
 {
   char *in;
   char *out;
@@ -294,7 +294,7 @@ static void copy_related (const char *inName, const char *outName,
   FILE *outFile;
   int  c;
   size_t name_len = strlen(inName);
-  size_t old_len  = strlen(old_ext); 
+  size_t old_len  = strlen(old_ext);
   size_t new_len  = strlen(new_ext);
 
   in = malloc(name_len - old_len + new_len + 1);
@@ -446,13 +446,13 @@ static struct DataStruct * build_index (SHPHandle shp, DBFHandle dbf) {
       case FTDouble:
 	data[i].value[j].null = DBFIsAttributeNULL(dbf, i, fldIdx[j]);
 	if (!data[i].value[j].null) {
-	  data[i].value[j].u.d = DBFReadDoubleAttribute(dbf, i, fldIdx[j]);	
+	  data[i].value[j].u.d = DBFReadDoubleAttribute(dbf, i, fldIdx[j]);
 	}
 	break;
       }
     }
   }
-  
+
 #ifdef DEBUG
   PrintDataStruct(data);
   fputs("build_index: sorting array\n", stdout);
@@ -503,7 +503,7 @@ static int compare(const void *A, const void *B) {
       if (a->value[i].u.d > b->value[i].u.d) {
 	return (fldOrder[i]) ? 1 : -1;
       }
-      break;      
+      break;
     case StringType:
       result = strcmp(a->value[i].u.s, b->value[i].u.s);
       if (result) {
@@ -553,7 +553,7 @@ static double length2d_polyline (int n, double *x, double *y) {
   double length = 0.0;
   int i;
   for (i = 1; i < n; i++) {
-    length += sqrt((x[i] - x[i-1])*(x[i] - x[i-1]) 
+    length += sqrt((x[i] - x[i-1])*(x[i] - x[i-1])
 		   +
 		   (y[i] - y[i-1])*(y[i] - y[i-1]));
   }
@@ -574,7 +574,7 @@ static double shp_length (SHPObject *feat) {
       else {
 	n = feat->nVertices - feat->panPartStart[part];
       }
-      length += length2d_polyline (n, 
+      length += length2d_polyline (n,
 				   &(feat->padfX[feat->panPartStart[part]]),
 				   &(feat->padfY[feat->panPartStart[part]]));
     }

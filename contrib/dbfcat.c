@@ -43,7 +43,7 @@ int main( int argc, char ** argv )
     if ( strcmp ("-f", argv[1 + shift] ) == 0 ) { shift ++; force = 1; }
     if ( strcmp ("-v", argv[1 + shift] ) == 0 ) { shift ++; verbose = 1; }
     strcpy (tfile, argv[1 + shift]);
-    strcat (tfile, ".dbf"); 
+    strcat (tfile, ".dbf");
     hDBF = DBFOpen( tfile, "rb" );
     if( hDBF == NULL )
     {
@@ -52,7 +52,7 @@ int main( int argc, char ** argv )
     }
 
     strcpy (tfile, argv[2 + shift]);
-    strcat (tfile, ".dbf"); 
+    strcat (tfile, ".dbf");
 
     cDBF = DBFOpen( tfile, "rb+" );
     if( cDBF == NULL )
@@ -60,8 +60,8 @@ int main( int argc, char ** argv )
 	printf( "DBFOpen(%s.dbf,\"rb+\") failed for To_DBF.\n", tfile );
 	exit( 2 );
     }
-    
-    
+
+
     if( DBFGetFieldCount(hDBF) == 0 )
     {
 	printf( "There are no fields in this table!\n" );
@@ -80,17 +80,17 @@ int main( int argc, char ** argv )
 	hType = DBFGetFieldInfo( hDBF, i, szTitle, &nWidth, &nDecimals );
 	fld_m[i] = -1;
         for ( j = 0; j < cflds; j ++ )
-          { 
+          {
             cType = DBFGetFieldInfo( cDBF, j, cname, &cnWidth, &cnDecimals );
-            if ( strcmp (cname, szTitle) == 0 ) 
-	     { 
-        	if ( hType != cType ) 
+            if ( strcmp (cname, szTitle) == 0 )
+	     {
+        	if ( hType != cType )
             	{ printf ("Incompatible fields %s(%s) != %s(%s),\n",
              	   type_names[hType],nTitle,type_names[cType],cTitle);
 			mismatch = 1;
               		}
 	        fld_m[i] = j;
-		if ( verbose ) 
+		if ( verbose )
          	  { printf("%s  %s(%d,%d) <- %s  %s(%d,%d)\n", cname, type_names[cType],
          	  		cnWidth, cnDecimals,
          	       szTitle, type_names[hType], nWidth, nDecimals); }
@@ -111,7 +111,7 @@ int main( int argc, char ** argv )
     {
       ciRecord = DBFGetRecordCount( cDBF );
       for ( i = 0; i < hflds;i ++ )
-	{	
+	{
 	ci = fld_m[i];
 	if ( ci != -1 )
 	{
@@ -128,7 +128,7 @@ int main( int argc, char ** argv )
 		break;
 
 	      case FTInteger:
-	    	DBFWriteIntegerAttribute(cDBF, ciRecord, ci, 
+	    	DBFWriteIntegerAttribute(cDBF, ciRecord, ci,
 			(int) DBFReadIntegerAttribute( hDBF, iRecord, i ) );
 		break;
 
@@ -136,7 +136,7 @@ int main( int argc, char ** argv )
 /*	        cf = DBFReadDoubleAttribute( hDBF, iRecord, i );
 	        printf ("%s <-  %s (%f)\n", cTitle, nTitle, cf);
 */
-	    	DBFWriteDoubleAttribute(cDBF, ciRecord, ci, 
+	    	DBFWriteDoubleAttribute(cDBF, ciRecord, ci,
 			(double) DBFReadDoubleAttribute( hDBF, iRecord, i ) );
 		break;
 
