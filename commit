@@ -32,7 +32,7 @@
 # usage: commit [-v] [-h] [-f] [-l] [-n] [-q] [-z N]
 #               [-m msg|-F msg_file] [--] [file|dir ...]
 
-# -f      --fast        don't check (unless *followed* by -n), and just 
+# -f      --fast        don't check (unless *followed* by -n), and just
 #         --force       display commit message instead of running $PAGER
 # -l      --local       don't descend into subdirectories
 # -m msg  --message=msg set commit message

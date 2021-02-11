@@ -133,7 +133,7 @@ endif(UNIX)
 set(shp_SOVERSION 1)
 set(shp_VERSION ${PROJECT_VERSION})
 set_target_properties(${PACKAGE}
-  PROPERTIES 
+  PROPERTIES
   SOVERSION ${shp_SOVERSION}
   VERSION ${shp_VERSION}
   INSTALL_NAME_DIR "${CMAKE_INSTALL_LIBDIR}"
@@ -141,7 +141,7 @@ set_target_properties(${PACKAGE}
 
 if(USE_RPATH)
   set_target_properties(${PACKAGE}
-    PROPERTIES 
+    PROPERTIES
     INSTALL_RPATH "${CMAKE_INSTALL_LIBDIR}"
     )
 endif(USE_RPATH)
@@ -158,7 +158,7 @@ set(executables
   shpcreate
   shpadd
   shpdump
-  shprewind 
+  shprewind
   dbfcreate
   dbfadd
   dbfdump

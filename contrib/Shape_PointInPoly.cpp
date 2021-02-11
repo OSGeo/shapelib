@@ -2,7 +2,7 @@
  * $Id$
  *
  * Project:  Shapelib
- * Purpose:  Commandline program to generate points-in-polygons from a 
+ * Purpose:  Commandline program to generate points-in-polygons from a
  *           shapefile as a shapefile.
  * Author:   Marko Podgorsek, d-mon@siol.net
  *
@@ -14,7 +14,7 @@
  * option is discussed in more detail in shapelib.html.
  *
  * --
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
@@ -45,7 +45,7 @@
  *
  */
 
-static char rcsid[] = 
+static char rcsid[] =
   "$Id$";
 
 #include <string.h>
@@ -56,14 +56,14 @@ static char rcsid[] =
 #define MAXINTERSECTIONPOINTS 255
 
 enum loopDir {
-    kExterior,   
+    kExterior,
     kInterior,
     kError
 };
 
 struct DPoint2d
 {
-    DPoint2d() 
+    DPoint2d()
 	{
             x = y = 0.0;
 	};
@@ -77,7 +77,7 @@ struct DPoint2d
 
 struct IntersectPoint
 {
-    IntersectPoint(void) 
+    IntersectPoint(void)
 	{
             x = y = 0.0;
             boundry_nmb = 0;
