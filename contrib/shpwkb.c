@@ -25,6 +25,7 @@
  * shpwkb.c  - test WKB binary Input / Output
  */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include "shapefil.h"
 #include "shpgeo.h"

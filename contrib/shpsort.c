@@ -27,11 +27,11 @@
  * sort by area, for lines sort by length and do nothing for all others.
  */
 
+#include <ctype.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
 #include <string.h>
-#include <math.h>
 #include "shapefil.h"
 
 enum FieldOrderEnum {DESCENDING, ASCENDING};

@@ -25,6 +25,7 @@
  * shpdata.c  - utility program for testing elements of the libraries
  */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include "shapefil.h"
 #include "shpgeo.h"

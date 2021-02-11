@@ -5,11 +5,12 @@
  *
  */
 
-static char rcsid[] = "$Id$";
-
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "shapefil.h"
+
+static char rcsid[] = "$Id$";
 
 int main( int argc, char ** argv )
 

@@ -36,13 +36,13 @@
 
 #include "shapefil.h"
 
-#include <math.h>
-#include <limits.h>
 #include <assert.h>
+#include <errno.h>
+#include <limits.h>
+#include <math.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
-#include <errno.h>
 
 SHP_CVSID("$Id$")
 

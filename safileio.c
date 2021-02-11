@@ -37,12 +37,12 @@
 
 #include "shapefil.h"
 
+#include <assert.h>
 #include <math.h>
 #include <limits.h>
-#include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 
 SHP_CVSID("$Id$");
 
