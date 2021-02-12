@@ -42,12 +42,7 @@
 
 SHP_CVSID("$Id$")
 
-int main( int argc, char ** argv )
-
-{
-    DBFHandle	hDBF;
-    int		i;
-
+int main( int argc, char ** argv ) {
 /* -------------------------------------------------------------------- */
 /*      Display a usage message.                                        */
 /* -------------------------------------------------------------------- */
@@ -61,7 +56,7 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
 /*	Create the database.						*/
 /* -------------------------------------------------------------------- */
-    hDBF = DBFCreate( argv[1] );
+    DBFHandle hDBF = DBFCreate( argv[1] );
     if( hDBF == NULL )
     {
 	printf( "DBFCreate(%s) failed.\n", argv[1] );
@@ -71,7 +66,7 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
 /*	Loop over the field definitions adding new fields.	       	*/
 /* -------------------------------------------------------------------- */
-    for( i = 2; i < argc; i++ )
+    for( int i = 2; i < argc; i++ )
     {
 	if( strcmp(argv[i],"-s") == 0 && i < argc-2 )
 	{

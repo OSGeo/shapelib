@@ -43,16 +43,8 @@
 
 SHP_CVSID("$Id$")
 
-int main( int argc, char ** argv )
-
-{
-    SHPHandle	hSHP;
-    int		nShapeType, nEntities, i, iPart, bValidate = 0,nInvalidCount=0;
-    int         bHeaderOnly = 0;
-    const char 	*pszPlus;
-    double 	adfMinBound[4], adfMaxBound[4];
-    int nPrecision = 15;
-
+int main( int argc, char ** argv ) {
+    int bValidate = 0;
     if( argc > 1 && strcmp(argv[1],"-validate") == 0 )
     {
         bValidate = 1;
@@ -60,6 +52,7 @@ int main( int argc, char ** argv )
         argc--;
     }
 
+    int bHeaderOnly = 0;
     if( argc > 1 && strcmp(argv[1],"-ho") == 0 )
     {
         bHeaderOnly = 1;
@@ -67,6 +60,7 @@ int main( int argc, char ** argv )
         argc--;
     }
 
+    int nPrecision = 15;
     if( argc > 2 && strcmp(argv[1],"-precision") == 0 )
     {
         nPrecision = atoi(argv[2]);
@@ -86,8 +80,7 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
 /*      Open the passed shapefile.                                      */
 /* -------------------------------------------------------------------- */
-    hSHP = SHPOpen( argv[1], "rb" );
-
+    SHPHandle hSHP = SHPOpen( argv[1], "rb" );
     if( hSHP == NULL )
     {
         printf( "Unable to open:%s\n", argv[1] );
@@ -97,6 +90,10 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
 /*      Print out the file bounds.                                      */
 /* -------------------------------------------------------------------- */
+    int nEntities;
+    int nShapeType;
+    double adfMinBound[4];
+    double adfMaxBound[4];
     SHPGetInfo( hSHP, &nEntities, &nShapeType, adfMinBound, adfMaxBound );
 
     printf( "Shapefile Type: %s   # of Shapes: %d\n\n",
@@ -116,12 +113,11 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
 /*	Skim over the list of shapes, printing all the vertices.	*/
 /* -------------------------------------------------------------------- */
-    for( i = 0; i < nEntities && !bHeaderOnly; i++ )
-    {
-        int		j;
-        SHPObject	*psShape;
+    int	nInvalidCount = 0;
 
-        psShape = SHPReadObject( hSHP, i );
+    for( int i = 0; i < nEntities && !bHeaderOnly; i++ )
+    {
+        SHPObject *psShape = SHPReadObject( hSHP, i );
 
         if( psShape == NULL )
         {
@@ -164,13 +160,14 @@ int main( int argc, char ** argv )
                      psShape->panPartStart[0] );
         }
 
-        for( j = 0, iPart = 1; j < psShape->nVertices; j++ )
+        for( int j = 0, iPart = 1; j < psShape->nVertices; j++ )
         {
             const char	*pszPartType = "";
 
             if( j == 0 && psShape->nParts > 0 )
                 pszPartType = SHPPartTypeName( psShape->panPartType[0] );
 
+            const char *pszPlus;
             if( iPart < psShape->nParts
                 && psShape->panPartStart[iPart] == j )
             {

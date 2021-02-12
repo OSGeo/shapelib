@@ -42,12 +42,7 @@
 
 SHP_CVSID("$Id$")
 
-int main( int argc, char ** argv )
-
-{
-    SHPHandle	hSHP;
-    int		nShapeType;
-
+int main( int argc, char ** argv ) {
 /* -------------------------------------------------------------------- */
 /*      Display a usage message.                                        */
 /* -------------------------------------------------------------------- */
@@ -60,6 +55,7 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
 /*	Figure out the shape type.					*/
 /* -------------------------------------------------------------------- */
+    int nShapeType;
     if( strcmp(argv[2],"POINT") == 0 || strcmp(argv[2],"point") == 0 )
         nShapeType = SHPT_POINT;
     else if( strcmp(argv[2],"ARC") == 0 || strcmp(argv[2],"arc") == 0 )
@@ -95,7 +91,7 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
 /*	Create the requested layer.					*/
 /* -------------------------------------------------------------------- */
-    hSHP = SHPCreate( argv[1], nShapeType );
+    SHPHandle hSHP = SHPCreate( argv[1], nShapeType );
 
     if( hSHP == NULL )
     {

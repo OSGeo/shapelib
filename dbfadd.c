@@ -43,12 +43,7 @@
 
 SHP_CVSID("$Id$")
 
-int main( int argc, char ** argv )
-
-{
-    DBFHandle	hDBF;
-    int		i, iRecord;
-
+int main( int argc, char ** argv ) {
 /* -------------------------------------------------------------------- */
 /*      Display a usage message.                                        */
 /* -------------------------------------------------------------------- */
@@ -62,7 +57,7 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
 /*	Create the database.						*/
 /* -------------------------------------------------------------------- */
-    hDBF = DBFOpen( argv[1], "r+b" );
+    DBFHandle hDBF = DBFOpen( argv[1], "r+b" );
     if( hDBF == NULL )
     {
 	printf( "DBFOpen(%s,\"rb+\") failed.\n", argv[1] );
@@ -79,12 +74,12 @@ int main( int argc, char ** argv )
 	exit( 3 );
     }
 
-    iRecord = DBFGetRecordCount( hDBF );
+    const int iRecord = DBFGetRecordCount( hDBF );
 
 /* -------------------------------------------------------------------- */
 /*	Loop assigning the new field values.				*/
 /* -------------------------------------------------------------------- */
-    for( i = 0; i < DBFGetFieldCount(hDBF); i++ )
+    for( int i = 0; i < DBFGetFieldCount(hDBF); i++ )
     {
         if( strcmp( argv[i+2], "" ) == 0 )
             DBFWriteNULLAttribute(hDBF, iRecord, i );

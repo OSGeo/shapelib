@@ -41,13 +41,7 @@
 #include <stdlib.h>
 #include "shapefil.h"
 
-int main( int argc, char ** argv )
-
-{
-    SHPHandle	hSHP, hSHPOut;
-    int		nShapeType, nEntities, i, nInvalidCount=0;
-    double 	adfMinBound[4], adfMaxBound[4];
-
+int main( int argc, char ** argv ) {
 /* -------------------------------------------------------------------- */
 /*      Display a usage message.                                        */
 /* -------------------------------------------------------------------- */
@@ -60,7 +54,7 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
 /*      Open the passed shapefile.                                      */
 /* -------------------------------------------------------------------- */
-    hSHP = SHPOpen( argv[1], "rb" );
+    SHPHandle hSHP = SHPOpen( argv[1], "rb" );
 
     if( hSHP == NULL )
     {
@@ -68,12 +62,16 @@ int main( int argc, char ** argv )
 	exit( 1 );
     }
 
+    int nShapeType;
+    int nEntities;
+    double adfMinBound[4];
+    double adfMaxBound[4];
     SHPGetInfo( hSHP, &nEntities, &nShapeType, adfMinBound, adfMaxBound );
 
 /* -------------------------------------------------------------------- */
 /*      Create output shapefile.                                        */
 /* -------------------------------------------------------------------- */
-    hSHPOut = SHPCreate( argv[2], nShapeType );
+    SHPHandle hSHPOut = SHPCreate( argv[2], nShapeType );
 
     if( hSHPOut == NULL )
     {
@@ -84,11 +82,11 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
 /*	Skim over the list of shapes, printing all the vertices.	*/
 /* -------------------------------------------------------------------- */
-    for( i = 0; i < nEntities; i++ )
-    {
-        SHPObject	*psShape;
+    int nInvalidCount = 0;
 
-	psShape = SHPReadObject( hSHP, i );
+    for( int i = 0; i < nEntities; i++ )
+    {
+        SHPObject *psShape = SHPReadObject( hSHP, i );
         if( SHPRewindObject( hSHP, psShape ) )
             nInvalidCount++;
         SHPWriteObject( hSHPOut, -1, psShape );

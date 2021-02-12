@@ -107,7 +107,6 @@ void check_theme_bnd();
 int clip_boundary();
 void error();
 
-
 /* -------------------------------------------------------------------- */
 /* Variables for the DESCRIBE function */
 /* -------------------------------------------------------------------- */
@@ -136,7 +135,6 @@ void error();
    double  infactor,outfactor,factor = 0;  /* NO FACTOR */
    int     iunit = FALSE;
    int     ifactor = FALSE;
-
 
 /* -------------------------------------------------------------------- */
 /* Variables for the SHIFT function */
@@ -884,9 +882,10 @@ int clip_boundary()
 int strncasecmp2(char *s1, char *s2, int n)
 
 {
-int j,i;
    if (n<1) n=strlen(s1)+1;
-   for (i=0; i<n; i++)
+
+   int j;
+   for (int i = 0; i < n; i++)
    {
       if (*s1 != *s2)
       {

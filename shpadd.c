@@ -43,16 +43,7 @@
 
 SHP_CVSID("$Id$")
 
-int main( int argc, char ** argv )
-
-{
-    SHPHandle	hSHP;
-    int		nShapeType, nVertices, nParts, *panParts, i, nVMax;
-    double	*padfX, *padfY, *padfZ = NULL, *padfM = NULL;
-    SHPObject	*psObject;
-    const char  *tuple = "";
-    const char  *filename;
-
+int main( int argc, char ** argv ) {
 /* -------------------------------------------------------------------- */
 /*      Display a usage message.                                        */
 /* -------------------------------------------------------------------- */
@@ -68,13 +59,15 @@ int main( int argc, char ** argv )
         exit( 1 );
     }
 
-    filename = argv[1];
+    const char *filename = argv[1];
     argv++;
     argc--;
 
 /* -------------------------------------------------------------------- */
 /*      Check for tuple description options.                            */
 /* -------------------------------------------------------------------- */
+    const char *tuple = "";
+
     if( argc > 1
         && (strcmp(argv[1],"-z") == 0
             || strcmp(argv[1],"-m") == 0
@@ -88,7 +81,7 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
 /*      Open the passed shapefile.                                      */
 /* -------------------------------------------------------------------- */
-    hSHP = SHPOpen( filename, "r+b" );
+    SHPHandle hSHP = SHPOpen( filename, "r+b" );
 
     if( hSHP == NULL )
     {
@@ -96,6 +89,7 @@ int main( int argc, char ** argv )
         exit( 1 );
     }
 
+    int nShapeType;
     SHPGetInfo( hSHP, NULL, &nShapeType, NULL, NULL );
 
     if( argc == 1 )
@@ -104,27 +98,29 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
 /*	Build a vertex/part list from the command line arguments.	*/
 /* -------------------------------------------------------------------- */
-    nVMax = 1000;
-    padfX = (double *) malloc(sizeof(double) * nVMax);
-    padfY = (double *) malloc(sizeof(double) * nVMax);
+    int nVMax = 1000;
+    double *padfX = (double *) malloc(sizeof(double) * nVMax);
+    double *padfY = (double *) malloc(sizeof(double) * nVMax);
 
+    double *padfZ = NULL;
     if( strchr(tuple,'z') )
         padfZ = (double *) malloc(sizeof(double) * nVMax);
+    double *padfM = NULL;
     if( strchr(tuple,'m') )
         padfM = (double *) malloc(sizeof(double) * nVMax);
 
-    nVertices = 0;
-
+    int *panParts;
     if( (panParts = (int *) malloc(sizeof(int) * 1000 )) == NULL )
     {
         printf( "Out of memory\n" );
         exit( 1 );
     }
 
-    nParts = 1;
+    int nParts = 1;
     panParts[0] = 0;
+    int nVertices = 0;
 
-    for( i = 1; i < argc;  )
+    for( int i = 1; i < argc;  )
     {
         if( argv[i][0] == '+' )
         {
@@ -158,8 +154,9 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
 /*      Write the new entity to the shape file.                         */
 /* -------------------------------------------------------------------- */
-    psObject = SHPCreateObject( nShapeType, -1, nParts, panParts, NULL,
-                                nVertices, padfX, padfY, padfZ, padfM );
+    SHPObject *psObject = SHPCreateObject(
+        nShapeType, -1, nParts, panParts, NULL,
+        nVertices, padfX, padfY, padfZ, padfM );
     SHPWriteObject( hSHP, -1, psObject );
     SHPDestroyObject( psObject );
 
