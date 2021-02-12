@@ -4,7 +4,11 @@ CONTRIB_CFLAGS = -I$(top_srcdir) -DDEBUG -DDEBUG2
 EXTRA_DIST = makefile.vc tests/shpproj.sh doc/Shape_PointInPoly_README.txt doc/shpsort.txt ShapeFileII.pas
 
 # Installed executables
-bin_PROGRAMS = dbfcat dbfinfo shpcat shpdxf shpfix shpsort Shape_PointInPoly shpcentrd shpdata shpinfo shpwkb
+bin_PROGRAMS = csv2shp dbfcat dbfinfo shpcat shpdxf shpfix shpsort Shape_PointInPoly shpcentrd shpdata shpinfo shpwkb
+
+csv2shp_SOURCES = csv2shp.c
+csv2shp_CPPFLAGS = $(CONTRIB_CFLAGS)
+csv2shp_LDADD = $(top_builddir)/libshp.la
 
 dbfcat_SOURCES = dbfcat.c
 dbfcat_CPPFLAGS = $(CONTRIB_CFLAGS)

@@ -1,7 +1,8 @@
+// TODO(schwehr): Untested.
+
 /*
 csv2shp - converts a character delimited file to a ESRI shapefile
 Copyright (C) 2005 Springs Rescue Mission
-
 
 LICENSE
 This program is free software; you can redistribute it and/or
@@ -21,20 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 The GNU General Public License is also available from the web
 site <http://www.gnu.org>.
 
-
 GRATITUDE
 Like this program?  Donate at <http://springsrescuemission.org>.
-
-
-COMPILING INSTRUCTIONS
-This program was written and tested using Shapefile C Library version
-1.2.10 available at <http://shapelib.maptools.org>.
-
-To compile, copy csv2shp.c to the directory with Shapefile C Library.
-Then, compile Shapefile C library.  Then, run something like this:
-
-	gcc -pedantic -Wall -o csv2shp csv2shp.c -I. *o
-
 
 USAGE NOTES
 This program operates on single points only (not polygons or lines).
@@ -91,9 +80,8 @@ typedef struct column_t {
 int strnchr(const char *s, char c)
 {
 	int n = 0;
-	int x = 0;
 
-	for (; x < strlen(s); x++)
+	for (int x = 0; x < strlen(s); x++)
 	{
 		if (c == s[x])
 		{
@@ -106,25 +94,22 @@ int strnchr(const char *s, char c)
 
 /* Returns a field given by column n (0-based) in a character-
    delimited string s */
-char * delimited_column(char *s, char delim, int n)
-{
-	static char szreturn[4096];
-	char szbuffer[4096]; /* a copy of s */
-	char * pchar;
-	int x;
-	char szdelimiter[2]; /* delim converted to string */
-
+char * delimited_column(char *s, char delim, int n) {
 	if (strnchr(s, delim) < n)
 	{
 		fprintf(stderr, "delimited_column: n is too large\n");
 		return NULL;
 	}
 
+	char szbuffer[4096]; /* a copy of s */
 	strcpy(szbuffer, s);
+
+	char szdelimiter[2]; /* delim converted to string */
 	szdelimiter[0] = delim;
 	szdelimiter[1] = '\0';
-	x = 0;
-	pchar = strtok(szbuffer, szdelimiter);
+
+	int x = 0;
+	const char *pchar = strtok(szbuffer, szdelimiter);
 	while (x < n)
 	{
 		pchar = strtok(NULL, szdelimiter);
@@ -136,6 +121,7 @@ char * delimited_column(char *s, char delim, int n)
 		return NULL;
 	}
 
+	static char szreturn[4096];
 	strcpy(szreturn, pchar);
 	return szreturn;
 }
@@ -145,8 +131,6 @@ char * delimited_column(char *s, char delim, int n)
 DBFFieldType str_to_fieldtype(const char *s)
 {
 	regex_t regex_i;
-	regex_t regex_d;
-
 	if (0 != regcomp(&regex_i, "^[0-9]+$", REG_NOSUB|REG_EXTENDED))
 	{
 		fprintf(stderr, "integer regex complication failed\n");
@@ -161,6 +145,7 @@ DBFFieldType str_to_fieldtype(const char *s)
 
 	regfree(&regex_i);
 
+	regex_t regex_d;
 	if (0 != regcomp(&regex_d, "^-?[0-9]+\\.[0-9]+$", REG_NOSUB|REG_EXTENDED))
 	{
 		fprintf(stderr, "integer regex complication failed\n");
@@ -176,30 +161,6 @@ DBFFieldType str_to_fieldtype(const char *s)
 	regfree(&regex_d);
 
 	return FTString;
-}
-
-int float_width(const char *s)
-{
-	regex_t regex_d;
-	regmatch_t pmatch[2];
-	char szbuffer[4096];
-
-	if (0 != regcomp(&regex_d, "^(-?[0-9]+)\\.[0-9]+$", REG_EXTENDED))
-	{
-		fprintf(stderr, "integer regex complication failed\n");
-		exit (EXIT_FAILURE);
-	}
-
-	if (0 != regexec(&regex_d, s, 2, &pmatch[0], 0))
-	{
-		return -1;
-	}
-
-	strncpy(szbuffer, &s[pmatch[1].rm_so], pmatch[1].rm_eo - pmatch[1].rm_so);
-	szbuffer[pmatch[1].rm_eo - pmatch[1].rm_so] = '\0';
-	regfree(&regex_d);
-
-	return strlen(szbuffer);
 }
 
 /* returns the field width */
@@ -219,23 +180,21 @@ int str_to_nwidth(const char *s, DBFFieldType eType)
 }
 
 /* returns the number of decimals in a real number given as a string s */
-int str_to_ndecimals(const char *s)
-{
+int str_to_ndecimals(const char *s) {
 	regex_t regex_d;
-	regmatch_t pmatch[2];
-	char szbuffer[4096];
-
 	if (0 != regcomp(&regex_d, "^-?[0-9]+\\.([0-9]+)$", REG_EXTENDED))
 	{
 		fprintf(stderr, "integer regex complication failed\n");
 		exit (EXIT_FAILURE);
 	}
 
+	regmatch_t pmatch[2];
 	if (0 != regexec(&regex_d, s, 2, &pmatch[0], 0))
 	{
 		return -1;
 	}
 
+	char szbuffer[4096];
 	strncpy(szbuffer, &s[pmatch[1].rm_so], pmatch[1].rm_eo - pmatch[1].rm_so);
 	szbuffer[pmatch[1].rm_eo - pmatch[1].rm_so] = '\0';
 
@@ -245,8 +204,7 @@ int str_to_ndecimals(const char *s)
 }
 
 /* returns true if f1 is more general than f2, otherwise false */
-int more_general_field_type(DBFFieldType t1, DBFFieldType t2)
-{
+int more_general_field_type(DBFFieldType t1, DBFFieldType t2) {
 	if (FTInteger == t2 && t1 != FTInteger)
 	{
 		return 1;
@@ -266,33 +224,18 @@ void strip_crlf (char *line)
 
   if (strchr (line, 0x0D))
     {
-      char *pszline;
-      pszline = strchr (line, 0x0D);
+      char *pszline = strchr (line, 0x0D);
       pszline[0] = '\0';
     }
 
   if (strchr (line, 0x0A))
     {
-      char *pszline;
-      pszline = strchr (line, 0x0A);
+      char *pszline = strchr (line, 0x0A);
       pszline[0] = '\0';
     }
 }
 
-int main( int argc, char ** argv )
-{
-	FILE *csv_f;
-	char sbuffer[4096];
-	char delimiter;
-	int n_columns; /* 1-based */
-	int n_line;
-	int n_longitude = -1; /* column with x, 0 based */
-	int n_latitude = -1; /* column with y, 0 based */
-	int x;
-	DBFHandle dbf_h;
-	SHPHandle shp_h;
-	column columns[MAX_COLUMNS + 1];
-
+int main( int argc, char ** argv ) {
 	printf("csv2shp version 1, Copyright (C) 2005 Springs Rescue Mission\n");
 
 	if (4 != argc)
@@ -319,16 +262,16 @@ int main( int argc, char ** argv )
 		return EXIT_FAILURE;
 	}
 
-	delimiter = argv[2][0];
+	const char delimiter = argv[2][0];
 
-	csv_f = fopen(argv[1], "r");
-
+	FILE *csv_f = fopen(argv[1], "r");
 	if (NULL == csv_f)
 	{
 		perror("could not open csv file");
 		exit (EXIT_FAILURE);
 	}
 
+	char sbuffer[4096];
 	fgets(sbuffer, 4000, csv_f);
 
 	/* check first row */
@@ -344,16 +287,15 @@ int main( int argc, char ** argv )
 
 	/* count columns and verify consistency*/
 
-	n_columns = strnchr(sbuffer, delimiter);
-
+	/* 1-based */
+	int n_columns = strnchr(sbuffer, delimiter);
 	if (n_columns > MAX_COLUMNS)
 	{
 		fprintf(stderr, "too many columns, maximum is %i\n", MAX_COLUMNS);
 		return EXIT_FAILURE;
 	}
 
-	n_line = 1;
-
+	int n_line = 1;
 	while (!feof(csv_f))
 	{
 		n_line++;
@@ -371,7 +313,9 @@ int main( int argc, char ** argv )
 	fgets(sbuffer, 4000, csv_f);
 	strip_crlf(sbuffer);
 
-	for (x = 0; x <= n_columns; x++)
+	int n_longitude = -1; /* column with x, 0 based */
+	int n_latitude = -1; /* column with y, 0 based */
+	for (int x = 0; x <= n_columns; x++)
 	{
 		if (0 == strcasecmp("Longitude", delimited_column(sbuffer, delimiter, x)))
 		{
@@ -403,7 +347,9 @@ int main( int argc, char ** argv )
 	printf("debug: int type = %i\n", FTInteger);
 	printf("debug: double type = %i\n", FTDouble);
 #endif
-	for (x = 0; x <= n_columns; x++)
+
+	column columns[MAX_COLUMNS + 1];
+	for (int x = 0; x <= n_columns; x++)
 	{
 #ifdef DEBUG
 		printf("debug: examining column %i\n", x);
@@ -417,7 +363,6 @@ int main( int argc, char ** argv )
 
 		while (!feof(csv_f))
 		{
-			char szfield[4096];
 #ifdef DEBUG
 			printf ("column %i, type = %i, w = %i, d = %i\n", x, columns[x].eType, columns[x].nWidth, columns[x].nDecimals);
 #endif
@@ -429,6 +374,8 @@ int main( int argc, char ** argv )
 				}
 				continue;
 			}
+
+			char szfield[4096];
 			strcpy(szfield, delimited_column(sbuffer, delimiter, x));
 			if (more_general_field_type(str_to_fieldtype(szfield), columns[x].eType))
 			{
@@ -451,15 +398,11 @@ int main( int argc, char ** argv )
 		}
 	}
 
-
-	/* initialize output files */
-
 	printf ("Initializing output files...\n");
 
-	shp_h = SHPCreate(argv[3], SHPT_POINT);
-
-	dbf_h = DBFCreate(argv[3]);
-
+        // TODO(schwehr): Close csv_f, shp_h, and dbf_h before EXIT_FAILURE
+	SHPHandle shp_h = SHPCreate(argv[3], SHPT_POINT);
+	DBFHandle dbf_h = DBFCreate(argv[3]);
 	if (NULL == dbf_h)
 	{
 		fprintf(stderr, "DBFCreate failed\n");
@@ -470,7 +413,7 @@ int main( int argc, char ** argv )
 	fgets(sbuffer, 4000, csv_f);
 	strip_crlf(sbuffer);
 
-	for (x = 0; x <= n_columns; x++)
+	for (int x = 0; x <= n_columns; x++)
 	{
 #ifdef DEBUG
 		printf ("debug: final: column %i, type = %i, w = %i, d = %i, name=|%s|\n", x, columns[x].eType, columns[x].nWidth, columns[x].nDecimals, delimited_column(sbuffer, delimiter, x));
@@ -483,8 +426,6 @@ int main( int argc, char ** argv )
 
 	}
 
-	/* write data */
-
 	printf ("Writing data...\n");
 
 	fseek(csv_f, 0, SEEK_SET);
@@ -495,36 +436,30 @@ int main( int argc, char ** argv )
 
 	while (!feof(csv_f))
 	{
-		SHPObject * shp;
-		double x_pt;
-		double y_pt;
-		int shp_i;
-
 		n_line++;
 		fgets(sbuffer, 4000, csv_f);
 
 		/* write to shape file */
-		x_pt = atof(delimited_column(sbuffer, delimiter, n_longitude));
-		y_pt = atof(delimited_column(sbuffer, delimiter, n_latitude));
+		double x_pt = atof(delimited_column(sbuffer, delimiter, n_longitude));
+		double y_pt = atof(delimited_column(sbuffer, delimiter, n_latitude));
 
 #ifdef DEBUG
 		printf("debug: sbuffer=%s", sbuffer);
 		printf("debug: x,y = %f, %f\n", x_pt, y_pt);
 #endif
 
-		shp = SHPCreateSimpleObject(SHPT_POINT, 1, &x_pt, &y_pt, NULL);
-		shp_i = SHPWriteObject(shp_h, -1, shp);
+		SHPObject *shp = SHPCreateSimpleObject(SHPT_POINT, 1, &x_pt, &y_pt, NULL);
+		const int shp_i = SHPWriteObject(shp_h, -1, shp);
 		SHPDestroyObject(shp);
 
 		/* write to dbf */
 
-		for (x = 0; x <= n_columns; x++)
+		for (int x = 0; x <= n_columns; x++)
 		{
 			char szfield[4096];
-			int b;
-
 			strcpy(szfield, delimited_column(sbuffer, delimiter, x));
 
+			int b;
 			switch (columns[x].eType)
 			{
 				case FTInteger:
@@ -548,10 +483,8 @@ int main( int argc, char ** argv )
 		}
 	}
 
-	/* finish up */
-
+        fclose(csv_f);
 	SHPClose(shp_h);
-
         DBFClose(dbf_h);
 
 	return EXIT_SUCCESS;
