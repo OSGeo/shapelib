@@ -77,31 +77,18 @@ static void copy_related (const char *inName, const char *outName,
 			  const char *old_ext, const char *new_ext);
 static char ** split(const char *arg, const char *delim);
 static int compare(const void *, const void *);
-static double area2d_polygon (int n, double *x, double *y);
+static double area2d_polygon (int n, const double *x, const double *y);
 static double shp_area (SHPObject *feat);
-static double length2d_polyline (int n, double *x, double *y);
+static double length2d_polyline (int n, const double *x, const double *y);
 static double shp_length (SHPObject *feat);
 
 int main (int argc, char *argv[]) {
-
-  SHPHandle  inSHP, outSHP;
-  DBFHandle  inDBF, outDBF;
-  int        len;
-  int        i;
-  char       **fieldNames;
-  char       **strOrder = 0;
-  struct DataStruct *index;
-  int        width;
-  int        decimals;
-  SHPObject  *feat;
-  void       *tuple;
-
   if (argc < 4) {
     printf("USAGE: shpsort <infile> <outfile> <field[;...]> [<(ASCENDING|DESCENDING)[;...]>]\n");
     exit(EXIT_FAILURE);
   }
 
-  inSHP = SHPOpen (argv[1], "rb");
+  SHPHandle inSHP = SHPOpen (argv[1], "rb");
   if (!inSHP) {
     fputs("Couldn't open shapefile for reading!\n", stderr);
     exit(EXIT_FAILURE);
@@ -109,14 +96,14 @@ int main (int argc, char *argv[]) {
   SHPGetInfo(inSHP, &nShapes, &shpType, NULL, NULL);
 
   /* If we can open the inSHP, open its DBF */
-  inDBF = DBFOpen (argv[1], "rb");
+  DBFHandle inDBF = DBFOpen (argv[1], "rb");
   if (!inDBF) {
     fputs("Couldn't open dbf file for reading!\n", stderr);
     exit(EXIT_FAILURE);
   }
 
   /* Parse fields and validate existence */
-  fieldNames = split(argv[3], ";");
+  char **fieldNames = split(argv[3], ";");
   if (!fieldNames) {
     fputs("ERROR: parsing field names!\n", stderr);
     exit(EXIT_FAILURE);
@@ -130,8 +117,8 @@ int main (int argc, char *argv[]) {
     fputs("malloc failed!\n", stderr);
     exit(EXIT_FAILURE);
   }
-  for (i = 0; i < nFields; i++) {
-    len = (int)strlen(fieldNames[i]);
+  for (int i = 0; i < nFields; i++) {
+    int len = (int)strlen(fieldNames[i]);
     while(len > 0) {
       --len;
       fieldNames[i][len] = (char)toupper((unsigned char)fieldNames[i][len]);
@@ -152,14 +139,15 @@ int main (int argc, char *argv[]) {
     }
   }
 
-
   /* set up field type array */
   fldType = malloc(sizeof *fldType * nFields);
   if (!fldType) {
     fputs("malloc failed!\n", stderr);
     exit(EXIT_FAILURE);
   }
-  for (i = 0; i < nFields; i++) {
+  int width;
+  int decimals;
+  for (int i = 0; i < nFields; i++) {
     if (fldIdx[i] < 0) {
       fldType[i] = fldIdx[i];
     }
@@ -172,24 +160,23 @@ int main (int argc, char *argv[]) {
     }
   }
 
-
   /* set up field order array */
   fldOrder = malloc(sizeof *fldOrder * nFields);
   if (!fldOrder) {
     fputs("malloc failed!\n", stderr);
     exit(EXIT_FAILURE);
   }
-  for (i = 0; i < nFields; i++) {
+  for (int i = 0; i < nFields; i++) {
     /* default to ascending order */
     fldOrder[i] = ASCENDING;
   }
   if (argc > 4) {
-    strOrder = split(argv[4], ";");
+    char **strOrder = split(argv[4], ";");
     if (!strOrder) {
       fputs("ERROR: parsing fields ordering!\n", stderr);
       exit(EXIT_FAILURE);
     }
-    for (i = 0; i < nFields && strOrder[i]; i++) {
+    for (int i = 0; i < nFields && strOrder[i]; i++) {
       if (strcmp(strOrder[i], "DESCENDING") == 0) {
 	fldOrder[i] = DESCENDING;
       }
@@ -197,10 +184,10 @@ int main (int argc, char *argv[]) {
   }
 
   /* build the index */
-  index = build_index (inSHP, inDBF);
+  struct DataStruct *index = build_index (inSHP, inDBF);
 
   /* Create output shapefile */
-  outSHP = SHPCreate(argv[2], shpType);
+  SHPHandle outSHP = SHPCreate(argv[2], shpType);
   if (!outSHP) {
     fprintf(stderr, "%s:%d: couldn't create output shapefile!\n",
 	    __FILE__, __LINE__);
@@ -208,7 +195,7 @@ int main (int argc, char *argv[]) {
   }
 
   /* Create output dbf */
-  outDBF = DBFCloneEmpty(inDBF, argv[2]);
+  DBFHandle outDBF = DBFCloneEmpty(inDBF, argv[2]);
   if (!outDBF) {
     fprintf(stderr, "%s:%d: couldn't create output dBASE file!\n",
 	    __FILE__, __LINE__);
@@ -222,13 +209,13 @@ int main (int argc, char *argv[]) {
   copy_related(argv[1], argv[2], ".shp", ".shp.xml");
 
   /* Write out sorted results */
-  for (i = 0; i < nShapes; i++) {
-    feat = SHPReadObject(inSHP, index[i].record);
+  for (int i = 0; i < nShapes; i++) {
+    SHPObject *feat = SHPReadObject(inSHP, index[i].record);
     if (SHPWriteObject(outSHP, -1, feat) < 0) {
       fprintf(stderr, "%s:%d: error writing shapefile!\n", __FILE__, __LINE__);
       exit(EXIT_FAILURE);
     }
-    tuple = (void *) DBFReadTuple(inDBF, index[i].record);
+    void *tuple = (void *) DBFReadTuple(inDBF, index[i].record);
     if (DBFWriteTuple(outDBF, i, tuple) < 0) {
       fprintf(stderr, "%s:%d: error writing dBASE file!\n", __FILE__, __LINE__);
       exit(EXIT_FAILURE);
@@ -240,19 +227,15 @@ int main (int argc, char *argv[]) {
   DBFClose(outDBF);
 
   return EXIT_SUCCESS;
-
 }
 
-static char ** split(const char *arg, const char *delim)
-{
+static char ** split(const char *arg, const char *delim) {
   char *copy = dupstr(arg);
-  char *cptr = copy;
   char **result = NULL;
-  char **tmp;
   int i = 0;
 
-  for (cptr = strtok(copy, delim); cptr; cptr = strtok(NULL, delim)) {
-    tmp = realloc (result, sizeof *result * (i + 1));
+  for (char *cptr = strtok(copy, delim); cptr; cptr = strtok(NULL, delim)) {
+    char **tmp = realloc (result, sizeof *result * (i + 1));
     if (!tmp && result) {
       while (i > 0) {
 	free(result[--i]);
@@ -268,7 +251,7 @@ static char ** split(const char *arg, const char *delim)
   free(copy);
 
   if (i) {
-    tmp = realloc(result, sizeof *result * (i + 1));
+    char **tmp = realloc(result, sizeof *result * (i + 1));
     if (!tmp) {
       while (i > 0) {
 	free(result[--i]);
@@ -288,35 +271,34 @@ static char ** split(const char *arg, const char *delim)
 static void copy_related (const char *inName, const char *outName,
 			  const char *old_ext, const char *new_ext)
 {
-  char *in;
-  char *out;
-  FILE *inFile;
-  FILE *outFile;
-  int  c;
   size_t name_len = strlen(inName);
-  size_t old_len  = strlen(old_ext);
-  size_t new_len  = strlen(new_ext);
+  const size_t old_len  = strlen(old_ext);
+  const size_t new_len  = strlen(new_ext);
 
-  in = malloc(name_len - old_len + new_len + 1);
+  char *in = malloc(name_len - old_len + new_len + 1);
   strncpy(in, inName, (name_len - old_len));
   strcpy(&in[(name_len - old_len)], new_ext);
-  inFile = fopen(in, "rb");
+  FILE *inFile = fopen(in, "rb");
   if (!inFile) {
     free(in);
     return;
   }
   name_len = strlen(outName);
-  out = malloc(name_len - old_len + new_len + 1);
-  strncpy(out, outName, (name_len - old_len));
-  strcpy(&out[(name_len - old_len)], new_ext);
-  outFile = fopen(out, "wb");
+  char *out = malloc(name_len - old_len + new_len + 1);
   if (!out) {
     fprintf(stderr, "%s:%d: couldn't copy related file!\n",
 	    __FILE__, __LINE__);
+    fclose(inFile);
     free(in);
     free(out);
     return;
   }
+  strncpy(out, outName, (name_len - old_len));
+  strcpy(&out[(name_len - old_len)], new_ext);
+
+  FILE *outFile = fopen(out, "wb");
+
+  int c;
   while ((c = fgetc(inFile)) != EOF) {
     fputc(c, outFile);
   }
@@ -329,12 +311,11 @@ static void copy_related (const char *inName, const char *outName,
 static char * dupstr (const char *src)
 {
   char *dst = malloc(strlen(src) + 1);
-  char *cptr;
   if (!dst) {
     fprintf(stderr, "%s:%d: malloc failed!\n", __FILE__, __LINE__);
     exit(EXIT_FAILURE);
   }
-  cptr = dst;
+  char *cptr = dst;
   while ((*cptr++ = *src++))
     ;
   return dst;
@@ -342,11 +323,10 @@ static char * dupstr (const char *src)
 
 #ifdef DEBUG
 static void PrintDataStruct (struct DataStruct *data) {
-  int i, j;
-  for (i = 0; i < nShapes; i++) {
+  for (int i = 0; i < nShapes; i++) {
     printf("data[%d] {\n", i);
     printf("\t.record = %d\n", data[i].record);
-    for (j = 0; j < nFields; j++) {
+    for (int j = 0; j < nFields; j++) {
       printf("\t.value[%d].null = %d\n", j, data[i].value[j].null);
       if (!data[i].value[j].null) {
 	switch(fldType[j]) {
@@ -371,34 +351,29 @@ static void PrintDataStruct (struct DataStruct *data) {
 #endif
 
 static struct DataStruct * build_index (SHPHandle shp, DBFHandle dbf) {
-  struct DataStruct *data;
-  SHPObject  *feat;
-  int i;
-  int j;
-
-  /* make array */
-  data = malloc (sizeof *data * nShapes);
+  struct DataStruct *data = malloc (sizeof *data * nShapes);
   if (!data) {
     fputs("malloc failed!\n", stderr);
     exit(EXIT_FAILURE);
   }
 
   /* populate array */
-  for (i = 0; i < nShapes; i++) {
+  for (int i = 0; i < nShapes; i++) {
     data[i].value = malloc(sizeof data[0].value[0] * nFields);
     if (0 == data[i].value) {
       fputs("malloc failed!\n", stderr);
       exit(EXIT_FAILURE);
     }
     data[i].record = i;
-    for (j = 0; j < nFields; j++) {
+    for (int j = 0; j < nFields; j++) {
       data[i].value[j].null = 0;
       switch (fldType[j]) {
       case FIDType:
 	data[i].value[j].u.i = i;
 	break;
       case SHPType:
-	feat = SHPReadObject(shp, i);
+       {
+        SHPObject *feat = SHPReadObject(shp, i);
 	switch (feat->nSHPType) {
 	case SHPT_NULL:
 	  fprintf(stderr, "Shape %d is a null feature!\n", i);
@@ -430,6 +405,7 @@ static struct DataStruct * build_index (SHPHandle shp, DBFHandle dbf) {
 	}
 	SHPDestroyObject(feat);
 	break;
+       }
       case FTString:
 	data[i].value[j].null = DBFIsAttributeNULL(dbf, i, fldIdx[j]);
 	if (!data[i].value[j].null) {
@@ -471,10 +447,8 @@ static struct DataStruct * build_index (SHPHandle shp, DBFHandle dbf) {
 static int compare(const void *A, const void *B) {
   const struct DataStruct *a = A;
   const struct DataStruct *b = B;
-  int i;
-  int result = 0;
 
-  for (i = 0; i < nFields; i++) {
+  for (int i = 0; i < nFields; i++) {
     if (a->value[i].null && b->value[i].null) {
       continue;
     }
@@ -505,11 +479,13 @@ static int compare(const void *A, const void *B) {
       }
       break;
     case StringType:
-      result = strcmp(a->value[i].u.s, b->value[i].u.s);
+     {
+      const int result = strcmp(a->value[i].u.s, b->value[i].u.s);
       if (result) {
 	return (fldOrder[i]) ? result : -result;
       }
       break;
+     }
     default:
       fprintf(stderr, "compare: Program Error! Unhandled field type! fldType[%d] = %d\n", i, fldType[i]);
       break;
@@ -518,10 +494,9 @@ static int compare(const void *A, const void *B) {
   return 0;
 }
 
-static double area2d_polygon (int n, double *x, double *y) {
+static double area2d_polygon (int n, const double *x, const double *y) {
   double area = 0;
-  int i;
-  for (i = 1; i < n; i++) {
+  for (int i = 1; i < n; i++) {
     area += (x[i-1] + x[i]) * (y[i] - y[i-1]);
   }
   return area / 2.0;
@@ -533,8 +508,8 @@ static double shp_area (SHPObject *feat) {
     area = area2d_polygon (feat->nVertices, feat->padfX, feat->padfY);
   }
   else {
-    int part, n;
-    for (part = 0; part < feat->nParts; part++) {
+    for (int part = 0; part < feat->nParts; part++) {
+      int n;
       if (part < feat->nParts - 1) {
 	n = feat->panPartStart[part+1] - feat->panPartStart[part];
       }
@@ -549,10 +524,9 @@ static double shp_area (SHPObject *feat) {
   return -area;
 }
 
-static double length2d_polyline (int n, double *x, double *y) {
+static double length2d_polyline (int n, const double *x, const double *y) {
   double length = 0.0;
-  int i;
-  for (i = 1; i < n; i++) {
+  for (int i = 1; i < n; i++) {
     length += sqrt((x[i] - x[i-1])*(x[i] - x[i-1])
 		   +
 		   (y[i] - y[i-1])*(y[i] - y[i-1]));
@@ -566,8 +540,8 @@ static double shp_length (SHPObject *feat) {
     length = length2d_polyline(feat->nVertices, feat->padfX, feat->padfY);
   }
   else {
-    int part, n;
-    for (part = 0; part < feat->nParts; part++) {
+    for (int part = 0; part < feat->nParts; part++) {
+      int n;
       if (part < feat->nParts - 1) {
 	n = feat->panPartStart[part+1] - feat->panPartStart[part];
       }
