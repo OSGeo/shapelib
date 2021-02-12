@@ -12,40 +12,25 @@
 
 static char rcsid[] = "$Id$";
 
-int main( int argc, char ** argv )
-
-{
-    DBFHandle	hDBF;
-    int		i, iRecord;
-    char	cTitle[32], nTitle[32];
-    int		nWidth, nDecimals;
-    int		cnWidth, cnDecimals;
-    DBFHandle	cDBF;
-    DBFFieldType	hType,cType;
-    int		ci, ciRecord;
-    char	tfile[160];
-    int		hflds, cflds;
-    int 	verbose				= 0;
-    int		force 				= 0;
-    int		mismatch			= 0;
-    int		matches				= 0;
-    char	fld_m[256];
-    int		shift = 0;
-    char	type_names[4][15] = {"integer", "string", "double", "double"};
-
+int main( int argc, char ** argv ) {
     if( argc < 3 )
     {
 	printf( "dbfcat [-v] [-f] from_DBFfile to_DBFfile\n" );
 	exit( 1 );
     }
 
-
+    int force = 0;
+    int verbose = 0;
+    int shift = 0;
     if ( strcmp ("-v", argv[1] ) == 0 ) { shift = 1; verbose = 1; }
     if ( strcmp ("-f", argv[1 + shift] ) == 0 ) { shift ++; force = 1; }
     if ( strcmp ("-v", argv[1 + shift] ) == 0 ) { shift ++; verbose = 1; }
+
+    char tfile[160];
     strcpy (tfile, argv[1 + shift]);
     strcat (tfile, ".dbf");
-    hDBF = DBFOpen( tfile, "rb" );
+
+    DBFHandle hDBF = DBFOpen( tfile, "rb" );
     if( hDBF == NULL )
     {
 	printf( "DBFOpen(%s.dbf,\"r\") failed for From_DBF.\n", tfile );
@@ -55,13 +40,12 @@ int main( int argc, char ** argv )
     strcpy (tfile, argv[2 + shift]);
     strcat (tfile, ".dbf");
 
-    cDBF = DBFOpen( tfile, "rb+" );
+    DBFHandle cDBF = DBFOpen( tfile, "rb+" );
     if( cDBF == NULL )
     {
 	printf( "DBFOpen(%s.dbf,\"rb+\") failed for To_DBF.\n", tfile );
 	exit( 2 );
     }
-
 
     if( DBFGetFieldCount(hDBF) == 0 )
     {
@@ -69,20 +53,32 @@ int main( int argc, char ** argv )
 	exit( 3 );
     }
 
-    hflds = DBFGetFieldCount(hDBF);
-    cflds = DBFGetFieldCount(cDBF);
+    const int hflds = DBFGetFieldCount(hDBF);
+    const int cflds = DBFGetFieldCount(cDBF);
 
-    matches = 0;
-    for( i = 0; i < hflds; i++ )
+    int matches = 0;
+    int mismatch = 0;
+
+    DBFFieldType hType;
+    int nWidth;
+    int nDecimals;
+    char fld_m[256];
+    int cnWidth;
+    int cnDecimals;
+    const char type_names[4][15] = {"integer", "string", "double", "double"};
+    char nTitle[32];
+    char cTitle[32];
+
+    for( int i = 0; i < hflds; i++ )
     {
-	char		szTitle[18];
-	char		cname[18];
-	int		j;
+	char szTitle[18];
 	hType = DBFGetFieldInfo( hDBF, i, szTitle, &nWidth, &nDecimals );
+
+	char cname[18];
 	fld_m[i] = -1;
-        for ( j = 0; j < cflds; j ++ )
+        for ( int j = 0; j < cflds; j ++ )
           {
-            cType = DBFGetFieldInfo( cDBF, j, cname, &cnWidth, &cnDecimals );
+            const DBFFieldType cType = DBFGetFieldInfo( cDBF, j, cname, &cnWidth, &cnDecimals );
             if ( strcmp (cname, szTitle) == 0 )
 	     {
         	if ( hType != cType )
@@ -108,15 +104,16 @@ int main( int argc, char ** argv )
       printf ("ERROR: field type mismatch cannot proceed\n    use -f to force processing using attempted conversions\n");
       exit(-1); }
 
-    for( iRecord = 0; iRecord < DBFGetRecordCount(hDBF); iRecord++ )
+    int iRecord = 0;
+    for( ; iRecord < DBFGetRecordCount(hDBF); iRecord++ )
     {
-      ciRecord = DBFGetRecordCount( cDBF );
-      for ( i = 0; i < hflds;i ++ )
+      const int ciRecord = DBFGetRecordCount( cDBF );
+      for ( int i = 0; i < hflds;i ++ )
 	{
-	ci = fld_m[i];
+	const int ci = fld_m[i];
 	if ( ci != -1 )
 	{
-	cType = DBFGetFieldInfo( cDBF, ci, cTitle, &cnWidth, &cnDecimals );
+	const DBFFieldType cType = DBFGetFieldInfo( cDBF, ci, cTitle, &cnWidth, &cnDecimals );
 	hType = DBFGetFieldInfo( hDBF, i, nTitle, &nWidth, &nDecimals );
 
 	    switch( cType )

@@ -30,81 +30,71 @@
 #include "shapefil.h"
 #include "shpgeo.h"
 
-int main( int argc, char ** argv )
-
-{
-    SHPHandle	old_SHP;
-    DBFHandle   old_DBF;
-    int		nShapeType, nEntities, i;
-    char	*DBFRow = NULL;
-    int		byRing = 1;
-    PT		oCentrd, ringCentrd;
-    SHPObject	*psCShape;
-    double	oArea = 0.0, oLen = 0.0;
-
+int main( int argc, char ** argv ) {
     if( argc < 2 )
     {
 	printf( "shpdata shp_file \n" );
 	exit( 1 );
     }
 
-    old_SHP = SHPOpen (argv[1], "rb" );
-    old_DBF = DBFOpen (argv[1], "rb");
+    SHPHandle old_SHP = SHPOpen (argv[1], "rb" );
+    DBFHandle old_DBF = DBFOpen (argv[1], "rb");
     if( old_SHP == NULL || old_DBF == NULL )
     {
 	printf( "Unable to open old files:%s\n", argv[1] );
 	exit( 1 );
     }
 
+    int		nEntities;
+    int		nShapeType;
     SHPGetInfo( old_SHP, &nEntities, &nShapeType, NULL, NULL );
-    for( i = 0; i < nEntities; i++ )
+
+    char *DBFRow = NULL;
+    int byRing = 1;
+    PT ringCentrd;
+
+    for( int i = 0; i < nEntities; i++ )
     {
-	psCShape = SHPReadObject( old_SHP, i );
+        SHPObject *psCShape = SHPReadObject( old_SHP, i );
 
         if ( byRing == 1 ) {
-          int 	   ring, prevStart, ringDir;
-	  double   ringArea;
-
-          prevStart = psCShape->nVertices;
-          for ( ring = (psCShape->nParts - 1); ring >= 0; ring-- ) {
-	    SHPObject 	*psO;
-	    int		numVtx, rStart;
-
-            rStart = psCShape->panPartStart[ring];
+          // const int prevStart = psCShape->nVertices;
+          for ( int ring = (psCShape->nParts - 1); ring >= 0; ring-- ) {
+            const int rStart = psCShape->panPartStart[ring];
+	    int numVtx;
             if ( ring == (psCShape->nParts -1) )
               { numVtx = psCShape->nVertices - rStart; }
              else
               { numVtx = psCShape->panPartStart[ring+1] - rStart; }
 
             printf ("(shpdata) Ring(%d) (%d for %d) \n", ring, rStart, numVtx);
-	    psO = SHPClone ( psCShape, ring,  ring + 1 );
+	    SHPObject *psO = SHPClone ( psCShape, ring,  ring + 1 );
 
-            ringDir = SHPRingDir_2d ( psO, 0 );
-            ringArea = RingArea_2d (psO->nVertices,(double*) psO->padfX,
+            const int ringDir = SHPRingDir_2d ( psO, 0 );
+            double ringArea = RingArea_2d (psO->nVertices,(double*) psO->padfX,
             	 (double*) psO->padfY);
             RingCentroid_2d ( psO->nVertices, (double*) psO->padfX,
      		(double*) psO->padfY, &ringCentrd, &ringArea);
-
 
             printf ("(shpdata)  Ring %d, %f Area %d dir \n",
            	ring, ringArea, ringDir );
 
 	    SHPDestroyObject ( psO );
             printf ("(shpdata) End Ring \n");
-           }  /* (ring) [0,nParts  */
+          }  /* (ring) [0,nParts  */
+        }  /* by ring   */
 
-          }  /* by ring   */
-
-	   oArea = SHPArea_2d ( psCShape );
-	   oLen = SHPLength_2d ( psCShape );
-	   oCentrd = SHPCentrd_2d ( psCShape );
+        const double oArea = SHPArea_2d ( psCShape );
+        const double oLen = SHPLength_2d ( psCShape );
+        const PT oCentrd = SHPCentrd_2d ( psCShape );
            printf ("(shpdata) Part (%d) %f Area  %f length, C (%f,%f)\n",
            	 i, oArea, oLen, oCentrd.x, oCentrd.y );
     }
 
     SHPClose( old_SHP );
-
     DBFClose( old_DBF );
 
     printf ("\n");
+
+    return EXIT_SUCCESS;
 }

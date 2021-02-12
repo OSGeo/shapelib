@@ -29,13 +29,7 @@
 #include <string.h>
 #include "shapefil.h"
 
-int main( int argc, char ** argv )
-
-{
-    SHPHandle	hSHP;
-    int		nShapeType, nEntities;
-    double	adfBndsMin[4], adfBndsMax[4];
-    char	sType [15]= "";
+int main( int argc, char ** argv ) {
 /* -------------------------------------------------------------------- */
 /*      Display a usage message.                                        */
 /* -------------------------------------------------------------------- */
@@ -48,16 +42,20 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
 /*      Open the passed shapefile.                                      */
 /* -------------------------------------------------------------------- */
-    hSHP = SHPOpen( argv[1], "rb" );
-
+    SHPHandle hSHP = SHPOpen( argv[1], "rb" );
     if( hSHP == NULL )
     {
 	printf( "Unable to open:%s\n", argv[1] );
 	exit( 1 );
     }
 
+    int nEntities;
+    int nShapeType;
+    double adfBndsMin[4];
+    double adfBndsMax[4];
     SHPGetInfo( hSHP, &nEntities, &nShapeType, adfBndsMin, adfBndsMax );
 
+    char sType [15]= "";
     switch ( nShapeType ) {
        case SHPT_POINT:
 		strcpy(sType,"Point");

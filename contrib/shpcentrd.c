@@ -40,61 +40,47 @@
 #include "shapefil.h"
 #include "shpgeo.h"
 
-int main( int argc, char ** argv )
-
-{
-    SHPHandle	old_SHP, new_SHP;
-    DBFHandle   old_DBF, new_DBF;
-    int		nShapeType, nEntities, i;
-    char	*DBFRow = NULL;
-    int		byRing = 1;
-    PT		Centrd;
-    SHPObject	*psCShape, *cent_pt;
-
-
+int main( int argc, char ** argv ) {
     if( argc < 3 )
     {
 	printf( "shpcentrd shp_file new_shp_file\n" );
 	exit( 1 );
     }
 
-    old_SHP = SHPOpen (argv[1], "rb" );
-    old_DBF = DBFOpen (argv[1], "rb");
+    SHPHandle old_SHP = SHPOpen (argv[1], "rb" );
+    DBFHandle old_DBF = DBFOpen (argv[1], "rb");
     if( old_SHP == NULL || old_DBF == NULL )
     {
 	printf( "Unable to open old files:%s\n", argv[1] );
 	exit( 1 );
     }
 
+    int nEntities;
+    int nShapeType;
     SHPGetInfo( old_SHP, &nEntities, &nShapeType, NULL, NULL );
-    new_SHP = SHPCreate ( argv[2], SHPT_POINT );
 
-    new_DBF = DBFCloneEmpty (old_DBF, argv[2]);
+    SHPHandle new_SHP = SHPCreate ( argv[2], SHPT_POINT );
+    DBFHandle new_DBF = DBFCloneEmpty (old_DBF, argv[2]);
     if( new_SHP == NULL || new_DBF == NULL )
     {
 	printf( "Unable to create new files:%s\n", argv[2] );
 	exit( 1 );
     }
 
-    DBFRow = (char *) malloc ( (old_DBF->nRecordLength) + 15 );
+    char *DBFRow = (char *) malloc ( (old_DBF->nRecordLength) + 15 );
 
-
-#ifdef 	DEBUG
-    printf ("ShpCentrd using shpgeo \n");
-#endif
-
-    for( i = 0; i < nEntities; i++ )
+    int byRing = 1;
+    for( int i = 0; i < nEntities; i++ )
     {
-	psCShape = SHPReadObject( old_SHP, i );
+        SHPObject *psCShape = SHPReadObject( old_SHP, i );
 
         if ( byRing == 1 ) {
-          int 	ring;
-          for ( ring = 0; ring < psCShape->nParts; ring ++ ) {
-	    SHPObject 	*psO;
-	    psO = SHPClone ( psCShape, ring,  ring + 1 );
+          for ( int ring = 0; ring < psCShape->nParts; ring ++ ) {
+	    SHPObject *psO = SHPClone ( psCShape, ring,  ring + 1 );
 
-            Centrd = SHPCentrd_2d ( psO );
+            PT Centrd = SHPCentrd_2d ( psO );
 
+            SHPObject *cent_pt;
             cent_pt = SHPCreateSimpleObject ( SHPT_POINT, 1,
         	(double*) &(Centrd.x), (double*) &(Centrd.y), NULL );
 
@@ -107,14 +93,11 @@ int main( int argc, char ** argv )
             SHPDestroyObject ( cent_pt );
 
 	    SHPDestroyObject ( psO );
-           }
-
           }
-        else {
+        } else {
+          PT Centrd = SHPCentrd_2d ( psCShape );
 
-          Centrd = SHPCentrd_2d ( psCShape );
-
-          cent_pt = SHPCreateSimpleObject ( SHPT_POINT, 1,
+          SHPObject *cent_pt = SHPCreateSimpleObject ( SHPT_POINT, 1,
         	(double*) &(Centrd.x), (double*) &(Centrd.y), NULL );
 
           SHPWriteObject ( new_SHP, -1, cent_pt );
@@ -124,7 +107,7 @@ int main( int argc, char ** argv )
           DBFWriteTuple ( new_DBF, new_DBF->nRecords, DBFRow );
 
           SHPDestroyObject ( cent_pt );
-         }
+        }
     }
 
     SHPClose( old_SHP );
@@ -132,4 +115,6 @@ int main( int argc, char ** argv )
     DBFClose( old_DBF );
     DBFClose( new_DBF );
     printf ("\n");
+
+    return EXIT_SUCCESS;
 }

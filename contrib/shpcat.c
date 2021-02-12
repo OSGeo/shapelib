@@ -24,8 +24,6 @@
  *
  *	shpcat
  *
- *  gcc shpcat.c ../shpopen.o -o shpcat
- *
  *  Utility program to concatenate two shapefiles
  *  Must be used in concert with dbfcat
  *
@@ -36,15 +34,7 @@
 #include <string.h>
 #include "shapefil.h"
 
-int dbfcat_main( int argc, char ** argv );
-
-int main( int argc, char ** argv )
-
-{
-    SHPHandle	hSHP, cSHP;
-    int		nShapeType, i, nEntities, nShpInFile;
-    SHPObject	*shape;
-
+int main( int argc, char ** argv ) {
 /* -------------------------------------------------------------------- */
 /*      Display a usage message.                                        */
 /* -------------------------------------------------------------------- */
@@ -57,28 +47,29 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
 /*      Open the passed shapefile.                                      */
 /* -------------------------------------------------------------------- */
-    hSHP = SHPOpen( argv[1], "rb" );
-
+    SHPHandle hSHP = SHPOpen( argv[1], "rb" );
     if( hSHP == NULL )
     {
 	printf( "Unable to open:%s\n", argv[1] );
 	exit( 1 );
     }
 
+    int nEntities;
+    int nShapeType;
     SHPGetInfo( hSHP, &nEntities, &nShapeType, NULL, NULL );
     fprintf(stderr,"Opened From File %s, with %d shapes\n",argv[1],nEntities);
 
 /* -------------------------------------------------------------------- */
 /*      Open the passed shapefile.                                      */
 /* -------------------------------------------------------------------- */
-    cSHP = SHPOpen( argv[2], "rb+" );
-
+    SHPHandle cSHP = SHPOpen( argv[2], "rb+" );
     if( cSHP == NULL )
     {
 	printf( "Unable to open:%s\n", argv[2] );
 	exit( 1 );
     }
 
+    int nShpInFile;
     SHPGetInfo( cSHP, &nShpInFile, NULL, NULL, NULL );
     fprintf(stderr,"Opened to file %s with %d shapes, ready to add %d\n",
             argv[2],nShpInFile,nEntities);
@@ -86,9 +77,9 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
 /*	Skim over the list of shapes, printing all the vertices.	*/
 /* -------------------------------------------------------------------- */
-    for( i = 0; i < nEntities; i++ )
+    for( int i = 0; i < nEntities; i++ )
     {
-        shape = SHPReadObject( hSHP, i );
+        SHPObject *shape = SHPReadObject( hSHP, i );
         SHPWriteObject( cSHP, -1, shape );
         SHPDestroyObject ( shape );
 

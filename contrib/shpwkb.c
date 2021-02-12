@@ -30,57 +30,47 @@
 #include "shapefil.h"
 #include "shpgeo.h"
 
-int main( int argc, char ** argv )
-{
-    SHPHandle	old_SHP;
-    DBFHandle   old_DBF;
-    int		nShapeType, nEntities, i;
-    char	*DBFRow = NULL;
-    int		byRing = 0;
-    SHPObject	*psCShape;
-    WKBStreamObj *wkbObj = NULL;
-    FILE	*wkb_file = NULL;
-
+int main( int argc, char ** argv ) {
     if( argc < 3 )
     {
 	printf( "shpwkb shp_file wkb_file\n" );
 	exit( 1 );
     }
 
-    old_SHP = SHPOpen (argv[1], "rb" );
-    old_DBF = DBFOpen (argv[1], "rb");
+    SHPHandle old_SHP = SHPOpen (argv[1], "rb" );
+    DBFHandle old_DBF = DBFOpen (argv[1], "rb");
     if( old_SHP == NULL || old_DBF == NULL )
     {
 	printf( "Unable to open old files:%s\n", argv[1] );
 	exit( 1 );
     }
 
-    wkb_file = fopen ( argv[2], "wb");
-    wkbObj = calloc ( 3, sizeof (int) );
+    FILE *wkb_file = fopen ( argv[2], "wb");
+    WKBStreamObj *wkbObj = calloc ( 3, sizeof (int) );
 
+    int nEntities;
+    int nShapeType;
     SHPGetInfo( old_SHP, &nEntities, &nShapeType, NULL, NULL );
-    for( i = 0; i < nEntities; i++ )
-    {
-	int		res ;
 
-	psCShape = SHPReadObject( old_SHP, i );
+    char *DBFRow = NULL;
+    int byRing = 0;
+
+    for( int i = 0; i < nEntities; i++ )
+    {
+        SHPObject *psCShape = SHPReadObject( old_SHP, i );
 
         if ( byRing == 1 ) {
-          int 	   ring, prevStart;
-
-          prevStart = psCShape->nVertices;
-          for ( ring = (psCShape->nParts - 1); ring >= 0; ring-- ) {
-	    SHPObject 	*psO;
-	    int		numVtx, rStart;
-
-            rStart = psCShape->panPartStart[ring];
+          // const int prevStart = psCShape->nVertices;
+          for ( int ring = (psCShape->nParts - 1); ring >= 0; ring-- ) {
+            const int rStart = psCShape->panPartStart[ring];
+	    int numVtx;
             if ( ring == (psCShape->nParts -1) )
               { numVtx = psCShape->nVertices - rStart; }
              else
               { numVtx = psCShape->panPartStart[ring+1] - rStart; }
 
             printf ("(shpdata) Ring(%d) (%d for %d) \n", ring, rStart, numVtx);
-	    psO = SHPClone ( psCShape, ring,  ring + 1 );
+	    SHPObject *psO = SHPClone ( psCShape, ring,  ring + 1 );
 
 	    SHPDestroyObject ( psO );
             printf ("(shpdata) End Ring \n");
@@ -89,11 +79,11 @@ int main( int argc, char ** argv )
           }  /* by ring   */
 
 	   printf ("gonna build a wkb \n");
-	   res = SHPWriteOGisWKB ( wkbObj, psCShape );
+	   // const int res =
+           SHPWriteOGisWKB ( wkbObj, psCShape );
 	   printf ("gonna write a wkb that is %d bytes long \n", wkbObj->StreamPos );
 	   fwrite ( (void*) wkbObj->wStream, 1, wkbObj->StreamPos, wkb_file );
     }
-
 
     free ( wkbObj );
     SHPClose( old_SHP );
