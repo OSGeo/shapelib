@@ -47,7 +47,6 @@
 #define NAN (INFINITY - INFINITY)
 #endif
 
-
  /* I'm using some shorthand throughout this file
  *      R+ is a Clockwise Ring and is the positive portion of an object
  *      R- is a CounterClockwise Ring and is a hole in a R+
@@ -67,7 +66,6 @@
  *
  */
 
-
 /* **************************************************************************
  * asFileName
  *
@@ -75,17 +73,14 @@
  *
  * **************************************************************************/
 char * asFileName ( const char *fil, char *ext ) {
-  char	pszBasename[120];
-  static char	pszFullname[120];
-  int	i;
 /* -------------------------------------------------------------------- */
 /*	Compute the base (layer) name.  If there is any extension	*/
 /*	on the passed in filename we will strip it off.			*/
 /* -------------------------------------------------------------------- */
-//    pszFullname = (char*) malloc(( strlen(fil)+5 ));
-//    pszBasename = (char *) malloc(strlen(fil)+5);
+    char pszBasename[120];
     strcpy( pszBasename, fil );
-    for( i = strlen(pszBasename)-1;
+    int i = strlen(pszBasename) - 1;
+    for( ;
 	 i > 0 && pszBasename[i] != '.' && pszBasename[i] != '/'
 	       && pszBasename[i] != '\\';
 	 i-- ) {}
@@ -94,10 +89,10 @@ char * asFileName ( const char *fil, char *ext ) {
         pszBasename[i] = '\0';
 
 /* -------------------------------------------------------------------- */
-/*	Note that files pulled from										*/
-/*	a PC to Unix with upper case filenames won't work!				*/
+/*	Note that files pulled from					*/
+/*	a PC to Unix with upper case filenames won't work!		*/
 /* -------------------------------------------------------------------- */
-//    pszFullname = (char *) malloc(strlen(pszBasename) + 5);
+    static char pszFullname[120];
     sprintf( pszFullname, "%s.%s", pszBasename, ext );
 
     return ( pszFullname );
@@ -115,9 +110,9 @@ static void * SfRealloc( void * pMem, int nNewSize )
 
 {
     if( pMem == NULL )
-        return( (void *) malloc(nNewSize) );
+        return( malloc(nNewSize) );
     else
-        return( (void *) realloc(pMem,nNewSize) );
+        return( realloc(pMem,nNewSize) );
 }
 
 /* **************************************************************************
@@ -166,20 +161,16 @@ int SHPOGisType ( int GeomType, int toOGis) {
  * **************************************************************************/
 static int SHPReadSHPStream ( SHPObject *psCShape, char *stream_obj) {
 
-int	my_order, need_swap =0, GeoType ;
-int	use_Z = 0;
-int	use_M = 0;
-
-  need_swap = stream_obj[0];
-  my_order = 1;
+  int need_swap = stream_obj[0];
+  int my_order = 1;
   my_order = ((char*) (&my_order))[0];
   need_swap = need_swap & my_order;
 
+  int GeoType;
   if ( need_swap )
      swapW (stream_obj, (void*) &GeoType, sizeof (GeoType) );
-   else
+  else
      memcpy (stream_obj, &GeoType, sizeof (GeoType) );
-
 
   if ( need_swap ) {
 
@@ -192,6 +183,9 @@ int	use_M = 0;
     memcpy (stream_obj, &(psCShape->dfYMin), 	 sizeof (psCShape->dfYMin) );
     memcpy (stream_obj, &(psCShape->dfXMax), 	 sizeof (psCShape->dfXMax) );
     memcpy (stream_obj, &(psCShape->dfYMax), 	 sizeof (psCShape->dfYMax) );
+
+    const int use_Z = 0;
+    const int use_M = 0;
     if ( use_Z ) {
       memcpy (stream_obj, &(psCShape->dfZMin), 	 sizeof (psCShape->dfZMin) );
       memcpy (stream_obj, &(psCShape->dfZMax), 	 sizeof (psCShape->dfZMax) );
@@ -222,13 +216,7 @@ int	use_M = 0;
  *
  * **************************************************************************/
 static int SHPWriteSHPStream ( WKBStreamObj *stream_obj, SHPObject *psCShape ) {
-
-/*int	obj_storage = 0;*/
-int	need_swap = 0;
-int	use_Z = 0;
-int	use_M = 0;
-
-  need_swap = 1;
+  int need_swap = 1;
   need_swap = ((char*) (&need_swap))[0];
 
   /*realloc (stream_obj, obj_storage );*/
@@ -238,6 +226,9 @@ int	use_M = 0;
   } else {
     memcpy (stream_obj, psCShape, 4 * sizeof (int) );
     memcpy (stream_obj, psCShape, 4 * sizeof (double) );
+    // TODO(schwehr): What?
+    const int use_Z = 0;
+    const int use_M = 0;
     if ( use_Z )
       memcpy (stream_obj, psCShape, 2 * sizeof (double) );
     if ( use_M )
@@ -302,34 +293,32 @@ static int WKBStreamRead ( WKBStreamObj* wso, void* this, int tcount, int tsize 
  *
  * **************************************************************************/
 SHPObject* SHPReadOGisWKB ( WKBStreamObj *stream_obj) {
-  SHPObject	*psCShape;
-  char		WKB_order;
-  int		my_order, GeoType = 0;
-  int		nSHPType, thisDim;
-
+  char WKB_order;
   WKBStreamRead ( stream_obj, &WKB_order, 1, sizeof(char));
-  my_order = 1;
+  int my_order = 1;
   my_order = ((char*) (&my_order))[0];
   stream_obj->NeedSwap = !(WKB_order & my_order);
 
   /* convert OGis Types to SHP types  */
-  nSHPType = SHPOGisType ( GeoType, 0 );
+  int GeoType = 0;
+  const int nSHPType = SHPOGisType ( GeoType, 0 );
 
   WKBStreamRead ( stream_obj, &GeoType, 1, sizeof(int));
 
-  thisDim = SHPDimension ( nSHPType );
+  const int thisDim = SHPDimension ( nSHPType );
 
-  if ( thisDim && SHPD_AREA )
-    { psCShape = SHPReadOGisPolygon ( stream_obj ); }
-   else {
-    if ( thisDim && SHPD_LINE )
-      { psCShape = SHPReadOGisLine ( stream_obj ); }
-    else {
-      if ( thisDim && SHPD_POINT )
-        { psCShape = SHPReadOGisPoint ( stream_obj ); }
+  // SHPObject *psCShape;
+  if ( thisDim && SHPD_AREA ) {
+    /* psCShape = */ SHPReadOGisPolygon ( stream_obj );
+  } else {
+    if ( thisDim && SHPD_LINE ) {
+      /* psCShape = */ SHPReadOGisLine ( stream_obj );
+    } else {
+      if ( thisDim && SHPD_POINT ) {
+        /* psCShape = */ SHPReadOGisPoint ( stream_obj );
       }
     }
-
+  }
 
    return (0);
 }
@@ -343,10 +332,6 @@ SHPObject* SHPReadOGisWKB ( WKBStreamObj *stream_obj) {
  *
  * **************************************************************************/
 int SHPWriteOGisWKB ( WKBStreamObj* stream_obj, SHPObject *psCShape ) {
-  int		my_order, GeoType, thisDim;
-  char		LSB = 1;
-  /* indicate that this WKB is in LSB Order	*/
-
   /* OGis WKB can handle either byte order,  but if I get to choose I'd
   /* rather have it predicatable system-to-system							*/
 
@@ -369,13 +354,14 @@ int SHPWriteOGisWKB ( WKBStreamObj* stream_obj, SHPObject *psCShape ) {
   	( sizeof(double) * 2 * psCShape->nVertices ) + 10) );
  #endif
 
-  my_order = 1;
+  /* indicate that this WKB is in LSB Order	*/
+  int my_order = 1;
   my_order = ((char*) (&my_order))[0];
   /* Need to swap if this system is not  LSB (Intel Order)					*/
+  char LSB = 1;
   stream_obj->NeedSwap = ( my_order != LSB );
 
   stream_obj->StreamPos = 0;
-
 
   #ifdef DEBUG2
     printf ("this system is (%d) LSB recorded as needSwap %d\n",my_order, stream_obj->NeedSwap);
@@ -389,10 +375,10 @@ int SHPWriteOGisWKB ( WKBStreamObj* stream_obj, SHPObject *psCShape ) {
 
 
   /* convert SHP Types to OGis types  */
-  GeoType = SHPOGisType ( psCShape->nSHPType, 1 );
+  int GeoType = SHPOGisType ( psCShape->nSHPType, 1 );
   WKBStreamWrite ( stream_obj, &GeoType, 1, sizeof(int) );
 
-  thisDim = SHPDimension ( psCShape->nSHPType );
+  const int thisDim = SHPDimension ( psCShape->nSHPType );
 
   if ( thisDim && SHPD_AREA )
     { SHPWriteOGisPolygon ( stream_obj, psCShape ); }
@@ -422,18 +408,11 @@ int SHPWriteOGisWKB ( WKBStreamObj* stream_obj, SHPObject *psCShape ) {
  *
  * **************************************************************************/
 int SHPWriteOGisPolygon ( WKBStreamObj *stream_obj, SHPObject *psCShape ) {
-   SHPObject		**ppsC;
-   SHPObject		*psC;
-   int			rPart, ring, rVertices, cpart, cParts, nextring, j;
-   char			Flag = 1;
-   int			GeoType = OGIST_POLYGON;
-
    /* cannot have more than nParts complex objects in this object */
-   ppsC = calloc ( psCShape->nParts, sizeof(int) );
+   SHPObject **ppsC = calloc ( psCShape->nParts, sizeof(int) );
 
-
-   nextring = 0;
-   cParts=0;
+   int nextring = 0;
+   int cParts=0;
    while ( nextring >= 0 ) {
        ppsC[cParts] = SHPUnCompound ( psCShape, &nextring );
        cParts++;
@@ -445,15 +424,18 @@ int SHPWriteOGisPolygon ( WKBStreamObj *stream_obj, SHPObject *psCShape ) {
 
    WKBStreamWrite ( stream_obj, &cParts, 1, sizeof(int) );
 
-   for ( cpart = 0; cpart < cParts; cpart++) {
+   int GeoType = OGIST_POLYGON;
 
+   char Flag = 1;
+   for ( int cpart = 0; cpart < cParts; cpart++) {
      WKBStreamWrite ( stream_obj, & Flag, 1, sizeof(char) );
      WKBStreamWrite ( stream_obj, & GeoType, 1, sizeof(int) );
 
-     psC = (SHPObject*) ppsC[cpart];
+     SHPObject *psC = (SHPObject*) ppsC[cpart];
      WKBStreamWrite ( stream_obj, &(psC->nParts), 1, sizeof(int) );
 
-     for ( ring = 0; (ring < (psC->nParts)) && (psC->nParts > 0); ring ++) {
+     for ( int ring = 0; (ring < (psC->nParts)) && (psC->nParts > 0); ring ++) {
+       int rVertices;
        if ( ring < (psC->nParts-2) )
          { rVertices = psC->panPartStart[ring+1] - psC->panPartStart[ring]; }
        else
@@ -462,9 +444,9 @@ int SHPWriteOGisPolygon ( WKBStreamObj *stream_obj, SHPObject *psCShape ) {
      printf ("(SHPWriteOGisPolygon) scanning part %d, ring %d %d vtxs \n",
      		cpart, ring, rVertices);
 #endif
-       rPart = psC->panPartStart[ring];
+       const int rPart = psC->panPartStart[ring];
        WKBStreamWrite ( stream_obj, &rVertices, 1, sizeof(int) );
-       for ( j=rPart; j < (rPart + rVertices); j++ ) {
+       for ( int j = rPart; j < (rPart + rVertices); j++ ) {
          WKBStreamWrite ( stream_obj, &(psC->padfX[j]), 1, sizeof(double) );
          WKBStreamWrite ( stream_obj, &(psC->padfY[j]), 1, sizeof(double) );
         } /* for each vertex */
@@ -488,7 +470,6 @@ int SHPWriteOGisPolygon ( WKBStreamObj *stream_obj, SHPObject *psCShape ) {
  *
  * **************************************************************************/
 int SHPWriteOGisLine ( WKBStreamObj *stream_obj, SHPObject *psCShape ) {
-
   return ( SHPWriteOGisPolygon( stream_obj, psCShape ));
 }
 
@@ -503,11 +484,9 @@ int SHPWriteOGisLine ( WKBStreamObj *stream_obj, SHPObject *psCShape ) {
  *
  * **************************************************************************/
 int SHPWriteOGisPoint ( WKBStreamObj *stream_obj, SHPObject *psCShape ) {
-   int			j;
-
    WKBStreamWrite ( stream_obj, &(psCShape->nVertices), 1, sizeof(int) );
 
-   for ( j=0; j < psCShape->nVertices; j++ ) {
+   for ( int j = 0; j < psCShape->nVertices; j++ ) {
      WKBStreamWrite ( stream_obj, &(psCShape->padfX[j]), 1, sizeof(double) );
      WKBStreamWrite ( stream_obj, &(psCShape->padfY[j]), 1, sizeof(double) );
     } /* for each vertex */
@@ -527,27 +506,25 @@ int SHPWriteOGisPoint ( WKBStreamObj *stream_obj, SHPObject *psCShape ) {
  *
  * **************************************************************************/
 SHPObject* SHPReadOGisPolygon ( WKBStreamObj *stream_obj ) {
-   SHPObject		**ppsC;
-   SHPObject		*psC;
-   int			rPart, ring, rVertices, cpart, cParts, j;
-   int			totParts, totVertices, pRings, nParts;
-
-   psC = SHPCreateObject ( SHPT_POLYGON, -1, 0, NULL, NULL, 0,
+   SHPObject *psC = SHPCreateObject ( SHPT_POLYGON, -1, 0, NULL, NULL, 0,
         	NULL, NULL, NULL, NULL );
-   /* initialize a blank SHPObject 											*/
+   /* initialize a blank SHPObject */
 
+   int cParts;
    WKBStreamRead ( stream_obj, &cParts, 1, sizeof(char) );
 
-   totParts = cParts;
-   totVertices = 0;
+   int totParts = cParts;
+   int totVertices = 0;
 
    SfRealloc ( psC->panPartStart, cParts * sizeof(int));
    SfRealloc ( psC->panPartType, cParts * sizeof(int));
 
-   for ( cpart = 0; cpart < cParts; cpart++) {
+   int rVertices;
+   int nParts;
+   for ( int cpart = 0; cpart < cParts; cpart++) {
      WKBStreamRead ( stream_obj, &nParts, 1, sizeof(int) );
-     pRings = nParts;
-     /* pRings is the number of rings prior to the Ring loop below			*/
+     const int pRings = nParts;
+     /* pRings is the number of rings prior to the Ring loop below */
 
      if ( nParts > 1 ) {
        totParts += nParts - 1;
@@ -555,8 +532,8 @@ SHPObject* SHPReadOGisPolygon ( WKBStreamObj *stream_obj ) {
        SfRealloc ( psC->panPartType, totParts * sizeof(int));
       }
 
-     rPart = 0;
-     for ( ring = 0; ring < (nParts - 1); ring ++) {
+     int rPart = 0;
+     for ( int ring = 0; ring < (nParts - 1); ring ++) {
        WKBStreamRead ( stream_obj, &rVertices, 1, sizeof(int) );
        totVertices += rVertices;
 
@@ -569,14 +546,12 @@ SHPObject* SHPReadOGisPolygon ( WKBStreamObj *stream_obj ) {
        SfRealloc ( psC->padfX, totVertices * sizeof (double));
        SfRealloc ( psC->padfY, totVertices * sizeof (double));
 
-       for ( j=rPart; j < (rPart + rVertices); j++ ) {
+       for ( int j = rPart; j < (rPart + rVertices); j++ ) {
          WKBStreamRead ( stream_obj, &(psC->padfX[j]), 1, sizeof(double) );
          WKBStreamRead ( stream_obj, &(psC->padfY[j]), 1, sizeof(double) );
         } /* for each vertex */
        rPart += rVertices;
-
       }  /* for each ring */
-
     }  /* for each complex part */
 
     return ( psC );
@@ -594,26 +569,24 @@ SHPObject* SHPReadOGisPolygon ( WKBStreamObj *stream_obj ) {
  *
  * **************************************************************************/
 SHPObject* SHPReadOGisLine ( WKBStreamObj *stream_obj ) {
-   SHPObject		**ppsC;
-   SHPObject		*psC;
-   int			rPart, ring, rVertices, cpart, cParts, j;
-   int			totParts, totVertices, pRings, nParts;
-
-   psC = SHPCreateObject ( SHPT_ARC, -1, 0, NULL, NULL, 0,
+   SHPObject *psC = SHPCreateObject ( SHPT_ARC, -1, 0, NULL, NULL, 0,
         	NULL, NULL, NULL, NULL );
-   /* initialize a blank SHPObject 											*/
+   /* initialize a blank SHPObject */
 
+   int cParts;
    WKBStreamRead ( stream_obj, &cParts, 1, sizeof(int) );
 
-   totParts = cParts;
-   totVertices = 0;
+   int totParts = cParts;
+   int totVertices = 0;
 
    SfRealloc ( psC->panPartStart, cParts * sizeof(int));
    SfRealloc ( psC->panPartType, cParts * sizeof(int));
 
-   for ( cpart = 0; cpart < cParts; cpart++) {
+   int rVertices;
+   int nParts;
+   for ( int cpart = 0; cpart < cParts; cpart++) {
      WKBStreamRead ( stream_obj, &nParts, 1, sizeof(int) );
-     pRings = totParts;
+     int pRings = totParts;
      /* pRings is the number of rings prior to the Ring loop below			*/
 
      if ( nParts > 1 ) {
@@ -622,8 +595,8 @@ SHPObject* SHPReadOGisLine ( WKBStreamObj *stream_obj ) {
        SfRealloc ( psC->panPartType, totParts * sizeof(int));
       }
 
-     rPart = 0;
-     for ( ring = 0; ring < (nParts - 1); ring ++) {
+     int rPart = 0;
+     for ( int ring = 0; ring < (nParts - 1); ring ++) {
        WKBStreamRead ( stream_obj, &rVertices, 1, sizeof(int) );
        totVertices += rVertices;
 
@@ -636,14 +609,12 @@ SHPObject* SHPReadOGisLine ( WKBStreamObj *stream_obj ) {
        SfRealloc ( psC->padfX, totVertices * sizeof (double));
        SfRealloc ( psC->padfY, totVertices * sizeof (double));
 
-       for ( j=rPart; j < (rPart + rVertices); j++ ) {
+       for ( int j = rPart; j < (rPart + rVertices); j++ ) {
          WKBStreamRead ( stream_obj, &(psC->padfX[j]), 1, sizeof(double) );
          WKBStreamRead ( stream_obj, &(psC->padfY[j]), 1, sizeof(double) );
         } /* for each vertex */
        rPart += rVertices;
-
       }  /* for each ring */
-
     }  /* for each complex part */
 
     return ( psC );
@@ -657,27 +628,23 @@ SHPObject* SHPReadOGisLine ( WKBStreamObj *stream_obj ) {
  *
  * **************************************************************************/
 SHPObject* SHPReadOGisPoint ( WKBStreamObj *stream_obj ) {
-   SHPObject		*psC;
-   int			nVertices, j;
-
-   psC = SHPCreateObject ( SHPT_MULTIPOINT, -1, 0, NULL, NULL, 0,
+   SHPObject *psC = SHPCreateObject ( SHPT_MULTIPOINT, -1, 0, NULL, NULL, 0,
         	NULL, NULL, NULL, NULL );
-   /* initialize a blank SHPObject 											*/
+   /* initialize a blank SHPObject */
 
+   int nVertices;
    WKBStreamRead ( stream_obj, &nVertices, 1, sizeof(int) );
 
    SfRealloc ( psC->padfX, nVertices * sizeof (double));
    SfRealloc ( psC->padfY, nVertices * sizeof (double));
 
-   for ( j=0; j < nVertices; j++ ) {
+   for ( int j = 0; j < nVertices; j++ ) {
      WKBStreamRead ( stream_obj, &(psC->padfX[j]), 1, sizeof(double) );
      WKBStreamRead ( stream_obj, &(psC->padfY[j]), 1, sizeof(double) );
     } /* for each vertex */
 
     return ( psC );
 }
-
-
 
 
 /* **************************************************************************
@@ -702,7 +669,6 @@ static int RingReadOgisWKB ( SHPObject *psCShape, char *stream_obj) {
  *
  * **************************************************************************/
 static int RingWriteOgisWKB ( SHPObject *psCShape, char *stream_obj) {
-
     return 0;
 }
 
@@ -715,9 +681,7 @@ static int RingWriteOgisWKB ( SHPObject *psCShape, char *stream_obj) {
  *
  * **************************************************************************/
 int SHPDimension ( int SHPType ) {
-    int 	dimension;
-
-    dimension = 0;
+    int dimension = 0;
 
     switch ( SHPType ) {
       case  SHPT_POINT       :	dimension = SHPD_POINT; break;
@@ -749,9 +713,8 @@ int SHPDimension ( int SHPType ) {
  * reject non area SHP Types
  *
  * **************************************************************************/
-PT	SHPPointinPoly_2d ( SHPObject *psCShape ) {
-   PT	*sPT, rPT;
-
+PT SHPPointinPoly_2d ( SHPObject *psCShape ) {
+   PT rPT;
    if ( !(SHPDimension (psCShape->nSHPType) & SHPD_AREA) )
    {
        rPT.x = NAN;
@@ -759,8 +722,7 @@ PT	SHPPointinPoly_2d ( SHPObject *psCShape ) {
        return rPT;
    }
 
-   sPT = SHPPointsinPoly_2d ( psCShape );
-
+   PT *sPT = SHPPointsinPoly_2d ( psCShape );
    if ( sPT ) {
      rPT.x = sPT[0].x;
      rPT.y = sPT[0].y;
@@ -783,19 +745,18 @@ PT	SHPPointinPoly_2d ( SHPObject *psCShape ) {
  *
  * **************************************************************************/
 PT*	SHPPointsinPoly_2d ( SHPObject *psCShape ) {
-   PT		*PIP = NULL;
-   int		cRing;
-   SHPObject	*psO, *psInt, *CLine;
-   double	*CLx, *CLy;
-   int		*CLstt, *CLst, nPIP, ring, rMpart, ring_vtx, ring_nVertices;
-   double	rLen, rLenMax;
-
    if ( !(SHPDimension (psCShape->nSHPType) & SHPD_AREA) )
       return ( NULL );
 
+   PT		*PIP = NULL;
+   int		cRing;
+   SHPObject	*psO, *psInt, *CLine;
+   int		*CLstt, *CLst, nPIP, ring, rMpart, ring_vtx, ring_nVertices;
+   double	rLen, rLenMax;
+
    while (  psO = SHPUnCompound (psCShape, &cRing)) {
-     CLx = calloc ( 4, sizeof(double));
-     CLy = calloc ( 4, sizeof(double));
+     double *CLx = calloc ( 4, sizeof(double));
+     double *CLy = calloc ( 4, sizeof(double));
      CLst = calloc ( 2, sizeof(int));
      CLstt = calloc ( 2, sizeof(int));
 
@@ -854,7 +815,7 @@ PT*	SHPPointsinPoly_2d ( SHPObject *psCShape ) {
      if ( CLy )   free ( CLy );
      if ( CLst )  free ( CLst );
      if ( CLstt ) free ( CLstt );
-    }
+   }
 
   return ( PIP );
 }
@@ -870,11 +831,7 @@ PT*	SHPPointsinPoly_2d ( SHPObject *psCShape ) {
  *
  * **************************************************************************/
 PT SHPCentrd_2d ( SHPObject *psCShape ) {
-    int		ring, ringPrev, ring_nVertices, rStart;
-    double	Area, ringArea;
-    PT		ringCentrd, C;
-
-
+   PT C;
    if ( !(SHPDimension (psCShape->nSHPType) & SHPD_AREA) )
    {
        C.x = NAN;
@@ -888,16 +845,18 @@ PT SHPCentrd_2d ( SHPObject *psCShape ) {
 		psCShape->panPartStart[0],psCShape->panPartStart[1]);
 #endif
 
-   Area = 0;
+   double Area = 0;
    C.x = 0.0;
    C.y = 0.0;
 
    /* for each ring in compound / complex object calc the ring cntrd		*/
 
-   ringPrev = psCShape->nVertices;
-   for ( ring = (psCShape->nParts - 1); ring >= 0; ring-- ) {
-     rStart = psCShape->panPartStart[ring];
-     ring_nVertices = ringPrev - rStart;
+   double ringArea;
+   PT ringCentrd;
+   int ringPrev = psCShape->nVertices;
+   for ( int ring = (psCShape->nParts - 1); ring >= 0; ring-- ) {
+     const int rStart = psCShape->panPartStart[ring];
+     const int ring_nVertices = ringPrev - rStart;
 
      RingCentroid_2d ( ring_nVertices, (double*) &(psCShape->padfX [rStart]),
      	(double*) &(psCShape->padfY [rStart]), &ringCentrd, &ringArea);
@@ -933,31 +892,26 @@ PT SHPCentrd_2d ( SHPObject *psCShape ) {
  *
  * **************************************************************************/
 int RingCentroid_2d ( int nVertices, double *a, double *b, PT *C, double *Area ) {
-  int		iv;
-  double	dx_Area, Cx_accum, Cy_accum, ppx, ppy;
-  double 	x_base, y_base, x, y;
-
 /* the centroid of a closed Ring is defined as
  *
  *      Cx = sum (cx * dArea ) / Total Area
  *  and
  *      Cy = sum (cy * dArea ) / Total Area
  */
+  double x_base = a[0];
+  double y_base = b[0];
 
-  x_base = a[0];
-  y_base = b[0];
+  double Cy_accum = 0.0;
+  double Cx_accum = 0.0;
 
-  Cy_accum = 0.0;
-  Cx_accum = 0.0;
-
-  ppx = a[1] - x_base;
-  ppy = b[1] - y_base;
+  double ppx = a[1] - x_base;
+  double ppy = b[1] - y_base;
   *Area = 0;
 
-/* Skip the closing vector */
-  for ( iv = 2; iv <= nVertices - 2; iv++ ) {
-    x = a[iv] - x_base;
-    y = b[iv] - y_base;
+  /* Skip the closing vector */
+  for ( int iv = 2; iv <= nVertices - 2; iv++ ) {
+    const double x = a[iv] - x_base;
+    const double y = b[iv] - y_base;
 
     /* calc the area and centroid of triangle built out of an arbitrary 	*/
     /* base_point on the ring and each successive pair on the ring			*/
@@ -965,7 +919,7 @@ int RingCentroid_2d ( int nVertices, double *a, double *b, PT *C, double *Area )
     /* Area of a triangle is the cross product of its defining vectors		*/
     /* Centroid of a triangle is the average of its vertices				*/
 
-    dx_Area =  ((x * ppy) - (y * ppx)) * 0.5;
+    const double dx_Area =  ((x * ppy) - (y * ppx)) * 0.5;
     *Area += dx_Area;
 
     Cx_accum += ( ppx + x ) * dx_Area;
@@ -991,9 +945,6 @@ int RingCentroid_2d ( int nVertices, double *a, double *b, PT *C, double *Area )
   return ( 1 );
 }
 
-
-
-
 /* **************************************************************************
  * SHPRingDir_2d
  *
@@ -1004,17 +955,13 @@ int RingCentroid_2d ( int nVertices, double *a, double *b, PT *C, double *Area )
  * return 0  for error
  * **************************************************************************/
 int SHPRingDir_2d ( SHPObject *psCShape, int Ring ) {
-   int		i, ti, last_vtx;
-   double	tX;
-   double 	*a, *b;
-   double	dx0, dx1, dy0, dy1, v3;
-
-   tX = 0.0;
-   a = psCShape->padfX;
-   b = psCShape->padfY;
-
    if ( Ring >= psCShape->nParts ) return ( 0 );
 
+   double tX = 0.0;
+   double *a = psCShape->padfX;
+   double *b = psCShape->padfY;
+
+   int last_vtx;
    if ( Ring >= psCShape->nParts -1 )
      { last_vtx = psCShape->nVertices; }
     else
@@ -1025,7 +972,8 @@ int SHPRingDir_2d ( SHPObject *psCShape, int Ring ) {
    /* extrema.																			*/
    /* of course the following will fail if the Extents are even a little wrong 			*/
 
-   for ( i = psCShape->panPartStart[Ring]; i < last_vtx; i++ ) {
+   int ti;
+   for ( int i = psCShape->panPartStart[Ring]; i < last_vtx; i++ ) {
      if ( b[i] == psCShape->dfYMax && a[i] > tX )
       { ti = i; }
    }
@@ -1037,6 +985,10 @@ int SHPRingDir_2d ( SHPObject *psCShape, int Ring ) {
    /* cross product */
    /* the sign of the cross product of two vectors indicates the right or left half-plane	*/
    /* which we can use to indicate Ring Dir													*/
+   double dx0;
+   double dx1;
+   double dy0;
+   double dy1;
    if ( ti > psCShape->panPartStart[Ring] & ti < last_vtx )
     { dx0 = a[ti-1] - a[ti];
       dx1 = a[ti+1] - a[ti];
@@ -1054,7 +1006,7 @@ int SHPRingDir_2d ( SHPObject *psCShape, int Ring ) {
 //   v1 = ( (dy0 * 0) - (0 * dy1) );
 //   v2 = ( (0 * dx1) - (dx0 * 0) );
 /* these above are always zero so why do the math */
-   v3 = ( (dx0 * dy1) - (dx1 * dy0) );
+   const double v3 = ( (dx0 * dy1) - (dx1 * dy0) );
 
 #ifdef DEBUG2
    printf ("(shpgeo:SHPRingDir)  cross product for vtx %d was %f \n", ti, v3);
@@ -1075,21 +1027,18 @@ int SHPRingDir_2d ( SHPObject *psCShape, int Ring ) {
  *
  * **************************************************************************/
 double SHPArea_2d ( SHPObject *psCShape ) {
-    double 	cArea;
-    int		ring, ring_vtx, ring_nVertices;
-
-   cArea = 0;
    if ( !(SHPDimension (psCShape->nSHPType) & SHPD_AREA) )
        return ( -1 );
 
+   double cArea = 0;
 
    /* Walk each ring adding its signed Area,  R- will return a negative 	*/
    /* area, so we don't have to test for them								*/
 
    /* I just start at the last ring and work down to the first				*/
-   ring_vtx = psCShape->nVertices ;
-   for ( ring = (psCShape->nParts - 1); ring >= 0; ring-- ) {
-     ring_nVertices = ring_vtx - psCShape->panPartStart[ring];
+   int ring_vtx = psCShape->nVertices ;
+   for ( int ring = (psCShape->nParts - 1); ring >= 0; ring-- ) {
+     const int ring_nVertices = ring_vtx - psCShape->panPartStart[ring];
 
 #ifdef DEBUG2
      printf("(shpgeo:SHPArea_2d) part %d, vtx %d \n", ring,  ring_nVertices);
@@ -1107,7 +1056,6 @@ double SHPArea_2d ( SHPObject *psCShape ) {
 
     /* Area is signed, negative Areas are R-									*/
     return ( cArea );
-
 }
 
 
@@ -1119,23 +1067,19 @@ double SHPArea_2d ( SHPObject *psCShape ) {
  *
  * **************************************************************************/
 double SHPLength_2d ( SHPObject *psCShape ) {
-    double 	Length;
-    int		i, j;
-    double 	dx, dy;
-
-   if ( !(SHPDimension (psCShape->nSHPType) & (SHPD_AREA || SHPD_LINE)) )
+    if ( !(SHPDimension (psCShape->nSHPType) & (SHPD_AREA || SHPD_LINE)) )
        return ( (double) -1 );
 
-    Length = 0;
-    j = 1;
-    for ( i = 1; i < psCShape->nVertices; i++ ) {
+    double Length = 0;
+    int j = 1;
+    for ( int i = 1; i < psCShape->nVertices; i++ ) {
       if ( psCShape->panPartStart[j] == i )
        { j ++; }
     /* skip the moves with "pen up" from ring to ring */
       else
        {
-        dx = psCShape->padfX[i] - psCShape->padfX[i-1];
-        dy = psCShape->padfY[i] - psCShape->padfY[i-1];
+        const double dx = psCShape->padfX[i] - psCShape->padfX[i-1];
+        const double dy = psCShape->padfY[i] - psCShape->padfY[i-1];
         Length += sqrt ( ( dx * dx ) + ( dy * dy ) );
        }
      /* simplify this equation */
@@ -1153,15 +1097,11 @@ double SHPLength_2d ( SHPObject *psCShape ) {
  *
  * **************************************************************************/
 double RingLength_2d ( int nVertices, double *a, double *b ) {
-    double 	Length;
-    int		i, j;
-    double 	dx, dy;
-
-    Length = 0;
-    j = 1;
-    for ( i = 1; i < nVertices; i++ ) {
-      dx = a[i] - b[i-1];
-      dy = b[i] - b[i-1];
+    double Length = 0;
+    // int j = 1;
+    for ( int i = 1; i < nVertices; i++ ) {
+      const double dx = a[i] - b[i-1];
+      const double dy = b[i] - b[i-1];
       Length += sqrt ( ( dx * dx ) + ( dy * dy ) );
      /* simplify this equation */
      }
@@ -1177,28 +1117,23 @@ double RingLength_2d ( int nVertices, double *a, double *b ) {
  *
  * **************************************************************************/
 double RingArea_2d ( int nVertices, double *a, double *b ) {
-  int		iv;
-  double	ppx, ppy;
-  static 	double	Area;
-  double	dx_Area;
-  double 	x_base, y_base, x, y;
+  const double x_base = a[0];
+  const double y_base = b[0];
 
-  x_base = a[0];
-  y_base = b[0];
+  double ppx = a[1] - x_base;
+  double ppy = b[1] - y_base;
+  static double	Area = 0.0;
 
-  ppx = a[1] - x_base;
-  ppy = b[1] - y_base;
-  Area = 0.0;
 #ifdef DEBUG2
   printf("(shpgeo:RingArea) %d vertices \n", nVertices);
 #endif
-  for ( iv = 2; iv <= ( nVertices - 1 ); iv++ ) {
-    x = a[iv] - x_base;
-    y = b[iv] - y_base;
+  for ( int iv = 2; iv <= ( nVertices - 1 ); iv++ ) {
+    const double x = a[iv] - x_base;
+    const double y = b[iv] - y_base;
 
     /* Area of a triangle is the cross product of its defining vectors		*/
 
-    dx_Area = ((x * ppy) - (y * ppx)) * 0.5;
+    const double dx_Area = ((x * ppy) - (y * ppx)) * 0.5;
 
     Area += dx_Area;
 #ifdef DEBUG2
@@ -1213,8 +1148,7 @@ double RingArea_2d ( int nVertices, double *a, double *b ) {
 #ifdef DEBUG2
   printf ("(shpgeo:RingArea)  total RingArea %f \n", Area);
 #endif
-  return ( Area );
-
+  return Area;
 }
 
 
@@ -1232,7 +1166,6 @@ double RingArea_2d ( int nVertices, double *a, double *b ) {
  *
  * **************************************************************************/
 SHPObject* SHPUnCompound  ( SHPObject *psCShape, int * ringNumber ) {
-   int 		ringDir, ring, lRing;
 
    if ( (*ringNumber >= psCShape->nParts) || *ringNumber == -1 ) {
  	*ringNumber = -1;
@@ -1245,9 +1178,10 @@ SHPObject* SHPUnCompound  ( SHPObject *psCShape, int * ringNumber ) {
         return ( SHPClone(psCShape, (psCShape->nParts - 1), -1) );
       }
 
-   lRing = *ringNumber;
-   ringDir = -1;
-   for ( ring = (lRing + 1); (ring < psCShape->nParts) && ( ringDir < 0 ); ring ++)
+   const int lRing = *ringNumber;
+   int ringDir = -1;
+   int ring = (lRing + 1);
+   for ( ; (ring < psCShape->nParts) && ( ringDir < 0 ); ring ++)
      ringDir = SHPRingDir_2d ( psCShape, ring);
 
    if ( ring ==  psCShape->nParts )
@@ -1279,16 +1213,13 @@ SHPObject* SHPUnCompound  ( SHPObject *psCShape, int * ringNumber ) {
  *
  * **************************************************************************/
 SHPObject* SHPIntersect_2d ( SHPObject* a, SHPObject* b ) {
-  SHPObject	*C;
-
   if ( (SHPDimension(a->nSHPType) && SHPD_POINT) || ( SHPDimension(b->nSHPType) && SHPD_POINT ) )
     return ( NULL );
   /* there is no intersect function like this for points  */
 
-  C = SHPClone ( a, 0 , -1 );
+  SHPObject *C = SHPClone ( a, 0 , -1 );
 
-  return ( C);
-
+  return C;
 }
 
 
@@ -1311,8 +1242,6 @@ SHPObject* SHPIntersect_2d ( SHPObject* a, SHPObject* b ) {
  * use for object casting and object verification
  * **************************************************************************/
 int SHPClean ( SHPObject *psCShape ) {
-
-
     return (0);
 }
 
@@ -1324,12 +1253,6 @@ int SHPClean ( SHPObject *psCShape ) {
  *
  * **************************************************************************/
 SHPObject* SHPClone ( SHPObject *psCShape, int lowPart, int highPart ) {
-    SHPObject	*psObject;
-    int		newParts, newVertices;
-#ifdef DEBUG
-    int     	i;
-#endif
-
     if ( highPart >= psCShape->nParts || highPart == -1 )
 	highPart = psCShape->nParts ;
 
@@ -1338,10 +1261,10 @@ SHPObject* SHPClone ( SHPObject *psCShape, int lowPart, int highPart ) {
 	 psCShape->nParts, lowPart, highPart);
 #endif
 
-    newParts = highPart - lowPart;
+    const int newParts = highPart - lowPart;
     if ( newParts == 0 ) { return ( NULL ); }
 
-    psObject = (SHPObject *) calloc(1,sizeof(SHPObject));
+    SHPObject	*psObject = (SHPObject *) calloc(1,sizeof(SHPObject));
     psObject->nSHPType = psCShape->nSHPType;
     psObject->nShapeId = psCShape->nShapeId;
 
@@ -1358,6 +1281,7 @@ SHPObject* SHPClone ( SHPObject *psCShape, int lowPart, int highPart ) {
       		newParts * sizeof (int) );
      }
 
+    int newVertices;
     if ( highPart != psCShape->nParts ) {
       newVertices = psCShape->panPartStart[highPart] -
 	 psCShape->panPartStart[lowPart];
@@ -1365,8 +1289,8 @@ SHPObject* SHPClone ( SHPObject *psCShape, int lowPart, int highPart ) {
     else
      { newVertices = psCShape->nVertices - psCShape->panPartStart[lowPart]; }
 
-
 #ifdef DEBUG
+    int i;
     if ( highPart = psCShape->nParts )
       i = psCShape->nVertices;
      else
@@ -1415,29 +1339,23 @@ SHPObject* SHPClone ( SHPObject *psCShape, int lowPart, int highPart ) {
     return ( psObject );
 }
 
-
-
 /************************************************************************/
-/*  SwapG 							                              	*/
+/*  SwapG 				                              	*/
 /*                                                                      */
 /*      Swap a 2, 4 or 8 byte word.                                     */
 /************************************************************************/
 void SwapG( void *so, void *in, int this_cnt, int this_size ) {
-    int		i, j;
-
-/* return to a new pointer otherwise it would invalidate existing data	*/
-/* as prevent further use of it											*/
-
-    for( j=0; j < this_cnt; j++ )
+  // return to a new pointer otherwise it would invalidate existing data
+  // as prevent further use of it
+    for( int j=0; j < this_cnt; j++ )
      {
-      for( i=0; i < this_size/2; i++ )
+      for( int i=0; i < this_size/2; i++ )
       {
 	((unsigned char *) so)[i] = ((unsigned char *) in)[this_size-i-1];
 	((unsigned char *) so)[this_size-i-1] = ((unsigned char *) in)[i];
       }
     }
 }
-
 
 /* **************************************************************************
  * SwapW
@@ -1447,16 +1365,12 @@ void SwapG( void *so, void *in, int this_cnt, int this_size ) {
  *
  * **************************************************************************/
 void swapW (void *so, unsigned char *in, long bytes) {
-  int i, j;
-  unsigned char map[4] = {3,2,1,0};
-  unsigned char *out;
-
-  out = so;
-  for (i=0; i <= (bytes/4); i++)
-   for (j=0; j < 4; j++)
+  const unsigned char map[4] = {3,2,1,0};
+  unsigned char *out = so;
+  for (int i=0; i <= (bytes/4); i++)
+   for (int j=0; j < 4; j++)
       out[(i*4)+map[j]] = in[(i*4)+j];
 }
-
 
 /* **************************************************************************
  * SwapD
@@ -1466,13 +1380,10 @@ void swapW (void *so, unsigned char *in, long bytes) {
  *
  * **************************************************************************/
 void swapD (void *so, unsigned char *in, long bytes) {
-  int i, j;
-  unsigned char map[8] = {7,6,5,4,3,2,1,0};
-  unsigned char *out;
-
-  out = so;
-  for (i=0; i <= (bytes/8); i++)
-   for (j=0; j < 8; j++)
+  const unsigned char map[8] = {7,6,5,4,3,2,1,0};
+  unsigned char *out = so;
+  for (int i=0; i <= (bytes/8); i++)
+   for (int j=0; j < 8; j++)
       out[(i*8)+map[j]] = in[(i*8)+j];
 }
 
