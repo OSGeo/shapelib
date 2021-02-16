@@ -36,6 +36,7 @@
  *
  */
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -44,18 +45,18 @@
 SHP_CVSID("$Id$")
 
 int main( int argc, char ** argv ) {
-    int bValidate = 0;
+    bool bValidate = false;
     if( argc > 1 && strcmp(argv[1],"-validate") == 0 )
     {
-        bValidate = 1;
+        bValidate = true;
         argv++;
         argc--;
     }
 
-    int bHeaderOnly = 0;
+    bool bHeaderOnly = false;
     if( argc > 1 && strcmp(argv[1],"-ho") == 0 )
     {
-        bHeaderOnly = 1;
+        bHeaderOnly = true;
         argv++;
         argc--;
     }

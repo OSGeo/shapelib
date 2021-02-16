@@ -37,6 +37,7 @@
 #include "shapefil.h"
 
 #include <math.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -187,7 +188,7 @@ static void DBFWriteHeader(DBFHandle psDBF) {
 /*      Write out the current record if there is one.                   */
 /************************************************************************/
 
-static int DBFFlushRecord( DBFHandle psDBF ) {
+static bool DBFFlushRecord( DBFHandle psDBF ) {
     if( psDBF->bCurrentRecordModified && psDBF->nCurrentRecord > -1 )
     {
 	psDBF->bCurrentRecordModified = FALSE;
@@ -208,7 +209,7 @@ static int DBFFlushRecord( DBFHandle psDBF ) {
                           "Failure seeking to position before writing DBF record %d.",
                           psDBF->nCurrentRecord );
                 psDBF->sHooks.Error( szMessage );
-                return FALSE;
+                return false;
             }
         }
 
@@ -220,7 +221,7 @@ static int DBFFlushRecord( DBFHandle psDBF ) {
             snprintf( szMessage, sizeof(szMessage), "Failure writing DBF record %d.",
                      psDBF->nCurrentRecord );
             psDBF->sHooks.Error( szMessage );
-            return FALSE;
+            return false;
         }
 
 /* -------------------------------------------------------------------- */
@@ -238,18 +239,18 @@ static int DBFFlushRecord( DBFHandle psDBF ) {
         }
     }
 
-    return TRUE;
+    return true;
 }
 
 /************************************************************************/
 /*                           DBFLoadRecord()                            */
 /************************************************************************/
 
-static int DBFLoadRecord( DBFHandle psDBF, int iRecord ) {
+static bool DBFLoadRecord( DBFHandle psDBF, int iRecord ) {
     if( psDBF->nCurrentRecord != iRecord )
     {
 	if( !DBFFlushRecord( psDBF ) )
-            return FALSE;
+            return false;
 
         const SAOffset nRecordOffset =
             psDBF->nRecordLength * STATIC_CAST(SAOffset,iRecord) + psDBF->nHeaderLength;
@@ -260,7 +261,7 @@ static int DBFLoadRecord( DBFHandle psDBF, int iRecord ) {
             snprintf( szMessage, sizeof(szMessage), "fseek(%ld) failed on DBF file.",
                       STATIC_CAST(long, nRecordOffset) );
             psDBF->sHooks.Error( szMessage );
-            return FALSE;
+            return false;
         }
 
 	if( psDBF->sHooks.FRead( psDBF->pszCurrentRecord,
@@ -270,7 +271,7 @@ static int DBFLoadRecord( DBFHandle psDBF, int iRecord ) {
             snprintf( szMessage, sizeof(szMessage), "fread(%d) failed on DBF file.",
                      psDBF->nRecordLength );
             psDBF->sHooks.Error( szMessage );
-            return FALSE;
+            return false;
         }
 
 	psDBF->nCurrentRecord = iRecord;
@@ -280,7 +281,7 @@ static int DBFLoadRecord( DBFHandle psDBF, int iRecord ) {
 	psDBF->bRequireNextWriteSeek = TRUE;
     }
 
-    return TRUE;
+    return true;
 }
 
 /************************************************************************/
@@ -1104,9 +1105,9 @@ DBFReadLogicalAttribute( DBFHandle psDBF, int iRecord, int iField )
 /*      Return TRUE if the passed string is NULL.                       */
 /************************************************************************/
 
-static int DBFIsValueNULL( char chType, const char* pszValue ) {
+static bool DBFIsValueNULL( char chType, const char* pszValue ) {
     if( pszValue == SHPLIB_NULLPTR )
-        return TRUE;
+        return true;
 
     switch(chType)
     {
@@ -1118,14 +1119,14 @@ static int DBFIsValueNULL( char chType, const char* pszValue ) {
         ** asterisks.
         */
         if( pszValue[0] == '*' )
-            return TRUE;
+            return true;
 
         for( int i = 0; pszValue[i] != '\0'; i++ )
         {
             if( pszValue[i] != ' ' )
-                return FALSE;
+                return false;
         }
-        return TRUE;
+        return true;
 
       case 'D':
         /* NULL date fields have value "00000000" */
@@ -1243,13 +1244,13 @@ DBFGetFieldInfo( DBFHandle psDBF, int iField, char * pszFieldName,
 /*	Write an attribute record to the file.				*/
 /************************************************************************/
 
-static int DBFWriteAttribute(DBFHandle psDBF, int hEntity, int iField,
+static bool DBFWriteAttribute(DBFHandle psDBF, int hEntity, int iField,
 			     void * pValue ) {
 /* -------------------------------------------------------------------- */
 /*	Is this a valid record?						*/
 /* -------------------------------------------------------------------- */
     if( hEntity < 0 || hEntity > psDBF->nRecords )
-        return( FALSE );
+        return false;
 
     if( psDBF->bNoHeader )
         DBFWriteHeader(psDBF);
@@ -1260,7 +1261,7 @@ static int DBFWriteAttribute(DBFHandle psDBF, int hEntity, int iField,
     if( hEntity == psDBF->nRecords )
     {
 	if( !DBFFlushRecord( psDBF ) )
-            return FALSE;
+            return false;
 
 	psDBF->nRecords++;
 	for( int i = 0; i < psDBF->nRecordLength; i++ )
@@ -1274,7 +1275,7 @@ static int DBFWriteAttribute(DBFHandle psDBF, int hEntity, int iField,
 /*      we accessed?                                                    */
 /* -------------------------------------------------------------------- */
     if( !DBFLoadRecord( psDBF, hEntity ) )
-        return FALSE;
+        return false;
 
     unsigned char *pabyRec = REINTERPRET_CAST(unsigned char *, psDBF->pszCurrentRecord);
 
@@ -1291,13 +1292,13 @@ static int DBFWriteAttribute(DBFHandle psDBF, int hEntity, int iField,
         memset( pabyRec+psDBF->panFieldOffset[iField],
                 DBFGetNullCharacter(psDBF->pachFieldType[iField]),
                 psDBF->panFieldSize[iField] );
-        return TRUE;
+        return true;
     }
 
 /* -------------------------------------------------------------------- */
 /*      Assign all the record fields.                                   */
 /* -------------------------------------------------------------------- */
-    int	nRetResult = TRUE;
+    bool nRetResult = true;
 
     switch( psDBF->pachFieldType[iField] )
     {
@@ -1319,7 +1320,7 @@ static int DBFWriteAttribute(DBFHandle psDBF, int hEntity, int iField,
         if( STATIC_CAST(int,strlen(szSField)) > psDBF->panFieldSize[iField] )
         {
             szSField[psDBF->panFieldSize[iField]] = '\0';
-            nRetResult = FALSE;
+            nRetResult = false;
         }
         memcpy(REINTERPRET_CAST(char *, pabyRec+psDBF->panFieldOffset[iField]),
             szSField, strlen(szSField) );
@@ -1338,7 +1339,7 @@ static int DBFWriteAttribute(DBFHandle psDBF, int hEntity, int iField,
 	if( STATIC_CAST(int, strlen(STATIC_CAST(char *,pValue))) > psDBF->panFieldSize[iField] )
         {
 	    j = psDBF->panFieldSize[iField];
-            nRetResult = FALSE;
+            nRetResult = false;
         }
 	else
         {
@@ -1353,7 +1354,7 @@ static int DBFWriteAttribute(DBFHandle psDBF, int hEntity, int iField,
       }
     }
 
-    return( nRetResult );
+    return nRetResult;
 }
 
 /************************************************************************/
@@ -1883,7 +1884,7 @@ DBFReorderFields( DBFHandle psDBF, int* panMap ) {
     free(psDBF->pszHeader);
     psDBF->pszHeader = pszHeaderNew;
 
-    int errorAbort = FALSE;
+    bool errorAbort = false;
 
     /* we're done if we're dealing with not yet created .dbf */
     if ( !(psDBF->bNoHeader && psDBF->nRecords == 0) )
@@ -1905,7 +1906,7 @@ DBFReorderFields( DBFHandle psDBF, int* panMap ) {
             /* load record */
             psDBF->sHooks.FSeek( psDBF->fp, nRecordOffset, 0 );
             if (psDBF->sHooks.FRead(pszRecord, psDBF->nRecordLength, 1, psDBF->fp) != 1) {
-              errorAbort = TRUE;
+              errorAbort = true;
               break;
             }
 
@@ -2040,7 +2041,7 @@ DBFAlterFieldDefn( DBFHandle psDBF, int iField, const char * pszFieldName,
     psDBF->bNoHeader = TRUE;
     DBFUpdateHeader( psDBF );
 
-    int errorAbort = FALSE;
+    bool errorAbort = false;
 
     if (nWidth < nOldWidth || (nWidth == nOldWidth && chType != chOldType))
     {
@@ -2059,12 +2060,12 @@ DBFAlterFieldDefn( DBFHandle psDBF, int iField, const char * pszFieldName,
             /* load record */
             psDBF->sHooks.FSeek( psDBF->fp, nRecordOffset, 0 );
             if (psDBF->sHooks.FRead( pszRecord, nOldRecordLength, 1, psDBF->fp ) != 1) {
-              errorAbort = TRUE;
+              errorAbort = true;
               break;
             }
 
             memcpy(pszOldField, pszRecord + nOffset, nOldWidth);
-            const int bIsNULL = DBFIsValueNULL( chOldType, pszOldField );
+            const bool bIsNULL = DBFIsValueNULL( chOldType, pszOldField );
 
             if (nWidth != nOldWidth)
             {
@@ -2129,12 +2130,12 @@ DBFAlterFieldDefn( DBFHandle psDBF, int iField, const char * pszFieldName,
             /* load record */
             psDBF->sHooks.FSeek( psDBF->fp, nRecordOffset, 0 );
             if (psDBF->sHooks.FRead( pszRecord, nOldRecordLength, 1, psDBF->fp )!= 1) {
-              errorAbort = TRUE;
+              errorAbort = true;
               break;
             }
 
             memcpy(pszOldField, pszRecord + nOffset, nOldWidth);
-            const int bIsNULL = DBFIsValueNULL( chOldType, pszOldField );
+            const bool bIsNULL = DBFIsValueNULL( chOldType, pszOldField );
 
             if (nOffset + nOldWidth < nOldRecordLength)
             {
