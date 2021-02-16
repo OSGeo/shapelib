@@ -21,7 +21,6 @@
  *   NOTE: DBF files created using windows NT will read as a string with
  *         a length of 381 characters.  This is a bug in "dbfopen".
  *
- *
  * Author:   Bill Miller (bmiller@dot.state.nc.us)
  *
  ******************************************************************************
@@ -86,8 +85,8 @@ char	jszTitle[12];
 int	*pt;
 char	iszFormat[32], iszField[1024];
 char	jszFormat[32], jszField[1024];
-int	i, ti, iWidth, iDecimals, iRecord;
-int	j, tj, jWidth, jDecimals, jRecord;
+int	ti, iWidth, iDecimals, iRecord;
+int	tj, jWidth, jDecimals, jRecord;
 
 
 int clip_boundary();
@@ -139,7 +138,7 @@ bool iunit = false;
 /* -------------------------------------------------------------------- */
 /* Variables for the SHIFT function */
 /* -------------------------------------------------------------------- */
-   double  xshift = 0, yshift = 0;  /* NO SHIFT */
+double  xshift = 0, yshift = 0;  /* NO SHIFT */
 
 int main( int argc, char ** argv )
 {
@@ -162,7 +161,7 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
 /*	Look for other functions on the command line. (SELECT, UNIT)  	*/
 /* -------------------------------------------------------------------- */
-    for (i = 3; i < argc; i++)
+    for (int i = 3; i < argc; i++)
     {
     	if ((strncasecmp2(argv[i],  "SEL",3) == 0) ||
             (strncasecmp2(argv[i],  "UNSEL",5) == 0))
@@ -346,7 +345,7 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
 /*      Read a DBF record and copy each field.                          */
 /* -------------------------------------------------------------------- */
-	for( i = 0; i < DBFGetFieldCount(hDBF); i++ )
+	for( int i = 0; i < DBFGetFieldCount(hDBF); i++ )
 	{
 /* -------------------------------------------------------------------- */
 /*      Store the record according to the type and formatting           */
@@ -384,7 +383,7 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
         if (iunit)
         {
-	    for( j = 0; j < psCShape->nVertices; j++ )
+	    for( int j = 0; j < psCShape->nVertices; j++ )
 	    {
                 psCShape->padfX[j] = psCShape->padfX[j] * factor + xshift;
                 psCShape->padfY[j] = psCShape->padfY[j] * factor + yshift;
@@ -400,7 +399,7 @@ int main( int argc, char ** argv )
       SKIP_RECORD:
         SHPDestroyObject( psCShape );
         psCShape = NULL;
-        j=0;
+        // j=0;
     }
 
 /* -------------------------------------------------------------------- */
@@ -516,8 +515,8 @@ void openfiles() {
 /* -------------------------------------------------------------------- */
 void setext(char *pt, char *ext)
 {
-int i;
-    for( i = strlen(pt)-1;
+    int i = strlen(pt) - 1;
+    for( ;
 	 i > 0 && pt[i] != '.' && pt[i] != '/' && pt[i] != '\\';
 	 i-- ) {}
 
@@ -536,39 +535,38 @@ int i;
 /* -------------------------------------------------------------------- */
 void mergefields()
 {
-    int i,j;
     ti = DBFGetFieldCount( hDBF );
     tj = DBFGetFieldCount( hDBFappend );
     /* Create a pointer array for the max # of fields in the output file */
     pt = (int *) malloc( (ti+tj+1) * sizeof(int) );
 
-    for( i = 0; i < ti; i++ )
+    for( int i = 0; i < ti; i++ )
     {
         pt[i]= -1;  /* Initial pt values to -1 */
     }
     /* DBF must be empty before adding items */
     jRecord = DBFGetRecordCount( hDBFappend );
-    for( i = 0; i < ti; i++ )
+    int j;
+    for( int i = 0; i < ti; i++ )
     {
 	iType = DBFGetFieldInfo( hDBF, i, iszTitle, &iWidth, &iDecimals );
         found = false;
-        {
-      	    for( j = 0; j < tj; j++ )   /* Search all field names for a match */
-    	    {
-	        jType = DBFGetFieldInfo( hDBFappend, j, jszTitle, &jWidth, &jDecimals );
-	        if (iType == jType && (strcmp(iszTitle, jszTitle) == 0) )
+
+        for( j = 0; j < tj; j++ )   /* Search all field names for a match */
+    	{
+	    jType = DBFGetFieldInfo( hDBFappend, j, jszTitle, &jWidth, &jDecimals );
+	    if (iType == jType && (strcmp(iszTitle, jszTitle) == 0) )
+	    {
+	        if (found || newdbf)
 	        {
-	            if (found || newdbf)
-	            {
-	                if (i == j)  pt[i]=j;
-	                printf("Warning: Duplicate field name found (%s)\n",iszTitle);
-	                /* Duplicate field name
-	                   (Try to guess the correct field by position) */
-	            }
-	            else
-	            {
-                        pt[i]=j;  found = true;
-	            }
+	            if (i == j)  pt[i]=j;
+	            printf("Warning: Duplicate field name found (%s)\n",iszTitle);
+	            /* Duplicate field name
+	               (Try to guess the correct field by position) */
+	        }
+	        else
+	        {
+                    pt[i]=j;  found = true;
 	        }
 	    }
 	}
@@ -601,7 +599,7 @@ void findselect()
 {
     /* Find the select field name */
     iselectitem = -1;
-    for( i = 0; i < ti  &&  iselectitem < 0; i++ )
+    for( int i = 0; i < ti  &&  iselectitem < 0; i++ )
     {
 	iType = DBFGetFieldInfo( hDBF, i, iszTitle, &iWidth, &iDecimals );
         if (strncasecmp2(iszTitle, selectitem, 0) == 0) iselectitem = i;
@@ -615,24 +613,18 @@ void findselect()
         printf("Continued... (Selecting entire file)\n");
     }
     /* Extract all of the select values (by field type) */
-
 }
 
-void showitems()
-{
-    char      stmp[40],slow[40],shigh[40];
-    double    dtmp,dlow,dhigh,dsum,mean;
-    long int  itmp,ilow,ihigh,isum;
-    long int  maxrec;
-    char      *pt;
-
+void showitems() {
     printf("Available Items: (%d)",ti);
-    maxrec = DBFGetRecordCount(hDBF);
+    long int  maxrec = DBFGetRecordCount(hDBF);
     if (maxrec > 5000 && ! iall)
     { maxrec=5000; printf("  ** ESTIMATED RANGES (MEAN)  For more records use \"All\""); }
     else  { printf("          RANGES (MEAN)"); }
 
-    for( i = 0; i < ti; i++ )
+    char      stmp[40],slow[40],shigh[40];
+
+    for( int i = 0; i < ti; i++ )
     {
         switch( DBFGetFieldInfo( hDBF, i, iszTitle, &iWidth, &iDecimals ) )
         {
@@ -649,7 +641,7 @@ void showitems()
                     if (strncasecmp2(stmp,shigh,0) > 0) strncpy(shigh,stmp,39);
                 }
             }
-            pt=slow+strlen(slow)-1;
+            char *pt = slow+strlen(slow)-1;
             while(*pt == ' ') { *pt='\0'; pt--; }
             pt=shigh+strlen(shigh)-1;
             while(*pt == ' ') { *pt='\0'; pt--; }
@@ -658,34 +650,36 @@ void showitems()
             else	printf("No Values");
             break;
           case FTInteger:
+            {
             printf("\n  Integer %3d  %-16s",iWidth,iszTitle);
-            ilow =  1999999999;
-            ihigh= -1999999999;
-            isum =  0;
+            long int ilow =  1999999999;
+            long int ihigh= -1999999999;
+            long int isum =  0;
             for( iRecord = 0; iRecord < maxrec; iRecord++ ) {
-                itmp = DBFReadIntegerAttribute( hDBF, iRecord, i );
+                const long int itmp = DBFReadIntegerAttribute( hDBF, iRecord, i );
                 if (ilow > itmp)  ilow = itmp;
                 if (ihigh < itmp) ihigh = itmp;
                 isum = isum + itmp;
             }
-            mean=isum/maxrec;
+            const double mean = isum / maxrec;
             if (ilow < ihigh)       printf("%ld to %ld \t(%.1f)",ilow,ihigh,mean);
             else if (ilow == ihigh) printf("= %ld",ilow);
             else printf("No Values");
             break;
-
+            }
           case FTDouble:
+            {
             printf("\n  Real  %3d,%d  %-16s",iWidth,iDecimals,iszTitle);
-            dlow =  999999999999999.0;
-            dhigh= -999999999999999.0;
-            dsum =  0;
+            double dlow =  999999999999999.0;
+            double dhigh = -999999999999999.0;
+            double dsum = 0;
             for( iRecord = 0; iRecord < maxrec; iRecord++ ) {
-                dtmp = DBFReadDoubleAttribute( hDBF, iRecord, i );
+                const double dtmp = DBFReadDoubleAttribute( hDBF, iRecord, i );
                 if (dlow > dtmp) dlow = dtmp;
                 if (dhigh < dtmp) dhigh = dtmp;
                 dsum = dsum + dtmp;
             }
-            mean=dsum/maxrec;
+            const double mean = dsum / maxrec;
             sprintf(stmp,"%%.%df to %%.%df \t(%%.%df)",iDecimals,iDecimals,iDecimals);
             if (dlow < dhigh)       printf(stmp,dlow,dhigh,mean);
             else if (dlow == dhigh) {
@@ -694,7 +688,7 @@ void showitems()
             }
             else printf("No Values");
             break;
-
+            }
           case FTInvalid:
             break;
 
@@ -704,11 +698,8 @@ void showitems()
     printf("\n");
 }
 
-int selectrec()
-{
-    long int value, ty;
-
-    ty = DBFGetFieldInfo( hDBF, iselectitem, NULL, &iWidth, &iDecimals);
+int selectrec() {
+    const long int ty = DBFGetFieldInfo( hDBF, iselectitem, NULL, &iWidth, &iDecimals);
     switch(ty)
     {
       case FTString:
@@ -716,8 +707,9 @@ int selectrec()
         iselect = false;
 	break;
       case FTInteger:
-        value = DBFReadIntegerAttribute( hDBF, iRecord, iselectitem );
-        for (j = 0; j<selcount; j++)
+        {
+        const long int value = DBFReadIntegerAttribute( hDBF, iRecord, iselectitem );
+        for (int j = 0; j<selcount; j++)
         {
             if (selectvalues[j] == value)
             {
@@ -726,6 +718,7 @@ int selectrec()
             }
         }
 	break;
+        }
       case FTDouble:
         puts("Invalid Item");
         iselect = false;
@@ -758,12 +751,7 @@ void check_theme_bnd()
         puts("WARNING: Theme is outside the clip area."); /** SKIP THEME  **/
 }
 
-int clip_boundary()
-{
-    int  inside;
-    int  i2;
-    int  j2;
-
+int clip_boundary() {
     /*** FIRST check the boundary of the feature ***/
     if ( ( (psCShape->dfXMin < cxmin) && (psCShape->dfXMax < cxmin) ) ||
          ( (psCShape->dfYMin < cymin) && (psCShape->dfYMax < cymin) ) ||
@@ -803,7 +791,7 @@ int clip_boundary()
             else   return(1); /** WRITE RECORD **/
         }
 
-        for( j2 = 0; j2 < psCShape->nVertices; j2++ )
+        for( int j2 = 0; j2 < psCShape->nVertices; j2++ )
         {   /** At least one vertex must be inside the clip boundary **/
             if ( (psCShape->padfX[j2] >= cxmin  &&  psCShape->padfX[j2] <= cxmax) ||
                  (psCShape->padfY[j2] >= cymin  &&  psCShape->padfY[j2] <= cymax)  )
@@ -822,14 +810,15 @@ int clip_boundary()
     {   /** CUT **/
         /*** Check each vertex in the feature with the Boundary and "CUT" ***/
         /*** THIS CODE WAS NOT COMPLETED!  READ NOTE AT THE BOTTOM ***/
-        i2=0;
+        int i2 = 0;
         bool prev_outside = false;
-        for( j2 = 0; j2 < psCShape->nVertices; j2++ )
+        for( int j2 = 0; j2 < psCShape->nVertices; j2++ )
         {
-            inside = psCShape->padfX[j2] >= cxmin  &&  psCShape->padfX[j2] <= cxmax  &&
-                psCShape->padfY[j2] >= cymin  &&  psCShape->padfY[j2] <= cymax ;
+            bool inside =
+                psCShape->padfX[j2] >= cxmin && psCShape->padfX[j2] <= cxmax &&
+                psCShape->padfY[j2] >= cymin && psCShape->padfY[j2] <= cymax;
 
-            if (ierase) inside=(! inside);
+            if (ierase) inside = !inside;
             if (inside)
             {
                 if (i2 != j2)
@@ -861,8 +850,9 @@ int clip_boundary()
         if (i2 < 2) return(0); /** SKIP RECORD **/
         /*** (WE ARE NOT CREATING INTERSECTIONS and some lines could be reduced to one point) **/
 
-        if (i2 == 0) return(0); /** SKIP  RECORD **/
-        else    return(1); /** WRITE RECORD **/
+        // if (i2 == 0) return(0); /** SKIP  RECORD **/
+        // else
+        return(1); /** WRITE RECORD **/
     }  /** End CUT **/
 
     return 0;
@@ -876,20 +866,18 @@ int clip_boundary()
 /*      If n=0 then s1 and s2 must be an exact match                    */
 /************************************************************************/
 
-int strncasecmp2(char *s1, char *s2, int n)
-
-{
+int strncasecmp2(char *s1, char *s2, int n) {
    if (n<1) n=strlen(s1)+1;
 
-   int j;
    for (int i = 0; i < n; i++)
    {
       if (*s1 != *s2)
       {
          if (*s1 >= 'a' && *s1 <= 'z') {
-            j=*s1-32;
+            const int j = *s1 - 32;
             if (j != *s2) return(*s1-*s2);
          } else {
+            int j;
             if (*s1 >= 'A' && *s1 <= 'Z') { j=*s1+32; }
                                    else   { j=*s1;    }
             if (j != *s2) return(*s1-*s2);
@@ -928,7 +916,7 @@ double findunit(char *unit)
    };
 
    double unitfactor=0;
-   for (j = 0; j < NKEYS; j++) {
+   for (int j = 0; j < NKEYS; j++) {
     if (strncasecmp2(unit, unitkeytab[j].name, 0) == 0) unitfactor=unitkeytab[j].value;
    }
    return(unitfactor);
