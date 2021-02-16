@@ -40,6 +40,7 @@
 
 #include <assert.h>
 #include <math.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -72,7 +73,7 @@ int main( int argc, char ** argv )
 {
     int nExpandShapes = 0;
     int nMaxDepth = 0;
-    int bDoSearch = 0;
+    bool bDoSearch = false;
     double adfSearchMin[4];
     double adfSearchMax[4];
     const char *pszOutputIndexFilename = NULL;
@@ -110,7 +111,7 @@ int main( int argc, char ** argv )
         }
         else if( strcmp(argv[1],"-search") == 0 && argc > 5 )
         {
-            bDoSearch = 1;
+            bDoSearch = true;
 
             adfSearchMin[0] = atof(argv[2]);
             adfSearchMin[1] = atof(argv[3]);

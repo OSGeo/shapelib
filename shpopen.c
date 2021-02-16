@@ -39,6 +39,7 @@
 #include <errno.h>
 #include <limits.h>
 #include <math.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -85,11 +86,11 @@ typedef unsigned int	      int32;
 #endif
 
 #if defined(CPL_LSB)
-#define bBigEndian FALSE
+#define bBigEndian false
 #elif defined(CPL_MSB)
-#define bBigEndian TRUE
+#define bBigEndian true
 #else
-static int 	bBigEndian;
+static bool bBigEndian;
 #endif
 
 #ifdef __cplusplus
@@ -314,7 +315,7 @@ SHPOpenLL( const char * pszLayer, const char * pszAccess, SAHooks *psHooks ) {
 /*      ensure the result string indicates binary to avoid common       */
 /*      problems on Windows.                                            */
 /* -------------------------------------------------------------------- */
-    int bLazySHXLoading = FALSE;
+    bool bLazySHXLoading = false;
     if( strcmp(pszAccess,"rb+") == 0 || strcmp(pszAccess,"r+b") == 0
         || strcmp(pszAccess,"r+") == 0 ) {
         pszAccess = "r+b";
@@ -330,9 +331,9 @@ SHPOpenLL( const char * pszLayer, const char * pszAccess, SAHooks *psHooks ) {
     {
     int i = 1;
     if( *((uchar *) &i) == 1 )
-        bBigEndian = FALSE;
+        bBigEndian = false;
     else
-        bBigEndian = TRUE;
+        bBigEndian = true;
     }
 #endif
 
@@ -685,9 +686,9 @@ SHPRestoreSHX ( const char * pszLayer, const char * pszAccess, SAHooks *psHooks 
     {
         int i = 1;
         if( *((uchar *) &i) == 1 )
-            bBigEndian = FALSE;
+            bBigEndian = false;
         else
-            bBigEndian = TRUE;
+            bBigEndian = true;
     }
 #endif
 
@@ -955,9 +956,9 @@ SHPCreateLL( const char * pszLayer, int nShapeType, SAHooks *psHooks ) {
     {
         int i = 1;
         if( *((uchar *) &i) == 1 )
-            bBigEndian = FALSE;
+            bBigEndian = false;
         else
-            bBigEndian = TRUE;
+            bBigEndian = true;
     }
 #endif
 
@@ -1147,16 +1148,16 @@ SHPCreateObject( int nSHPType, int nShapeId, int nParts,
 /* -------------------------------------------------------------------- */
 /*	Establish whether this shape type has M, and Z values.		*/
 /* -------------------------------------------------------------------- */
-    int bHasM;
-    int bHasZ;
+    bool bHasM;
+    bool bHasZ;
 
     if( nSHPType == SHPT_ARCM
         || nSHPType == SHPT_POINTM
         || nSHPType == SHPT_POLYGONM
         || nSHPType == SHPT_MULTIPOINTM )
     {
-        bHasM = TRUE;
-        bHasZ = FALSE;
+        bHasM = true;
+        bHasZ = false;
     }
     else if( nSHPType == SHPT_ARCZ
              || nSHPType == SHPT_POINTZ
@@ -1164,13 +1165,13 @@ SHPCreateObject( int nSHPType, int nShapeId, int nParts,
              || nSHPType == SHPT_MULTIPOINTZ
              || nSHPType == SHPT_MULTIPATCH )
     {
-        bHasM = TRUE;
-        bHasZ = TRUE;
+        bHasM = true;
+        bHasZ = true;
     }
     else
     {
-        bHasM = FALSE;
-        bHasZ = FALSE;
+        bHasM = false;
+        bHasZ = false;
     }
 
 /* -------------------------------------------------------------------- */
@@ -1323,7 +1324,7 @@ SHPWriteObject(SHPHandle psSHP, int nShapeId, SHPObject * psObject ) {
 /*  Extract vertices for a Polygon or Arc.				*/
 /* -------------------------------------------------------------------- */
     unsigned int nRecordSize = 0;
-    const int bFirstFeature = psSHP->nRecords == 0;
+    const bool bFirstFeature = psSHP->nRecords == 0;
 
     if( psObject->nSHPType == SHPT_POLYGON
         || psObject->nSHPType == SHPT_POLYGONZ
@@ -1544,7 +1545,7 @@ SHPWriteObject(SHPHandle psSHP, int nShapeId, SHPObject * psObject ) {
         nRecordSize = 12;
     } else {
         /* unknown type */
-        assert( FALSE );
+        assert( false );
     }
 
 /* -------------------------------------------------------------------- */
@@ -1555,13 +1556,13 @@ SHPWriteObject(SHPHandle psSHP, int nShapeId, SHPObject * psObject ) {
 /*      write at the end.                                               */
 /* -------------------------------------------------------------------- */
     SAOffset nRecordOffset;
-    int bAppendToLastRecord = FALSE;
-    int bAppendToFile = FALSE;
+    bool bAppendToLastRecord = false;
+    bool bAppendToFile = false;
     if( nShapeId != -1 && psSHP->panRecOffset[nShapeId] +
                         psSHP->panRecSize[nShapeId] + 8 == psSHP->nFileSize )
     {
         nRecordOffset = psSHP->panRecOffset[nShapeId];
-        bAppendToLastRecord = TRUE;
+        bAppendToLastRecord = true;
     }
     else if( nShapeId == -1 || psSHP->panRecSize[nShapeId] < nRecordSize-8 )
     {
@@ -1577,7 +1578,7 @@ SHPWriteObject(SHPHandle psSHP, int nShapeId, SHPObject * psObject ) {
             return -1;
         }
 
-        bAppendToFile = TRUE;
+        bAppendToFile = true;
         nRecordOffset = psSHP->nFileSize;
     }
     else
@@ -2612,7 +2613,7 @@ static int SHPRewindIsInnerRing( const SHPObject * psObject,
 /*                                                                      */
 /* -------------------------------------------------------------------- */
 
-    int bInner = FALSE;
+    bool bInner = false;
     for( int iCheckRing = 0; iCheckRing < psObject->nParts; iCheckRing++ )
     {
         if( iCheckRing == iOpRing )
@@ -2700,7 +2701,7 @@ SHPRewindObject( CPL_UNUSED SHPHandle hSHP,
         if (nVertCount < 2)
             continue;
 
-        int      bInner = FALSE;
+        int bInner = FALSE;
         for( int iVert = nVertStart; iVert + 1 < nVertStart + nVertCount; ++iVert )
         {
             /* Use point in the middle of segment to avoid testing
