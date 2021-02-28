@@ -91,6 +91,7 @@ int main( int argc, char ** argv ) {
     if( DBFGetFieldCount(hDBF) == 0 )
     {
 	printf( "There are no fields in this table!\n" );
+        DBFClose(hDBF);
 	exit( 3 );
     }
 
