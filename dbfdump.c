@@ -108,7 +108,7 @@ int main( int argc, char ** argv ) {
             const char chNativeType = DBFGetNativeFieldType( hDBF, i );
             const DBFFieldType eType = DBFGetFieldInfo( hDBF, i, szTitle, &nWidth, &nDecimals );
 
-            const char *pszTypeName;
+            const char *pszTypeName = NULL;
             if( eType == FTString )
                 pszTypeName = "String";
             else if( eType == FTInteger )
@@ -222,14 +222,12 @@ int main( int argc, char ** argv ) {
 /*      Write out any extra spaces required to pad out the field        */
 /*      width.                                                          */
 /* -------------------------------------------------------------------- */
-	    if( !bMultiLine )
-	    {
+            if( bMultiLine ) {
+                printf( "\n" );
+            } else {
 		sprintf( szFormat, "%%%ds", panWidth[i] - nWidth + 1 );
 		printf( szFormat, "" );
 	    }
-
-            if( bMultiLine )
-                printf( "\n" );
 
 	    fflush( stdout );
 	}
