@@ -10,8 +10,6 @@
 #include <string.h>
 #include "shapefil.h"
 
-static char rcsid[] = "$Id$";
-
 int main( int argc, char ** argv ) {
     if( argc < 3 )
     {

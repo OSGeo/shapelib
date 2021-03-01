@@ -1,5 +1,4 @@
 /******************************************************************************
- * $Id$
  *
  * Project:  Shapelib
  * Purpose:  Commandline program to generate points-in-polygons from a
@@ -34,19 +33,7 @@
  * DEALINGS IN THE SOFTWARE.
  ******************************************************************************
  *
- * $Log$
- * Revision 1.2  2016-12-05 12:44:07  erouault
- * * Major overhaul of Makefile build system to use autoconf/automake.
- *
- * * Warning fixes in contrib/
- *
- * Revision 1.1  2004-01-09 16:47:57  fwarmerdam
- * New
- *
  */
-
-static char rcsid[] =
-  "$Id$";
 
 #include <string.h>
 #include <stdlib.h>
@@ -240,4 +227,3 @@ int main(int argc, char* argv[])
 
     return 0;
 }
-
