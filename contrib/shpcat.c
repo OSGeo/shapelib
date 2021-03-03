@@ -41,7 +41,7 @@ int main( int argc, char ** argv ) {
     if( argc != 3 )
     {
 	printf( "shpcat from_shpfile to_shpfile\n" );
-	exit( 1 );
+	return 1;
     }
 
 /* -------------------------------------------------------------------- */
@@ -51,7 +51,7 @@ int main( int argc, char ** argv ) {
     if( hSHP == NULL )
     {
 	printf( "Unable to open:%s\n", argv[1] );
-	exit( 1 );
+	return 1;
     }
 
     int nEntities;
@@ -66,7 +66,8 @@ int main( int argc, char ** argv ) {
     if( cSHP == NULL )
     {
 	printf( "Unable to open:%s\n", argv[2] );
-	exit( 1 );
+        SHPClose(hSHP);
+	return 1;
     }
 
     int nShpInFile;
@@ -88,5 +89,5 @@ int main( int argc, char ** argv ) {
     SHPClose( hSHP );
     SHPClose( cSHP );
 
-    exit( 0 );
+    return 0;
 }
