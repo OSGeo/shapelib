@@ -29,62 +29,52 @@
 #include <string.h>
 #include "shapefil.h"
 
-int main( int argc, char ** argv ) {
-/* -------------------------------------------------------------------- */
-/*      Display a usage message.                                        */
-/* -------------------------------------------------------------------- */
-    if( argc != 2 )
-    {
-	printf( "shpinfo shp_file\n" );
-	exit( 1 );
+int main(int argc, char ** argv) {
+    if(argc != 2) {
+        printf("shpinfo shp_file\n");
+        return EXIT_FAILURE;
     }
 
-/* -------------------------------------------------------------------- */
-/*      Open the passed shapefile.                                      */
-/* -------------------------------------------------------------------- */
-    SHPHandle hSHP = SHPOpen( argv[1], "rb" );
-    if( hSHP == NULL )
-    {
-	printf( "Unable to open:%s\n", argv[1] );
-	exit( 1 );
+    SHPHandle hSHP = SHPOpen(argv[1], "rb");
+    if (hSHP == NULL) {
+        printf("Unable to open:%s\n", argv[1]);
+        return EXIT_FAILURE;
     }
 
     int nEntities;
     int nShapeType;
     double adfBndsMin[4];
     double adfBndsMax[4];
-    SHPGetInfo( hSHP, &nEntities, &nShapeType, adfBndsMin, adfBndsMax );
+    SHPGetInfo(hSHP, &nEntities, &nShapeType, adfBndsMin, adfBndsMax);
+    SHPClose(hSHP);
 
-    char sType [15]= "";
-    switch ( nShapeType ) {
-       case SHPT_POINT:
-		strcpy(sType,"Point");
-		break;
+    // TODO(schwehr): Make a function for all of shapelib.
+    const char *sType = NULL; // [15]= "";
+    switch (nShapeType) {
+        case SHPT_POINT:
+            sType = "Point";
+            break;
+        case SHPT_ARC:
+            sType = "Polyline";
+            break;
+        case SHPT_POLYGON:
+            sType = "";
+            break;
+        case SHPT_MULTIPOINT:
+            sType = "MultiPoint";
+            break;
+        default:
+          // TODO(schwehr): Handle all of the SHPT types.
+          sType = "UNKNOWN";
+    }
 
-       case SHPT_ARC:
-		strcpy(sType,"Polyline");
-		break;
+    printf ("Info for %s\n",argv[1]);
+    printf ("%s(%d), %d Records in file\n",sType,nShapeType,nEntities);
 
-       case SHPT_POLYGON:
-		strcpy(sType,"Polygon");
-		break;
+    // Print out the file bounds.
+    // TODO(schwehr): Do a better job at formatting the results.
+    printf("File Bounds: (%15.10lg,%15.10lg)\n", adfBndsMin[0], adfBndsMin[1]);
+    printf("\t(%15.10lg,%15.10lg)\n", adfBndsMax[0], adfBndsMax[1]);
 
-       case SHPT_MULTIPOINT:
-		strcpy(sType,"MultiPoint");
-		break;
-        }
-
-/* -------------------------------------------------------------------- */
-   printf ("Info for %s\n",argv[1]);
-   printf ("%s(%d), %d Records in file\n",sType,nShapeType,nEntities);
-
-/* -------------------------------------------------------------------- */
-/*      Print out the file bounds.                                      */
-/* -------------------------------------------------------------------- */
-    printf( "File Bounds: (%15.10lg,%15.10lg)\n\t(%15.10lg,%15.10lg)\n",
-	    adfBndsMin[0], adfBndsMin[1], adfBndsMax[0], adfBndsMax[1] );
-
-
-
-    SHPClose( hSHP );
+    return EXIT_SUCCESS;
 }
