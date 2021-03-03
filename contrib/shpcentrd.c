@@ -44,27 +44,41 @@ int main( int argc, char ** argv ) {
     if( argc < 3 )
     {
 	printf( "shpcentrd shp_file new_shp_file\n" );
-	exit( 1 );
+        return 1;
     }
 
-    SHPHandle old_SHP = SHPOpen (argv[1], "rb" );
-    DBFHandle old_DBF = DBFOpen (argv[1], "rb");
-    if( old_SHP == NULL || old_DBF == NULL )
-    {
-	printf( "Unable to open old files:%s\n", argv[1] );
-	exit( 1 );
+    DBFHandle old_DBF = DBFOpen(argv[1], "rb");
+    if (old_DBF == NULL) {
+	printf("Unable to DBFOpen old files:%s\n", argv[1]);
+	return 1;
+    }
+
+    SHPHandle old_SHP = SHPOpen(argv[1], "rb");
+    if (old_SHP == NULL) {
+	printf("Unable to SHPOpen old files:%s\n", argv[1]);
+        DBFClose(old_DBF);
+	return 1;
     }
 
     int nEntities;
     int nShapeType;
     SHPGetInfo( old_SHP, &nEntities, &nShapeType, NULL, NULL );
 
-    SHPHandle new_SHP = SHPCreate ( argv[2], SHPT_POINT );
     DBFHandle new_DBF = DBFCloneEmpty (old_DBF, argv[2]);
-    if( new_SHP == NULL || new_DBF == NULL )
-    {
-	printf( "Unable to create new files:%s\n", argv[2] );
-	exit( 1 );
+    if (new_DBF == NULL) {
+	printf("Unable to create dbf for new files:%s\n", argv[2]);
+        DBFClose(old_DBF);
+        SHPClose(old_SHP);
+	return 1;
+    }
+
+    SHPHandle new_SHP = SHPCreate ( argv[2], SHPT_POINT );
+    if (new_SHP == NULL ) {
+	printf("Unable to create new files:%s\n", argv[2]);
+        DBFClose(old_DBF);
+        SHPClose(old_SHP);
+        DBFClose(new_DBF);
+	return 1;
     }
 
     char *DBFRow = (char *) malloc ( (old_DBF->nRecordLength) + 15 );
@@ -110,11 +124,13 @@ int main( int argc, char ** argv ) {
         }
     }
 
-    SHPClose( old_SHP );
-    SHPClose( new_SHP );
-    DBFClose( old_DBF );
-    DBFClose( new_DBF );
     printf ("\n");
+
+    DBFClose(old_DBF);
+    SHPClose(old_SHP);
+
+    DBFClose(new_DBF);
+    SHPClose(new_SHP);
 
     return EXIT_SUCCESS;
 }
