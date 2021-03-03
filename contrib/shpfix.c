@@ -31,65 +31,55 @@
  *
  */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "shapefil.h"
 
-int main( int argc, char ** argv ) {
-/* -------------------------------------------------------------------- */
-/*      Display a usage message.                                        */
-/* -------------------------------------------------------------------- */
-    if( argc <= 3 )
-    {
-	printf( "shpfix shpfile new_file <Record# to Blank>\n" );
-	exit( 1 );
+int main(int argc, char ** argv) {
+    if(argc <= 3) {
+        printf("shpfix shpfile new_file <Record# to Blank>\n");
+        return EXIT_FAILURE;
     }
 
-   int fix_rec = atoi (argv[3]);
-   fix_rec --;
+    const int fix_rec = atoi(argv[3]) - 1;
 
-/* -------------------------------------------------------------------- */
-/*      Open the passed shapefile.                                      */
-/* -------------------------------------------------------------------- */
-    SHPHandle hSHP = SHPOpen( argv[1], "rb+" );
-    if( hSHP == NULL )
-    {
-	printf( "Unable to open:%s\n", argv[1] );
-	exit( 1 );
+   // Open the passed shapefile.
+    SHPHandle hSHP = SHPOpen(argv[1], "rb+");
+    if(hSHP == NULL) {
+        printf("Unable to open source: %s\n", argv[1]);
+        return EXIT_FAILURE;
     }
 
     int nEntities;
     int nShapeType;
-    SHPGetInfo( hSHP, &nEntities, &nShapeType, NULL, NULL );
+    SHPGetInfo(hSHP, &nEntities, &nShapeType, NULL, NULL);
 
-/* -------------------------------------------------------------------- */
-/*      Open the passed shapefile.                                      */
-/* -------------------------------------------------------------------- */
-    SHPHandle cSHP = SHPCreate( argv[2], nShapeType );
-    if( cSHP == NULL )
-    {
-	printf( "Unable to open:%s\n", argv[2] );
-	exit( 1 );
+    // Open the passed shapefile.
+    SHPHandle cSHP = SHPCreate(argv[2], nShapeType);
+    if(cSHP == NULL) {
+        printf("Unable to create destination: %s\n", argv[2]);
+        SHPClose(hSHP);
+        return EXIT_FAILURE;
     }
 
     int cShapeType;
     double adBounds[4];
-    SHPGetInfo( cSHP, NULL, &cShapeType, &(adBounds[0]), &(adBounds[2]) );
+    SHPGetInfo(cSHP, NULL, &cShapeType, &(adBounds[0]), &(adBounds[2]) );
 
-/* -------------------------------------------------------------------- */
-/*	Skim over the list of shapes, printing all the vertices.	*/
-/* -------------------------------------------------------------------- */
-    for( int i = 0; i < nEntities; i++ )
-    {
-        SHPObject *shape = SHPReadObject( hSHP, i );
-        if ( i == fix_rec )
-          {  shape->nParts = 0;
-             shape->nVertices = 0;
-          }
-        SHPWriteObject( cSHP, -1, shape );
-        SHPDestroyObject ( shape );
+    // Skim over the list of shapes, printing all the vertices.
+    for (int i = 0; i < nEntities; i++) {
+        SHPObject *shape = SHPReadObject(hSHP, i);
+        if (i == fix_rec) {
+            shape->nParts = 0;
+            shape->nVertices = 0;
+        }
+        SHPWriteObject(cSHP, -1, shape);
+        SHPDestroyObject(shape);
     }
 
-    SHPClose ( hSHP );
-    SHPClose ( cSHP );
+    SHPClose(hSHP);
+    SHPClose(cSHP);
+
+    return EXIT_SUCCESS;
 }
