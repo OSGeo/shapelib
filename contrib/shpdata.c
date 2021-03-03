@@ -34,19 +34,24 @@ int main( int argc, char ** argv ) {
     if( argc < 2 )
     {
 	printf( "shpdata shp_file \n" );
-	exit( 1 );
+        return 1;
+    }
+
+    DBFHandle old_DBF = DBFOpen (argv[1], "rb");
+    if(old_DBF == NULL) {
+        printf("Unable to open old DBF file:%s\n", argv[1]);
+        return 1;
     }
 
     SHPHandle old_SHP = SHPOpen (argv[1], "rb" );
-    DBFHandle old_DBF = DBFOpen (argv[1], "rb");
-    if( old_SHP == NULL || old_DBF == NULL )
-    {
-	printf( "Unable to open old files:%s\n", argv[1] );
-	exit( 1 );
+    if(old_SHP == NULL) {
+        printf("Unable to open old shape files:%s\n", argv[1]);
+        DBFClose(old_DBF);
+        return 1;
     }
 
-    int		nEntities;
-    int		nShapeType;
+    int	nEntities;
+    int	nShapeType;
     SHPGetInfo( old_SHP, &nEntities, &nShapeType, NULL, NULL );
 
     char *DBFRow = NULL;
@@ -91,10 +96,10 @@ int main( int argc, char ** argv ) {
            	 i, oArea, oLen, oCentrd.x, oCentrd.y );
     }
 
-    SHPClose( old_SHP );
-    DBFClose( old_DBF );
+    DBFClose(old_DBF);
+    SHPClose(old_SHP);
 
-    printf ("\n");
+    printf("\n");
 
     return EXIT_SUCCESS;
 }
