@@ -159,13 +159,18 @@ int SHPOGisType ( int GeomType, int toOGis) {
  * Encapsulate entire SHPObject for use with Postgresql
  *
  * **************************************************************************/
+#if 0
+// TODO(schwehr): It is unlikely that this function works.
 static int SHPReadSHPStream ( SHPObject *psCShape, char *stream_obj) {
-
   int need_swap = stream_obj[0];
   int my_order = 1;
   my_order = ((char*) (&my_order))[0];
   need_swap = need_swap & my_order;
 
+  // TODO(schwehr): What is going on here?
+  // shpgeo.c:173:27: error: Uninitialized variable: GeoType [uninitvar]
+  //    memcpy (stream_obj, &GeoType, sizeof (GeoType) );
+  //                         ^
   int GeoType;
   if ( need_swap )
      swapW (stream_obj, (void*) &GeoType, sizeof (GeoType) );
@@ -184,30 +189,30 @@ static int SHPReadSHPStream ( SHPObject *psCShape, char *stream_obj) {
     memcpy (stream_obj, &(psCShape->dfXMax), 	 sizeof (psCShape->dfXMax) );
     memcpy (stream_obj, &(psCShape->dfYMax), 	 sizeof (psCShape->dfYMax) );
 
-    const int use_Z = 0;
-    const int use_M = 0;
-    if ( use_Z ) {
-      memcpy (stream_obj, &(psCShape->dfZMin), 	 sizeof (psCShape->dfZMin) );
-      memcpy (stream_obj, &(psCShape->dfZMax), 	 sizeof (psCShape->dfZMax) );
-    }
+    // const int use_Z = 0;
+    // const int use_M = 0;
+    // if (use_Z) {
+    //   memcpy(stream_obj, &(psCShape->dfZMin), sizeof (psCShape->dfZMin));
+    //   memcpy(stream_obj, &(psCShape->dfZMax), sizeof (psCShape->dfZMax));
+    // }
 
     memcpy (stream_obj, psCShape->panPartStart, psCShape->nParts * sizeof (int) );
     memcpy (stream_obj, psCShape->panPartType,  psCShape->nParts * sizeof (int) );
 
-/* get X and Y coordinate arrarys */
+    // get X and Y coordinate arrarys
     memcpy (stream_obj, psCShape->padfX, psCShape->nVertices * 2 * sizeof (double) );
 
-/* get Z coordinate array if used */
-    if ( use_Z )
-      memcpy (stream_obj, psCShape->padfZ, psCShape->nVertices * 2 * sizeof (double) );
-/* get Measure coordinate array if used */
-    if ( use_M )
-      memcpy (stream_obj, psCShape->padfM, psCShape->nVertices * 2 * sizeof (double) );
+    // get Z coordinate array if used
+    // if (use_Z)
+    //   memcpy(stream_obj, psCShape->padfZ, psCShape->nVertices * 2 * sizeof (double));
+    // get Measure coordinate array if used
+    // if (use_M)
+    //   memcpy(stream_obj, psCShape->padfM, psCShape->nVertices * 2 * sizeof (double));
    }    /* end put data without swap */
 
    return (0);
 }
-
+#endif
 
 /* **************************************************************************
  * SHPWriteSHPStream
@@ -227,19 +232,19 @@ static int SHPWriteSHPStream ( WKBStreamObj *stream_obj, SHPObject *psCShape ) {
     memcpy (stream_obj, psCShape, 4 * sizeof (int) );
     memcpy (stream_obj, psCShape, 4 * sizeof (double) );
     // TODO(schwehr): What?
-    const int use_Z = 0;
-    const int use_M = 0;
-    if ( use_Z )
-      memcpy (stream_obj, psCShape, 2 * sizeof (double) );
-    if ( use_M )
-      memcpy (stream_obj, psCShape, 2 * sizeof (double) );
+    // const int use_Z = 0;
+    // const int use_M = 0;
+    // if ( use_Z )
+    //   memcpy (stream_obj, psCShape, 2 * sizeof (double) );
+    // if ( use_M )
+    //   memcpy (stream_obj, psCShape, 2 * sizeof (double) );
 
     memcpy (stream_obj, psCShape, psCShape->nParts * 2 * sizeof (int) );
     memcpy (stream_obj, psCShape, psCShape->nVertices * 2 * sizeof (double) );
-    if ( use_Z )
-      memcpy (stream_obj, psCShape, psCShape->nVertices * 2 * sizeof (double) );
-    if ( use_M )
-      memcpy (stream_obj, psCShape, psCShape->nVertices * 2 * sizeof (double) );
+    // if ( use_Z )
+    //   memcpy (stream_obj, psCShape, psCShape->nVertices * 2 * sizeof (double) );
+    // if ( use_M )
+    //   memcpy (stream_obj, psCShape, psCShape->nVertices * 2 * sizeof (double) );
    }
 
   return (0);
@@ -253,7 +258,6 @@ static int SHPWriteSHPStream ( WKBStreamObj *stream_obj, SHPObject *psCShape ) {
  *
  * **************************************************************************/
 static int WKBStreamWrite ( WKBStreamObj* wso, void* this, int tcount, int tsize ) {
-
    if ( wso->NeedSwap )
      SwapG ( &(wso->wStream[wso->StreamPos]), this, tcount, tsize );
    else
@@ -273,7 +277,6 @@ static int WKBStreamWrite ( WKBStreamObj* wso, void* this, int tcount, int tsize
  *
  * **************************************************************************/
 static int WKBStreamRead ( WKBStreamObj* wso, void* this, int tcount, int tsize ) {
-
    if ( wso->NeedSwap )
      SwapG ( this, &(wso->wStream[wso->StreamPos]), tcount, tsize );
    else
@@ -322,8 +325,6 @@ SHPObject* SHPReadOGisWKB ( WKBStreamObj *stream_obj) {
 
    return (0);
 }
-
-
 
 /* **************************************************************************
  * SHPWriteOGisWKB
@@ -655,10 +656,11 @@ SHPObject* SHPReadOGisPoint ( WKBStreamObj *stream_obj ) {
  * Encapsulate entire SHPObject for use with Postgresql
  *
  * **************************************************************************/
+#if 0
 static int RingReadOgisWKB ( SHPObject *psCShape, char *stream_obj) {
     return 0;
 }
-
+#endif
 
 /* **************************************************************************
  * RingWriteOGisWKB
@@ -668,10 +670,11 @@ static int RingReadOgisWKB ( SHPObject *psCShape, char *stream_obj) {
  * Encapsulate entire SHPObject for use with Postgresql
  *
  * **************************************************************************/
+#if 0
 static int RingWriteOgisWKB ( SHPObject *psCShape, char *stream_obj) {
     return 0;
 }
-
+#endif
 
 /* **************************************************************************
  * SHPDimension
@@ -744,77 +747,80 @@ PT SHPPointinPoly_2d ( SHPObject *psCShape ) {
  * reject non area SHP Types
  *
  * **************************************************************************/
-PT*	SHPPointsinPoly_2d ( SHPObject *psCShape ) {
-   if ( !(SHPDimension (psCShape->nSHPType) & SHPD_AREA) )
-      return ( NULL );
+PT *SHPPointsinPoly_2d(SHPObject *psCShape) {
+   if ( !(SHPDimension(psCShape->nSHPType) & SHPD_AREA) )
+      return NULL;
 
-   PT		*PIP = NULL;
-   int		cRing;
-   SHPObject	*psO, *psInt, *CLine;
-   int		*CLstt, *CLst, nPIP, ring, rMpart, ring_vtx, ring_nVertices;
-   double	rLen, rLenMax;
+   PT *PIP = NULL;
+   int cRing = 0;
+   int nPIP = 0;
+   int rMpart, ring_nVertices;
+   // TODO(schwehr): Is this a bug?  Should rLen be zero'ed on each loop?
+   double	rLen = 0;
+   double	rLenMax = 0;
 
-   while (  psO = SHPUnCompound (psCShape, &cRing)) {
-     double *CLx = calloc ( 4, sizeof(double));
-     double *CLy = calloc ( 4, sizeof(double));
-     CLst = calloc ( 2, sizeof(int));
-     CLstt = calloc ( 2, sizeof(int));
+   SHPObject	*psO;
+   while (psO = SHPUnCompound(psCShape, &cRing)) {
+     double *CLx = calloc(4, sizeof(double));
+     double *CLy = calloc(4, sizeof(double));
+     int *CLst = calloc(2, sizeof(int));
+     int *CLstt = calloc(2, sizeof(int));
+     // TODO(schwehr): Check for allocation failures
 
-     /* a horizontal & vertical compound line though the middle of the 		*/
-     /* extents 															*/
-     CLx [0] = psO->dfXMin;
-     CLy [0] = (psO->dfYMin + psO->dfYMax ) * 0.5;
-     CLx [1] = psO->dfXMax;
-     CLy [1] = (psO->dfYMin + psO->dfYMax ) * 0.5;
+     // a horizontal & vertical compound line though the middle of the extents
+     CLx[0] = psO->dfXMin;
+     CLy[0] = (psO->dfYMin + psO->dfYMax ) * 0.5;
+     CLx[1] = psO->dfXMax;
+     CLy[1] = (psO->dfYMin + psO->dfYMax ) * 0.5;
 
-     CLx [2] = (psO->dfXMin + psO->dfXMax ) * 0.5;
-     CLy [2] = psO->dfYMin;
-     CLx [3] = (psO->dfXMin + psO->dfXMax ) * 0.5;
-     CLy [3] = psO->dfYMax;
+     CLx[2] = (psO->dfXMin + psO->dfXMax ) * 0.5;
+     CLy[2] = psO->dfYMin;
+     CLx[3] = (psO->dfXMin + psO->dfXMax ) * 0.5;
+     CLy[3] = psO->dfYMax;
 
      CLst[0] = 0;   CLst[1] = 2;
      CLstt[0] = SHPP_RING; CLstt[1] = SHPP_RING;
 
-     CLine = SHPCreateObject ( SHPT_POINT, -1, 2, CLst, CLstt, 4,
+     SHPObject *CLine = SHPCreateObject ( SHPT_POINT, -1, 2, CLst, CLstt, 4,
         	CLx, CLy, NULL, NULL );
 
      /* with the H & V centrline compound object, intersect it with the OBJ	*/
-     psInt = SHPIntersect_2d ( CLine, psO );
+     SHPObject *psInt = SHPIntersect_2d ( CLine, psO );
      /* return SHP type is lowest common dimensionality of the input types 	*/
 
 
-     /* find the longest linestring returned by the intersection			*/
-     ring_vtx = psInt->nVertices ;
-     for ( ring = (psInt->nParts - 1); ring >= 0; ring-- ) {
+     // find the longest linestring returned by the intersection
+     int ring_vtx = psInt->nVertices;
+     for (int ring = (psInt->nParts - 1); ring >= 0; ring--) {
        ring_nVertices = ring_vtx - psInt->panPartStart[ring];
 
-       rLen += RingLength_2d ( ring_nVertices,
-     	(double*) &(psInt->padfX [psInt->panPartStart[ring]]),
-     	(double*) &(psInt->padfY [psInt->panPartStart[ring]]) );
+       rLen += RingLength_2d (
+           ring_nVertices,
+           (double*) &(psInt->padfX [psInt->panPartStart[ring]]),
+           (double*) &(psInt->padfY [psInt->panPartStart[ring]]));
 
-       if ( rLen > rLenMax )
-         { rLenMax = rLen;
+       if (rLen > rLenMax) {
+           rLenMax = rLen;
            rMpart = psInt->panPartStart[ring];
-         }
+       }
        ring_vtx = psInt->panPartStart[ring];
       }
 
-     /* add the centerpoint of the longest ARC of the intersection to the	*/
-     /*	PIP list															*/
-     nPIP ++;
-     SfRealloc ( PIP, sizeof(double) * 2 * nPIP);
+     // add the centerpoint of the longest ARC of the intersection to the PIP list
+     nPIP++;
+     PIP = SfRealloc(PIP, sizeof(double) * 2 * nPIP);
      PIP[nPIP].x = (psInt ->padfX [rMpart] + psInt ->padfX [rMpart]) * 0.5;
      PIP[nPIP].y = (psInt ->padfY [rMpart] + psInt ->padfY [rMpart]) * 0.5;
 
-     SHPDestroyObject ( psO );
-     SHPDestroyObject ( CLine );
+     SHPDestroyObject (psO);
+     SHPDestroyObject (CLine);
 
-     /* does SHPCreateobject use preallocated memory or does it copy the 	*/
-     /* contents.  To be safe conditionally release CLx, CLy, CLst, CLstt	*/
-     if ( CLx )   free ( CLx );
-     if ( CLy )   free ( CLy );
-     if ( CLst )  free ( CLst );
-     if ( CLstt ) free ( CLstt );
+     // does SHPCreateobject use preallocated memory or does it copy the
+     // contents.  To be safe conditionally release CLx, CLy, CLst, CLstt
+     free(CLx);
+     free(CLy);
+     free(CLst);
+     free(CLstt);
    }
 
   return ( PIP );
@@ -989,7 +995,7 @@ int SHPRingDir_2d ( SHPObject *psCShape, int Ring ) {
    double dx1;
    double dy0;
    double dy1;
-   if ( ti > psCShape->panPartStart[Ring] & ti < last_vtx )
+   if ( ti > psCShape->panPartStart[Ring] && ti < last_vtx )
     { dx0 = a[ti-1] - a[ti];
       dx1 = a[ti+1] - a[ti];
       dy0 = b[ti-1] - b[ti];
@@ -1067,8 +1073,8 @@ double SHPArea_2d ( SHPObject *psCShape ) {
  *
  * **************************************************************************/
 double SHPLength_2d ( SHPObject *psCShape ) {
-    if ( !(SHPDimension (psCShape->nSHPType) & (SHPD_AREA || SHPD_LINE)) )
-       return ( (double) -1 );
+    if ( !(SHPDimension (psCShape->nSHPType) && (SHPD_AREA || SHPD_LINE)) )
+       return -1.0;
 
     double Length = 0;
     int j = 1;
@@ -1085,7 +1091,7 @@ double SHPLength_2d ( SHPObject *psCShape ) {
      /* simplify this equation */
      }
 
-   return ( Length );
+   return Length;
 }
 
 
@@ -1161,15 +1167,13 @@ double RingArea_2d ( int nVertices, double *a, double *b ) {
  *
  * ring_number is R+ number corresponding to object
  *
- *
  * ignore complexity in Z dimension for now
  *
  * **************************************************************************/
-SHPObject* SHPUnCompound  ( SHPObject *psCShape, int * ringNumber ) {
-
-   if ( (*ringNumber >= psCShape->nParts) || *ringNumber == -1 ) {
+SHPObject *SHPUnCompound(SHPObject *psCShape, int *ringNumber) {
+   if (*ringNumber >= psCShape->nParts || *ringNumber == -1) {
  	*ringNumber = -1;
-	return (NULL);
+	return NULL;
       }
 
 
@@ -1245,7 +1249,6 @@ int SHPClean ( SHPObject *psCShape ) {
     return (0);
 }
 
-
 /* **************************************************************************
  * SHPClone
  *
@@ -1273,13 +1276,12 @@ SHPObject* SHPClone ( SHPObject *psCShape, int lowPart, int highPart ) {
         psObject->panPartStart = (int*) calloc (newParts, sizeof (int));
         memcpy ( psObject->panPartStart, psCShape->panPartStart,
       		newParts * sizeof (int) );
-     }
-    if ( psCShape->padfX ) {
-      psObject->panPartType = (int*) calloc (newParts, sizeof (int));
-      memcpy ( psObject->panPartType,
-  		(int *) &(psCShape->panPartType[lowPart]),
-      		newParts * sizeof (int) );
-     }
+
+        psObject->panPartType = (int*)calloc(newParts, sizeof(int));
+        memcpy(psObject->panPartType,
+               (int *) &(psCShape->panPartType[lowPart]),
+               newParts * sizeof(int));
+    }
 
     int newVertices;
     if ( highPart != psCShape->nParts ) {
@@ -1386,4 +1388,3 @@ void swapD (void *so, unsigned char *in, long bytes) {
    for (int j=0; j < 8; j++)
       out[(i*8)+map[j]] = in[(i*8)+j];
 }
-
