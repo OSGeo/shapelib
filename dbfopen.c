@@ -101,20 +101,6 @@ CPL_INLINE static void CPL_IGNORE_RET_VAL_INT(CPL_UNUSED int unused) {}
 #endif
 
 /************************************************************************/
-/*                             SfRealloc()                              */
-/*                                                                      */
-/*      A realloc cover function that will access a NULL pointer as     */
-/*      a valid input.                                                  */
-/************************************************************************/
-
-static void * SfRealloc( void * pMem, int nNewSize ) {
-    if( pMem == SHPLIB_NULLPTR )
-        return malloc(nNewSize);
-    else
-        return realloc(pMem,nNewSize);
-}
-
-/************************************************************************/
 /*                           DBFWriteHeader()                           */
 /*                                                                      */
 /*      This is called to write out the file header, and field          */
@@ -489,7 +475,7 @@ DBFOpenLL( const char * pszFilename, const char * pszAccess, SAHooks *psHooks ) 
 /* -------------------------------------------------------------------- */
 /*  Read in Field Definitions                                           */
 /* -------------------------------------------------------------------- */
-    pabyBuf = STATIC_CAST(unsigned char *, SfRealloc(pabyBuf,nHeadLen));
+    pabyBuf = STATIC_CAST(unsigned char *, realloc(pabyBuf, nHeadLen));
     psDBF->pszHeader = REINTERPRET_CAST(char *, pabyBuf);
 
     psDBF->sHooks.FSeek( psDBF->fp, XBASE_FILEHDR_SZ, 0 );
@@ -830,22 +816,22 @@ DBFAddNativeFieldType(DBFHandle psDBF, const char * pszFieldName,
     const int nOldHeaderLength = psDBF->nHeaderLength;
 
 /* -------------------------------------------------------------------- */
-/*      SfRealloc all the arrays larger to hold the additional field      */
+/*      realloc all the arrays larger to hold the additional field      */
 /*      information.                                                    */
 /* -------------------------------------------------------------------- */
     psDBF->nFields++;
 
     psDBF->panFieldOffset = STATIC_CAST(int *,
-        SfRealloc( psDBF->panFieldOffset, sizeof(int) * psDBF->nFields ));
+        realloc( psDBF->panFieldOffset, sizeof(int) * psDBF->nFields ));
 
     psDBF->panFieldSize = STATIC_CAST(int *,
-        SfRealloc( psDBF->panFieldSize, sizeof(int) * psDBF->nFields ));
+        realloc( psDBF->panFieldSize, sizeof(int) * psDBF->nFields ));
 
     psDBF->panFieldDecimals = STATIC_CAST(int *,
-        SfRealloc( psDBF->panFieldDecimals, sizeof(int) * psDBF->nFields ));
+        realloc( psDBF->panFieldDecimals, sizeof(int) * psDBF->nFields ));
 
     psDBF->pachFieldType = STATIC_CAST(char *,
-        SfRealloc( psDBF->pachFieldType, sizeof(char) * psDBF->nFields ));
+        realloc( psDBF->pachFieldType, sizeof(char) * psDBF->nFields ));
 
 /* -------------------------------------------------------------------- */
 /*      Assign the new field information fields.                        */
@@ -862,7 +848,7 @@ DBFAddNativeFieldType(DBFHandle psDBF, const char * pszFieldName,
     psDBF->nHeaderLength += XBASE_FLDHDR_SZ;
     psDBF->bUpdated = FALSE;
 
-    psDBF->pszHeader = STATIC_CAST(char *, SfRealloc(psDBF->pszHeader,
+    psDBF->pszHeader = STATIC_CAST(char *, realloc(psDBF->pszHeader,
                                           psDBF->nFields*XBASE_FLDHDR_SZ));
 
     char *pszFInfo = psDBF->pszHeader + XBASE_FLDHDR_SZ * (psDBF->nFields-1);
@@ -888,7 +874,7 @@ DBFAddNativeFieldType(DBFHandle psDBF, const char * pszFieldName,
 /* -------------------------------------------------------------------- */
 /*      Make the current record buffer appropriately larger.            */
 /* -------------------------------------------------------------------- */
-    psDBF->pszCurrentRecord = STATIC_CAST(char *, SfRealloc(psDBF->pszCurrentRecord,
+    psDBF->pszCurrentRecord = STATIC_CAST(char *, realloc(psDBF->pszCurrentRecord,
                                                  psDBF->nRecordLength));
 
     /* we're done if dealing with new .dbf */
@@ -1753,16 +1739,16 @@ DBFDeleteField(DBFHandle psDBF, int iField) {
     psDBF->nFields--;
 
     psDBF->panFieldOffset = STATIC_CAST(int *,
-        SfRealloc( psDBF->panFieldOffset, sizeof(int) * psDBF->nFields ));
+        realloc( psDBF->panFieldOffset, sizeof(int) * psDBF->nFields ));
 
     psDBF->panFieldSize = STATIC_CAST(int *,
-        SfRealloc( psDBF->panFieldSize, sizeof(int) * psDBF->nFields ));
+        realloc( psDBF->panFieldSize, sizeof(int) * psDBF->nFields ));
 
     psDBF->panFieldDecimals = STATIC_CAST(int *,
-        SfRealloc( psDBF->panFieldDecimals, sizeof(int) * psDBF->nFields ));
+        realloc( psDBF->panFieldDecimals, sizeof(int) * psDBF->nFields ));
 
     psDBF->pachFieldType = STATIC_CAST(char *,
-        SfRealloc( psDBF->pachFieldType, sizeof(char) * psDBF->nFields ));
+        realloc( psDBF->pachFieldType, sizeof(char) * psDBF->nFields ));
 
     /* update header information */
     psDBF->nHeaderLength -= XBASE_FLDHDR_SZ;
@@ -1773,11 +1759,11 @@ DBFDeleteField(DBFHandle psDBF, int iField) {
            psDBF->pszHeader + (iField+1)*XBASE_FLDHDR_SZ,
            sizeof(char) * (psDBF->nFields - iField)*XBASE_FLDHDR_SZ);
 
-    psDBF->pszHeader = STATIC_CAST(char *, SfRealloc(psDBF->pszHeader,
+    psDBF->pszHeader = STATIC_CAST(char *, realloc(psDBF->pszHeader,
                                           psDBF->nFields*XBASE_FLDHDR_SZ));
 
     /* update size of current record appropriately */
-    psDBF->pszCurrentRecord = STATIC_CAST(char *, SfRealloc(psDBF->pszCurrentRecord,
+    psDBF->pszCurrentRecord = STATIC_CAST(char *, realloc(psDBF->pszCurrentRecord,
                                                  psDBF->nRecordLength));
 
     /* we're done if we're dealing with not yet created .dbf */
@@ -2028,7 +2014,7 @@ DBFAlterFieldDefn( DBFHandle psDBF, int iField, const char * pszFieldName,
              psDBF->panFieldOffset[i] += nWidth - nOldWidth;
         psDBF->nRecordLength += nWidth - nOldWidth;
 
-        psDBF->pszCurrentRecord = STATIC_CAST(char *, SfRealloc(psDBF->pszCurrentRecord,
+        psDBF->pszCurrentRecord = STATIC_CAST(char *, realloc(psDBF->pszCurrentRecord,
                                                      psDBF->nRecordLength));
     }
 

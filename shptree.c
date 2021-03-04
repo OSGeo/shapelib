@@ -80,22 +80,6 @@ static bool bBigEndian = false;
 #endif
 
 /************************************************************************/
-/*                             SfRealloc()                              */
-/*                                                                      */
-/*      A realloc cover function that will access a NULL pointer as     */
-/*      a valid input.                                                  */
-/************************************************************************/
-
-static void * SfRealloc( void * pMem, int nNewSize )
-
-{
-    if( pMem == SHPLIB_NULLPTR )
-        return malloc(nNewSize);
-    else
-        return realloc(pMem,nNewSize);
-}
-
-/************************************************************************/
 /*                          SHPTreeNodeInit()                           */
 /*                                                                      */
 /*      Initialize a tree node.                                         */
@@ -519,14 +503,14 @@ SHPTreeNodeAddShapeId( SHPTreeNode * psTreeNode, SHPObject * psObject,
     psTreeNode->nShapeCount++;
 
     psTreeNode->panShapeIds = STATIC_CAST(int *,
-        SfRealloc( psTreeNode->panShapeIds,
+        realloc( psTreeNode->panShapeIds,
                    sizeof(int) * psTreeNode->nShapeCount ));
     psTreeNode->panShapeIds[psTreeNode->nShapeCount-1] = psObject->nShapeId;
 
     if( psTreeNode->papsShapeObj != SHPLIB_NULLPTR )
     {
         psTreeNode->papsShapeObj = STATIC_CAST(SHPObject **,
-            SfRealloc( psTreeNode->papsShapeObj,
+            realloc( psTreeNode->papsShapeObj,
                        sizeof(void *) * psTreeNode->nShapeCount ));
         psTreeNode->papsShapeObj[psTreeNode->nShapeCount-1] = SHPLIB_NULLPTR;
     }
@@ -585,7 +569,7 @@ SHPTreeCollectShapeIds( SHPTree *hTree, SHPTreeNode * psTreeNode,
     {
         *pnMaxShapes = (*pnShapeCount + psTreeNode->nShapeCount) * 2 + 20;
         *ppanShapeList = STATIC_CAST(int *,
-            SfRealloc(*ppanShapeList,sizeof(int) * *pnMaxShapes));
+            realloc(*ppanShapeList,sizeof(int) * *pnMaxShapes));
     }
 
 /* -------------------------------------------------------------------- */
@@ -876,7 +860,7 @@ SHPSearchDiskTreeNode( SHPTreeDiskHandle hDiskTree, double *padfBoundsMin, doubl
                 *pnBufferMax = *pnResultCount + numshapes;
 
             pNewBuffer = STATIC_CAST(int *,
-                SfRealloc( *ppanResultBuffer, *pnBufferMax * sizeof(int) ));
+                realloc( *ppanResultBuffer, *pnBufferMax * sizeof(int) ));
 
             if( pNewBuffer == SHPLIB_NULLPTR )
             {

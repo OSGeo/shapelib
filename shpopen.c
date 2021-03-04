@@ -117,20 +117,6 @@ static void SwapWord( int length, void * wordP ) {
 }
 
 /************************************************************************/
-/*                             SfRealloc()                              */
-/*                                                                      */
-/*      A realloc cover function that will access a NULL pointer as     */
-/*      a valid input.                                                  */
-/************************************************************************/
-
-static void * SfRealloc( void * pMem, int nNewSize ) {
-    if( pMem == SHPLIB_NULLPTR )
-        return malloc(nNewSize);
-    else
-        return realloc(pMem,nNewSize);
-}
-
-/************************************************************************/
 /*                          SHPWriteHeader()                            */
 /*                                                                      */
 /*      Write out a header for the .shp and .shx files as well as the	*/
@@ -1302,13 +1288,13 @@ SHPWriteObject(SHPHandle psSHP, int nShapeId, SHPObject * psObject ) {
         unsigned int* panRecSizeNew;
 
         panRecOffsetNew = STATIC_CAST(unsigned int *,
-            SfRealloc(psSHP->panRecOffset,sizeof(unsigned int) * nNewMaxRecords ));
+            realloc(psSHP->panRecOffset, sizeof(unsigned int) * nNewMaxRecords));
         if( panRecOffsetNew == SHPLIB_NULLPTR )
             return -1;
         psSHP->panRecOffset = panRecOffsetNew;
 
         panRecSizeNew = STATIC_CAST(unsigned int *,
-            SfRealloc(psSHP->panRecSize,sizeof(unsigned int) * nNewMaxRecords ));
+            realloc(psSHP->panRecSize, sizeof(unsigned int) * nNewMaxRecords));
         if( panRecSizeNew == SHPLIB_NULLPTR )
             return -1;
         psSHP->panRecSize = panRecSizeNew;
@@ -1853,7 +1839,7 @@ SHPReadObject( SHPHandle psSHP, int hEntity ) {
             }
         }
 
-        uchar* pabyRecNew = STATIC_CAST(uchar *, SfRealloc(psSHP->pabyRec,nNewBufSize));
+        uchar* pabyRecNew = STATIC_CAST(uchar *, realloc(psSHP->pabyRec, nNewBufSize));
         if (pabyRecNew == SHPLIB_NULLPTR)
         {
             char szErrorMsg[160];

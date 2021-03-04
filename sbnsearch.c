@@ -446,20 +446,6 @@ void SBNCloseDiskTree( SBNSearchHandle hSBN ) {
 
 
 /************************************************************************/
-/*                             SfRealloc()                              */
-/*                                                                      */
-/*      A realloc cover function that will access a NULL pointer as     */
-/*      a valid input.                                                  */
-/************************************************************************/
-
-static void * SfRealloc( void * pMem, int nNewSize ) {
-    if( pMem == SHPLIB_NULLPTR )
-        return malloc(nNewSize);
-    else
-        return realloc(pMem,nNewSize);
-}
-
-/************************************************************************/
 /*                         SBNAddShapeId()                              */
 /************************************************************************/
 
@@ -470,7 +456,7 @@ static bool SBNAddShapeId( SearchStruct* psSearch,
         psSearch->nShapeAlloc =
             STATIC_CAST(int, ((psSearch->nShapeCount + 100) * 5) / 4);
         int *pNewPtr =
-            STATIC_CAST(int *, SfRealloc( psSearch->panShapeId,
+            STATIC_CAST(int *, realloc( psSearch->panShapeId,
                                psSearch->nShapeAlloc * sizeof(int) ));
         if( pNewPtr == SHPLIB_NULLPTR )
         {
