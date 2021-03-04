@@ -95,24 +95,7 @@ char * asFileName ( const char *fil, char *ext ) {
     static char pszFullname[120];
     sprintf( pszFullname, "%s.%s", pszBasename, ext );
 
-    return ( pszFullname );
-}
-
-
-/************************************************************************/
-/*                             SfRealloc()                              */
-/*                                                                      */
-/*      A realloc cover function that will access a NULL pointer as     */
-/*      a valid input.                                                  */
-/************************************************************************/
-/* copied directly from shpopen.c -- maybe expose this in shapefil.h	*/
-static void * SfRealloc( void * pMem, int nNewSize )
-
-{
-    if( pMem == NULL )
-        return( malloc(nNewSize) );
-    else
-        return( realloc(pMem,nNewSize) );
+    return pszFullname;
 }
 
 /* **************************************************************************
@@ -455,8 +438,8 @@ SHPObject* SHPReadOGisPolygon ( WKBStreamObj *stream_obj ) {
    int totParts = cParts;
    int totVertices = 0;
 
-   SfRealloc ( psC->panPartStart, cParts * sizeof(int));
-   SfRealloc ( psC->panPartType, cParts * sizeof(int));
+   psC->panPartStart = realloc(psC->panPartStart, cParts * sizeof(int));
+   psC->panPartType = realloc(psC->panPartType, cParts * sizeof(int));
 
    int rVertices;
    int nParts;
@@ -467,8 +450,8 @@ SHPObject* SHPReadOGisPolygon ( WKBStreamObj *stream_obj ) {
 
      if ( nParts > 1 ) {
        totParts += nParts - 1;
-       SfRealloc ( psC->panPartStart, totParts * sizeof(int));
-       SfRealloc ( psC->panPartType, totParts * sizeof(int));
+       psC->panPartStart = realloc(psC->panPartStart, totParts * sizeof(int));
+       psC->panPartType = realloc(psC->panPartType, totParts * sizeof(int));
       }
 
      int rPart = 0;
@@ -482,8 +465,8 @@ SHPObject* SHPReadOGisPolygon ( WKBStreamObj *stream_obj ) {
         else
          { psC->panPartType[ring + pRings] = SHPP_INNERRING; }
 
-       SfRealloc ( psC->padfX, totVertices * sizeof (double));
-       SfRealloc ( psC->padfY, totVertices * sizeof (double));
+       psC->padfX = realloc(psC->padfX, totVertices * sizeof (double));
+       psC->padfY = realloc(psC->padfY, totVertices * sizeof (double));
 
        for ( int j = rPart; j < (rPart + rVertices); j++ ) {
          WKBStreamRead ( stream_obj, &(psC->padfX[j]), 1, sizeof(double) );
@@ -518,8 +501,8 @@ SHPObject* SHPReadOGisLine ( WKBStreamObj *stream_obj ) {
    int totParts = cParts;
    int totVertices = 0;
 
-   SfRealloc ( psC->panPartStart, cParts * sizeof(int));
-   SfRealloc ( psC->panPartType, cParts * sizeof(int));
+   psC->panPartStart = realloc(psC->panPartStart, cParts * sizeof(int));
+   psC->panPartType = realloc(psC->panPartType, cParts * sizeof(int));
 
    int rVertices;
    int nParts;
@@ -530,8 +513,8 @@ SHPObject* SHPReadOGisLine ( WKBStreamObj *stream_obj ) {
 
      if ( nParts > 1 ) {
        totParts += nParts - 1;
-       SfRealloc ( psC->panPartStart, totParts * sizeof(int));
-       SfRealloc ( psC->panPartType, totParts * sizeof(int));
+       psC->panPartStart = realloc(psC->panPartStart, totParts * sizeof(int));
+       psC->panPartType = realloc(psC->panPartType, totParts * sizeof(int));
       }
 
      int rPart = 0;
@@ -545,8 +528,8 @@ SHPObject* SHPReadOGisLine ( WKBStreamObj *stream_obj ) {
         else
          { psC->panPartType[ring + pRings] = SHPP_INNERRING; }
 
-       SfRealloc ( psC->padfX, totVertices * sizeof (double));
-       SfRealloc ( psC->padfY, totVertices * sizeof (double));
+       psC->padfX = realloc(psC->padfX, totVertices * sizeof (double));
+       psC->padfY = realloc(psC->padfY, totVertices * sizeof (double));
 
        for ( int j = rPart; j < (rPart + rVertices); j++ ) {
          WKBStreamRead ( stream_obj, &(psC->padfX[j]), 1, sizeof(double) );
@@ -574,8 +557,8 @@ SHPObject* SHPReadOGisPoint ( WKBStreamObj *stream_obj ) {
    int nVertices;
    WKBStreamRead ( stream_obj, &nVertices, 1, sizeof(int) );
 
-   SfRealloc ( psC->padfX, nVertices * sizeof (double));
-   SfRealloc ( psC->padfY, nVertices * sizeof (double));
+   psC->padfX = realloc(psC->padfX, nVertices * sizeof (double));
+   psC->padfY = realloc(psC->padfY, nVertices * sizeof (double));
 
    for ( int j = 0; j < nVertices; j++ ) {
      WKBStreamRead ( stream_obj, &(psC->padfX[j]), 1, sizeof(double) );
@@ -718,7 +701,7 @@ PT *SHPPointsinPoly_2d(SHPObject *psCShape) {
 
      // add the centerpoint of the longest ARC of the intersection to the PIP list
      nPIP++;
-     PIP = SfRealloc(PIP, sizeof(double) * 2 * nPIP);
+     PIP = realloc(PIP, sizeof(double) * 2 * nPIP);
      PIP[nPIP].x = (psInt ->padfX [rMpart] + psInt ->padfX [rMpart]) * 0.5;
      PIP[nPIP].y = (psInt ->padfY [rMpart] + psInt ->padfY [rMpart]) * 0.5;
 
