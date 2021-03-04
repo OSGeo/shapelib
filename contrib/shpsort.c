@@ -71,16 +71,333 @@ int *fldType;
 int shpType;
 int nShapes;
 
-static struct DataStruct * build_index (SHPHandle shp, DBFHandle dbf);
-static char * dupstr (const char *);
+// TODO(schwehr): Use strdup.
+static char *dupstr(const char *src)
+{
+  char *dst = malloc(strlen(src) + 1);
+  if (!dst) {
+    fprintf(stderr, "%s:%d: malloc failed!\n", __FILE__, __LINE__);
+    exit(EXIT_FAILURE);
+  }
+  char *cptr = dst;
+  while ((*cptr++ = *src++))
+    ;
+  return dst;
+}
+
+static char ** split(const char *arg, const char *delim) {
+  char *copy = dupstr(arg);
+  char **result = NULL;
+  int i = 0;
+
+  for (char *cptr = strtok(copy, delim); cptr; cptr = strtok(NULL, delim)) {
+    char **tmp = realloc (result, sizeof *result * (i + 1));
+    if (!tmp && result) {
+      while (i > 0) {
+	free(result[--i]);
+      }
+      free(result);
+      free(copy);
+      return NULL;
+    }
+    result = tmp;
+    result[i++] = dupstr(cptr);
+  }
+
+  free(copy);
+
+  if (i) {
+    char **tmp = realloc(result, sizeof *result * (i + 1));
+    if (!tmp) {
+      while (i > 0) {
+	free(result[--i]);
+      }
+      free(result);
+      free(copy);
+      return NULL;
+    }
+    result = tmp;
+    result[i++] = NULL;
+  }
+
+  return result;
+}
+
+
 static void copy_related (const char *inName, const char *outName,
-			  const char *old_ext, const char *new_ext);
-static char ** split(const char *arg, const char *delim);
-static int compare(const void *, const void *);
-static double area2d_polygon (int n, const double *x, const double *y);
-static double shp_area (SHPObject *feat);
-static double length2d_polyline (int n, const double *x, const double *y);
-static double shp_length (SHPObject *feat);
+			  const char *old_ext, const char *new_ext)
+{
+  size_t name_len = strlen(inName);
+  const size_t old_len  = strlen(old_ext);
+  const size_t new_len  = strlen(new_ext);
+
+  char *in = malloc(name_len - old_len + new_len + 1);
+  strncpy(in, inName, (name_len - old_len));
+  strcpy(&in[(name_len - old_len)], new_ext);
+  FILE *inFile = fopen(in, "rb");
+  if (!inFile) {
+    free(in);
+    return;
+  }
+  name_len = strlen(outName);
+  char *out = malloc(name_len - old_len + new_len + 1);
+  if (!out) {
+    fprintf(stderr, "%s:%d: couldn't copy related file!\n",
+	    __FILE__, __LINE__);
+    fclose(inFile);
+    free(in);
+    free(out);
+    return;
+  }
+  strncpy(out, outName, (name_len - old_len));
+  strcpy(&out[(name_len - old_len)], new_ext);
+
+  FILE *outFile = fopen(out, "wb");
+
+  int c;
+  while ((c = fgetc(inFile)) != EOF) {
+    fputc(c, outFile);
+  }
+  fclose(inFile);
+  fclose(outFile);
+  free(in);
+  free(out);
+}
+
+#ifdef DEBUG
+static void PrintDataStruct (struct DataStruct *data) {
+  for (int i = 0; i < nShapes; i++) {
+    printf("data[%d] {\n", i);
+    printf("\t.record = %d\n", data[i].record);
+    for (int j = 0; j < nFields; j++) {
+      printf("\t.value[%d].null = %d\n", j, data[i].value[j].null);
+      if (!data[i].value[j].null) {
+	switch(fldType[j]) {
+	case FIDType:
+	case IntegerType:
+	case LogicalType:
+	  printf("\t.value[%d].u.i = %d\n", j, data[i].value[j].u.i);
+	  break;
+	case DoubleType:
+	case SHPType:
+	  printf("\t.value[%d].u.d = %f\n", j, data[i].value[j].u.d);
+	  break;
+	case StringType:
+	  printf("\t.value[%d].u.s = %s\n", j, data[i].value[j].u.s);
+	  break;
+	}
+      }
+    }
+    puts("}");
+  }
+}
+#endif
+
+static double length2d_polyline (int n, const double *x, const double *y) {
+  double length = 0.0;
+  for (int i = 1; i < n; i++) {
+    length += sqrt((x[i] - x[i-1])*(x[i] - x[i-1])
+		   +
+		   (y[i] - y[i-1])*(y[i] - y[i-1]));
+  }
+  return length;
+}
+
+static double shp_length (SHPObject *feat) {
+  double length = 0.0;
+  if (feat->nParts == 0) {
+    length = length2d_polyline(feat->nVertices, feat->padfX, feat->padfY);
+  }
+  else {
+    for (int part = 0; part < feat->nParts; part++) {
+      int n;
+      if (part < feat->nParts - 1) {
+	n = feat->panPartStart[part+1] - feat->panPartStart[part];
+      }
+      else {
+	n = feat->nVertices - feat->panPartStart[part];
+      }
+      length += length2d_polyline (n,
+				   &(feat->padfX[feat->panPartStart[part]]),
+				   &(feat->padfY[feat->panPartStart[part]]));
+    }
+  }
+  return length;
+}
+
+static double area2d_polygon (int n, const double *x, const double *y) {
+  double area = 0;
+  for (int i = 1; i < n; i++) {
+    area += (x[i-1] + x[i]) * (y[i] - y[i-1]);
+  }
+  return area / 2.0;
+}
+
+static double shp_area (SHPObject *feat) {
+  double area = 0.0;
+  if (feat->nParts == 0) {
+    area = area2d_polygon (feat->nVertices, feat->padfX, feat->padfY);
+  }
+  else {
+    for (int part = 0; part < feat->nParts; part++) {
+      int n;
+      if (part < feat->nParts - 1) {
+	n = feat->panPartStart[part+1] - feat->panPartStart[part];
+      }
+      else {
+	n = feat->nVertices - feat->panPartStart[part];
+      }
+      area += area2d_polygon (n, &(feat->padfX[feat->panPartStart[part]]),
+			      &(feat->padfY[feat->panPartStart[part]]));
+    }
+  }
+  /* our area function computes in opposite direction */
+  return -area;
+}
+
+static int compare(const void *A, const void *B) {
+  const struct DataStruct *a = A;
+  const struct DataStruct *b = B;
+
+  for (int i = 0; i < nFields; i++) {
+    if (a->value[i].null && b->value[i].null) {
+      continue;
+    }
+    if (a->value[i].null && !b->value[i].null) {
+      return (fldOrder[i]) ? 1 : -1;
+    }
+    if (!a->value[i].null && b->value[i].null) {
+      return (fldOrder[i]) ? -1 : 1;
+    }
+    switch (fldType[i]) {
+    case FIDType:
+    case IntegerType:
+    case LogicalType:
+      if (a->value[i].u.i < b->value[i].u.i) {
+	return (fldOrder[i]) ? -1 : 1;
+      }
+      if (a->value[i].u.i > b->value[i].u.i) {
+	return (fldOrder[i]) ? 1 : -1;
+      }
+      break;
+    case DoubleType:
+    case SHPType:
+      if (a->value[i].u.d < b->value[i].u.d) {
+	return (fldOrder[i]) ? -1 : 1;
+      }
+      if (a->value[i].u.d > b->value[i].u.d) {
+	return (fldOrder[i]) ? 1 : -1;
+      }
+      break;
+    case StringType:
+     {
+      const int result = strcmp(a->value[i].u.s, b->value[i].u.s);
+      if (result) {
+	return (fldOrder[i]) ? result : -result;
+      }
+      break;
+     }
+    default:
+      fprintf(stderr, "compare: Program Error! Unhandled field type! fldType[%d] = %d\n", i, fldType[i]);
+      break;
+    }
+  }
+  return 0;
+}
+
+static struct DataStruct * build_index (SHPHandle shp, DBFHandle dbf) {
+  struct DataStruct *data = malloc (sizeof *data * nShapes);
+  if (!data) {
+    fputs("malloc failed!\n", stderr);
+    exit(EXIT_FAILURE);
+  }
+
+  /* populate array */
+  for (int i = 0; i < nShapes; i++) {
+    data[i].value = malloc(sizeof data[0].value[0] * nFields);
+    if (0 == data[i].value) {
+      fputs("malloc failed!\n", stderr);
+      exit(EXIT_FAILURE);
+    }
+    data[i].record = i;
+    for (int j = 0; j < nFields; j++) {
+      data[i].value[j].null = 0;
+      switch (fldType[j]) {
+      case FIDType:
+	data[i].value[j].u.i = i;
+	break;
+      case SHPType:
+       {
+        SHPObject *feat = SHPReadObject(shp, i);
+	switch (feat->nSHPType) {
+	case SHPT_NULL:
+	  fprintf(stderr, "Shape %d is a null feature!\n", i);
+	  data[i].value[j].null = 1;
+	  break;
+	case SHPT_POINT:
+	case SHPT_POINTZ:
+	case SHPT_POINTM:
+	case SHPT_MULTIPOINT:
+	case SHPT_MULTIPOINTZ:
+	case SHPT_MULTIPOINTM:
+	case SHPT_MULTIPATCH:
+	  /* Y-sort bounds */
+	  data[i].value[j].u.d = feat->dfYMax;
+	  break;
+	case SHPT_ARC:
+	case SHPT_ARCZ:
+	case SHPT_ARCM:
+	  data[i].value[j].u.d = shp_length(feat);
+	  break;
+	case SHPT_POLYGON:
+	case SHPT_POLYGONZ:
+	case SHPT_POLYGONM:
+	  data[i].value[j].u.d = shp_area(feat);
+	  break;
+	default:
+	  fputs("Can't sort on Shapefile feature type!\n", stderr);
+	  exit(EXIT_FAILURE);
+	}
+	SHPDestroyObject(feat);
+	break;
+       }
+      case FTString:
+	data[i].value[j].null = DBFIsAttributeNULL(dbf, i, fldIdx[j]);
+	if (!data[i].value[j].null) {
+	  data[i].value[j].u.s = dupstr(DBFReadStringAttribute(dbf, i, fldIdx[j]));
+	}
+	break;
+      case FTInteger:
+      case FTLogical:
+	data[i].value[j].null = DBFIsAttributeNULL(dbf, i, fldIdx[j]);
+	if (!data[i].value[j].null) {
+	  data[i].value[j].u.i  = DBFReadIntegerAttribute(dbf, i, fldIdx[j]);
+	}
+	break;
+      case FTDouble:
+	data[i].value[j].null = DBFIsAttributeNULL(dbf, i, fldIdx[j]);
+	if (!data[i].value[j].null) {
+	  data[i].value[j].u.d = DBFReadDoubleAttribute(dbf, i, fldIdx[j]);
+	}
+	break;
+      }
+    }
+  }
+
+#ifdef DEBUG
+  PrintDataStruct(data);
+  fputs("build_index: sorting array\n", stdout);
+#endif
+
+  qsort (data, nShapes, sizeof data[0], compare);
+
+#ifdef DEBUG
+  PrintDataStruct(data);
+  fputs("build_index: returning array\n", stdout);
+#endif
+
+  return data;
+}
 
 int main (int argc, char *argv[]) {
   if (argc < 4) {
@@ -228,331 +545,3 @@ int main (int argc, char *argv[]) {
 
   return EXIT_SUCCESS;
 }
-
-static char ** split(const char *arg, const char *delim) {
-  char *copy = dupstr(arg);
-  char **result = NULL;
-  int i = 0;
-
-  for (char *cptr = strtok(copy, delim); cptr; cptr = strtok(NULL, delim)) {
-    char **tmp = realloc (result, sizeof *result * (i + 1));
-    if (!tmp && result) {
-      while (i > 0) {
-	free(result[--i]);
-      }
-      free(result);
-      free(copy);
-      return NULL;
-    }
-    result = tmp;
-    result[i++] = dupstr(cptr);
-  }
-
-  free(copy);
-
-  if (i) {
-    char **tmp = realloc(result, sizeof *result * (i + 1));
-    if (!tmp) {
-      while (i > 0) {
-	free(result[--i]);
-      }
-      free(result);
-      free(copy);
-      return NULL;
-    }
-    result = tmp;
-    result[i++] = NULL;
-  }
-
-  return result;
-}
-
-
-static void copy_related (const char *inName, const char *outName,
-			  const char *old_ext, const char *new_ext)
-{
-  size_t name_len = strlen(inName);
-  const size_t old_len  = strlen(old_ext);
-  const size_t new_len  = strlen(new_ext);
-
-  char *in = malloc(name_len - old_len + new_len + 1);
-  strncpy(in, inName, (name_len - old_len));
-  strcpy(&in[(name_len - old_len)], new_ext);
-  FILE *inFile = fopen(in, "rb");
-  if (!inFile) {
-    free(in);
-    return;
-  }
-  name_len = strlen(outName);
-  char *out = malloc(name_len - old_len + new_len + 1);
-  if (!out) {
-    fprintf(stderr, "%s:%d: couldn't copy related file!\n",
-	    __FILE__, __LINE__);
-    fclose(inFile);
-    free(in);
-    free(out);
-    return;
-  }
-  strncpy(out, outName, (name_len - old_len));
-  strcpy(&out[(name_len - old_len)], new_ext);
-
-  FILE *outFile = fopen(out, "wb");
-
-  int c;
-  while ((c = fgetc(inFile)) != EOF) {
-    fputc(c, outFile);
-  }
-  fclose(inFile);
-  fclose(outFile);
-  free(in);
-  free(out);
-}
-
-static char * dupstr (const char *src)
-{
-  char *dst = malloc(strlen(src) + 1);
-  if (!dst) {
-    fprintf(stderr, "%s:%d: malloc failed!\n", __FILE__, __LINE__);
-    exit(EXIT_FAILURE);
-  }
-  char *cptr = dst;
-  while ((*cptr++ = *src++))
-    ;
-  return dst;
-}
-
-#ifdef DEBUG
-static void PrintDataStruct (struct DataStruct *data) {
-  for (int i = 0; i < nShapes; i++) {
-    printf("data[%d] {\n", i);
-    printf("\t.record = %d\n", data[i].record);
-    for (int j = 0; j < nFields; j++) {
-      printf("\t.value[%d].null = %d\n", j, data[i].value[j].null);
-      if (!data[i].value[j].null) {
-	switch(fldType[j]) {
-	case FIDType:
-	case IntegerType:
-	case LogicalType:
-	  printf("\t.value[%d].u.i = %d\n", j, data[i].value[j].u.i);
-	  break;
-	case DoubleType:
-	case SHPType:
-	  printf("\t.value[%d].u.d = %f\n", j, data[i].value[j].u.d);
-	  break;
-	case StringType:
-	  printf("\t.value[%d].u.s = %s\n", j, data[i].value[j].u.s);
-	  break;
-	}
-      }
-    }
-    puts("}");
-  }
-}
-#endif
-
-static struct DataStruct * build_index (SHPHandle shp, DBFHandle dbf) {
-  struct DataStruct *data = malloc (sizeof *data * nShapes);
-  if (!data) {
-    fputs("malloc failed!\n", stderr);
-    exit(EXIT_FAILURE);
-  }
-
-  /* populate array */
-  for (int i = 0; i < nShapes; i++) {
-    data[i].value = malloc(sizeof data[0].value[0] * nFields);
-    if (0 == data[i].value) {
-      fputs("malloc failed!\n", stderr);
-      exit(EXIT_FAILURE);
-    }
-    data[i].record = i;
-    for (int j = 0; j < nFields; j++) {
-      data[i].value[j].null = 0;
-      switch (fldType[j]) {
-      case FIDType:
-	data[i].value[j].u.i = i;
-	break;
-      case SHPType:
-       {
-        SHPObject *feat = SHPReadObject(shp, i);
-	switch (feat->nSHPType) {
-	case SHPT_NULL:
-	  fprintf(stderr, "Shape %d is a null feature!\n", i);
-	  data[i].value[j].null = 1;
-	  break;
-	case SHPT_POINT:
-	case SHPT_POINTZ:
-	case SHPT_POINTM:
-	case SHPT_MULTIPOINT:
-	case SHPT_MULTIPOINTZ:
-	case SHPT_MULTIPOINTM:
-	case SHPT_MULTIPATCH:
-	  /* Y-sort bounds */
-	  data[i].value[j].u.d = feat->dfYMax;
-	  break;
-	case SHPT_ARC:
-	case SHPT_ARCZ:
-	case SHPT_ARCM:
-	  data[i].value[j].u.d = shp_length(feat);
-	  break;
-	case SHPT_POLYGON:
-	case SHPT_POLYGONZ:
-	case SHPT_POLYGONM:
-	  data[i].value[j].u.d = shp_area(feat);
-	  break;
-	default:
-	  fputs("Can't sort on Shapefile feature type!\n", stderr);
-	  exit(EXIT_FAILURE);
-	}
-	SHPDestroyObject(feat);
-	break;
-       }
-      case FTString:
-	data[i].value[j].null = DBFIsAttributeNULL(dbf, i, fldIdx[j]);
-	if (!data[i].value[j].null) {
-	  data[i].value[j].u.s = dupstr(DBFReadStringAttribute(dbf, i, fldIdx[j]));
-	}
-	break;
-      case FTInteger:
-      case FTLogical:
-	data[i].value[j].null = DBFIsAttributeNULL(dbf, i, fldIdx[j]);
-	if (!data[i].value[j].null) {
-	  data[i].value[j].u.i  = DBFReadIntegerAttribute(dbf, i, fldIdx[j]);
-	}
-	break;
-      case FTDouble:
-	data[i].value[j].null = DBFIsAttributeNULL(dbf, i, fldIdx[j]);
-	if (!data[i].value[j].null) {
-	  data[i].value[j].u.d = DBFReadDoubleAttribute(dbf, i, fldIdx[j]);
-	}
-	break;
-      }
-    }
-  }
-
-#ifdef DEBUG
-  PrintDataStruct(data);
-  fputs("build_index: sorting array\n", stdout);
-#endif
-
-  qsort (data, nShapes, sizeof data[0], compare);
-
-#ifdef DEBUG
-  PrintDataStruct(data);
-  fputs("build_index: returning array\n", stdout);
-#endif
-
-  return data;
-}
-
-static int compare(const void *A, const void *B) {
-  const struct DataStruct *a = A;
-  const struct DataStruct *b = B;
-
-  for (int i = 0; i < nFields; i++) {
-    if (a->value[i].null && b->value[i].null) {
-      continue;
-    }
-    if (a->value[i].null && !b->value[i].null) {
-      return (fldOrder[i]) ? 1 : -1;
-    }
-    if (!a->value[i].null && b->value[i].null) {
-      return (fldOrder[i]) ? -1 : 1;
-    }
-    switch (fldType[i]) {
-    case FIDType:
-    case IntegerType:
-    case LogicalType:
-      if (a->value[i].u.i < b->value[i].u.i) {
-	return (fldOrder[i]) ? -1 : 1;
-      }
-      if (a->value[i].u.i > b->value[i].u.i) {
-	return (fldOrder[i]) ? 1 : -1;
-      }
-      break;
-    case DoubleType:
-    case SHPType:
-      if (a->value[i].u.d < b->value[i].u.d) {
-	return (fldOrder[i]) ? -1 : 1;
-      }
-      if (a->value[i].u.d > b->value[i].u.d) {
-	return (fldOrder[i]) ? 1 : -1;
-      }
-      break;
-    case StringType:
-     {
-      const int result = strcmp(a->value[i].u.s, b->value[i].u.s);
-      if (result) {
-	return (fldOrder[i]) ? result : -result;
-      }
-      break;
-     }
-    default:
-      fprintf(stderr, "compare: Program Error! Unhandled field type! fldType[%d] = %d\n", i, fldType[i]);
-      break;
-    }
-  }
-  return 0;
-}
-
-static double area2d_polygon (int n, const double *x, const double *y) {
-  double area = 0;
-  for (int i = 1; i < n; i++) {
-    area += (x[i-1] + x[i]) * (y[i] - y[i-1]);
-  }
-  return area / 2.0;
-}
-
-static double shp_area (SHPObject *feat) {
-  double area = 0.0;
-  if (feat->nParts == 0) {
-    area = area2d_polygon (feat->nVertices, feat->padfX, feat->padfY);
-  }
-  else {
-    for (int part = 0; part < feat->nParts; part++) {
-      int n;
-      if (part < feat->nParts - 1) {
-	n = feat->panPartStart[part+1] - feat->panPartStart[part];
-      }
-      else {
-	n = feat->nVertices - feat->panPartStart[part];
-      }
-      area += area2d_polygon (n, &(feat->padfX[feat->panPartStart[part]]),
-			      &(feat->padfY[feat->panPartStart[part]]));
-    }
-  }
-  /* our area function computes in opposite direction */
-  return -area;
-}
-
-static double length2d_polyline (int n, const double *x, const double *y) {
-  double length = 0.0;
-  for (int i = 1; i < n; i++) {
-    length += sqrt((x[i] - x[i-1])*(x[i] - x[i-1])
-		   +
-		   (y[i] - y[i-1])*(y[i] - y[i-1]));
-  }
-  return length;
-}
-
-static double shp_length (SHPObject *feat) {
-  double length = 0.0;
-  if (feat->nParts == 0) {
-    length = length2d_polyline(feat->nVertices, feat->padfX, feat->padfY);
-  }
-  else {
-    for (int part = 0; part < feat->nParts; part++) {
-      int n;
-      if (part < feat->nParts - 1) {
-	n = feat->panPartStart[part+1] - feat->panPartStart[part];
-      }
-      else {
-	n = feat->nVertices - feat->panPartStart[part];
-      }
-      length += length2d_polyline (n,
-				   &(feat->padfX[feat->panPartStart[part]]),
-				   &(feat->padfY[feat->panPartStart[part]]));
-    }
-  }
-  return length;
-}
-
