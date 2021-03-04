@@ -152,68 +152,6 @@ int SHPOGisType ( int GeomType, int toOGis) {
     return 0;
 }
 
-
-/* **************************************************************************
- * SHPReadSHPStream
- *
- * Encapsulate entire SHPObject for use with Postgresql
- *
- * **************************************************************************/
-#if 0
-// TODO(schwehr): It is unlikely that this function works.
-static int SHPReadSHPStream ( SHPObject *psCShape, char *stream_obj) {
-  int need_swap = stream_obj[0];
-  int my_order = 1;
-  my_order = ((char*) (&my_order))[0];
-  need_swap = need_swap & my_order;
-
-  // TODO(schwehr): What is going on here?
-  // shpgeo.c:173:27: error: Uninitialized variable: GeoType [uninitvar]
-  //    memcpy (stream_obj, &GeoType, sizeof (GeoType) );
-  //                         ^
-  int GeoType;
-  if ( need_swap )
-     swapW (stream_obj, (void*) &GeoType, sizeof (GeoType) );
-  else
-     memcpy (stream_obj, &GeoType, sizeof (GeoType) );
-
-  if ( need_swap ) {
-
-  } else {
-    memcpy (stream_obj, &(psCShape->nSHPType),  sizeof (psCShape->nSHPType) );
-    memcpy (stream_obj, &(psCShape->nShapeId),  sizeof (psCShape->nShapeId) );
-    memcpy (stream_obj, &(psCShape->nVertices), sizeof (psCShape->nVertices) );
-    memcpy (stream_obj, &(psCShape->nParts), 	 sizeof (psCShape->nParts) );
-    memcpy (stream_obj, &(psCShape->dfXMin), 	 sizeof (psCShape->dfXMin) );
-    memcpy (stream_obj, &(psCShape->dfYMin), 	 sizeof (psCShape->dfYMin) );
-    memcpy (stream_obj, &(psCShape->dfXMax), 	 sizeof (psCShape->dfXMax) );
-    memcpy (stream_obj, &(psCShape->dfYMax), 	 sizeof (psCShape->dfYMax) );
-
-    // const int use_Z = 0;
-    // const int use_M = 0;
-    // if (use_Z) {
-    //   memcpy(stream_obj, &(psCShape->dfZMin), sizeof (psCShape->dfZMin));
-    //   memcpy(stream_obj, &(psCShape->dfZMax), sizeof (psCShape->dfZMax));
-    // }
-
-    memcpy (stream_obj, psCShape->panPartStart, psCShape->nParts * sizeof (int) );
-    memcpy (stream_obj, psCShape->panPartType,  psCShape->nParts * sizeof (int) );
-
-    // get X and Y coordinate arrarys
-    memcpy (stream_obj, psCShape->padfX, psCShape->nVertices * 2 * sizeof (double) );
-
-    // get Z coordinate array if used
-    // if (use_Z)
-    //   memcpy(stream_obj, psCShape->padfZ, psCShape->nVertices * 2 * sizeof (double));
-    // get Measure coordinate array if used
-    // if (use_M)
-    //   memcpy(stream_obj, psCShape->padfM, psCShape->nVertices * 2 * sizeof (double));
-   }    /* end put data without swap */
-
-   return (0);
-}
-#endif
-
 /* **************************************************************************
  * SHPWriteSHPStream
  *
@@ -647,34 +585,6 @@ SHPObject* SHPReadOGisPoint ( WKBStreamObj *stream_obj ) {
     return ( psC );
 }
 
-
-/* **************************************************************************
- * RingReadOGisWKB
- *
- * this accepts OGisLineStrings which are basic building blocks
- *
- * Encapsulate entire SHPObject for use with Postgresql
- *
- * **************************************************************************/
-#if 0
-static int RingReadOgisWKB ( SHPObject *psCShape, char *stream_obj) {
-    return 0;
-}
-#endif
-
-/* **************************************************************************
- * RingWriteOGisWKB
- *
- * this emits OGisLineStrings which are basic building blocks
- *
- * Encapsulate entire SHPObject for use with Postgresql
- *
- * **************************************************************************/
-#if 0
-static int RingWriteOgisWKB ( SHPObject *psCShape, char *stream_obj) {
-    return 0;
-}
-#endif
 
 /* **************************************************************************
  * SHPDimension
