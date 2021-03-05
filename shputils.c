@@ -84,8 +84,8 @@ char	jszTitle[12];
 int	*pt;  // TODO(schwehr): Danger.  Shadowed
 char	iszFormat[32], iszField[1024];
 char	jszFormat[32], jszField[1024];
-int	ti, iWidth, iDecimals, iRecord;
-int	tj, jWidth, jDecimals, jRecord;
+int	ti, iWidth, iDecimals;
+int	tj, jWidth, jDecimals;
 
 /* -------------------------------------------------------------------- */
 /* Variables for the DESCRIBE function */
@@ -129,7 +129,7 @@ double  xshift = 0, yshift = 0;  /* NO SHIFT */
 /*	Change the extension.  If there is any extension on the 	*/
 /*	filename, strip it off and add the new extension                */
 /* -------------------------------------------------------------------- */
-void setext(char *pt, char *ext)
+void setext(char *pt, const char *ext)
 {
     int i = strlen(pt) - 1;
     for( ;
@@ -234,7 +234,7 @@ void mergefields()
         pt[i]= -1;  /* Initial pt values to -1 */
     }
     /* DBF must be empty before adding items */
-    jRecord = DBFGetRecordCount( hDBFappend );
+    const int jRecord = DBFGetRecordCount( hDBFappend );
     int j;
     for( int i = 0; i < ti; i++ )
     {
@@ -336,7 +336,7 @@ void showitems() {
             strcpy(slow, "~");
             strcpy(shigh,"\0");
             printf("\n  String  %3d  %-16s",iWidth,iszTitle);
-            for( iRecord = 0; iRecord < maxrec; iRecord++ ) {
+            for (int iRecord = 0; iRecord < maxrec; iRecord++) {
                 strncpy(stmp,DBFReadStringAttribute( hDBF, iRecord, i ),39);
                 if (strcmp(stmp,"!!") > 0) {
                     if (strncasecmp2(stmp,slow,0)  < 0) strncpy(slow, stmp,39);
@@ -357,7 +357,7 @@ void showitems() {
             long int ilow =  1999999999;
             long int ihigh= -1999999999;
             long int isum =  0;
-            for( iRecord = 0; iRecord < maxrec; iRecord++ ) {
+            for (int iRecord = 0; iRecord < maxrec; iRecord++) {
                 const long int itmp = DBFReadIntegerAttribute( hDBF, iRecord, i );
                 if (ilow > itmp)  ilow = itmp;
                 if (ihigh < itmp) ihigh = itmp;
@@ -375,7 +375,7 @@ void showitems() {
             double dlow =  999999999999999.0;
             double dhigh = -999999999999999.0;
             double dsum = 0;
-            for( iRecord = 0; iRecord < maxrec; iRecord++ ) {
+            for (int iRecord = 0; iRecord < maxrec; iRecord++) {
                 const double dtmp = DBFReadDoubleAttribute( hDBF, iRecord, i );
                 if (dlow > dtmp) dlow = dtmp;
                 if (dhigh < dtmp) dhigh = dtmp;
@@ -420,7 +420,7 @@ void findselect()
     /* Extract all of the select values (by field type) */
 }
 
-int selectrec() {
+int selectrec(int iRecord) {
     const long int ty = DBFGetFieldInfo( hDBF, iselectitem, NULL, &iWidth, &iDecimals);
     switch(ty)
     {
@@ -720,12 +720,8 @@ det_inv = 1/(a1*b2 - a2*b1);
 }
 
 
-int main( int argc, char ** argv )
-{
-
-/* -------------------------------------------------------------------- */
-/*      Check command line usage.                                       */
-/* -------------------------------------------------------------------- */
+int main(int argc, char ** argv) {
+    // Check command line usage.
     if( argc < 2 ) error();
     strcpy(infile, argv[1]);
     if (argc > 2) {
@@ -738,11 +734,9 @@ int main( int argc, char ** argv )
         printf("DESCRIBE: %s\n",infile);
         strcpy(outfile,"");
     }
-/* -------------------------------------------------------------------- */
-/*	Look for other functions on the command line. (SELECT, UNIT)  	*/
-/* -------------------------------------------------------------------- */
-    for (int i = 3; i < argc; i++)
-    {
+
+    // Look for other functions on the command line. (SELECT, UNIT)
+    for (int i = 3; i < argc; i++) {
     	if ((strncasecmp2(argv[i],  "SEL",3) == 0) ||
             (strncasecmp2(argv[i],  "UNSEL",5) == 0))
     	{
@@ -851,45 +845,45 @@ int main( int argc, char ** argv )
                 printf("ERROR: Unknown function %s\n",argv[i]);  error();
             }
     }
-/* -------------------------------------------------------------------- */
-/*	If there is no data in this file let the user know.		*/
-/* -------------------------------------------------------------------- */
+
+
+    // If there is no data in this file let the user know.
     openfiles();  /* Open the infile and the outfile for shape and dbf. */
-    if( DBFGetFieldCount(hDBF) == 0 )
-    {
+    if(DBFGetFieldCount(hDBF) == 0) {
 	puts( "There are no fields in this table!" );
 	exit( 1 );
     }
-/* -------------------------------------------------------------------- */
-/*      Print out the file bounds.                                      */
-/* -------------------------------------------------------------------- */
-    iRecord = DBFGetRecordCount( hDBF );
-    SHPGetInfo( hSHP, NULL, NULL, adfBoundsMin, adfBoundsMax );
 
-    printf( "Input Bounds:  (%lg,%lg) - (%lg,%lg)   Entities: %d   DBF: %d\n",
-	    adfBoundsMin[0], adfBoundsMin[1],
-            adfBoundsMax[0], adfBoundsMax[1],
-            nEntities, iRecord );
-
-    if (strcmp(outfile,"") == 0) /* Describe the shapefile; No other functions */
+    // Print out the file bounds.
     {
-    	ti = DBFGetFieldCount( hDBF );
-	showitems();
-	exit(0);
+        const int iRecord = DBFGetRecordCount(hDBF);
+        SHPGetInfo(hSHP, NULL, NULL, adfBoundsMin, adfBoundsMax);
+
+        printf("Input Bounds:  (%lg,%lg) - (%lg,%lg)   Entities: %d   DBF: %d\n",
+               adfBoundsMin[0], adfBoundsMin[1],
+               adfBoundsMax[0], adfBoundsMax[1],
+               nEntities, iRecord);
+
+        if (strcmp(outfile,"") == 0) { /* Describe the shapefile; No other functions */
+            ti = DBFGetFieldCount( hDBF );
+            showitems();
+            exit(0);
+        }
     }
 
     if (iclip) check_theme_bnd();
 
-    jRecord = DBFGetRecordCount( hDBFappend );
-    SHPGetInfo( hSHPappend, NULL, NULL, adfBoundsMin, adfBoundsMax );
-    if (nEntitiesAppend == 0)
-        puts("New Output File\n");
-    else
-        printf( "Append Bounds: (%lg,%lg)-(%lg,%lg)   Entities: %d  DBF: %d\n",
-                adfBoundsMin[0], adfBoundsMin[1],
-                adfBoundsMax[0], adfBoundsMax[1],
-                nEntitiesAppend, jRecord );
-
+    {
+        const int jRecord = DBFGetRecordCount(hDBFappend);
+        SHPGetInfo(hSHPappend, NULL, NULL, adfBoundsMin, adfBoundsMax);
+        if (nEntitiesAppend == 0)
+            puts("New Output File\n");
+        else
+            printf("Append Bounds: (%lg,%lg)-(%lg,%lg)   Entities: %d  DBF: %d\n",
+                   adfBoundsMin[0], adfBoundsMin[1],
+                   adfBoundsMax[0], adfBoundsMax[1],
+                   nEntitiesAppend, jRecord);
+    }
 /* -------------------------------------------------------------------- */
 /*	Find matching fields in the append file or add new items.       */
 /* -------------------------------------------------------------------- */
@@ -902,14 +896,14 @@ int main( int argc, char ** argv )
 /* -------------------------------------------------------------------- */
 /*  Read all the records 						*/
 /* -------------------------------------------------------------------- */
-    jRecord = DBFGetRecordCount( hDBFappend );
-    for( iRecord = 0; iRecord < nEntities; iRecord++)  /** DBFGetRecordCount(hDBF) **/
+    int jRecord = DBFGetRecordCount( hDBFappend );
+    for(int iRecord = 0; iRecord < nEntities; iRecord++)  /** DBFGetRecordCount(hDBF) **/
     {
 /* -------------------------------------------------------------------- */
 /*      SELECT for values if needed. (Can the record be skipped.)       */
 /* -------------------------------------------------------------------- */
         if (iselect)
-            if (selectrec() == 0) goto SKIP_RECORD;   /** SKIP RECORD **/
+            if (selectrec(iRecord) == 0) goto SKIP_RECORD;   /** SKIP RECORD **/
 
 /* -------------------------------------------------------------------- */
 /*      Read a Shape record                                             */
@@ -994,13 +988,12 @@ int main( int argc, char ** argv )
             adfBoundsMax[0], adfBoundsMax[1],
             nEntitiesAppend, jRecord );
 
-/* -------------------------------------------------------------------- */
-/*      Close the both shapefiles.                                      */
-/* -------------------------------------------------------------------- */
-    SHPClose( hSHP );
-    SHPClose( hSHPappend );
-    DBFClose( hDBF );
-    DBFClose( hDBFappend );
+
+    SHPClose(hSHP);
+    SHPClose(hSHPappend);
+    DBFClose(hDBF);
+    DBFClose(hDBFappend);
+
     if (nEntitiesAppend == 0) {
         puts("Remove the output files.");
         setext(outfile, "dbf");
@@ -1010,5 +1003,6 @@ int main( int argc, char ** argv )
         setext(outfile, "shx");
         remove(outfile);
     }
-    return( 0 );
+
+    return 0;
 }
