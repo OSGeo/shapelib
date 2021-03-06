@@ -140,7 +140,7 @@ SAFile SAUtf8WFOpen(const char *pszFilename, const char *pszAccess) {
 }
 
 int SAUtf8WRemove(const char *pszFilename) {
-    wchar_t *pwszFileName = Utf8ToWideChar( szFilename);
+    wchar_t *pwszFileName = Utf8ToWideChar(pszFilename);
     int rc = -1;
     if (pwszFileName != NULL) {
         rc = _wremove(pwszFileName);
