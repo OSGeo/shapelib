@@ -179,7 +179,7 @@ if(MSVC)
 else(MSVC)
   # TODO(schwehr): Temporary work around.
   cmake_policy(SET CMP0026 OLD)
-endif
+endif(MSVC)
 
 # For the first series of tests, the user needs to have downloaded
 # from http://dl.maptools.org/dl/shapelib/shape_eg_data.zip, unpacked
