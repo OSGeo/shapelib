@@ -65,4 +65,5 @@ jobs:
     - name: Build with ${{ matrix.compiler }}
       run: cmake --build build
 
-    # No tests configured for CMake
+    - name: Test
+      run: cd build && ctest -V .
