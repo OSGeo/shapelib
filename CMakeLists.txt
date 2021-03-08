@@ -173,8 +173,13 @@ else(BASH_EXECUTABLE AND SED_EXECUTABLE)
   message(STATUS "WARNING: sed or bash not available so disabling testing")
 endif(BASH_EXECUTABLE AND SED_EXECUTABLE)
 
-# TODO(schwehr): Temporary work around.
-cmake_policy(SET CMP0026 OLD)
+if(MSVC)
+  # TODO(schwehr): How to test on Windows?
+  set(BUILD_TEST OFF)
+else(MSVC)
+  # TODO(schwehr): Temporary work around.
+  cmake_policy(SET CMP0026 OLD)
+endif
 
 # For the first series of tests, the user needs to have downloaded
 # from http://dl.maptools.org/dl/shapelib/shape_eg_data.zip, unpacked
