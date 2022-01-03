@@ -113,7 +113,6 @@ static char ** split(const char *arg, const char *delim) {
 	free(result[--i]);
       }
       free(result);
-      free(copy);
       return NULL;
     }
     result = tmp;
