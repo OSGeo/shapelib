@@ -322,9 +322,9 @@ void showitems() {
       printf("          RANGES (MEAN)");
     }
 
-    char stmp[40];
-    char slow[40];
-    char shigh[40];
+    char stmp[40] = {0};
+    char slow[40] = {0};
+    char shigh[40] = {0};
 
     for( int i = 0; i < ti; i++ )
     {
@@ -339,8 +339,8 @@ void showitems() {
             for (int iRecord = 0; iRecord < maxrec; iRecord++) {
                 strncpy(stmp,DBFReadStringAttribute( hDBF, iRecord, i ),39);
                 if (strcmp(stmp,"!!") > 0) {
-                    if (strncasecmp2(stmp,slow,0)  < 0) strncpy(slow, stmp,39);
-                    if (strncasecmp2(stmp,shigh,0) > 0) strncpy(shigh,stmp,39);
+                    if (strncasecmp2(stmp,slow,0)  < 0) memcpy(slow, stmp,39);
+                    if (strncasecmp2(stmp,shigh,0) > 0) memcpy(shigh,stmp,39);
                 }
             }
             char *pt = slow+strlen(slow)-1;
