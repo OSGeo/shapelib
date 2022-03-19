@@ -116,6 +116,10 @@ add_library(${PACKAGE} ${lib_SRC})
 target_include_directories (${PACKAGE} INTERFACE
     $<INSTALL_INTERFACE:include>)
 
+if (NOT MSVC)
+  target_compile_options(${PACKAGE} PRIVATE -Wall -Wextra -pedantic)
+endif()
+
 if(WIN32 AND NOT CYGWIN)
   set_target_properties(${PACKAGE}
     PROPERTIES
@@ -218,6 +222,9 @@ foreach(executable ${executables})
     get_target_property(${executable}_LOC ${executable} LOCATION)
     file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/script.sed "s?\\./${executable}?${${executable}_LOC}?\n")
   endif(BUILD_TEST)
+  if (NOT MSVC)
+    target_compile_options(${executable} PRIVATE -Wall -Wextra)
+  endif()
 endforeach(executable ${executables})
 
 install(TARGETS ${executables}
