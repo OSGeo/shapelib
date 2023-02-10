@@ -168,14 +168,14 @@ set(executables
 find_program(BASH_EXECUTABLE bash)
 find_program(SED_EXECUTABLE sed)
 if(BASH_EXECUTABLE AND SED_EXECUTABLE)
-  set(BUILD_TEST ON)
+  set(BUILD_TESTING ON CACHE BOOL "")
 else(BASH_EXECUTABLE AND SED_EXECUTABLE)
   message(STATUS "WARNING: sed or bash not available so disabling testing")
 endif(BASH_EXECUTABLE AND SED_EXECUTABLE)
 
 if(MSVC)
   # TODO(schwehr): How to test on Windows?
-  set(BUILD_TEST OFF)
+  set(BUILD_TESTING OFF CACHE BOOL "")
 else(MSVC)
   # TODO(schwehr): Temporary work around.
   cmake_policy(SET CMP0026 OLD)
@@ -185,14 +185,14 @@ endif(MSVC)
 # from http://dl.maptools.org/dl/shapelib/shape_eg_data.zip, unpacked
 # that file, and specified the location of that directory with
 # the cmake option, -DEG_DATA:PATH=whatever
-if(BUILD_TEST)
+if(BUILD_TESTING)
   if(EG_DATA)
     file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/script.sed "s?/u/www/projects/shapelib/eg_data?${EG_DATA}?\n")
   else(EG_DATA)
     file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/script.sed "")
     message(STATUS "WARNING: EG_DATA:PATH not set to point to downloaded eg_data directory so the eg_data part of testing will be ignored.")
   endif(EG_DATA)
-endif(BUILD_TEST)
+endif()
 
 if (NOT MSVC)
   # Set the run time path for shared libraries for non-Windows machines.
@@ -214,10 +214,10 @@ foreach(executable ${executables})
     set_target_properties (${TOOLS} PROPERTIES
       INSTALL_RPATH "@loader_path/${RELATIVE_LIBDIR}")
   endif ()
-  if(BUILD_TEST)
+  if(BUILD_TESTING)
     get_target_property(${executable}_LOC ${executable} LOCATION)
     file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/script.sed "s?\\./${executable}?${${executable}_LOC}?\n")
-  endif(BUILD_TEST)
+  endif()
 endforeach(executable ${executables})
 
 install(TARGETS ${executables}
@@ -229,7 +229,7 @@ install(FILES shapefil.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 # For compatibility with older installation
 install(FILES shapefil.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/shapelib)
 
-if(BUILD_TEST)
+if(BUILD_TESTING)
   # Set up tests:
 
   enable_testing()
@@ -278,6 +278,6 @@ if(BUILD_TEST)
     NAME test3
     COMMAND ${BASH_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/sed_scripted_test3.sh
     )
-endif(BUILD_TEST)
+endif()
 
 add_subdirectory (cmake)
