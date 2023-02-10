@@ -20,13 +20,13 @@
 
 # It is a fatal error if no working C compiler is available to build
 # the shapelib library and utilities
+
+# Version 3.7 or above of cmake is currently required for all platforms.
+cmake_minimum_required(VERSION 3.7)
 project(shapelib C)
 
 message(STATUS "CMake version = ${CMAKE_VERSION}")
 message(STATUS "CMAKE_SYSTEM_NAME = ${CMAKE_SYSTEM_NAME}")
-
-# Version 3.7 or above of cmake is currently required for all platforms.
-cmake_minimum_required(VERSION 3.7 FATAL_ERROR)
 
 set (PROJECT_VERSION_MAJOR 1)
 set (PROJECT_VERSION_MINOR 5)
