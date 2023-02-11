@@ -34,60 +34,61 @@
 #include <string.h>
 #include "shapefil.h"
 
-int main( int argc, char ** argv ) {
-/* -------------------------------------------------------------------- */
-/*      Display a usage message.                                        */
-/* -------------------------------------------------------------------- */
-    if( argc != 3 )
+int main(int argc, char **argv)
+{
+    /* -------------------------------------------------------------------- */
+    /*      Display a usage message.                                        */
+    /* -------------------------------------------------------------------- */
+    if (argc != 3)
     {
-	printf( "shpcat from_shpfile to_shpfile\n" );
-	return 1;
+        printf("shpcat from_shpfile to_shpfile\n");
+        return 1;
     }
 
-/* -------------------------------------------------------------------- */
-/*      Open the passed shapefile.                                      */
-/* -------------------------------------------------------------------- */
-    SHPHandle hSHP = SHPOpen( argv[1], "rb" );
-    if( hSHP == NULL )
+    /* -------------------------------------------------------------------- */
+    /*      Open the passed shapefile.                                      */
+    /* -------------------------------------------------------------------- */
+    SHPHandle hSHP = SHPOpen(argv[1], "rb");
+    if (hSHP == NULL)
     {
-	printf( "Unable to open:%s\n", argv[1] );
-	return 1;
+        printf("Unable to open:%s\n", argv[1]);
+        return 1;
     }
 
     int nEntities;
     int nShapeType;
-    SHPGetInfo( hSHP, &nEntities, &nShapeType, NULL, NULL );
-    fprintf(stderr,"Opened From File %s, with %d shapes\n",argv[1],nEntities);
+    SHPGetInfo(hSHP, &nEntities, &nShapeType, NULL, NULL);
+    fprintf(stderr, "Opened From File %s, with %d shapes\n", argv[1],
+            nEntities);
 
-/* -------------------------------------------------------------------- */
-/*      Open the passed shapefile.                                      */
-/* -------------------------------------------------------------------- */
-    SHPHandle cSHP = SHPOpen( argv[2], "rb+" );
-    if( cSHP == NULL )
+    /* -------------------------------------------------------------------- */
+    /*      Open the passed shapefile.                                      */
+    /* -------------------------------------------------------------------- */
+    SHPHandle cSHP = SHPOpen(argv[2], "rb+");
+    if (cSHP == NULL)
     {
-	printf( "Unable to open:%s\n", argv[2] );
+        printf("Unable to open:%s\n", argv[2]);
         SHPClose(hSHP);
-	return 1;
+        return 1;
     }
 
     int nShpInFile;
-    SHPGetInfo( cSHP, &nShpInFile, NULL, NULL, NULL );
-    fprintf(stderr,"Opened to file %s with %d shapes, ready to add %d\n",
-            argv[2],nShpInFile,nEntities);
+    SHPGetInfo(cSHP, &nShpInFile, NULL, NULL, NULL);
+    fprintf(stderr, "Opened to file %s with %d shapes, ready to add %d\n",
+            argv[2], nShpInFile, nEntities);
 
-/* -------------------------------------------------------------------- */
-/*	Skim over the list of shapes, printing all the vertices.	*/
-/* -------------------------------------------------------------------- */
-    for( int i = 0; i < nEntities; i++ )
+    /* -------------------------------------------------------------------- */
+    /*	Skim over the list of shapes, printing all the vertices.	*/
+    /* -------------------------------------------------------------------- */
+    for (int i = 0; i < nEntities; i++)
     {
-        SHPObject *shape = SHPReadObject( hSHP, i );
-        SHPWriteObject( cSHP, -1, shape );
-        SHPDestroyObject ( shape );
-
+        SHPObject *shape = SHPReadObject(hSHP, i);
+        SHPWriteObject(cSHP, -1, shape);
+        SHPDestroyObject(shape);
     }
 
-    SHPClose( hSHP );
-    SHPClose( cSHP );
+    SHPClose(hSHP);
+    SHPClose(cSHP);
 
     return 0;
 }

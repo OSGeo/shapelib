@@ -29,14 +29,17 @@
 #include <string.h>
 #include "shapefil.h"
 
-int main(int argc, char ** argv) {
-    if(argc != 2) {
+int main(int argc, char **argv)
+{
+    if (argc != 2)
+    {
         printf("shpinfo shp_file\n");
         return EXIT_FAILURE;
     }
 
     SHPHandle hSHP = SHPOpen(argv[1], "rb");
-    if (hSHP == NULL) {
+    if (hSHP == NULL)
+    {
         printf("Unable to open:%s\n", argv[1]);
         return EXIT_FAILURE;
     }
@@ -49,8 +52,9 @@ int main(int argc, char ** argv) {
     SHPClose(hSHP);
 
     // TODO(schwehr): Make a function for all of shapelib.
-    const char *sType = NULL; // [15]= "";
-    switch (nShapeType) {
+    const char *sType = NULL;  // [15]= "";
+    switch (nShapeType)
+    {
         case SHPT_POINT:
             sType = "Point";
             break;
@@ -64,12 +68,12 @@ int main(int argc, char ** argv) {
             sType = "MultiPoint";
             break;
         default:
-          // TODO(schwehr): Handle all of the SHPT types.
-          sType = "UNKNOWN";
+            // TODO(schwehr): Handle all of the SHPT types.
+            sType = "UNKNOWN";
     }
 
-    printf ("Info for %s\n",argv[1]);
-    printf ("%s(%d), %d Records in file\n",sType,nShapeType,nEntities);
+    printf("Info for %s\n", argv[1]);
+    printf("%s(%d), %d Records in file\n", sType, nShapeType, nEntities);
 
     // Print out the file bounds.
     // TODO(schwehr): Do a better job at formatting the results.
