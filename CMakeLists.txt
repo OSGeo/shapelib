@@ -165,6 +165,14 @@ set(executables
   shptreedump
   )
 
+if(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
+  # TODO(schwehr): How to test on Windows?
+  set(BUILD_TESTING OFF CACHE BOOL "")
+else()
+  # TODO(schwehr): Temporary work around.
+  cmake_policy(SET CMP0026 OLD)
+endif()
+
 find_program(BASH_EXECUTABLE bash)
 find_program(SED_EXECUTABLE sed)
 if(BASH_EXECUTABLE AND SED_EXECUTABLE)
@@ -172,14 +180,6 @@ if(BASH_EXECUTABLE AND SED_EXECUTABLE)
 else(BASH_EXECUTABLE AND SED_EXECUTABLE)
   message(STATUS "WARNING: sed or bash not available so disabling testing")
 endif(BASH_EXECUTABLE AND SED_EXECUTABLE)
-
-if(MSVC)
-  # TODO(schwehr): How to test on Windows?
-  set(BUILD_TESTING OFF CACHE BOOL "")
-else(MSVC)
-  # TODO(schwehr): Temporary work around.
-  cmake_policy(SET CMP0026 OLD)
-endif(MSVC)
 
 # For the first series of tests, the user needs to have downloaded
 # from http://dl.maptools.org/dl/shapelib/shape_eg_data.zip, unpacked
