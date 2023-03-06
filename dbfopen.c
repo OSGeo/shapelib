@@ -1640,7 +1640,7 @@ int SHPAPI_CALL DBFIsRecordDeleted( DBFHandle psDBF, int iShape ) {
 /* -------------------------------------------------------------------- */
 /*      Verify selection.                                               */
 /* -------------------------------------------------------------------- */
-    if( iShape < 0 || iShape >= psDBF->nRecords )
+    if( iShape < 0 || (iShape > 0 && iShape >= psDBF->nRecords) )
         return TRUE;
 
 /* -------------------------------------------------------------------- */
