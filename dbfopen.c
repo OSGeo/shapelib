@@ -67,8 +67,6 @@
 #define CPLsnprintf snprintf
 #endif
 
-SHP_CVSID("$Id$")
-
 #ifndef FALSE
 #define FALSE 0
 #define TRUE 1

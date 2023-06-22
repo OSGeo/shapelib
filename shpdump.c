@@ -41,8 +41,6 @@
 #include <string.h>
 #include "shapefil.h"
 
-SHP_CVSID("$Id$")
-
 int main(int argc, char **argv)
 {
     bool bValidate = false;

@@ -44,8 +44,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-SHP_CVSID("$Id$")
-
 static void SHPTreeNodeDump(SHPTree *, SHPTreeNode *, const char *, int);
 static void SHPTreeNodeSearchAndDump(SHPTree *, double *, double *);
 

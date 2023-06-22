@@ -48,8 +48,6 @@
 #include "cpl_error.h"
 #endif
 
-SHP_CVSID("$Id$")
-
 #ifndef TRUE
 #define TRUE 1
 #define FALSE 0
