@@ -44,8 +44,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-SHP_CVSID("$Id$")
-
 typedef unsigned char uchar;
 
 #if UINT_MAX == 65535

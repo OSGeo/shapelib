@@ -59,8 +59,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-SHP_CVSID("$Id$")
-
 char            infile[80], outfile[80], temp[400];
 
 /* Variables for shape files */

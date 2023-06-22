@@ -43,8 +43,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-SHP_CVSID("$Id$");
-
 #ifdef SHPAPI_UTF8_HOOKS
 #   ifdef SHPAPI_WINDOWS
 #       define WIN32_LEAN_AND_MEAN
