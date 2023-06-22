@@ -40,91 +40,101 @@
 #include "shapefil.h"
 #include "shpgeo.h"
 
-int main( int argc, char ** argv ) {
-    if( argc < 3 )
+int main(int argc, char **argv)
+{
+    if (argc < 3)
     {
-	printf( "shpcentrd shp_file new_shp_file\n" );
+        printf("shpcentrd shp_file new_shp_file\n");
         return 1;
     }
 
     DBFHandle old_DBF = DBFOpen(argv[1], "rb");
-    if (old_DBF == NULL) {
-	printf("Unable to DBFOpen old files:%s\n", argv[1]);
-	return 1;
+    if (old_DBF == NULL)
+    {
+        printf("Unable to DBFOpen old files:%s\n", argv[1]);
+        return 1;
     }
 
     SHPHandle old_SHP = SHPOpen(argv[1], "rb");
-    if (old_SHP == NULL) {
-	printf("Unable to SHPOpen old files:%s\n", argv[1]);
+    if (old_SHP == NULL)
+    {
+        printf("Unable to SHPOpen old files:%s\n", argv[1]);
         DBFClose(old_DBF);
-	return 1;
+        return 1;
     }
 
     int nEntities;
     int nShapeType;
-    SHPGetInfo( old_SHP, &nEntities, &nShapeType, NULL, NULL );
+    SHPGetInfo(old_SHP, &nEntities, &nShapeType, NULL, NULL);
 
-    DBFHandle new_DBF = DBFCloneEmpty (old_DBF, argv[2]);
-    if (new_DBF == NULL) {
-	printf("Unable to create dbf for new files:%s\n", argv[2]);
+    DBFHandle new_DBF = DBFCloneEmpty(old_DBF, argv[2]);
+    if (new_DBF == NULL)
+    {
+        printf("Unable to create dbf for new files:%s\n", argv[2]);
         DBFClose(old_DBF);
         SHPClose(old_SHP);
-	return 1;
+        return 1;
     }
 
-    SHPHandle new_SHP = SHPCreate ( argv[2], SHPT_POINT );
-    if (new_SHP == NULL ) {
-	printf("Unable to create new files:%s\n", argv[2]);
+    SHPHandle new_SHP = SHPCreate(argv[2], SHPT_POINT);
+    if (new_SHP == NULL)
+    {
+        printf("Unable to create new files:%s\n", argv[2]);
         DBFClose(old_DBF);
         SHPClose(old_SHP);
         DBFClose(new_DBF);
-	return 1;
+        return 1;
     }
 
-    char *DBFRow = (char *) malloc ( (old_DBF->nRecordLength) + 15 );
+    char *DBFRow = (char *)malloc((old_DBF->nRecordLength) + 15);
 
     int byRing = 1;
-    for( int i = 0; i < nEntities; i++ )
+    for (int i = 0; i < nEntities; i++)
     {
-        SHPObject *psCShape = SHPReadObject( old_SHP, i );
+        SHPObject *psCShape = SHPReadObject(old_SHP, i);
 
-        if ( byRing == 1 ) {
-          for ( int ring = 0; ring < psCShape->nParts; ring ++ ) {
-	    SHPObject *psO = SHPClone ( psCShape, ring,  ring + 1 );
+        if (byRing == 1)
+        {
+            for (int ring = 0; ring < psCShape->nParts; ring++)
+            {
+                SHPObject *psO = SHPClone(psCShape, ring, ring + 1);
 
-            PT Centrd = SHPCentrd_2d ( psO );
+                PT Centrd = SHPCentrd_2d(psO);
 
-            SHPObject *cent_pt;
-            cent_pt = SHPCreateSimpleObject ( SHPT_POINT, 1,
-        	(double*) &(Centrd.x), (double*) &(Centrd.y), NULL );
+                SHPObject *cent_pt;
+                cent_pt =
+                    SHPCreateSimpleObject(SHPT_POINT, 1, (double *)&(Centrd.x),
+                                          (double *)&(Centrd.y), NULL);
 
-            SHPWriteObject ( new_SHP, -1, cent_pt );
+                SHPWriteObject(new_SHP, -1, cent_pt);
 
-            memcpy ( DBFRow, DBFReadTuple ( old_DBF, i ),
-		 old_DBF->nRecordLength );
-            DBFWriteTuple ( new_DBF, new_DBF->nRecords, DBFRow );
+                memcpy(DBFRow, DBFReadTuple(old_DBF, i),
+                       old_DBF->nRecordLength);
+                DBFWriteTuple(new_DBF, new_DBF->nRecords, DBFRow);
 
-            SHPDestroyObject ( cent_pt );
+                SHPDestroyObject(cent_pt);
 
-	    SHPDestroyObject ( psO );
-          }
-        } else {
-          PT Centrd = SHPCentrd_2d ( psCShape );
+                SHPDestroyObject(psO);
+            }
+        }
+        else
+        {
+            PT Centrd = SHPCentrd_2d(psCShape);
 
-          SHPObject *cent_pt = SHPCreateSimpleObject ( SHPT_POINT, 1,
-        	(double*) &(Centrd.x), (double*) &(Centrd.y), NULL );
+            SHPObject *cent_pt =
+                SHPCreateSimpleObject(SHPT_POINT, 1, (double *)&(Centrd.x),
+                                      (double *)&(Centrd.y), NULL);
 
-          SHPWriteObject ( new_SHP, -1, cent_pt );
+            SHPWriteObject(new_SHP, -1, cent_pt);
 
-          memcpy ( DBFRow, DBFReadTuple ( old_DBF, i ),
-		 old_DBF->nRecordLength );
-          DBFWriteTuple ( new_DBF, new_DBF->nRecords, DBFRow );
+            memcpy(DBFRow, DBFReadTuple(old_DBF, i), old_DBF->nRecordLength);
+            DBFWriteTuple(new_DBF, new_DBF->nRecords, DBFRow);
 
-          SHPDestroyObject ( cent_pt );
+            SHPDestroyObject(cent_pt);
         }
     }
 
-    printf ("\n");
+    printf("\n");
 
     DBFClose(old_DBF);
     SHPClose(old_SHP);
