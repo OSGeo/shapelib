@@ -26,7 +26,7 @@
  * support for geometric and other additions to shapelib
  */
 
- /* I'm using some shorthand throughout this file
+/* I'm using some shorthand throughout this file
  *      R+ is a Clockwise Ring and is the positive portion of an object
  *      R- is a CounterClockwise Ring and is a hole in a R+
  *      A complex object is one having at least one R-
@@ -48,86 +48,89 @@
 #ifndef SHPGEO_H
 #define SHPGEO_H
 
-
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-#define		SHPD_POINT	 		1
-#define		SHPD_LINE	 		2
-#define		SHPD_AREA			4
-#define 	SHPD_Z		 		8
-#define		SHPD_MEASURE		16
-
+#define SHPD_POINT 1
+#define SHPD_LINE 2
+#define SHPD_AREA 4
+#define SHPD_Z 8
+#define SHPD_MEASURE 16
 
 /* move these into a ogis header file ogis.h */
-#define		OGIST_UNKNOWN			0
-#define		OGIST_POINT				1
-#define		OGIST_LINESTRING		2
-#define		OGIST_POLYGON			3
-#define		OGIST_MULTIPOINT		4
-#define		OGIST_MULTILINE			5
-#define		OGIST_MULTIPOLYGON		6
-#define		OGIST_GEOMCOLL			7
+#define OGIST_UNKNOWN 0
+#define OGIST_POINT 1
+#define OGIST_LINESTRING 2
+#define OGIST_POLYGON 3
+#define OGIST_MULTIPOINT 4
+#define OGIST_MULTILINE 5
+#define OGIST_MULTIPOLYGON 6
+#define OGIST_GEOMCOLL 7
 
-typedef struct { int	StreamPos;
-		 int	NeedSwap;
-		 char	*wStream;
-		} WKBStreamObj;
+    typedef struct
+    {
+        int StreamPos;
+        int NeedSwap;
+        char *wStream;
+    } WKBStreamObj;
 
-typedef struct { double x; double y; } PT;
+    typedef struct
+    {
+        double x;
+        double y;
+    } PT;
 
+    typedef struct
+    {
+        int cParts;
+        SHPObject *SHPObj;
+    } SHPObjectList;
 
-typedef struct { int		cParts;
-		 SHPObject	*SHPObj;
-	  	} SHPObjectList;
+#define LSB_ORDER (int)1
 
+    extern char *asFileName(const char *fil, char *ext);
 
-#define   	LSB_ORDER  (int) 1
+    extern int SHPDimension(int SHPType);
 
+    extern double SHPArea_2d(SHPObject *psCShape);
+    extern int SHPRingDir_2d(SHPObject *psCShape, int Ring);
+    extern double SHPLength_2d(SHPObject *psCShape);
+    extern PT SHPCentrd_2d(SHPObject *psCShape);
+    extern PT SHPPointinPoly_2d(SHPObject *psCShape);
+    extern PT *SHPPointsinPoly_2d(SHPObject *psCShape);
 
-extern char * asFileName ( const char *fil, char *ext );
+    extern int RingCentroid_2d(int nVertices, double *a, double *b, PT *C,
+                               double *Area);
+    extern double RingLength_2d(int nVertices, double *a, double *b);
+    extern int RingDir_2d(int nVertices, double *a, double *b);
+    extern double RingArea_2d(int nVertices, double *a, double *b);
 
-extern int 	SHPDimension ( int SHPType );
+    extern SHPObject *SHPClone(SHPObject *psCShape, int lowPart, int highPart);
+    extern SHPObject *SHPUnCompound(SHPObject *psCShape, int *ringNumber);
+    extern SHPObject *SHPIntersect_2d(SHPObject *a, SHPObject *b);
 
-extern double 	SHPArea_2d ( SHPObject *psCShape );
-extern int 	SHPRingDir_2d ( SHPObject *psCShape, int Ring );
-extern double 	SHPLength_2d ( SHPObject *psCShape );
-extern PT 	SHPCentrd_2d ( SHPObject *psCShape );
-extern PT	SHPPointinPoly_2d ( SHPObject *psCShape );
-extern PT*	SHPPointsinPoly_2d ( SHPObject *psCShape );
+    extern int SHPWriteOGisWKB(WKBStreamObj *stream_obj, SHPObject *psCShape);
+    extern SHPObject *SHPReadOGisWKB(WKBStreamObj *stream_obj);
 
-extern int 	RingCentroid_2d ( int nVertices, double *a, double *b, PT *C,
-	double *Area );
-extern double 	RingLength_2d ( int nVertices, double *a, double *b );
-extern int	RingDir_2d ( int nVertices, double *a, double *b );
-extern double 	RingArea_2d ( int nVertices, double *a, double *b );
+    int SHPWriteOGisPolygon(WKBStreamObj *stream_obj, SHPObject *psCShape);
+    int SHPWriteOGisLine(WKBStreamObj *stream_obj, SHPObject *psCShape);
+    int SHPWriteOGisPoint(WKBStreamObj *stream_obj, SHPObject *psCShape);
 
-extern SHPObject* 	SHPClone ( SHPObject *psCShape, int lowPart, int highPart );
-extern SHPObject* 	SHPUnCompound  ( SHPObject *psCShape, int * ringNumber );
-extern SHPObject* 	SHPIntersect_2d ( SHPObject* a, SHPObject* b );
+    SHPObject *SHPReadOGisPolygon(WKBStreamObj *stream_obj);
+    SHPObject *SHPReadOGisLine(WKBStreamObj *stream_obj);
+    SHPObject *SHPReadOGisPoint(WKBStreamObj *stream_obj);
 
-extern int 	SHPWriteOGisWKB ( WKBStreamObj *stream_obj, SHPObject *psCShape );
-extern SHPObject*	SHPReadOGisWKB ( WKBStreamObj *stream_obj );
+    extern int SHPClean(SHPObject *psCShape);
+    extern int SHPOGisType(int GeomType, int toOGis);
 
-int SHPWriteOGisPolygon ( WKBStreamObj *stream_obj, SHPObject *psCShape );
-int SHPWriteOGisLine ( WKBStreamObj *stream_obj, SHPObject *psCShape );
-int SHPWriteOGisPoint ( WKBStreamObj *stream_obj, SHPObject *psCShape );
-
-SHPObject* SHPReadOGisPolygon ( WKBStreamObj *stream_obj );
-SHPObject* SHPReadOGisLine ( WKBStreamObj *stream_obj );
-SHPObject* SHPReadOGisPoint ( WKBStreamObj *stream_obj );
-
-extern int 	SHPClean ( SHPObject *psCShape );
-extern int 	SHPOGisType ( int GeomType, int toOGis);
-
-void 	swapD (void *so, unsigned char *in, long bytes);
-void 	swapW (void *so, unsigned char *in, long bytes);
-void 	SwapG( void *so, void *in, int this_cnt, int this_size );
-
+    void swapD(void *so, unsigned char *in, long bytes);
+    void swapW(void *so, unsigned char *in, long bytes);
+    void SwapG(void *so, void *in, int this_cnt, int this_size);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif   /* ndef SHPGEO_H	*/
+#endif /* ndef SHPGEO_H	*/

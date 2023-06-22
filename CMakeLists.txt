@@ -20,13 +20,13 @@
 
 # It is a fatal error if no working C compiler is available to build
 # the shapelib library and utilities
+
+# Version 3.7 or above of cmake is currently required for all platforms.
+cmake_minimum_required(VERSION 3.7)
 project(shapelib C)
 
 message(STATUS "CMake version = ${CMAKE_VERSION}")
 message(STATUS "CMAKE_SYSTEM_NAME = ${CMAKE_SYSTEM_NAME}")
-
-# Version 3.7 or above of cmake is currently required for all platforms.
-cmake_minimum_required(VERSION 3.7 FATAL_ERROR)
 
 set (PROJECT_VERSION_MAJOR 1)
 set (PROJECT_VERSION_MINOR 5)
@@ -169,34 +169,34 @@ set(executables
   shptreedump
   )
 
+if(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
+  # TODO(schwehr): How to test on Windows?
+  set(BUILD_TESTING OFF CACHE BOOL "")
+else()
+  # TODO(schwehr): Temporary work around.
+  cmake_policy(SET CMP0026 OLD)
+endif()
+
 find_program(BASH_EXECUTABLE bash)
 find_program(SED_EXECUTABLE sed)
 if(BASH_EXECUTABLE AND SED_EXECUTABLE)
-  set(BUILD_TEST ON)
+  set(BUILD_TESTING ON CACHE BOOL "")
 else(BASH_EXECUTABLE AND SED_EXECUTABLE)
   message(STATUS "WARNING: sed or bash not available so disabling testing")
 endif(BASH_EXECUTABLE AND SED_EXECUTABLE)
-
-if(MSVC)
-  # TODO(schwehr): How to test on Windows?
-  set(BUILD_TEST OFF)
-else(MSVC)
-  # TODO(schwehr): Temporary work around.
-  cmake_policy(SET CMP0026 OLD)
-endif(MSVC)
 
 # For the first series of tests, the user needs to have downloaded
 # from http://dl.maptools.org/dl/shapelib/shape_eg_data.zip, unpacked
 # that file, and specified the location of that directory with
 # the cmake option, -DEG_DATA:PATH=whatever
-if(BUILD_TEST)
+if(BUILD_TESTING)
   if(EG_DATA)
     file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/script.sed "s?/u/www/projects/shapelib/eg_data?${EG_DATA}?\n")
   else(EG_DATA)
     file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/script.sed "")
     message(STATUS "WARNING: EG_DATA:PATH not set to point to downloaded eg_data directory so the eg_data part of testing will be ignored.")
   endif(EG_DATA)
-endif(BUILD_TEST)
+endif()
 
 if (NOT MSVC)
   # Set the run time path for shared libraries for non-Windows machines.
@@ -218,7 +218,7 @@ foreach(executable ${executables})
     set_target_properties (${TOOLS} PROPERTIES
       INSTALL_RPATH "@loader_path/${RELATIVE_LIBDIR}")
   endif ()
-  if(BUILD_TEST)
+  if(BUILD_TESTING)
     get_target_property(${executable}_LOC ${executable} LOCATION)
     file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/script.sed "s?\\./${executable}?${${executable}_LOC}?\n")
   endif(BUILD_TEST)
@@ -236,7 +236,7 @@ install(FILES shapefil.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 # For compatibility with older installation
 install(FILES shapefil.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/shapelib)
 
-if(BUILD_TEST)
+if(BUILD_TESTING)
   # Set up tests:
 
   enable_testing()
@@ -285,6 +285,6 @@ if(BUILD_TEST)
     NAME test3
     COMMAND ${BASH_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/sed_scripted_test3.sh
     )
-endif(BUILD_TEST)
+endif()
 
 add_subdirectory (cmake)

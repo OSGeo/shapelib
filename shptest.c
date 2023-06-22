@@ -40,38 +40,35 @@
 #include <string.h>
 #include "shapefil.h"
 
-SHP_CVSID("$Id$")
-
 /************************************************************************/
 /*                          Test_WritePoints()                          */
 /*                                                                      */
 /*      Write a small point file.                                       */
 /************************************************************************/
 
-static void Test_WritePoints( int nSHPType, const char *pszFilename )
+static void Test_WritePoints(int nSHPType, const char *pszFilename)
 
 {
-    SHPHandle hSHPHandle = SHPCreate( pszFilename, nSHPType );
+    SHPHandle hSHPHandle = SHPCreate(pszFilename, nSHPType);
 
     double x = 1.0;
     double y = 2.0;
     double z = 3.0;
     double m = 4.0;
-    SHPObject *psShape = SHPCreateObject( nSHPType, -1, 0, NULL, NULL,
-                               1, &x, &y, &z, &m );
-    SHPWriteObject( hSHPHandle, -1, psShape );
-    SHPDestroyObject( psShape );
+    SHPObject *psShape =
+        SHPCreateObject(nSHPType, -1, 0, NULL, NULL, 1, &x, &y, &z, &m);
+    SHPWriteObject(hSHPHandle, -1, psShape);
+    SHPDestroyObject(psShape);
 
     x = 10.0;
     y = 20.0;
     z = 30.0;
     m = 40.0;
-    psShape = SHPCreateObject( nSHPType, -1, 0, NULL, NULL,
-                               1, &x, &y, &z, &m );
-    SHPWriteObject( hSHPHandle, -1, psShape );
-    SHPDestroyObject( psShape );
+    psShape = SHPCreateObject(nSHPType, -1, 0, NULL, NULL, 1, &x, &y, &z, &m);
+    SHPWriteObject(hSHPHandle, -1, psShape);
+    SHPDestroyObject(psShape);
 
-    SHPClose( hSHPHandle );
+    SHPClose(hSHPHandle);
 }
 
 /************************************************************************/
@@ -80,7 +77,7 @@ static void Test_WritePoints( int nSHPType, const char *pszFilename )
 /*      Write a small multipoint file.                                  */
 /************************************************************************/
 
-static void Test_WriteMultiPoints( int nSHPType, const char *pszFilename )
+static void Test_WriteMultiPoints(int nSHPType, const char *pszFilename)
 
 {
     double x[4];
@@ -88,11 +85,11 @@ static void Test_WriteMultiPoints( int nSHPType, const char *pszFilename )
     double z[4];
     double m[4];
 
-    SHPHandle hSHPHandle = SHPCreate( pszFilename, nSHPType );
+    SHPHandle hSHPHandle = SHPCreate(pszFilename, nSHPType);
 
-    for( int iShape = 0; iShape < 3; iShape++ )
+    for (int iShape = 0; iShape < 3; iShape++)
     {
-        for( int i = 0; i < 4; i++ )
+        for (int i = 0; i < 4; i++)
         {
             x[i] = iShape * 10 + i + 1.15;
             y[i] = iShape * 10 + i + 2.25;
@@ -100,13 +97,13 @@ static void Test_WriteMultiPoints( int nSHPType, const char *pszFilename )
             m[i] = iShape * 10 + i + 4.45;
         }
 
-        SHPObject *psShape = SHPCreateObject( nSHPType, -1, 0, NULL, NULL,
-                                   4, x, y, z, m );
-        SHPWriteObject( hSHPHandle, -1, psShape );
-        SHPDestroyObject( psShape );
+        SHPObject *psShape =
+            SHPCreateObject(nSHPType, -1, 0, NULL, NULL, 4, x, y, z, m);
+        SHPWriteObject(hSHPHandle, -1, psShape);
+        SHPDestroyObject(psShape);
     }
 
-    SHPClose( hSHPHandle );
+    SHPClose(hSHPHandle);
 }
 
 /************************************************************************/
@@ -115,14 +112,14 @@ static void Test_WriteMultiPoints( int nSHPType, const char *pszFilename )
 /*      Write a small arc or polygon file.                              */
 /************************************************************************/
 
-static void Test_WriteArcPoly( int nSHPType, const char *pszFilename )
+static void Test_WriteArcPoly(int nSHPType, const char *pszFilename)
 
 {
-    SHPHandle hSHPHandle = SHPCreate( pszFilename, nSHPType );
+    SHPHandle hSHPHandle = SHPCreate(pszFilename, nSHPType);
 
     int anPartType[100];
     int *panPartType;
-    if( nSHPType == SHPT_MULTIPATCH )
+    if (nSHPType == SHPT_MULTIPATCH)
         panPartType = anPartType;
     else
         panPartType = NULL;
@@ -132,35 +129,35 @@ static void Test_WriteArcPoly( int nSHPType, const char *pszFilename )
     double z[100];
     double m[100];
 
-    for( int iShape = 0; iShape < 3; iShape++ )
+    for (int iShape = 0; iShape < 3; iShape++)
     {
         x[0] = 1.0;
-        y[0] = 1.0+iShape*3;
+        y[0] = 1.0 + iShape * 3;
         x[1] = 2.0;
-        y[1] = 1.0+iShape*3;
+        y[1] = 1.0 + iShape * 3;
         x[2] = 2.0;
-        y[2] = 2.0+iShape*3;
+        y[2] = 2.0 + iShape * 3;
         x[3] = 1.0;
-        y[3] = 2.0+iShape*3;
+        y[3] = 2.0 + iShape * 3;
         x[4] = 1.0;
-        y[4] = 1.0+iShape*3;
+        y[4] = 1.0 + iShape * 3;
 
-        for( int i = 0; i < 5; i++ )
+        for (int i = 0; i < 5; i++)
         {
             z[i] = iShape * 10 + i + 3.35;
             m[i] = iShape * 10 + i + 4.45;
         }
 
-        SHPObject *psShape = SHPCreateObject( nSHPType, -1, 0, NULL, NULL,
-                                   5, x, y, z, m );
-        SHPWriteObject( hSHPHandle, -1, psShape );
-        SHPDestroyObject( psShape );
+        SHPObject *psShape =
+            SHPCreateObject(nSHPType, -1, 0, NULL, NULL, 5, x, y, z, m);
+        SHPWriteObject(hSHPHandle, -1, psShape);
+        SHPDestroyObject(psShape);
     }
 
-/* -------------------------------------------------------------------- */
-/*      Do a multi part polygon (shape).  We close it, and have two     */
-/*      inner rings.                                                    */
-/* -------------------------------------------------------------------- */
+    /* -------------------------------------------------------------------- */
+    /*      Do a multi part polygon (shape).  We close it, and have two     */
+    /*      inner rings.                                                    */
+    /* -------------------------------------------------------------------- */
     x[0] = 0.0;
     y[0] = 0.0;
     x[1] = 0;
@@ -194,10 +191,10 @@ static void Test_WriteArcPoly( int nSHPType, const char *pszFilename )
     x[14] = 60;
     y[14] = 20;
 
-    for( int i = 0; i < 15; i++ )
+    for (int i = 0; i < 15; i++)
     {
         z[i] = i;
-        m[i] = i*2;
+        m[i] = i * 2;
     }
 
     int anPartStart[100];
@@ -209,74 +206,74 @@ static void Test_WriteArcPoly( int nSHPType, const char *pszFilename )
     anPartType[1] = SHPP_INNERRING;
     anPartType[2] = SHPP_INNERRING;
 
-    SHPObject *psShape = SHPCreateObject( nSHPType, -1, 3, anPartStart, panPartType,
-                               15, x, y, z, m );
-    SHPWriteObject( hSHPHandle, -1, psShape );
-    SHPDestroyObject( psShape );
+    SHPObject *psShape = SHPCreateObject(nSHPType, -1, 3, anPartStart,
+                                         panPartType, 15, x, y, z, m);
+    SHPWriteObject(hSHPHandle, -1, psShape);
+    SHPDestroyObject(psShape);
 
-
-    SHPClose( hSHPHandle );
+    SHPClose(hSHPHandle);
 }
 
 /************************************************************************/
 /*                                main()                                */
 /************************************************************************/
-int main( int argc, char ** argv ) {
-/* -------------------------------------------------------------------- */
-/*      Display a usage message.                                        */
-/* -------------------------------------------------------------------- */
-    if( argc != 2 )
+int main(int argc, char **argv)
+{
+    /* -------------------------------------------------------------------- */
+    /*      Display a usage message.                                        */
+    /* -------------------------------------------------------------------- */
+    if (argc != 2)
     {
-	printf( "shptest test_number\n" );
-	exit( 1 );
+        printf("shptest test_number\n");
+        exit(1);
     }
 
-/* -------------------------------------------------------------------- */
-/*      Figure out which test to run.                                   */
-/* -------------------------------------------------------------------- */
+    /* -------------------------------------------------------------------- */
+    /*      Figure out which test to run.                                   */
+    /* -------------------------------------------------------------------- */
 
-    if( atoi(argv[1]) == 0 )
-        Test_WritePoints( SHPT_NULL, "test0.shp" );
+    if (atoi(argv[1]) == 0)
+        Test_WritePoints(SHPT_NULL, "test0.shp");
 
-    else if( atoi(argv[1]) == 1 )
-        Test_WritePoints( SHPT_POINT, "test1.shp" );
-    else if( atoi(argv[1]) == 2 )
-        Test_WritePoints( SHPT_POINTZ, "test2.shp" );
-    else if( atoi(argv[1]) == 3 )
-        Test_WritePoints( SHPT_POINTM, "test3.shp" );
+    else if (atoi(argv[1]) == 1)
+        Test_WritePoints(SHPT_POINT, "test1.shp");
+    else if (atoi(argv[1]) == 2)
+        Test_WritePoints(SHPT_POINTZ, "test2.shp");
+    else if (atoi(argv[1]) == 3)
+        Test_WritePoints(SHPT_POINTM, "test3.shp");
 
-    else if( atoi(argv[1]) == 4 )
-        Test_WriteMultiPoints( SHPT_MULTIPOINT, "test4.shp" );
-    else if( atoi(argv[1]) == 5 )
-        Test_WriteMultiPoints( SHPT_MULTIPOINTZ, "test5.shp" );
-    else if( atoi(argv[1]) == 6 )
-        Test_WriteMultiPoints( SHPT_MULTIPOINTM, "test6.shp" );
+    else if (atoi(argv[1]) == 4)
+        Test_WriteMultiPoints(SHPT_MULTIPOINT, "test4.shp");
+    else if (atoi(argv[1]) == 5)
+        Test_WriteMultiPoints(SHPT_MULTIPOINTZ, "test5.shp");
+    else if (atoi(argv[1]) == 6)
+        Test_WriteMultiPoints(SHPT_MULTIPOINTM, "test6.shp");
 
-    else if( atoi(argv[1]) == 7 )
-        Test_WriteArcPoly( SHPT_ARC, "test7.shp" );
-    else if( atoi(argv[1]) == 8 )
-        Test_WriteArcPoly( SHPT_ARCZ, "test8.shp" );
-    else if( atoi(argv[1]) == 9 )
-        Test_WriteArcPoly( SHPT_ARCM, "test9.shp" );
+    else if (atoi(argv[1]) == 7)
+        Test_WriteArcPoly(SHPT_ARC, "test7.shp");
+    else if (atoi(argv[1]) == 8)
+        Test_WriteArcPoly(SHPT_ARCZ, "test8.shp");
+    else if (atoi(argv[1]) == 9)
+        Test_WriteArcPoly(SHPT_ARCM, "test9.shp");
 
-    else if( atoi(argv[1]) == 10 )
-        Test_WriteArcPoly( SHPT_POLYGON, "test10.shp" );
-    else if( atoi(argv[1]) == 11 )
-        Test_WriteArcPoly( SHPT_POLYGONZ, "test11.shp" );
-    else if( atoi(argv[1]) == 12 )
-        Test_WriteArcPoly( SHPT_POLYGONM, "test12.shp" );
+    else if (atoi(argv[1]) == 10)
+        Test_WriteArcPoly(SHPT_POLYGON, "test10.shp");
+    else if (atoi(argv[1]) == 11)
+        Test_WriteArcPoly(SHPT_POLYGONZ, "test11.shp");
+    else if (atoi(argv[1]) == 12)
+        Test_WriteArcPoly(SHPT_POLYGONM, "test12.shp");
 
-    else if( atoi(argv[1]) == 13 )
-        Test_WriteArcPoly( SHPT_MULTIPATCH, "test13.shp" );
+    else if (atoi(argv[1]) == 13)
+        Test_WriteArcPoly(SHPT_MULTIPATCH, "test13.shp");
     else
     {
-        printf( "Test `%s' not recognised.\n", argv[1] );
-        exit( 10 );
+        printf("Test `%s' not recognised.\n", argv[1]);
+        exit(10);
     }
 
 #ifdef USE_DBMALLOC
     malloc_dump(2);
 #endif
 
-    exit( 0 );
+    exit(0);
 }

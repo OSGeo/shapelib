@@ -43,80 +43,94 @@
 #include <stdlib.h>
 #include <string.h>
 
-SHP_CVSID("$Id$");
-
 #ifdef SHPAPI_UTF8_HOOKS
-#   ifdef SHPAPI_WINDOWS
-#       define WIN32_LEAN_AND_MEAN
-#       define NOMINMAX
-#       include <windows.h>
-#       pragma comment(lib, "kernel32.lib")
-#   endif
+#ifdef SHPAPI_WINDOWS
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <windows.h>
+#pragma comment(lib, "kernel32.lib")
+#endif
 #endif
 
-static SAFile SADFOpen(const char *pszFilename, const char *pszAccess) {
+static SAFile SADFOpen(const char *pszFilename, const char *pszAccess)
+{
     return (SAFile)fopen(pszFilename, pszAccess);
 }
 
-static SAOffset SADFRead(void *p, SAOffset size, SAOffset nmemb, SAFile file) {
-    return (SAOffset)fread( p, (size_t)size, (size_t)nmemb, (FILE *)file);
+static SAOffset SADFRead(void *p, SAOffset size, SAOffset nmemb, SAFile file)
+{
+    return (SAOffset)fread(p, (size_t)size, (size_t)nmemb, (FILE *)file);
 }
 
-static SAOffset SADFWrite(void *p, SAOffset size, SAOffset nmemb, SAFile file) {
+static SAOffset SADFWrite(void *p, SAOffset size, SAOffset nmemb, SAFile file)
+{
     return (SAOffset)fwrite(p, (size_t)size, (size_t)nmemb, (FILE *)file);
 }
 
-static SAOffset SADFSeek(SAFile file, SAOffset offset, int whence) {
-    return (SAOffset)fseek((FILE *) file, (long) offset, whence);
+static SAOffset SADFSeek(SAFile file, SAOffset offset, int whence)
+{
+    return (SAOffset)fseek((FILE *)file, (long)offset, whence);
 }
 
-static SAOffset SADFTell(SAFile file) {
+static SAOffset SADFTell(SAFile file)
+{
     return (SAOffset)ftell((FILE *)file);
 }
 
-static int SADFFlush(SAFile file) {
-    return fflush((FILE *) file);
+static int SADFFlush(SAFile file)
+{
+    return fflush((FILE *)file);
 }
 
-static int SADFClose(SAFile file) {
-    return fclose((FILE *) file);
+static int SADFClose(SAFile file)
+{
+    return fclose((FILE *)file);
 }
 
-static int SADRemove(const char *filename) {
+static int SADRemove(const char *filename)
+{
     return remove(filename);
 }
 
-static void SADError(const char *message) {
+static void SADError(const char *message)
+{
     fprintf(stderr, "%s\n", message);
 }
 
-void SASetupDefaultHooks(SAHooks *psHooks) {
-    psHooks->FOpen   = SADFOpen;
-    psHooks->FRead   = SADFRead;
-    psHooks->FWrite  = SADFWrite;
-    psHooks->FSeek   = SADFSeek;
-    psHooks->FTell   = SADFTell;
-    psHooks->FFlush  = SADFFlush;
-    psHooks->FClose  = SADFClose;
-    psHooks->Remove  = SADRemove;
+void SASetupDefaultHooks(SAHooks *psHooks)
+{
+    psHooks->FOpen = SADFOpen;
+    psHooks->FRead = SADFRead;
+    psHooks->FWrite = SADFWrite;
+    psHooks->FSeek = SADFSeek;
+    psHooks->FTell = SADFTell;
+    psHooks->FFlush = SADFFlush;
+    psHooks->FClose = SADFClose;
+    psHooks->Remove = SADRemove;
 
-    psHooks->Error   = SADError;
-    psHooks->Atof    = atof;
+    psHooks->Error = SADError;
+    psHooks->Atof = atof;
 }
 
 #ifdef SHPAPI_WINDOWS
 
-const wchar_t* Utf8ToWideChar(const char *pszFilename) {
+const wchar_t *Utf8ToWideChar(const char *pszFilename)
+{
     const int nMulti = strlen(pszFilename) + 1;
-    const int nWide = MultiByteToWideChar( CP_UTF8, 0, pszFilename, nMulti, 0, 0);
-    if (nWide == 0) {
+    const int nWide =
+        MultiByteToWideChar(CP_UTF8, 0, pszFilename, nMulti, 0, 0);
+    if (nWide == 0)
+    {
         return NULL;
     }
-    wchar_t *pwszFileName = (wchar_t*) malloc(nWide * sizeof(wchar_t));
-    if (pwszFileName == NULL) {
+    wchar_t *pwszFileName = (wchar_t *)malloc(nWide * sizeof(wchar_t));
+    if (pwszFileName == NULL)
+    {
         return NULL;
     }
-    if (MultiByteToWideChar(CP_UTF8, 0, pszFilename, nMulti, pwszFileName, nWide) == 0) {
+    if (MultiByteToWideChar(CP_UTF8, 0, pszFilename, nMulti, pwszFileName,
+                            nWide) == 0)
+    {
         free(pwszFileName);
         return NULL;
     }
@@ -127,22 +141,26 @@ const wchar_t* Utf8ToWideChar(const char *pszFilename) {
 /*                           SAUtf8WFOpen                               */
 /************************************************************************/
 
-SAFile SAUtf8WFOpen(const char *pszFilename, const char *pszAccess) {
+SAFile SAUtf8WFOpen(const char *pszFilename, const char *pszAccess)
+{
     SAFile file = NULL;
-    wchar_t *pwszFileName = Utf8ToWideChar( pszFilename );
-    wchar_t *pwszAccess = Utf8ToWideChar( pszAccess );
-    if (pwszFileName != NULL && pwszAccess != NULL) {
-        file = (SAFile) _wfopen( pwszFileName, pwszAccess );
+    wchar_t *pwszFileName = Utf8ToWideChar(pszFilename);
+    wchar_t *pwszAccess = Utf8ToWideChar(pszAccess);
+    if (pwszFileName != NULL && pwszAccess != NULL)
+    {
+        file = (SAFile)_wfopen(pwszFileName, pwszAccess);
     }
     free(pwszFileName);
     free(pwszAccess);
     return file;
 }
 
-int SAUtf8WRemove(const char *pszFilename) {
+int SAUtf8WRemove(const char *pszFilename)
+{
     wchar_t *pwszFileName = Utf8ToWideChar(pszFilename);
     int rc = -1;
-    if (pwszFileName != NULL) {
+    if (pwszFileName != NULL)
+    {
         rc = _wremove(pwszFileName);
     }
     free(pwszFileName);
@@ -153,20 +171,21 @@ int SAUtf8WRemove(const char *pszFilename) {
 
 #ifdef SHPAPI_UTF8_HOOKS
 #ifndef SHPAPI_WINDOWS
-#  error "no implementations of UTF-8 hooks available for this platform"
+#error "no implementations of UTF-8 hooks available for this platform"
 #endif
 
-void SASetupUtf8Hooks(SAHooks *psHooks) {
-    psHooks->FOpen   = SAUtf8WFOpen;
-    psHooks->Remove  = SAUtf8WRemove;
-    psHooks->FRead   = SADFRead;
-    psHooks->FWrite  = SADFWrite;
-    psHooks->FSeek   = SADFSeek;
-    psHooks->FTell   = SADFTell;
-    psHooks->FFlush  = SADFFlush;
-    psHooks->FClose  = SADFClose;
+void SASetupUtf8Hooks(SAHooks *psHooks)
+{
+    psHooks->FOpen = SAUtf8WFOpen;
+    psHooks->Remove = SAUtf8WRemove;
+    psHooks->FRead = SADFRead;
+    psHooks->FWrite = SADFWrite;
+    psHooks->FSeek = SADFSeek;
+    psHooks->FTell = SADFTell;
+    psHooks->FFlush = SADFFlush;
+    psHooks->FClose = SADFClose;
 
-    psHooks->Error   = SADError;
-    psHooks->Atof    = atof;
+    psHooks->Error = SADError;
+    psHooks->Atof = atof;
 }
 #endif
