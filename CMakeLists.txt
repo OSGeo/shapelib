@@ -23,7 +23,7 @@
 
 # Version 3.7 or above of cmake is currently required for all platforms.
 cmake_minimum_required(VERSION 3.7)
-project(shapelib C)
+project(shapelib C CXX)
 
 message(STATUS "CMake version = ${CMAKE_VERSION}")
 message(STATUS "CMAKE_SYSTEM_NAME = ${CMAKE_SYSTEM_NAME}")
@@ -34,8 +34,13 @@ set (PROJECT_VERSION_PATCH 0)
 set (PROJECT_VERSION
   "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 # libraries are all shared by default.
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+
+# Option to build contributed utilities
+option(BUILD_SHAPELIB_CONTRIB "Build utilities (from contrib)" ON)
 
 # Use rpath?
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
@@ -56,34 +61,35 @@ set(PACKAGE shp)
 set(
   CMAKE_INSTALL_BINDIR bin
   CACHE PATH "install location for user executables"
-  )
+)
 
 set(
   CMAKE_INSTALL_LIBDIR lib
   CACHE PATH "install location for object code libraries"
-  )
+)
 
 set(
   CMAKE_INSTALL_INCLUDEDIR include
   CACHE PATH "install location for C header files"
-  )
+)
 
 set(
   CMAKE_INSTALL_CMAKEDIR share/${PROJECT_NAME}
   CACHE PATH "install location for read-only architecture-independent shp data"
-  )
+)
 
-file (RELATIVE_PATH RELATIVE_LIBDIR
+file(RELATIVE_PATH RELATIVE_LIBDIR
   ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
-  ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
+  ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}
+)
 
 message (STATUS "CMAKE_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR}")
 
-if (NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
+if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
   # Set a default build type for single-configuration cmake generators
   # if no build type is set.
   set (CMAKE_BUILD_TYPE Release)
-endif ()
+endif()
 
 # Export build information to help other projects link installed
 # shapelib software.  Only one of these signatures is required
@@ -91,7 +97,8 @@ endif ()
 install(EXPORT targets
   NAMESPACE ${PROJECT_NAME}::
   DESTINATION ${CMAKE_INSTALL_CMAKEDIR}
-  FILE "${PROJECT_NAME}-targets.cmake")
+  FILE "${PROJECT_NAME}-targets.cmake"
+)
 
 # Initial boilerplate done, now build library and executables.
 
@@ -105,20 +112,24 @@ set(lib_SRC
   safileio.c
   shptree.c
   sbnsearch.c
-  )
+  shapefil.h
+)
 option(SHP_DROP_UNABLE_TO_OPEN_MSG "Drop \"unable to open\" error messages" ON)
 if(SHP_DROP_UNABLE_TO_OPEN_MSG)
   #define the SHP_DROP_UNABLE_TO_OPEN_MSG C macro for this source file.
   set_source_files_properties(shpopen.c
     PROPERTIES
     COMPILE_DEFINITIONS SHP_DROP_UNABLE_TO_OPEN_MSG
-    )
-endif(SHP_DROP_UNABLE_TO_OPEN_MSG)
+  )
+endif()
 
 add_library(${PACKAGE} ${lib_SRC})
 
-target_include_directories (${PACKAGE} INTERFACE
-    $<INSTALL_INTERFACE:include>)
+target_include_directories(${PACKAGE}
+  INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:include>
+)
 
 if(NOT MSVC)
   target_compile_options(${PACKAGE} PRIVATE -Wall -Wextra -pedantic)
@@ -128,14 +139,14 @@ if(WIN32 AND NOT CYGWIN)
   set_target_properties(${PACKAGE}
     PROPERTIES
     COMPILE_DEFINITIONS SHAPELIB_DLLEXPORT
-    )
+  )
 endif(WIN32 AND NOT CYGWIN)
 
 if(UNIX)
-    find_library(M_LIB m)
-    if(M_LIB)
-      TARGET_LINK_LIBRARIES(${PACKAGE} -lm)
-    endif()
+  find_library(M_LIB m)
+  if(M_LIB)
+    target_link_libraries(${PACKAGE} -lm)
+  endif()
 endif(UNIX)
 
 set(shp_SOVERSION 1)
@@ -145,13 +156,13 @@ set_target_properties(${PACKAGE}
   SOVERSION ${shp_SOVERSION}
   VERSION ${shp_VERSION}
   INSTALL_NAME_DIR "${CMAKE_INSTALL_LIBDIR}"
-  )
+)
 
 if(USE_RPATH)
   set_target_properties(${PACKAGE}
     PROPERTIES
     INSTALL_RPATH "${CMAKE_INSTALL_LIBDIR}"
-    )
+  )
 endif(USE_RPATH)
 
 install(TARGETS ${PACKAGE}
@@ -159,7 +170,7 @@ install(TARGETS ${PACKAGE}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-  )
+)
 
 # executables to be built and installed.
 set(executables
@@ -171,7 +182,7 @@ set(executables
   dbfadd
   dbfdump
   shptreedump
-  )
+)
 
 if(MSVC)
   # TODO(schwehr): How to test on Windows?
@@ -259,36 +270,38 @@ if(BUILD_TESTING)
   execute_process(
     COMMAND
     ${BASH_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/script.sh ${CMAKE_CURRENT_SOURCE_DIR}/tests/test1.sh ${CMAKE_CURRENT_BINARY_DIR}/sed_scripted_test1.sh
-    )
+  )
 
   execute_process(
     COMMAND
     ${BASH_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/script.sh ${CMAKE_CURRENT_SOURCE_DIR}/tests/test2.sh ${CMAKE_CURRENT_BINARY_DIR}/sed_scripted_test2.sh
-    )
+  )
 
   execute_process(
     COMMAND
     ${BASH_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/script.sh ${CMAKE_CURRENT_SOURCE_DIR}/tests/test3.sh ${CMAKE_CURRENT_BINARY_DIR}/sed_scripted_test3.sh
-    )
+  )
 
   if(EG_DATA)
     # These tests correspond to everything in test1.sh
     add_test(
       NAME test1
       COMMAND ${BASH_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/sed_scripted_test1.sh
-      )
+    )
   endif(EG_DATA)
   # These tests correspond to everything in test2.sh
   add_test(
     NAME test2
     COMMAND ${BASH_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/sed_scripted_test2.sh
-    )
+  )
 
   # These tests correspond to everything in test3.sh
   add_test(
     NAME test3
     COMMAND ${BASH_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/sed_scripted_test3.sh
-    )
+  )
 endif()
+
+include(cmake/contrib.cmake)
 
 add_subdirectory (cmake)
