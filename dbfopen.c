@@ -46,7 +46,9 @@
 #include "cpl_string.h"
 #else
 
-#if defined(WIN32) || defined(_WIN32)
+#if defined(_MSC_VER)
+#define STRCASECMP(a, b) (_stricmp(a, b))
+#elif defined(WIN32) || defined(_WIN32)
 #define STRCASECMP(a, b) (stricmp(a, b))
 #else
 #include <strings.h>
