@@ -95,6 +95,10 @@ install(EXPORT targets
 
 # Initial boilerplate done, now build library and executables.
 
+if(MSVC)
+  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+endif(MSVC)
+
 set(lib_SRC
   shpopen.c
   dbfopen.c
@@ -116,7 +120,7 @@ add_library(${PACKAGE} ${lib_SRC})
 target_include_directories (${PACKAGE} INTERFACE
     $<INSTALL_INTERFACE:include>)
 
-if (NOT MSVC)
+if(NOT MSVC)
   target_compile_options(${PACKAGE} PRIVATE -Wall -Wextra -pedantic)
 endif()
 
@@ -169,7 +173,7 @@ set(executables
   shptreedump
   )
 
-if(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
+if(MSVC)
   # TODO(schwehr): How to test on Windows?
   set(BUILD_TESTING OFF CACHE BOOL "")
 else()
