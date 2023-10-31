@@ -12,6 +12,7 @@ endif
 # Extra files to distribute in the source tarball
 EXTRA_DIST = makefile.vc CMakeLists.txt autogen.sh \
 		cmake/CMakeLists.txt \
+		cmake/contrib.cmake \
 		cmake/project-config-version.cmake.in \
 		cmake/project-config.cmake.in \
 		tests/test1.sh tests/test2.sh tests/test3.sh \
