@@ -122,7 +122,7 @@ void SASetupDefaultHooks(SAHooks *psHooks)
 
 #ifdef SHPAPI_WINDOWS
 
-const wchar_t *Utf8ToWideChar(const char *pszFilename)
+static wchar_t *Utf8ToWideChar(const char *pszFilename)
 {
     const int nMulti = strlen(pszFilename) + 1;
     const int nWide =
