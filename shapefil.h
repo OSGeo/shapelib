@@ -132,7 +132,11 @@ extern "C"
     typedef int *SAFile;
 
 #ifndef SAOffset
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+    typedef unsigned __int64 SAOffset;
+#else
     typedef unsigned long SAOffset;
+#endif
 #endif
 
     typedef struct

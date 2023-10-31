@@ -69,12 +69,20 @@ static SAOffset SADFWrite(void *p, SAOffset size, SAOffset nmemb, SAFile file)
 
 static SAOffset SADFSeek(SAFile file, SAOffset offset, int whence)
 {
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+    return (SAOffset)_fseeki64((FILE *)file, (__int64)offset, whence);
+#else
     return (SAOffset)fseek((FILE *)file, (long)offset, whence);
+#endif
 }
 
 static SAOffset SADFTell(SAFile file)
 {
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+    return (SAOffset)_ftelli64((FILE *)file);
+#else
     return (SAOffset)ftell((FILE *)file);
+#endif
 }
 
 static int SADFFlush(SAFile file)
