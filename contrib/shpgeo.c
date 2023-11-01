@@ -80,7 +80,7 @@ char *asFileName(const char *fil, char *ext)
     /* -------------------------------------------------------------------- */
     char pszBasename[120];
     strcpy(pszBasename, fil);
-    int i = strlen(pszBasename) - 1;
+    int i = (int)strlen(pszBasename) - 1;
     for (; i > 0 && pszBasename[i] != '.' && pszBasename[i] != '/' &&
            pszBasename[i] != '\\';
          i--)
