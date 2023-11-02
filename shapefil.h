@@ -269,13 +269,13 @@ extern "C"
     SHPHandle SHPAPI_CALL SHPOpen(const char *pszShapeFile,
                                   const char *pszAccess);
     SHPHandle SHPAPI_CALL SHPOpenLL(const char *pszShapeFile,
-                                    const char *pszAccess, SAHooks *psHooks);
+                                    const char *pszAccess, const SAHooks *psHooks);
     SHPHandle SHPAPI_CALL SHPOpenLLEx(const char *pszShapeFile,
-                                      const char *pszAccess, SAHooks *psHooks,
+                                      const char *pszAccess, const SAHooks *psHooks,
                                       int bRestoreSHX);
 
     int SHPAPI_CALL SHPRestoreSHX(const char *pszShapeFile,
-                                  const char *pszAccess, SAHooks *psHooks);
+                                  const char *pszAccess, const SAHooks *psHooks);
 
     /* If setting bFastMode = TRUE, the content of SHPReadObject() is owned by the SHPHandle. */
     /* So you cannot have 2 valid instances of SHPReadObject() simultaneously. */
@@ -285,7 +285,7 @@ extern "C"
 
     SHPHandle SHPAPI_CALL SHPCreate(const char *pszShapeFile, int nShapeType);
     SHPHandle SHPAPI_CALL SHPCreateLL(const char *pszShapeFile, int nShapeType,
-                                      SAHooks *psHooks);
+                                      const SAHooks *psHooks);
     void SHPAPI_CALL SHPGetInfo(SHPHandle hSHP, int *pnEntities,
                                 int *pnShapeType, double *padfMinBound,
                                 double *padfMaxBound);
@@ -376,7 +376,7 @@ extern "C"
     typedef struct SHPDiskTreeInfo *SHPTreeDiskHandle;
 
     SHPTreeDiskHandle SHPAPI_CALL SHPOpenDiskTree(const char *pszQIXFilename,
-                                                  SAHooks *psHooks);
+                                                  const SAHooks *psHooks);
 
     void SHPAPI_CALL SHPCloseDiskTree(SHPTreeDiskHandle hDiskTree);
 
@@ -385,7 +385,7 @@ extern "C"
                             double *padfBoundsMax, int *pnShapeCount);
 
     int SHPAPI_CALL SHPWriteTreeLL(SHPTree *hTree, const char *pszFilename,
-                                   SAHooks *psHooks);
+                                   const SAHooks *psHooks);
 
     /* -------------------------------------------------------------------- */
     /*      SBN Search API                                                  */
@@ -394,7 +394,7 @@ extern "C"
     typedef struct SBNSearchInfo *SBNSearchHandle;
 
     SBNSearchHandle SHPAPI_CALL SBNOpenDiskTree(const char *pszSBNFilename,
-                                                SAHooks *psHooks);
+                                                const SAHooks *psHooks);
 
     void SHPAPI_CALL SBNCloseDiskTree(SBNSearchHandle hSBN);
 
@@ -483,13 +483,13 @@ extern "C"
     DBFHandle SHPAPI_CALL DBFOpen(const char *pszDBFFile,
                                   const char *pszAccess);
     DBFHandle SHPAPI_CALL DBFOpenLL(const char *pszDBFFile,
-                                    const char *pszAccess, SAHooks *psHooks);
+                                    const char *pszAccess, const SAHooks *psHooks);
     DBFHandle SHPAPI_CALL DBFCreate(const char *pszDBFFile);
     DBFHandle SHPAPI_CALL DBFCreateEx(const char *pszDBFFile,
                                       const char *pszCodePage);
     DBFHandle SHPAPI_CALL DBFCreateLL(const char *pszDBFFile,
                                       const char *pszCodePage,
-                                      SAHooks *psHooks);
+                                      const SAHooks *psHooks);
 
     int SHPAPI_CALL DBFGetFieldCount(DBFHandle psDBF);
     int SHPAPI_CALL DBFGetRecordCount(DBFHandle psDBF);
