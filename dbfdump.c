@@ -138,8 +138,9 @@ int main(int argc, char **argv)
     {
         const DBFFieldType eType =
             DBFGetFieldInfo(hDBF, i, szTitle, &nWidth, &nDecimals);
-        if ((int)strlen(szTitle) > nWidth)
-            panWidth[i] = strlen(szTitle);
+        const int titleLen = (int)strlen(szTitle);
+        if (titleLen > nWidth)
+            panWidth[i] = titleLen;
         else
             panWidth[i] = nWidth;
 
