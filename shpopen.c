@@ -311,7 +311,7 @@ static int SHPGetLenWithoutExtension(const char *pszBasename)
 /************************************************************************/
 
 SHPHandle SHPAPI_CALL SHPOpenLL(const char *pszLayer, const char *pszAccess,
-                                SAHooks *psHooks)
+                                const SAHooks *psHooks)
 {
     /* -------------------------------------------------------------------- */
     /*      Ensure the access string is one of the legal ones.  We          */
@@ -666,7 +666,7 @@ SHPHandle SHPAPI_CALL SHPOpenLL(const char *pszLayer, const char *pszAccess,
 /************************************************************************/
 
 SHPHandle SHPAPI_CALL SHPOpenLLEx(const char *pszLayer, const char *pszAccess,
-                                  SAHooks *psHooks, int bRestoreSHX)
+                                  const SAHooks *psHooks, int bRestoreSHX)
 {
     if (!bRestoreSHX)
         return SHPOpenLL(pszLayer, pszAccess, psHooks);
@@ -689,7 +689,7 @@ SHPHandle SHPAPI_CALL SHPOpenLLEx(const char *pszLayer, const char *pszAccess,
 /************************************************************************/
 
 int SHPAPI_CALL SHPRestoreSHX(const char *pszLayer, const char *pszAccess,
-                              SAHooks *psHooks)
+                              const SAHooks *psHooks)
 {
     /* -------------------------------------------------------------------- */
     /*      Ensure the access string is one of the legal ones.  We          */
@@ -981,7 +981,7 @@ SHPHandle SHPAPI_CALL SHPCreate(const char *pszLayer, int nShapeType)
 /************************************************************************/
 
 SHPHandle SHPAPI_CALL SHPCreateLL(const char *pszLayer, int nShapeType,
-                                  SAHooks *psHooks)
+                                  const SAHooks *psHooks)
 {
 /* -------------------------------------------------------------------- */
 /*      Establish the byte order on this system.                        */

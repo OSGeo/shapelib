@@ -151,7 +151,8 @@ static void SwapWord(int length, void *wordP)
 /*                         SBNOpenDiskTree()                            */
 /************************************************************************/
 
-SBNSearchHandle SBNOpenDiskTree(const char *pszSBNFilename, SAHooks *psHooks)
+SBNSearchHandle SBNOpenDiskTree(const char *pszSBNFilename,
+                                const SAHooks *psHooks)
 {
     /* -------------------------------------------------------------------- */
     /*  Establish the byte order on this machine.                           */

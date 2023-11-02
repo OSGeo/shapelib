@@ -366,7 +366,7 @@ static int DBFGetLenWithoutExtension(const char *pszBasename)
 /************************************************************************/
 
 DBFHandle SHPAPI_CALL DBFOpenLL(const char *pszFilename, const char *pszAccess,
-                                SAHooks *psHooks)
+                                const SAHooks *psHooks)
 {
     /* -------------------------------------------------------------------- */
     /*      We only allow the access strings "rb" and "r+".                  */
@@ -647,7 +647,8 @@ DBFHandle SHPAPI_CALL DBFCreateEx(const char *pszFilename,
 /************************************************************************/
 
 DBFHandle SHPAPI_CALL DBFCreateLL(const char *pszFilename,
-                                  const char *pszCodePage, SAHooks *psHooks)
+                                  const char *pszCodePage,
+                                  const SAHooks *psHooks)
 {
     /* -------------------------------------------------------------------- */
     /*	Compute the base (layer) name.  If there is any extension	*/

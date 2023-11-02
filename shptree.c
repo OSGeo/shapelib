@@ -727,7 +727,8 @@ struct SHPDiskTreeInfo
 /*                         SHPOpenDiskTree()                            */
 /************************************************************************/
 
-SHPTreeDiskHandle SHPOpenDiskTree(const char *pszQIXFilename, SAHooks *psHooks)
+SHPTreeDiskHandle SHPOpenDiskTree(const char *pszQIXFilename,
+                                  const SAHooks *psHooks)
 {
     SHPTreeDiskHandle hDiskTree;
 
@@ -1049,7 +1050,8 @@ static int SHPGetSubNodeOffset(SHPTreeNode *node)
 /*                          SHPWriteTreeNode()                          */
 /************************************************************************/
 
-static void SHPWriteTreeNode(SAFile fp, SHPTreeNode *node, SAHooks *psHooks)
+static void SHPWriteTreeNode(SAFile fp, SHPTreeNode *node,
+                             const SAHooks *psHooks)
 {
     int i, j;
     int offset;
@@ -1111,7 +1113,8 @@ int SHPAPI_CALL SHPWriteTree(SHPTree *tree, const char *filename)
 /*                           SHPWriteTreeLL()                           */
 /************************************************************************/
 
-int SHPWriteTreeLL(SHPTree *tree, const char *filename, SAHooks *psHooks)
+int SHPWriteTreeLL(SHPTree *tree, const char *filename,
+                   const SAHooks *psHooks)
 {
     char signature[4] = "SQT";
     int i;
