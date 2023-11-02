@@ -276,19 +276,19 @@ SHPObject *SHPReadOGisWKB(WKBStreamObj *stream_obj)
     const int thisDim = SHPDimension(nSHPType);
 
     // SHPObject *psCShape;
-    if (thisDim && SHPD_AREA)
+    if (thisDim & SHPD_AREA)
     {
         /* psCShape = */ SHPReadOGisPolygon(stream_obj);
     }
     else
     {
-        if (thisDim && SHPD_LINE)
+        if (thisDim & SHPD_LINE)
         {
             /* psCShape = */ SHPReadOGisLine(stream_obj);
         }
         else
         {
-            if (thisDim && SHPD_POINT)
+            if (thisDim & SHPD_POINT)
             {
                 /* psCShape = */ SHPReadOGisPoint(stream_obj);
             }
@@ -306,8 +306,8 @@ SHPObject *SHPReadOGisWKB(WKBStreamObj *stream_obj)
  * **************************************************************************/
 int SHPWriteOGisWKB(WKBStreamObj *stream_obj, SHPObject *psCShape)
 {
-    /* OGis WKB can handle either byte order,  but if I get to choose I'd
-  /* rather have it predicatable system-to-system							*/
+    /* OGis WKB can handle either byte order, but if I get to choose I'd	*/
+    /* rather have it predicatable system-to-system							*/
 
     if (stream_obj)
     {
@@ -320,8 +320,8 @@ int SHPWriteOGisWKB(WKBStreamObj *stream_obj, SHPObject *psCShape)
     }
 
     /* object size needs to be 9 bytes for the wrapper, and for each polygon	*/
-    /* another 9 bytes all plus twice the total number of vertices 		*/
-    /* times the sizeof (double) and just pad with 10 more chars for fun 		*/
+    /* another 9 bytes all plus twice the total number of vertices				*/
+    /* times the sizeof (double) and just pad with 10 more chars for fun		*/
     stream_obj->wStream =
         calloc(1, (9 * (psCShape->nParts + 1)) +
                       (sizeof(double) * 2 * psCShape->nVertices) + 10);
@@ -359,19 +359,19 @@ int SHPWriteOGisWKB(WKBStreamObj *stream_obj, SHPObject *psCShape)
 
     const int thisDim = SHPDimension(psCShape->nSHPType);
 
-    if (thisDim && SHPD_AREA)
+    if (thisDim & SHPD_AREA)
     {
         SHPWriteOGisPolygon(stream_obj, psCShape);
     }
     else
     {
-        if (thisDim && SHPD_LINE)
+        if (thisDim & SHPD_LINE)
         {
             SHPWriteOGisLine(stream_obj, psCShape);
         }
         else
         {
-            if (thisDim && SHPD_POINT)
+            if (thisDim & SHPD_POINT)
             {
                 SHPWriteOGisPoint(stream_obj, psCShape);
             }
@@ -778,7 +778,7 @@ PT *SHPPointsinPoly_2d(SHPObject *psCShape)
     double rLenMax = 0;
 
     SHPObject *psO;
-    while (psO = SHPUnCompound(psCShape, &cRing))
+    while ((psO = SHPUnCompound(psCShape, &cRing)) != NULL)
     {
         double *CLx = calloc(4, sizeof(double));
         double *CLy = calloc(4, sizeof(double));
@@ -1115,7 +1115,7 @@ double SHPArea_2d(SHPObject *psCShape)
  * **************************************************************************/
 double SHPLength_2d(SHPObject *psCShape)
 {
-    if (!(SHPDimension(psCShape->nSHPType) && (SHPD_AREA || SHPD_LINE)))
+    if (!(SHPDimension(psCShape->nSHPType) & (SHPD_AREA | SHPD_LINE)))
         return -1.0;
 
     double Length = 0;
