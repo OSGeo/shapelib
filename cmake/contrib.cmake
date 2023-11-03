@@ -1,18 +1,8 @@
 if(BUILD_SHAPELIB_CONTRIB)
-  if(NOT MSVC)
-    add_executable(csv2shp ${PROJECT_SOURCE_DIR}/contrib/csv2shp.c)
-    target_link_libraries(csv2shp shp)
-    set_target_properties(csv2shp PROPERTIES FOLDER "contrib")
+  add_executable(csv2shp ${PROJECT_SOURCE_DIR}/contrib/csv2shp.c)
+  target_link_libraries(csv2shp shp)
+  set_target_properties(csv2shp PROPERTIES FOLDER "contrib")
 
-   install(
-     TARGETS csv2shp
-     PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-   )
-  endif()
-  
   add_executable(dbfcat ${PROJECT_SOURCE_DIR}/contrib/dbfcat.c)
   target_link_libraries(dbfcat shp)
   set_target_properties(dbfcat PROPERTIES FOLDER "contrib")
@@ -59,17 +49,18 @@ if(BUILD_SHAPELIB_CONTRIB)
   
   install(
     TARGETS
-	  dbfcat
-	  dbfinfo
-	  shpcat
-	  shpdxf
-	  shpfix
-	  shpsort
-	  Shape_PointInPoly
-	  shpcentrd
-	  shpdata
-	  shpinfo
-	  shpwkb
+      csv2shp
+      dbfcat
+      dbfinfo
+      shpcat
+      shpdxf
+      shpfix
+      shpsort
+      Shape_PointInPoly
+      shpcentrd
+      shpdata
+      shpinfo
+      shpwkb
     PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
