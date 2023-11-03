@@ -60,14 +60,23 @@ Email: <http://springsrescuemission.org/email.php?recipient=webmaster>
 
 */
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "shapefil.h"
-#include "regex.h"
 
 #define MAX_COLUMNS 30
+
+#if defined(_MSC_VER)
+#define STRCASECMP(a, b) (_stricmp(a, b))
+#elif defined(WIN32) || defined(_WIN32)
+#define STRCASECMP(a, b) (stricmp(a, b))
+#else
+#include <strings.h>
+#define STRCASECMP(a, b) (strcasecmp(a, b))
+#endif
 
 typedef struct column_t
 {
@@ -81,7 +90,7 @@ int strnchr(const char *s, char c)
 {
     int n = 0;
 
-    for (int x = 0; x < strlen(s); x++)
+    for (size_t x = 0; x < strlen(s); x++)
     {
         if (c == s[x])
         {
@@ -127,41 +136,65 @@ char *delimited_column(char *s, char delim, int n)
     return szreturn;
 }
 
+/* returns the number of decimals in a real number given as a string s */
+int str_to_ndecimals(const char *s)
+{
+    if (s == NULL)
+    {
+        return -1;
+    }
+
+    /* Check for float: ^-?[0-9]+\.[0-9]+$ */
+    if (!isdigit(s[0]) && s[0] != '-')
+    {
+        return -1;
+    }
+
+    size_t len = strlen(s);
+    if (!isdigit(s[len - 1]))
+    {
+        return -1;
+    }
+
+    const char* decimalPoint = strchr(s, '.');
+    if ((decimalPoint == NULL) || (strchr(decimalPoint + 1, '.') != NULL))
+    {
+        return -1;
+    }
+
+    for (size_t x = 1; x < len - 1; x++)
+    {
+        if (!isdigit(s[x]) && s[x] != '.')
+        {
+            return -1;
+        }
+    }
+
+    return (int)strlen(decimalPoint + 1);
+}
+
 /* Determines the most specific column type.
    The most specific types from most to least are integer, float, string.  */
 DBFFieldType str_to_fieldtype(const char *s)
 {
-    regex_t regex_i;
-    if (0 != regcomp(&regex_i, "^[0-9]+$", REG_NOSUB | REG_EXTENDED))
-    {
-        fprintf(stderr, "integer regex complication failed\n");
-        exit(EXIT_FAILURE);
-    }
+    size_t len = strlen(s);
 
-    if (0 == regexec(&regex_i, s, 0, NULL, 0))
+    /* Check for integer: ^[0-9]+$ */
+    int isInteger = 1;
+    for (size_t x = 0; x < len; x++)
     {
-        regfree(&regex_i);
+        if (!isdigit(s[x]))
+        {
+            isInteger = 0;
+            break;
+        }
+    }
+    if (isInteger)
+    {
         return FTInteger;
     }
 
-    regfree(&regex_i);
-
-    regex_t regex_d;
-    if (0 != regcomp(&regex_d, "^-?[0-9]+\\.[0-9]+$", REG_NOSUB | REG_EXTENDED))
-    {
-        fprintf(stderr, "integer regex complication failed\n");
-        exit(EXIT_FAILURE);
-    }
-
-    if (0 == regexec(&regex_d, s, 0, NULL, 0))
-    {
-        regfree(&regex_d);
-        return FTDouble;
-    }
-
-    regfree(&regex_d);
-
-    return FTString;
+    return str_to_ndecimals(s) > 0 ? FTDouble : FTString;
 }
 
 /* returns the field width */
@@ -172,37 +205,12 @@ int str_to_nwidth(const char *s, DBFFieldType eType)
         case FTString:
         case FTInteger:
         case FTDouble:
-            return strlen(s);
+            return (int)strlen(s);
 
         default:
             fprintf(stderr, "str_to_nwidth: unexpected type\n");
             exit(EXIT_FAILURE);
     }
-}
-
-/* returns the number of decimals in a real number given as a string s */
-int str_to_ndecimals(const char *s)
-{
-    regex_t regex_d;
-    if (0 != regcomp(&regex_d, "^-?[0-9]+\\.([0-9]+)$", REG_EXTENDED))
-    {
-        fprintf(stderr, "integer regex complication failed\n");
-        exit(EXIT_FAILURE);
-    }
-
-    regmatch_t pmatch[2];
-    if (0 != regexec(&regex_d, s, 2, &pmatch[0], 0))
-    {
-        return -1;
-    }
-
-    char szbuffer[4096];
-    strncpy(szbuffer, &s[pmatch[1].rm_so], pmatch[1].rm_eo - pmatch[1].rm_so);
-    szbuffer[pmatch[1].rm_eo - pmatch[1].rm_so] = '\0';
-
-    regfree(&regex_d);
-
-    return strlen(szbuffer);
 }
 
 /* returns true if f1 is more general than f2, otherwise false */
@@ -329,13 +337,13 @@ int main(int argc, char **argv)
     for (int x = 0; x <= n_columns; x++)
     {
         if (0 ==
-            strcasecmp("Longitude", delimited_column(sbuffer, delimiter, x)))
+            STRCASECMP("Longitude", delimited_column(sbuffer, delimiter, x)))
         {
             n_longitude = x;
         }
-
+        else
         if (0 ==
-            strcasecmp("Latitude", delimited_column(sbuffer, delimiter, x)))
+            STRCASECMP("Latitude", delimited_column(sbuffer, delimiter, x)))
         {
             n_latitude = x;
         }
@@ -354,7 +362,7 @@ int main(int argc, char **argv)
 
     /* determine best fit for each column */
 
-    printf("Anaylzing column types...\n");
+    printf("Analyzing column types...\n");
 
 #ifdef DEBUG
     printf("debug: string type = %i\n", FTString);
@@ -374,6 +382,7 @@ int main(int argc, char **argv)
 
         fseek(csv_f, 0, SEEK_SET);
         fgets(sbuffer, 4000, csv_f);
+        strip_crlf(sbuffer);
 
         while (!feof(csv_f))
         {
@@ -389,6 +398,7 @@ int main(int argc, char **argv)
                 }
                 continue;
             }
+            strip_crlf(sbuffer);
 
             char szfield[4096];
             strcpy(szfield, delimited_column(sbuffer, delimiter, x));
@@ -400,6 +410,7 @@ int main(int argc, char **argv)
                 columns[x].nDecimals = 0;
                 fseek(csv_f, 0, SEEK_SET);
                 fgets(sbuffer, 4000, csv_f);
+                strip_crlf(sbuffer);
                 continue;
             }
             if (columns[x].nWidth < str_to_nwidth(szfield, columns[x].eType))
@@ -450,6 +461,7 @@ int main(int argc, char **argv)
 
     fseek(csv_f, 0, SEEK_SET);
     fgets(sbuffer, 4000, csv_f); /* skip header */
+    strip_crlf(sbuffer);
 
     n_columns = strnchr(sbuffer, delimiter);
     n_line = 1;
@@ -458,6 +470,7 @@ int main(int argc, char **argv)
     {
         n_line++;
         fgets(sbuffer, 4000, csv_f);
+        strip_crlf(sbuffer);
 
         /* write to shape file */
         double x_pt = atof(delimited_column(sbuffer, delimiter, n_longitude));
