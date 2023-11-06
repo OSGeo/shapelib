@@ -26,6 +26,7 @@ EXTRA_DIST = makefile.vc CMakeLists.txt autogen.sh \
 		web/dbf_api.html \
 		web/license.html \
 		web/manifest.html \
+		LICENSE-LGPL LICENSE-MIT \
 		README.tree README.CMake
 
 # pkg-config file
