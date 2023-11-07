@@ -283,7 +283,8 @@ int main(int argc, char **argv)
     char id[255];
 
     // Proceed to process data.
-    for (int recNum = 0; (recNum < shp_numrec) && (recNum < (int)MaxElem); recNum++)
+    for (int recNum = 0; (recNum < shp_numrec) && (recNum < (int)MaxElem);
+         recNum++)
     {
         if (idfld >= 0)
             switch (idfld_type)
