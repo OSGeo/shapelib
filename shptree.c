@@ -1113,8 +1113,7 @@ int SHPAPI_CALL SHPWriteTree(SHPTree *tree, const char *filename)
 /*                           SHPWriteTreeLL()                           */
 /************************************************************************/
 
-int SHPWriteTreeLL(SHPTree *tree, const char *filename,
-                   const SAHooks *psHooks)
+int SHPWriteTreeLL(SHPTree *tree, const char *filename, const SAHooks *psHooks)
 {
     char signature[4] = "SQT";
     int i;

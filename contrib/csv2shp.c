@@ -156,7 +156,7 @@ int str_to_ndecimals(const char *s)
         return -1;
     }
 
-    const char* decimalPoint = strchr(s, '.');
+    const char *decimalPoint = strchr(s, '.');
     if ((decimalPoint == NULL) || (strchr(decimalPoint + 1, '.') != NULL))
     {
         return -1;
@@ -341,9 +341,8 @@ int main(int argc, char **argv)
         {
             n_longitude = x;
         }
-        else
-        if (0 ==
-            STRCASECMP("Latitude", delimited_column(sbuffer, delimiter, x)))
+        else if (0 == STRCASECMP("Latitude",
+                                 delimited_column(sbuffer, delimiter, x)))
         {
             n_latitude = x;
         }
