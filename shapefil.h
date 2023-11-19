@@ -55,7 +55,7 @@ extern "C"
     /*      various calling conventions on the Shapelib API.                */
     /*                                                                      */
     /*      To force __stdcall conventions (needed to call Shapelib         */
-    /*      from Visual Basic and/or Dephi I believe) the makefile could    */
+    /*      from Visual Basic and/or Delphi I believe) the makefile could   */
     /*      be modified to define:                                          */
     /*                                                                      */
     /*        /DSHPAPI_CALL=__stdcall                                       */
@@ -121,7 +121,8 @@ extern "C"
     {
         SAFile (*FOpen)(const char *filename, const char *access);
         SAOffset (*FRead)(void *p, SAOffset size, SAOffset nmemb, SAFile file);
-        SAOffset (*FWrite)(void *p, SAOffset size, SAOffset nmemb, SAFile file);
+        SAOffset (*FWrite)(const void *p, SAOffset size, SAOffset nmemb,
+                           SAFile file);
         SAOffset (*FSeek)(SAFile file, SAOffset offset, int whence);
         SAOffset (*FTell)(SAFile file);
         int (*FFlush)(SAFile file);
@@ -333,7 +334,7 @@ extern "C"
 
     SHPTree SHPAPI_CALL1(*)
         SHPCreateTree(SHPHandle hSHP, int nDimension, int nMaxDepth,
-                      double *padfBoundsMin, double *padfBoundsMax);
+                      const double *padfBoundsMin, const double *padfBoundsMax);
     void SHPAPI_CALL SHPDestroyTree(SHPTree *hTree);
 
     int SHPAPI_CALL SHPWriteTree(SHPTree *hTree, const char *pszFilename);
@@ -346,8 +347,8 @@ extern "C"
     int SHPAPI_CALL1(*)
         SHPTreeFindLikelyShapes(SHPTree *hTree, double *padfBoundsMin,
                                 double *padfBoundsMax, int *);
-    int SHPAPI_CALL SHPCheckBoundsOverlap(double *, double *, double *,
-                                          double *, int);
+    int SHPAPI_CALL SHPCheckBoundsOverlap(const double *, const double *,
+                                          const double *, const double *, int);
 
     int SHPAPI_CALL1(*)
         SHPSearchDiskTree(FILE *fp, double *padfBoundsMin,
@@ -379,8 +380,8 @@ extern "C"
     void SHPAPI_CALL SBNCloseDiskTree(SBNSearchHandle hSBN);
 
     int SHPAPI_CALL1(*)
-        SBNSearchDiskTree(SBNSearchHandle hSBN, double *padfBoundsMin,
-                          double *padfBoundsMax, int *pnShapeCount);
+        SBNSearchDiskTree(SBNSearchHandle hSBN, const double *padfBoundsMin,
+                          const double *padfBoundsMax, int *pnShapeCount);
 
     int SHPAPI_CALL1(*)
         SBNSearchDiskTreeInteger(SBNSearchHandle hSBN, int bMinX, int bMinY,
@@ -483,7 +484,7 @@ extern "C"
 
     int SHPAPI_CALL DBFDeleteField(DBFHandle hDBF, int iField);
 
-    int SHPAPI_CALL DBFReorderFields(DBFHandle psDBF, int *panMap);
+    int SHPAPI_CALL DBFReorderFields(DBFHandle psDBF, const int *panMap);
 
     int SHPAPI_CALL DBFAlterFieldDefn(DBFHandle psDBF, int iField,
                                       const char *pszFieldName, char chType,
@@ -519,10 +520,10 @@ extern "C"
                                              int iField,
                                              const char lFieldValue);
     int SHPAPI_CALL DBFWriteAttributeDirectly(DBFHandle psDBF, int hEntity,
-                                              int iField, void *pValue);
+                                              int iField, const void *pValue);
     const char SHPAPI_CALL1(*) DBFReadTuple(DBFHandle psDBF, int hEntity);
     int SHPAPI_CALL DBFWriteTuple(DBFHandle psDBF, int hEntity,
-                                  void *pRawTuple);
+                                  const void *pRawTuple);
 
     int SHPAPI_CALL DBFIsRecordDeleted(DBFHandle psDBF, int iShape);
     int SHPAPI_CALL DBFMarkRecordDeleted(DBFHandle psDBF, int iShape,

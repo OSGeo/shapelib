@@ -61,8 +61,8 @@ static bool bBigEndian = false;
 /*      Initialize a tree node.                                         */
 /************************************************************************/
 
-static SHPTreeNode *SHPTreeNodeCreate(double *padfBoundsMin,
-                                      double *padfBoundsMax)
+static SHPTreeNode *SHPTreeNodeCreate(const double *padfBoundsMin,
+                                      const double *padfBoundsMax)
 
 {
     SHPTreeNode *psTreeNode;
@@ -92,7 +92,7 @@ static SHPTreeNode *SHPTreeNodeCreate(double *padfBoundsMin,
 
 SHPTree SHPAPI_CALL1(*)
     SHPCreateTree(SHPHandle hSHP, int nDimension, int nMaxDepth,
-                  double *padfBoundsMin, double *padfBoundsMax)
+                  const double *padfBoundsMin, const double *padfBoundsMax)
 
 {
     SHPTree *psTree;
@@ -251,9 +251,10 @@ void SHPAPI_CALL SHPDestroyTree(SHPTree *psTree)
 /*      Do the given boxes overlap at all?                              */
 /************************************************************************/
 
-int SHPAPI_CALL SHPCheckBoundsOverlap(double *padfBox1Min, double *padfBox1Max,
-                                      double *padfBox2Min, double *padfBox2Max,
-                                      int nDimension)
+int SHPAPI_CALL SHPCheckBoundsOverlap(const double *padfBox1Min,
+                                      const double *padfBox1Max,
+                                      const double *padfBox2Min,
+                                      const double *padfBox2Max, int nDimension)
 {
     for (int iDim = 0; iDim < nDimension; iDim++)
     {
@@ -273,9 +274,9 @@ int SHPAPI_CALL SHPCheckBoundsOverlap(double *padfBox1Min, double *padfBox1Max,
 /*      Does the given shape fit within the indicated extents?          */
 /************************************************************************/
 
-static bool SHPCheckObjectContained(SHPObject *psObject, int nDimension,
-                                    double *padfBoundsMin,
-                                    double *padfBoundsMax)
+static bool SHPCheckObjectContained(const SHPObject *psObject, int nDimension,
+                                    const double *padfBoundsMin,
+                                    const double *padfBoundsMax)
 
 {
     if (psObject->dfXMin < padfBoundsMin[0] ||
@@ -310,7 +311,8 @@ static bool SHPCheckObjectContained(SHPObject *psObject, int nDimension,
 /*      longest dimension.                                              */
 /************************************************************************/
 
-static void SHPTreeSplitBounds(double *padfBoundsMinIn, double *padfBoundsMaxIn,
+static void SHPTreeSplitBounds(const double *padfBoundsMinIn,
+                               const double *padfBoundsMaxIn,
                                double *padfBoundsMin1, double *padfBoundsMax1,
                                double *padfBoundsMin2, double *padfBoundsMax2)
 
@@ -684,11 +686,10 @@ static void SwapWord(int length, void *wordP)
 
 {
     int i;
-    unsigned char temp;
 
     for (i = 0; i < length / 2; i++)
     {
-        temp = STATIC_CAST(unsigned char *, wordP)[i];
+        unsigned char temp = STATIC_CAST(unsigned char *, wordP)[i];
         STATIC_CAST(unsigned char *, wordP)
         [i] = STATIC_CAST(unsigned char *, wordP)[length - i - 1];
         STATIC_CAST(unsigned char *, wordP)[length - i - 1] = temp;
@@ -1093,7 +1094,7 @@ int SHPAPI_CALL SHPWriteTree(SHPTree *tree, const char *filename)
 
 int SHPWriteTreeLL(SHPTree *tree, const char *filename, const SAHooks *psHooks)
 {
-    char signature[4] = "SQT";
+    const char signature[4] = "SQT";
     int i;
     char abyBuf[32];
     SAFile fp;

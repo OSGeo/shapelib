@@ -99,9 +99,9 @@ static void DBFWriteHeader(DBFHandle psDBF)
     psDBF->bNoHeader = FALSE;
 
     /* -------------------------------------------------------------------- */
-    /*	Initialize the file header information.				*/
+    /*      Initialize the file header information.                         */
     /* -------------------------------------------------------------------- */
-    abyHeader[0] = 0x03; /* memo field? - just copying 	*/
+    abyHeader[0] = 0x03; /* memo field? - just copying */
 
     /* write out update date */
     abyHeader[1] = STATIC_CAST(unsigned char, psDBF->nUpdateYearSince1900);
@@ -120,7 +120,7 @@ static void DBFWriteHeader(DBFHandle psDBF)
 
     /* -------------------------------------------------------------------- */
     /*      Write the initial 32 byte file header, and all the field        */
-    /*      descriptions.                                     		*/
+    /*      descriptions.                                                   */
     /* -------------------------------------------------------------------- */
     psDBF->sHooks.FSeek(psDBF->fp, 0, 0);
     psDBF->sHooks.FWrite(abyHeader, XBASE_FILEHDR_SZ, 1, psDBF->fp);
@@ -361,8 +361,8 @@ DBFHandle SHPAPI_CALL DBFOpenLL(const char *pszFilename, const char *pszAccess,
         pszAccess = "rb+";
 
     /* -------------------------------------------------------------------- */
-    /*	Compute the base (layer) name.  If there is any extension	*/
-    /*	on the passed in filename we will strip it off.			*/
+    /*      Compute the base (layer) name.  If there is any extension       */
+    /*      on the passed in filename we will strip it off.                 */
     /* -------------------------------------------------------------------- */
     const int nLenWithoutExtension = DBFGetLenWithoutExtension(pszFilename);
     char *pszFullname = STATIC_CAST(char *, malloc(nLenWithoutExtension + 5));
@@ -515,8 +515,8 @@ DBFHandle SHPAPI_CALL DBFOpenLL(const char *pszFilename, const char *pszAccess,
 ** string fields, but in other cases (such as bug 1202) the decimals field
 ** just seems to indicate some sort of preferred formatting, not very
 ** wide fields.  So I have disabled this code.  FrankW.
-	    psDBF->panFieldSize[iField] = pabyFInfo[16] + pabyFInfo[17]*256;
-	    psDBF->panFieldDecimals[iField] = 0;
+            psDBF->panFieldSize[iField] = pabyFInfo[16] + pabyFInfo[17]*256;
+            psDBF->panFieldDecimals[iField] = 0;
 */
         }
 
@@ -562,8 +562,8 @@ void SHPAPI_CALL DBFClose(DBFHandle psDBF)
     CPL_IGNORE_RET_VAL_INT(DBFFlushRecord(psDBF));
 
     /* -------------------------------------------------------------------- */
-    /*      Update last access date, and number of records if we have	*/
-    /*	write access.                					*/
+    /*      Update last access date, and number of records if we have       */
+    /*      write access.                                                   */
     /* -------------------------------------------------------------------- */
     if (psDBF->bUpdated)
         DBFUpdateHeader(psDBF);
@@ -629,8 +629,8 @@ DBFHandle SHPAPI_CALL DBFCreateLL(const char *pszFilename,
                                   const SAHooks *psHooks)
 {
     /* -------------------------------------------------------------------- */
-    /*	Compute the base (layer) name.  If there is any extension	*/
-    /*	on the passed in filename we will strip it off.			*/
+    /*      Compute the base (layer) name.  If there is any extension       */
+    /*      on the passed in filename we will strip it off.                 */
     /* -------------------------------------------------------------------- */
     const int nLenWithoutExtension = DBFGetLenWithoutExtension(pszFilename);
     char *pszFullname = STATIC_CAST(char *, malloc(nLenWithoutExtension + 5));
@@ -686,7 +686,7 @@ DBFHandle SHPAPI_CALL DBFCreateLL(const char *pszFilename,
     free(pszFullname);
 
     /* -------------------------------------------------------------------- */
-    /*	Create the info structure.					*/
+    /*      Create the info structure.                                      */
     /* -------------------------------------------------------------------- */
     DBFHandle psDBF = STATIC_CAST(DBFHandle, calloc(1, sizeof(DBFInfo)));
 
@@ -965,13 +965,13 @@ static void *DBFReadAttribute(DBFHandle psDBF, int hEntity, int iField,
         return SHPLIB_NULLPTR;
 
     /* -------------------------------------------------------------------- */
-    /*	Have we read the record?					*/
+    /*     Have we read the record?                                         */
     /* -------------------------------------------------------------------- */
     if (!DBFLoadRecord(psDBF, hEntity))
         return SHPLIB_NULLPTR;
 
-    unsigned char *pabyRec =
-        REINTERPRET_CAST(unsigned char *, psDBF->pszCurrentRecord);
+    const unsigned char *pabyRec =
+        REINTERPRET_CAST(const unsigned char *, psDBF->pszCurrentRecord);
 
     /* -------------------------------------------------------------------- */
     /*      Ensure we have room to extract the target field.                */
@@ -988,7 +988,7 @@ static void *DBFReadAttribute(DBFHandle psDBF, int hEntity, int iField,
     }
 
     /* -------------------------------------------------------------------- */
-    /*	Extract the requested field.					*/
+    /*      Extract the requested field.                                    */
     /* -------------------------------------------------------------------- */
     memcpy(psDBF->pszWorkField,
            REINTERPRET_CAST(const char *, pabyRec) +
@@ -1246,15 +1246,15 @@ DBFFieldType SHPAPI_CALL DBFGetFieldInfo(DBFHandle psDBF, int iField,
 
 /************************************************************************/
 /*                         DBFWriteAttribute()                          */
-/*									*/
-/*	Write an attribute record to the file.				*/
+/*                                                                      */
+/*      Write an attribute record to the file.                          */
 /************************************************************************/
 
 static bool DBFWriteAttribute(DBFHandle psDBF, int hEntity, int iField,
                               void *pValue)
 {
     /* -------------------------------------------------------------------- */
-    /*	Is this a valid record?						*/
+    /*      Is this a valid record?                                         */
     /* -------------------------------------------------------------------- */
     if (hEntity < 0 || hEntity > psDBF->nRecords)
         return false;
@@ -1381,10 +1381,10 @@ static bool DBFWriteAttribute(DBFHandle psDBF, int hEntity, int iField,
 /************************************************************************/
 
 int SHPAPI_CALL DBFWriteAttributeDirectly(DBFHandle psDBF, int hEntity,
-                                          int iField, void *pValue)
+                                          int iField, const void *pValue)
 {
     /* -------------------------------------------------------------------- */
-    /*	Is this a valid record?						*/
+    /*      Is this a valid record?                                         */
     /* -------------------------------------------------------------------- */
     if (hEntity < 0 || hEntity > psDBF->nRecords)
         return (FALSE);
@@ -1512,14 +1512,15 @@ int SHPAPI_CALL DBFWriteLogicalAttribute(DBFHandle psDBF, int iRecord,
 
 /************************************************************************/
 /*                         DBFWriteTuple()                              */
-/*									*/
-/*	Write an attribute record to the file.				*/
+/*                                                                      */
+/*      Write an attribute record to the file.                          */
 /************************************************************************/
 
-int SHPAPI_CALL DBFWriteTuple(DBFHandle psDBF, int hEntity, void *pRawTuple)
+int SHPAPI_CALL DBFWriteTuple(DBFHandle psDBF, int hEntity,
+                              const void *pRawTuple)
 {
     /* -------------------------------------------------------------------- */
-    /*	Is this a valid record?						*/
+    /*      Is this a valid record?                                         */
     /* -------------------------------------------------------------------- */
     if (hEntity < 0 || hEntity > psDBF->nRecords)
         return (FALSE);
@@ -1580,7 +1581,7 @@ const char SHPAPI_CALL1(*) DBFReadTuple(DBFHandle psDBF, int hEntity)
 }
 
 /************************************************************************/
-/*                          DBFCloneEmpty()                              */
+/*                          DBFCloneEmpty()                             */
 /*                                                                      */
 /*      Read one of the attribute fields of a record.                   */
 /************************************************************************/
@@ -1690,7 +1691,7 @@ int SHPAPI_CALL DBFIsRecordDeleted(DBFHandle psDBF, int iShape)
         return TRUE;
 
     /* -------------------------------------------------------------------- */
-    /*	Have we read the record?					*/
+    /*      Have we read the record?                                        */
     /* -------------------------------------------------------------------- */
     if (!DBFLoadRecord(psDBF, iShape))
         return FALSE;
@@ -1885,7 +1886,7 @@ int SHPAPI_CALL DBFDeleteField(DBFHandle psDBF, int iField)
 /* code of DBFReorderFields.                                            */
 /************************************************************************/
 
-int SHPAPI_CALL DBFReorderFields(DBFHandle psDBF, int *panMap)
+int SHPAPI_CALL DBFReorderFields(DBFHandle psDBF, const int *panMap)
 {
     if (psDBF->nFields == 0)
         return TRUE;
