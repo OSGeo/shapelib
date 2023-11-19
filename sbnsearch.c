@@ -746,8 +746,8 @@ static int compare_ints(const void *a, const void *b)
 /*                        SBNSearchDiskTree()                           */
 /************************************************************************/
 
-int *SBNSearchDiskTree(SBNSearchHandle hSBN, double *padfBoundsMin,
-                       double *padfBoundsMax, int *pnShapeCount)
+int *SBNSearchDiskTree(SBNSearchHandle hSBN, const double *padfBoundsMin,
+                       const double *padfBoundsMax, int *pnShapeCount)
 {
     *pnShapeCount = 0;
 
