@@ -349,8 +349,9 @@ SHPHandle SHPAPI_CALL SHPOpenLL(const char *pszLayer, const char *pszAccess,
         const size_t nMessageLen = strlen(pszFullname) * 2 + 256;
         char *pszMessage = STATIC_CAST(char *, malloc(nMessageLen));
         pszFullname[nLenWithoutExtension] = 0;
-        snprintf(pszMessage, nMessageLen, "Unable to open %s.shp or %s.SHP.",
-                 pszFullname, pszFullname);
+        snprintf(pszMessage, nMessageLen,
+                 "Unable to open %s.shp or %s.SHP in %s mode.", pszFullname,
+                 pszFullname, pszAccess);
         psHooks->Error(pszMessage);
         free(pszMessage);
 
@@ -784,27 +785,72 @@ int SHPAPI_CALL SHPRestoreSHX(const char *pszLayer, const char *pszAccess,
     // unsigned int nCurrentRecordOffset = 0;
     unsigned int nCurrentSHPOffset = 100;
     unsigned int nRealSHXContentSize = 100;
-    unsigned int niRecord = 0;
-    unsigned int nRecordLength = 0;
+    int nRetCode = TRUE;
     unsigned int nRecordOffset = 50;
-    char abyReadedRecord[8];
 
     while (nCurrentSHPOffset < nSHPFilesize)
     {
+        unsigned int niRecord = 0;
+        unsigned int nRecordLength = 0;
+        int nSHPType;
+
         if (psHooks->FRead(&niRecord, 4, 1, fpSHP) == 1 &&
-            psHooks->FRead(&nRecordLength, 4, 1, fpSHP) == 1)
+            psHooks->FRead(&nRecordLength, 4, 1, fpSHP) == 1 &&
+            psHooks->FRead(&nSHPType, 4, 1, fpSHP) == 1)
         {
-            if (!bBigEndian)
-                SwapWord(4, &nRecordOffset);
-            memcpy(abyReadedRecord, &nRecordOffset, 4);
-            memcpy(abyReadedRecord + 4, &nRecordLength, 4);
-
-            psHooks->FWrite(abyReadedRecord, 8, 1, fpSHX);
+            char abyReadRecord[8];
+            unsigned int nRecordOffsetBE = nRecordOffset;
 
             if (!bBigEndian)
-                SwapWord(4, &nRecordOffset);
+                SwapWord(4, &nRecordOffsetBE);
+            memcpy(abyReadRecord, &nRecordOffsetBE, 4);
+            memcpy(abyReadRecord + 4, &nRecordLength, 4);
+
             if (!bBigEndian)
                 SwapWord(4, &nRecordLength);
+
+            if (bBigEndian)
+                SwapWord(4, &nSHPType);
+
+            // Sanity check on record length
+            if (nRecordLength < 1 ||
+                nRecordLength > (nSHPFilesize - (nCurrentSHPOffset + 8)) / 2)
+            {
+                char szErrorMsg[200];
+                snprintf(szErrorMsg, sizeof(szErrorMsg),
+                         "Error parsing .shp to restore .shx. "
+                         "Invalid record length = %u at record starting at "
+                         "offset %u",
+                         nSHPType, nCurrentSHPOffset);
+                psHooks->Error(szErrorMsg);
+
+                nRetCode = FALSE;
+                break;
+            }
+
+            // Sanity check on record type
+            if (nSHPType != SHPT_NULL && nSHPType != SHPT_POINT &&
+                nSHPType != SHPT_ARC && nSHPType != SHPT_POLYGON &&
+                nSHPType != SHPT_MULTIPOINT && nSHPType != SHPT_POINTZ &&
+                nSHPType != SHPT_ARCZ && nSHPType != SHPT_POLYGONZ &&
+                nSHPType != SHPT_MULTIPOINTZ && nSHPType != SHPT_POINTM &&
+                nSHPType != SHPT_ARCM && nSHPType != SHPT_POLYGONM &&
+                nSHPType != SHPT_MULTIPOINTM && nSHPType != SHPT_MULTIPATCH)
+            {
+                char szErrorMsg[200];
+                snprintf(szErrorMsg, sizeof(szErrorMsg),
+                         "Error parsing .shp to restore .shx. "
+                         "Invalid shape type = %d at record starting at "
+                         "offset %u",
+                         nSHPType, nCurrentSHPOffset);
+                psHooks->Error(szErrorMsg);
+
+                nRetCode = FALSE;
+                break;
+            }
+
+            psHooks->FWrite(abyReadRecord, 8, 1, fpSHX);
+
             nRecordOffset += nRecordLength + 4;
             // nCurrentRecordOffset += 8;
             nCurrentSHPOffset += 8 + nRecordLength * 2;
@@ -814,16 +860,24 @@ int SHPAPI_CALL SHPRestoreSHX(const char *pszLayer, const char *pszAccess,
         }
         else
         {
-            psHooks->Error("Error parsing .shp to restore .shx");
+            char szErrorMsg[200];
+            snprintf(szErrorMsg, sizeof(szErrorMsg),
+                     "Error parsing .shp to restore .shx. "
+                     "Cannot read first bytes of record starting at "
+                     "offset %u",
+                     nCurrentSHPOffset);
+            psHooks->Error(szErrorMsg);
 
-            psHooks->FClose(fpSHX);
-            psHooks->FClose(fpSHP);
-
-            free(pabySHXHeader);
-            free(pszFullname);
-
-            return (0);
+            nRetCode = FALSE;
+            break;
         }
+    }
+    if (nRetCode && nCurrentSHPOffset != nSHPFilesize)
+    {
+        psHooks->Error("Error parsing .shp to restore .shx. "
+                       "Not expected number of bytes");
+
+        nRetCode = FALSE;
     }
 
     nRealSHXContentSize /= 2;  // Bytes counted -> WORDs
@@ -838,7 +892,7 @@ int SHPAPI_CALL SHPRestoreSHX(const char *pszLayer, const char *pszAccess,
     free(pszFullname);
     free(pabySHXHeader);
 
-    return (1);
+    return nRetCode;
 }
 
 /************************************************************************/
@@ -981,7 +1035,7 @@ SHPHandle SHPAPI_CALL SHPCreateLL(const char *pszLayer, int nShapeType,
     char *pszFullname = STATIC_CAST(char *, malloc(nLenWithoutExtension + 5));
     memcpy(pszFullname, pszLayer, nLenWithoutExtension);
     memcpy(pszFullname + nLenWithoutExtension, ".shp", 5);
-    SAFile fpSHP = psHooks->FOpen(pszFullname, "wb");
+    SAFile fpSHP = psHooks->FOpen(pszFullname, "w+b");
     if (fpSHP == SHPLIB_NULLPTR)
     {
         char szErrorMsg[200];
@@ -994,7 +1048,7 @@ SHPHandle SHPAPI_CALL SHPCreateLL(const char *pszLayer, int nShapeType,
     }
 
     memcpy(pszFullname + nLenWithoutExtension, ".shx", 5);
-    SAFile fpSHX = psHooks->FOpen(pszFullname, "wb");
+    SAFile fpSHX = psHooks->FOpen(pszFullname, "w+b");
     if (fpSHX == SHPLIB_NULLPTR)
     {
         char szErrorMsg[200];
@@ -1081,13 +1135,35 @@ SHPHandle SHPAPI_CALL SHPCreateLL(const char *pszLayer, int nShapeType,
         return NULL;
     }
 
-    /* -------------------------------------------------------------------- */
-    /*      Close the files, and then open them as regular existing files.  */
-    /* -------------------------------------------------------------------- */
-    psHooks->FClose(fpSHP);
-    psHooks->FClose(fpSHX);
+    SHPHandle psSHP = STATIC_CAST(SHPHandle, calloc(sizeof(SHPInfo), 1));
 
-    return (SHPOpenLL(pszLayer, "r+b", psHooks));
+    psSHP->bUpdated = FALSE;
+    memcpy(&(psSHP->sHooks), psHooks, sizeof(SAHooks));
+
+    psSHP->fpSHP = fpSHP;
+    psSHP->fpSHX = fpSHX;
+    psSHP->nShapeType = nShapeType;
+    psSHP->nFileSize = 100;
+    psSHP->panRecOffset =
+        STATIC_CAST(unsigned int *, malloc(sizeof(unsigned int)));
+    psSHP->panRecSize =
+        STATIC_CAST(unsigned int *, malloc(sizeof(unsigned int)));
+
+    if (psSHP->panRecOffset == SHPLIB_NULLPTR ||
+        psSHP->panRecSize == SHPLIB_NULLPTR)
+    {
+        psSHP->sHooks.Error("Not enough memory to allocate requested memory");
+        psSHP->sHooks.FClose(psSHP->fpSHP);
+        psSHP->sHooks.FClose(psSHP->fpSHX);
+        if (psSHP->panRecOffset)
+            free(psSHP->panRecOffset);
+        if (psSHP->panRecSize)
+            free(psSHP->panRecSize);
+        free(psSHP);
+        return SHPLIB_NULLPTR;
+    }
+
+    return psSHP;
 }
 
 /************************************************************************/
@@ -1314,6 +1390,10 @@ int SHPAPI_CALL SHPWriteObject(SHPHandle psSHP, int nShapeId,
     /* -------------------------------------------------------------------- */
     if (nShapeId == -1 && psSHP->nRecords + 1 > psSHP->nMaxRecords)
     {
+        /* This cannot overflow given that we check that the file size does
+         * not grow over 4 GB, and the minimum size of a record is 12 bytes,
+         * hence the maximm value for nMaxRecords is 357,913,941
+         */
         int nNewMaxRecords = psSHP->nMaxRecords + psSHP->nMaxRecords / 3 + 100;
         unsigned int *panRecOffsetNew;
         unsigned int *panRecSizeNew;
@@ -1322,14 +1402,22 @@ int SHPAPI_CALL SHPWriteObject(SHPHandle psSHP, int nShapeId,
             unsigned int *, realloc(psSHP->panRecOffset,
                                     sizeof(unsigned int) * nNewMaxRecords));
         if (panRecOffsetNew == SHPLIB_NULLPTR)
+        {
+            psSHP->sHooks.Error("Failed to write shape object. "
+                                "Memory allocation error.");
             return -1;
+        }
         psSHP->panRecOffset = panRecOffsetNew;
 
         panRecSizeNew = STATIC_CAST(
             unsigned int *,
             realloc(psSHP->panRecSize, sizeof(unsigned int) * nNewMaxRecords));
         if (panRecSizeNew == SHPLIB_NULLPTR)
+        {
+            psSHP->sHooks.Error("Failed to write shape object. "
+                                "Memory allocation error.");
             return -1;
+        }
         psSHP->panRecSize = panRecSizeNew;
 
         psSHP->nMaxRecords = nNewMaxRecords;
@@ -1338,11 +1426,27 @@ int SHPAPI_CALL SHPWriteObject(SHPHandle psSHP, int nShapeId,
     /* -------------------------------------------------------------------- */
     /*      Initialize record.                                              */
     /* -------------------------------------------------------------------- */
-    uchar *pabyRec =
-        STATIC_CAST(uchar *, malloc(psObject->nVertices * 4 * sizeof(double) +
-                                    psObject->nParts * 8 + 128));
-    if (pabyRec == SHPLIB_NULLPTR)
+
+    /* The following computation cannot overflow on 32-bit platforms given that
+     * the user had to allocate arrays of at least that size. */
+    size_t nRecMaxSize =
+        psObject->nVertices * 4 * sizeof(double) + psObject->nParts * 8;
+    /* But the following test could trigger on 64-bit platforms on huge
+     * geometries. */
+    const unsigned nExtraSpaceForGeomHeader = 128;
+    if (nRecMaxSize > UINT_MAX - nExtraSpaceForGeomHeader)
+    {
+        psSHP->sHooks.Error("Failed to write shape object. Too big geometry.");
         return -1;
+    }
+    nRecMaxSize += nExtraSpaceForGeomHeader;
+    uchar *pabyRec = STATIC_CAST(uchar *, malloc(nRecMaxSize));
+    if (pabyRec == SHPLIB_NULLPTR)
+    {
+        psSHP->sHooks.Error("Failed to write shape object. "
+                            "Memory allocation error.");
+        return -1;
+    }
 
     /* -------------------------------------------------------------------- */
     /*      Extract vertices for a Polygon or Arc.                          */
@@ -1615,10 +1719,11 @@ int SHPAPI_CALL SHPWriteObject(SHPHandle psSHP, int nShapeId,
     {
         if (psSHP->nFileSize > UINT_MAX - nRecordSize)
         {
-            char str[128];
+            char str[255];
             snprintf(str, sizeof(str),
                      "Failed to write shape object. "
-                     "File size cannot reach %u + %u.",
+                     "The maximum file size of %u has been reached. "
+                     "The current record of size %u cannot be added.",
                      psSHP->nFileSize, nRecordSize);
             str[sizeof(str) - 1] = '\0';
             psSHP->sHooks.Error(str);
@@ -2731,7 +2836,9 @@ static int SHPGetPartVertexCount(const SHPObject *psObject, int iPart)
 
 /* Return -1 in case of ambiguity */
 static int SHPRewindIsInnerRing(const SHPObject *psObject, int iOpRing,
-                                double dfTestX, double dfTestY)
+                                double dfTestX, double dfTestY,
+                                double dfRelativeTolerance, int bSameZ,
+                                double dfTestZ)
 {
     /* -------------------------------------------------------------------- */
     /*      Determine if this ring is an inner ring or an outer ring        */
@@ -2751,6 +2858,26 @@ static int SHPRewindIsInnerRing(const SHPObject *psObject, int iOpRing,
         const int nVertStartCheck = psObject->panPartStart[iCheckRing];
         const int nVertCountCheck = SHPGetPartVertexCount(psObject, iCheckRing);
 
+        /* Ignore rings that don't have the same (constant) Z value as the
+         * point. */
+        /* As noted in SHPRewindObject(), this is a simplification */
+        /* of what we should ideally do. */
+        if (!bSameZ)
+        {
+            int bZTestOK = TRUE;
+            for (int iVert = nVertStartCheck + 1;
+                 iVert < nVertStartCheck + nVertCountCheck; ++iVert)
+            {
+                if (psObject->padfZ[iVert] != dfTestZ)
+                {
+                    bZTestOK = FALSE;
+                    break;
+                }
+            }
+            if (!bZTestOK)
+                continue;
+        }
+
         for (int iEdge = 0; iEdge < nVertCountCheck; iEdge++)
         {
             int iNext;
@@ -2759,36 +2886,35 @@ static int SHPRewindIsInnerRing(const SHPObject *psObject, int iOpRing,
             else
                 iNext = 0;
 
+            const double y0 = psObject->padfY[iEdge + nVertStartCheck];
+            const double y1 = psObject->padfY[iNext + nVertStartCheck];
             /* Rule #1:
              * Test whether the edge 'straddles' the horizontal ray from
              * the test point (dfTestY,dfTestY)
              * The rule #1 also excludes edges colinear with the ray.
              */
-            if ((psObject->padfY[iEdge + nVertStartCheck] < dfTestY &&
-                 dfTestY <= psObject->padfY[iNext + nVertStartCheck]) ||
-                (psObject->padfY[iNext + nVertStartCheck] < dfTestY &&
-                 dfTestY <= psObject->padfY[iEdge + nVertStartCheck]))
+            if ((y0 < dfTestY && dfTestY <= y1) ||
+                (y1 < dfTestY && dfTestY <= y0))
             {
                 /* Rule #2:
                  * Test if edge-ray intersection is on the right from the
                  * test point (dfTestY,dfTestY)
                  */
-                const double intersect =
-                    (psObject->padfX[iEdge + nVertStartCheck] +
-                     (dfTestY - psObject->padfY[iEdge + nVertStartCheck]) /
-                         (psObject->padfY[iNext + nVertStartCheck] -
-                          psObject->padfY[iEdge + nVertStartCheck]) *
-                         (psObject->padfX[iNext + nVertStartCheck] -
-                          psObject->padfX[iEdge + nVertStartCheck]));
+                const double x0 = psObject->padfX[iEdge + nVertStartCheck];
+                const double x1 = psObject->padfX[iNext + nVertStartCheck];
+                const double intersect_minus_testX =
+                    (x0 - dfTestX) + (dfTestY - y0) / (y1 - y0) * (x1 - x0);
 
-                if (intersect < dfTestX)
+                if (fabs(intersect_minus_testX) <=
+                    dfRelativeTolerance * fabs(dfTestX))
+                {
+                    /* Potential shared edge, or slightly overlapping polygons
+                     */
+                    return -1;
+                }
+                else if (intersect_minus_testX < 0)
                 {
                     bInner = !bInner;
-                }
-                else if (intersect == dfTestX)
-                {
-                    /* Potential shared edge */
-                    return -1;
                 }
             }
         }
@@ -2817,6 +2943,23 @@ int SHPAPI_CALL SHPRewindObject(CPL_UNUSED SHPHandle hSHP, SHPObject *psObject)
         return 0;
 
     /* -------------------------------------------------------------------- */
+    /*      Test if all points have the same Z value.                       */
+    /* -------------------------------------------------------------------- */
+    int bSameZ = TRUE;
+    if (psObject->nSHPType == SHPT_POLYGONZ ||
+        psObject->nSHPType == SHPT_POLYGONM)
+    {
+        for (int iVert = 1; iVert < psObject->nVertices; ++iVert)
+        {
+            if (psObject->padfZ[iVert] != psObject->padfZ[0])
+            {
+                bSameZ = FALSE;
+                break;
+            }
+        }
+    }
+
+    /* -------------------------------------------------------------------- */
     /*      Process each of the rings.                                      */
     /* -------------------------------------------------------------------- */
     int bAltered = 0;
@@ -2828,26 +2971,71 @@ int SHPAPI_CALL SHPRewindObject(CPL_UNUSED SHPHandle hSHP, SHPObject *psObject)
         if (nVertCount < 2)
             continue;
 
-        int bInner = FALSE;
-        for (int iVert = nVertStart; iVert + 1 < nVertStart + nVertCount;
-             ++iVert)
+        /* If a ring has a non-constant Z value, then consider it as an outer */
+        /* ring. */
+        /* NOTE: this is a rough approximation. If we were smarter, */
+        /* we would check that all points of the ring are coplanar, and compare
+         */
+        /* that to other rings in the same (oblique) plane. */
+        int bDoIsInnerRingTest = TRUE;
+        if (!bSameZ)
         {
-            /* Use point in the middle of segment to avoid testing
-            * common points of rings.
-            */
-            const double dfTestX =
-                (psObject->padfX[iVert] + psObject->padfX[iVert + 1]) / 2;
-            const double dfTestY =
-                (psObject->padfY[iVert] + psObject->padfY[iVert + 1]) / 2;
-
-            bInner = SHPRewindIsInnerRing(psObject, iOpRing, dfTestX, dfTestY);
-            if (bInner >= 0)
-                break;
+            int bPartSameZ = TRUE;
+            for (int iVert = nVertStart + 1; iVert < nVertStart + nVertCount;
+                 ++iVert)
+            {
+                if (psObject->padfZ[iVert] != psObject->padfZ[nVertStart])
+                {
+                    bPartSameZ = FALSE;
+                    break;
+                }
+            }
+            if (!bPartSameZ)
+                bDoIsInnerRingTest = FALSE;
         }
-        if (bInner < 0)
+
+        int bInner = FALSE;
+        if (bDoIsInnerRingTest)
         {
-            /* Completely degenerate case. Do not bother touching order. */
-            continue;
+            for (int iTolerance = 0; iTolerance < 2; iTolerance++)
+            {
+                /* In a first attempt, use a relaxed criterion to decide if a
+                 * point */
+                /* is inside another ring. If all points of the current ring are
+                 * in the */
+                /* "grey" zone w.r.t that criterion, which seems really
+                 * unlikely, */
+                /* then use the strict criterion for another pass. */
+                const double dfRelativeTolerance = (iTolerance == 0) ? 1e-9 : 0;
+                for (int iVert = nVertStart;
+                     iVert + 1 < nVertStart + nVertCount; ++iVert)
+                {
+                    /* Use point in the middle of segment to avoid testing
+                     * common points of rings.
+                     */
+                    const double dfTestX =
+                        (psObject->padfX[iVert] + psObject->padfX[iVert + 1]) /
+                        2;
+                    const double dfTestY =
+                        (psObject->padfY[iVert] + psObject->padfY[iVert + 1]) /
+                        2;
+                    const double dfTestZ =
+                        !bSameZ ? psObject->padfZ[nVertStart] : 0;
+
+                    bInner = SHPRewindIsInnerRing(psObject, iOpRing, dfTestX,
+                                                  dfTestY, dfRelativeTolerance,
+                                                  bSameZ, dfTestZ);
+                    if (bInner >= 0)
+                        break;
+                }
+                if (bInner >= 0)
+                    break;
+            }
+            if (bInner < 0)
+            {
+                /* Completely degenerate case. Do not bother touching order. */
+                continue;
+            }
         }
 
         /* -------------------------------------------------------------------- */

@@ -511,13 +511,16 @@ DBFHandle SHPAPI_CALL DBFOpenLL(const char *pszFilename, const char *pszAccess,
             psDBF->panFieldDecimals[iField] = 0;
 
             /*
-** The following seemed to be used sometimes to handle files with long
-** string fields, but in other cases (such as bug 1202) the decimals field
-** just seems to indicate some sort of preferred formatting, not very
-** wide fields.  So I have disabled this code.  FrankW.
-            psDBF->panFieldSize[iField] = pabyFInfo[16] + pabyFInfo[17]*256;
-            psDBF->panFieldDecimals[iField] = 0;
-*/
+            ** The following seemed to be used sometimes to handle files with
+            long
+            ** string fields, but in other cases (such as bug 1202) the decimals
+            field
+            ** just seems to indicate some sort of preferred formatting, not
+            very
+            ** wide fields.  So I have disabled this code.  FrankW.
+                    psDBF->panFieldSize[iField] = pabyFInfo[16] +
+            pabyFInfo[17]*256; psDBF->panFieldDecimals[iField] = 0;
+            */
         }
 
         psDBF->pachFieldType[iField] = STATIC_CAST(char, pabyFInfo[11]);
@@ -640,18 +643,7 @@ DBFHandle SHPAPI_CALL DBFCreateLL(const char *pszFilename,
     /* -------------------------------------------------------------------- */
     /*      Create the file.                                                */
     /* -------------------------------------------------------------------- */
-    SAFile fp = psHooks->FOpen(pszFullname, "wb");
-    if (fp == SHPLIB_NULLPTR)
-    {
-        free(pszFullname);
-        return SHPLIB_NULLPTR;
-    }
-
-    char chZero = '\0';
-    psHooks->FWrite(&chZero, 1, 1, fp);
-    psHooks->FClose(fp);
-
-    fp = psHooks->FOpen(pszFullname, "rb+");
+    SAFile fp = psHooks->FOpen(pszFullname, "wb+");
     if (fp == SHPLIB_NULLPTR)
     {
         free(pszFullname);
@@ -666,8 +658,8 @@ DBFHandle SHPAPI_CALL DBFCreateLL(const char *pszFilename,
         {
             ldid = atoi(pszCodePage + 5);
             if (ldid > 255)
-                ldid =
-                    -1;  // don't use 0 to indicate out of range as LDID/0 is a valid one
+                ldid = -1;  // don't use 0 to indicate out of range as LDID/0 is
+                            // a valid one
         }
         if (ldid < 0)
         {
@@ -1119,10 +1111,10 @@ static bool DBFIsValueNULL(char chType, const char *pszValue)
         case 'N':
         case 'F':
             /*
-        ** We accept all asterisks or all blanks as NULL
-        ** though according to the spec I think it should be all
-        ** asterisks.
-        */
+            ** We accept all asterisks or all blanks as NULL
+            ** though according to the spec I think it should be all
+            ** asterisks.
+            */
             if (pszValue[0] == '*')
                 return true;
 
@@ -1414,25 +1406,29 @@ int SHPAPI_CALL DBFWriteAttributeDirectly(DBFHandle psDBF, int hEntity,
     if (!DBFLoadRecord(psDBF, hEntity))
         return FALSE;
 
-    unsigned char *pabyRec =
-        REINTERPRET_CAST(unsigned char *, psDBF->pszCurrentRecord);
-
-    /* -------------------------------------------------------------------- */
-    /*      Assign all the record fields.                                   */
-    /* -------------------------------------------------------------------- */
-    int j;
-    if (STATIC_CAST(int, strlen(STATIC_CAST(char *, pValue))) >
-        psDBF->panFieldSize[iField])
-        j = psDBF->panFieldSize[iField];
-    else
+    if (iField >= 0)
     {
-        memset(pabyRec + psDBF->panFieldOffset[iField], ' ',
-               psDBF->panFieldSize[iField]);
-        j = STATIC_CAST(int, strlen(STATIC_CAST(char *, pValue)));
-    }
+        unsigned char *pabyRec =
+            REINTERPRET_CAST(unsigned char *, psDBF->pszCurrentRecord);
 
-    strncpy(REINTERPRET_CAST(char *, pabyRec + psDBF->panFieldOffset[iField]),
+        /* -------------------------------------------------------------------- */
+        /*      Assign all the record fields.                                   */
+        /* -------------------------------------------------------------------- */
+        int j;
+        if (STATIC_CAST(int, strlen(STATIC_CAST(char *, pValue))) >
+            psDBF->panFieldSize[iField])
+            j = psDBF->panFieldSize[iField];
+        else
+        {
+            memset(pabyRec + psDBF->panFieldOffset[iField], ' ',
+                   psDBF->panFieldSize[iField]);
+            j = STATIC_CAST(int, strlen(STATIC_CAST(char *, pValue)));
+        }
+
+        strncpy(
+            REINTERPRET_CAST(char *, pabyRec + psDBF->panFieldOffset[iField]),
             STATIC_CAST(const char *, pValue), j);
+    }
 
     psDBF->bCurrentRecordModified = TRUE;
     psDBF->bUpdated = TRUE;
@@ -1895,7 +1891,8 @@ int SHPAPI_CALL DBFReorderFields(DBFHandle psDBF, const int *panMap)
     if (!DBFFlushRecord(psDBF))
         return FALSE;
 
-    /* a simple malloc() would be enough, but calloc() helps clang static analyzer */
+    /* a simple malloc() would be enough, but calloc() helps clang static
+     * analyzer */
     int *panFieldOffsetNew =
         STATIC_CAST(int *, calloc(sizeof(int), psDBF->nFields));
     int *panFieldSizeNew =

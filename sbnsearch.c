@@ -56,12 +56,14 @@ typedef int coord;
 
 typedef struct
 {
-    uchar *
-        pabyShapeDesc; /* Cache of (nShapeCount * 8) bytes of the bins. May be NULL. */
-    int nBinStart;   /* Index of first bin for this node. */
-    int nShapeCount; /* Number of shapes attached to this node. */
-    int nBinCount; /* Number of bins for this node. May be 0 if node is empty. */
-    int nBinOffset; /* Offset in file of the start of the first bin. May be 0 if node is empty. */
+    uchar *pabyShapeDesc; /* Cache of (nShapeCount * 8) bytes of the bins. May
+                             be NULL. */
+    int nBinStart;        /* Index of first bin for this node. */
+    int nShapeCount;      /* Number of shapes attached to this node. */
+    int nBinCount;  /* Number of bins for this node. May be 0 if node is empty.
+                     */
+    int nBinOffset; /* Offset in file of the start of the first bin. May be 0 if
+                       node is empty. */
 
     bool bBBoxInit; /* true if the following bounding box has been computed. */
     coord
@@ -621,6 +623,7 @@ static bool SBNSearchDiskInternal(SearchStruct *psSearch, int nDepth,
 
                 if (!psNode->bBBoxInit)
                 {
+/* clang-format off */
 #ifdef sanity_checks
                     /* -------------------------------------------------------------------- */
                     /*      Those tests only check that the shape bounding box in the bin   */
@@ -644,6 +647,7 @@ static bool SBNSearchDiskInternal(SearchStruct *psSearch, int nDepth,
                         return false;
                     }
 #endif
+                    /* clang-format on */
                     if (bMinX < psNode->bMinX)
                         psNode->bMinX = bMinX;
                     if (bMinY < psNode->bMinY)
