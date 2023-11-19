@@ -18,10 +18,6 @@
 
 #include <stdio.h>
 
-#ifdef USE_DBMALLOC
-#include <dbmalloc.h>
-#endif
-
 #ifdef USE_CPL
 #include "cpl_conv.h"
 #endif
@@ -311,7 +307,7 @@ extern "C"
         double adfBoundsMax[4];
 
         /* list of shapes stored at this node.  The papsShapeObj pointers
-       or the whole list can be NULL */
+           or the whole list can be NULL */
         int nShapeCount;
         int *panShapeIds;
         SHPObject **papsShapeObj;
@@ -402,8 +398,8 @@ extern "C"
 
         int nRecordLength; /* Must fit on uint16 */
         int nHeaderLength; /* File header length (32) + field
-                                  descriptor length + spare space.
-                                  Must fit on uint16 */
+                              descriptor length + spare space.
+                              Must fit on uint16 */
         int nFields;
         int *panFieldOffset;
         int *panFieldSize;
