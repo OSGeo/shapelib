@@ -1,5 +1,5 @@
-	Producing Shapelib Releases
-	===========================
+    Producing Shapelib Releases
+    ===========================
 
 0) Update shapelib_version_major/minor/micro and SHAPELIB_SO_VERSION in configure.ac
    For SHAPELIB_SO_VERSION (CURRENT:REVISION:AGE)
@@ -7,7 +7,11 @@
    - Adding interfaces, bump CURRENT and AGE, set REVISION to 0.
    - Deleting interfaces / compatibility issues - bump CURRENT, others to zero.
 
-  In CMakeLists.txt, update shp_SOVERSION and shp_VERSION
+   In CMakeLists.txt, update the equivalent version fields
+   - PROJECT_VERSION_MAJOR
+   - PROJECT_VERSION_MINOR
+   - PROJECT_VERSION_PATCH
+   - shp_LIB_VERSIONINFO
 
 1) Update web/release.html with change notes on the new release and commit.
 
@@ -22,4 +26,3 @@
    ... add upload notes to maptools.org ...
 
 4) Announce on shapelib mailing list.
-
