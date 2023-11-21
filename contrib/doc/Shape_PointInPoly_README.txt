@@ -1,6 +1,6 @@
 ===============================================================================
-Project:  Shape_PoinInPoly
-Purpose:  Sample and the function for calculatin a point in a polygon
+Project:  Shape_PointInPoly
+Purpose:  Sample and the function for calculation a point in a polygon
 	  (complex,compound - it doesn't matter). Can be used for labeling.
 Author:   Copyright (c) 2004, Marko Podgorsek, d-mon@siol.net
 ===============================================================================
