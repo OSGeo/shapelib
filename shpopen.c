@@ -61,12 +61,17 @@ typedef unsigned int int32;
 #endif
 #endif
 
+#ifndef bBigEndian
 #if defined(CPL_LSB)
 #define bBigEndian false
 #elif defined(CPL_MSB)
 #define bBigEndian true
 #else
-static bool bBigEndian;
+#ifndef static_var_bBigEndian_defined
+#define static_var_bBigEndian_defined
+static bool bBigEndian = false;
+#endif
+#endif
 #endif
 
 #ifdef __cplusplus
@@ -83,6 +88,8 @@ static bool bBigEndian;
 /*      Swap a 2, 4 or 8 byte word.                                     */
 /************************************************************************/
 
+#ifndef SwapWord_defined
+#define SwapWord_defined
 static void SwapWord(int length, void *wordP)
 {
     for (int i = 0; i < length / 2; i++)
@@ -93,6 +100,7 @@ static void SwapWord(int length, void *wordP)
         STATIC_CAST(uchar *, wordP)[length - i - 1] = temp;
     }
 }
+#endif
 
 /************************************************************************/
 /*                          SHPWriteHeader()                            */

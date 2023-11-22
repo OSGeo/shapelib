@@ -116,6 +116,8 @@ typedef struct
 /*      Swap a 2, 4 or 8 byte word.                                     */
 /************************************************************************/
 
+#ifndef SwapWord_defined
+#define SwapWord_defined
 static void SwapWord(int length, void *wordP)
 {
     for (int i = 0; i < length / 2; i++)
@@ -126,6 +128,7 @@ static void SwapWord(int length, void *wordP)
         STATIC_CAST(uchar *, wordP)[length - i - 1] = temp;
     }
 }
+#endif
 
 /************************************************************************/
 /*                         SBNOpenDiskTree()                            */
