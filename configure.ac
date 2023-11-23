@@ -9,7 +9,7 @@ AC_INIT(shapelib, shapelib_version_major.shapelib_version_minor.shapelib_version
 AC_CONFIG_MACRO_DIR(m4)
 AC_CONFIG_SRCDIR(shapefil.h)
 
-AM_INIT_AUTOMAKE([-Wall])
+AM_INIT_AUTOMAKE([foreign -Wall -Wextra])
 
 AM_SILENT_RULES([yes])
 
