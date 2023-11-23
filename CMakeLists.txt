@@ -79,6 +79,11 @@ file(RELATIVE_PATH RELATIVE_LIBDIR
 
 message(STATUS "CMAKE_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR}")
 
+set(SHAPELIB_PC ${CMAKE_CURRENT_BINARY_DIR}/shapelib.pc)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/shapelib.pc.cmake.in
+  ${SHAPELIB_PC} @ONLY
+)
+
 if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
   # Set a default build type for single-configuration cmake generators
   # if no build type is set.
@@ -220,6 +225,9 @@ install(TARGETS ${executables}
 
 # Install header
 install(FILES shapefil.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+# Install pkg-config file
+install(FILES "${SHAPELIB_PC}" DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 
 if(BUILD_TESTING)
   # Set up tests:
