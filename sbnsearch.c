@@ -54,10 +54,11 @@ typedef int coord;
 
 typedef struct
 {
-    unsigned char *pabyShapeDesc; /* Cache of (nShapeCount * 8) bytes of the bins. May
+    unsigned char
+        *pabyShapeDesc; /* Cache of (nShapeCount * 8) bytes of the bins. May
                              be NULL. */
-    int nBinStart;        /* Index of first bin for this node. */
-    int nShapeCount;      /* Number of shapes attached to this node. */
+    int nBinStart;      /* Index of first bin for this node. */
+    int nShapeCount;    /* Number of shapes attached to this node. */
     int nBinCount;  /* Number of bins for this node. May be 0 if node is empty.
                      */
     int nBinOffset; /* Offset in file of the start of the first bin. May be 0 if
@@ -270,7 +271,8 @@ SBNSearchHandle SBNOpenDiskTree(const char *pszSBNFilename,
     }
 
     /* coverity[tainted_data] */
-    unsigned char *pabyData = STATIC_CAST(unsigned char *, malloc(nNodeDescSize));
+    unsigned char *pabyData =
+        STATIC_CAST(unsigned char *, malloc(nNodeDescSize));
     SBNNodeDescriptor *pasNodeDescriptor = STATIC_CAST(
         SBNNodeDescriptor *, calloc(nMaxNodes, sizeof(SBNNodeDescriptor)));
     if (pabyData == SHPLIB_NULLPTR || pasNodeDescriptor == SHPLIB_NULLPTR)

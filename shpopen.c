@@ -529,7 +529,8 @@ SHPHandle SHPAPI_CALL SHPOpenLL(const char *pszLayer, const char *pszAccess,
     if (bLazySHXLoading)
         pabyBuf = SHPLIB_NULLPTR;
     else
-        pabyBuf = STATIC_CAST(unsigned char *, malloc(8 * MAX(1, psSHP->nRecords)));
+        pabyBuf =
+            STATIC_CAST(unsigned char *, malloc(8 * MAX(1, psSHP->nRecords)));
 
     if (psSHP->panRecOffset == SHPLIB_NULLPTR ||
         psSHP->panRecSize == SHPLIB_NULLPTR ||
