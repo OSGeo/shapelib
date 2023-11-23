@@ -1,0 +1,12 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=@CMAKE_INSTALL_PREFIX@
+libdir=${exec_prefix}/@CMAKE_INSTALL_LIBDIR@
+datarootdir=${prefix}/share
+datadir=${datarootdir}
+includedir=${prefix}/@CMAKE_INSTALL_INCLUDEDIR@
+
+Name: shapelib
+Description: C API for processing ESRI Shapefiles
+Version: @PROJECT_VERSION@
+Libs: -L${libdir} -lshp
+Cflags: -I${includedir}
