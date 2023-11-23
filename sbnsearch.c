@@ -49,14 +49,12 @@
     STATIC_CAST(int, (((STATIC_CAST(unsigned, (ptr)[0])) << 24) |              \
                       ((ptr)[1] << 16) | ((ptr)[2] << 8) | (ptr)[3]))
 
-typedef unsigned char uchar;
-
 typedef int coord;
-/*typedef uchar coord;*/
+/*typedef unsigned char coord;*/
 
 typedef struct
 {
-    uchar *pabyShapeDesc; /* Cache of (nShapeCount * 8) bytes of the bins. May
+    unsigned char *pabyShapeDesc; /* Cache of (nShapeCount * 8) bytes of the bins. May
                              be NULL. */
     int nBinStart;        /* Index of first bin for this node. */
     int nShapeCount;      /* Number of shapes attached to this node. */
@@ -103,7 +101,7 @@ typedef struct
     int nShapeAlloc;
     int *panShapeId; /* 0 based */
 
-    uchar abyBinShape[8 * 100];
+    unsigned char abyBinShape[8 * 100];
 
 #ifdef DEBUG_IO
     int nBytesRead;
@@ -122,10 +120,10 @@ static void SwapWord(int length, void *wordP)
 {
     for (int i = 0; i < length / 2; i++)
     {
-        const uchar temp = STATIC_CAST(uchar *, wordP)[i];
-        STATIC_CAST(uchar *, wordP)
-        [i] = STATIC_CAST(uchar *, wordP)[length - i - 1];
-        STATIC_CAST(uchar *, wordP)[length - i - 1] = temp;
+        const unsigned char temp = STATIC_CAST(unsigned char *, wordP)[i];
+        STATIC_CAST(unsigned char *, wordP)
+        [i] = STATIC_CAST(unsigned char *, wordP)[length - i - 1];
+        STATIC_CAST(unsigned char *, wordP)[length - i - 1] = temp;
     }
 }
 #endif
@@ -170,7 +168,7 @@ SBNSearchHandle SBNOpenDiskTree(const char *pszSBNFilename,
     /* -------------------------------------------------------------------- */
     /*      Check file header signature.                                    */
     /* -------------------------------------------------------------------- */
-    uchar abyHeader[108];
+    unsigned char abyHeader[108];
     if (hSBN->sHooks.FRead(abyHeader, 108, 1, hSBN->fpSBN) != 1 ||
         abyHeader[0] != 0 || abyHeader[1] != 0 || abyHeader[2] != 0x27 ||
         (abyHeader[3] != 0x0A && abyHeader[3] != 0x0D) ||
@@ -272,7 +270,7 @@ SBNSearchHandle SBNOpenDiskTree(const char *pszSBNFilename,
     }
 
     /* coverity[tainted_data] */
-    uchar *pabyData = STATIC_CAST(uchar *, malloc(nNodeDescSize));
+    unsigned char *pabyData = STATIC_CAST(unsigned char *, malloc(nNodeDescSize));
     SBNNodeDescriptor *pasNodeDescriptor = STATIC_CAST(
         SBNNodeDescriptor *, calloc(nMaxNodes, sizeof(SBNNodeDescriptor)));
     if (pabyData == SHPLIB_NULLPTR || pasNodeDescriptor == SHPLIB_NULLPTR)
@@ -350,7 +348,7 @@ SBNSearchHandle SBNOpenDiskTree(const char *pszSBNFilename,
     /*      node.                                                           */
     /*      Note: we could use the .sbx file to compute the offsets instead.*/
     /* -------------------------------------------------------------------- */
-    uchar abyBinHeader[8];
+    unsigned char abyBinHeader[8];
 
     while (hSBN->sHooks.FRead(abyBinHeader, 8, 1, hSBN->fpSBN) == 1)
     {
@@ -497,7 +495,7 @@ static bool SBNSearchDiskInternal(SearchStruct *psSearch, int nDepth,
     /* -------------------------------------------------------------------- */
     else if (psNode->pabyShapeDesc != SHPLIB_NULLPTR)
     {
-        uchar *pabyShapeDesc = psNode->pabyShapeDesc;
+        unsigned char *pabyShapeDesc = psNode->pabyShapeDesc;
 
         /* printf("nNodeId = %d, nDepth = %d\n", nNodeId, nDepth); */
 
@@ -537,9 +535,9 @@ static bool SBNSearchDiskInternal(SearchStruct *psSearch, int nDepth,
 
         if (nDepth < CACHED_DEPTH_LIMIT)
             psNode->pabyShapeDesc =
-                STATIC_CAST(uchar *, malloc(psNode->nShapeCount * 8));
+                STATIC_CAST(unsigned char *, malloc(psNode->nShapeCount * 8));
 
-        uchar abyBinHeader[8];
+        unsigned char abyBinHeader[8];
         int nShapeCountAcc = 0;
 
         for (int i = 0; i < psNode->nBinCount; i++)
@@ -585,7 +583,7 @@ static bool SBNSearchDiskInternal(SearchStruct *psSearch, int nDepth,
                 return false;
             }
 
-            uchar *pabyBinShape;
+            unsigned char *pabyBinShape;
             if (nDepth < CACHED_DEPTH_LIMIT &&
                 psNode->pabyShapeDesc != SHPLIB_NULLPTR)
             {
