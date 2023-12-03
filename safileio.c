@@ -30,7 +30,8 @@
 #endif
 #endif
 
-static SAFile SADFOpen(const char *pszFilename, const char *pszAccess)
+static SAFile SADFOpen(const char *pszFilename, const char *pszAccess,
+                       void *pvUserData)
 {
     return (SAFile)fopen(pszFilename, pszAccess);
 }
@@ -74,7 +75,7 @@ static int SADFClose(SAFile file)
     return fclose((FILE *)file);
 }
 
-static int SADRemove(const char *filename)
+static int SADRemove(const char *filename, void *pvUserData)
 {
     return remove(filename);
 }
@@ -97,6 +98,7 @@ void SASetupDefaultHooks(SAHooks *psHooks)
 
     psHooks->Error = SADError;
     psHooks->Atof = atof;
+    psHooks->pvUserData = NULL;
 }
 
 #ifdef SHPAPI_WINDOWS
