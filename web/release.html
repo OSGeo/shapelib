@@ -10,6 +10,44 @@
 To get notification of new releases of Shapelib <i>subscribe</i> to
 the project mailing list at https://lists.osgeo.org/pipermail/shapelib/.<p>
 
+<b>Release 1.6.0</b>:
+<ul>
+<li>shapefil.h: add SHAPELIB_VERSION_MAJOR/MINOR/MICRO, SHAPELIB_VERSION_NUMBER, and SHAPELIB_AT_LEAST macros</li>
+<li>Compiler warning fixes and various code cleanups</li>
+<li>SAHooks: add a void *pvUserData member. ABI change</li>
+<li>SAHooks.FOpen and FClose callbacks: add a void *pvUserData parameter. API and ABI change</li>
+<li>SAHooks.FWrite: make first parameter a const void*. API change</li>
+<li>Do not distribute default COPYING and INSTALL</li>
+<li>Use standard integer data types</li>
+<li>Changes to allow building with cmake -DCMAKE_UNITY_BUILD=ON</li>
+<li>Polygon writing: avoid considering rings slightly overlapping as inner-outer rings of others (refs OSGeo/gdal#5315)</li>
+<li>Polygon writing: consider rings at non-constant Z as outer rings (fixes OSGeo/gdal#5315)
+  As noted in code comments, this is an approximation of more complicated
+  tests we'd likely have to do, that would take into account real
+  co-planar testing, to allow detecting inner rings of outer rings in an
+  oblique plane.</li>
+<li>shpopen.c: Communicate why the file size cannot be reached when appending features (OSGeo/gdal#4140)
+  Clearly state why the file size cannot be reached. This is important in order
+  to correctly inform the user and prevent him/her from looking for other reasons.
+  Related to https://github.com/qgis/QGIS/issues/44202</li>
+<li>SHPWriteObject(): prevent potential overflows on 64-bit platforms on huge geometries</li>
+<li>SHPRestoreSHX: update SHX content length even if error occurred</li>
+<li>In creation, uses w+b file opening mode instead of wb followed by r+b,
+    to support network file systems having sequential write only and when
+    using CPL_VSIL_USE_TEMP_FILE_FOR_RANDOM_WRITE=YES (fixes OSGeo/gdal#7801)</li>
+<li>Fix adding features in a .dbf without columns (fixes qgis/qgis#51247)</li>
+<li>Have matching SOVERSION for CMake and autotools</li>
+<li>Code reformatting</li>
+<li>Enable csv2shp build with MSVC</li>
+<li>Build contributed utilities via CMake</li>
+<li>fix mis-matching CMake arguments</li>
+<li>Use the the standard BUILD_TESTING CMake variable</li>
+<li>Remove double free() in contrib/shpsrt, issue #39</li>
+<li>SHPRestoreSHX: fix for (64 bit) big endian</li>
+<li>Add config-style support for find_package(shapefile)</li>
+<li>Prevent no-op FSeeks writing dbf & shp records for network filesystem performance</li>
+</ul>
+
 <b>Release 1.5.0</b>:
 <ul>
 <li> Add FTDate entry in DBFFieldType

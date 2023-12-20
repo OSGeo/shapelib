@@ -13,6 +13,9 @@
    - PROJECT_VERSION_PATCH
    - shp_LIB_VERSIONINFO
 
+   In shapefil.h, update SHAPELIB_VERSION_MAJOR, SHAPELIB_VERSION_MINOR,
+   SHAPELIB_VERSION_MICRO
+
 1) Update web/release.html with change notes on the new release and commit.
 
 2) Build the release files.
