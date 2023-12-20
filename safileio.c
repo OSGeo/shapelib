@@ -33,6 +33,7 @@
 static SAFile SADFOpen(const char *pszFilename, const char *pszAccess,
                        void *pvUserData)
 {
+    (void)pvUserData;
     return (SAFile)fopen(pszFilename, pszAccess);
 }
 
@@ -77,6 +78,7 @@ static int SADFClose(SAFile file)
 
 static int SADRemove(const char *filename, void *pvUserData)
 {
+    (void)pvUserData;
     return remove(filename);
 }
 

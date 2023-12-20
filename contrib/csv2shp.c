@@ -246,6 +246,11 @@ void strip_crlf(char *line)
     }
 }
 
+static void IGNORE_FGETS_RET_VAL(char* s)
+{
+    (void)s;
+}
+
 int main(int argc, char **argv)
 {
     printf("csv2shp version 1, Copyright (C) 2005 Springs Rescue Mission\n");
@@ -289,7 +294,7 @@ int main(int argc, char **argv)
     }
 
     char sbuffer[4096];
-    fgets(sbuffer, 4000, csv_f);
+    IGNORE_FGETS_RET_VAL(fgets(sbuffer, 4000, csv_f));
 
     /* check first row */
 
@@ -315,7 +320,7 @@ int main(int argc, char **argv)
     while (!feof(csv_f))
     {
         n_line++;
-        fgets(sbuffer, 4000, csv_f);
+        IGNORE_FGETS_RET_VAL(fgets(sbuffer, 4000, csv_f));
         if (n_columns != strnchr(sbuffer, delimiter))
         {
             fprintf(stderr,
@@ -329,7 +334,7 @@ int main(int argc, char **argv)
     /* identify longitude and latitude columns */
 
     fseek(csv_f, 0, SEEK_SET);
-    fgets(sbuffer, 4000, csv_f);
+    IGNORE_FGETS_RET_VAL(fgets(sbuffer, 4000, csv_f));
     strip_crlf(sbuffer);
 
     int n_longitude = -1; /* column with x, 0 based */
@@ -380,7 +385,7 @@ int main(int argc, char **argv)
         columns[x].nDecimals = 0;
 
         fseek(csv_f, 0, SEEK_SET);
-        fgets(sbuffer, 4000, csv_f);
+        IGNORE_FGETS_RET_VAL(fgets(sbuffer, 4000, csv_f));
         strip_crlf(sbuffer);
 
         while (!feof(csv_f))
@@ -408,7 +413,7 @@ int main(int argc, char **argv)
                 columns[x].nWidth = 2;
                 columns[x].nDecimals = 0;
                 fseek(csv_f, 0, SEEK_SET);
-                fgets(sbuffer, 4000, csv_f);
+                IGNORE_FGETS_RET_VAL(fgets(sbuffer, 4000, csv_f));
                 strip_crlf(sbuffer);
                 continue;
             }
@@ -436,7 +441,7 @@ int main(int argc, char **argv)
     }
 
     fseek(csv_f, 0, SEEK_SET);
-    fgets(sbuffer, 4000, csv_f);
+    IGNORE_FGETS_RET_VAL(fgets(sbuffer, 4000, csv_f));
     strip_crlf(sbuffer);
 
     for (int x = 0; x <= n_columns; x++)
@@ -459,7 +464,7 @@ int main(int argc, char **argv)
     printf("Writing data...\n");
 
     fseek(csv_f, 0, SEEK_SET);
-    fgets(sbuffer, 4000, csv_f); /* skip header */
+    IGNORE_FGETS_RET_VAL(fgets(sbuffer, 4000, csv_f)); /* skip header */
     strip_crlf(sbuffer);
 
     n_columns = strnchr(sbuffer, delimiter);
@@ -468,7 +473,7 @@ int main(int argc, char **argv)
     while (!feof(csv_f))
     {
         n_line++;
-        fgets(sbuffer, 4000, csv_f);
+        IGNORE_FGETS_RET_VAL(fgets(sbuffer, 4000, csv_f));
         strip_crlf(sbuffer);
 
         /* write to shape file */

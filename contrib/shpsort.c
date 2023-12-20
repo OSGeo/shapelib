@@ -144,9 +144,12 @@ static void copy_related(const char *inName, const char *outName,
     size_t name_len = strlen(inName);
     const size_t old_len = strlen(old_ext);
     const size_t new_len = strlen(new_ext);
+    
+    if( name_len < old_len )
+        return;
 
     char *in = malloc(name_len - old_len + new_len + 1);
-    strncpy(in, inName, (name_len - old_len));
+    memcpy(in, inName, name_len - old_len);
     strcpy(&in[(name_len - old_len)], new_ext);
     FILE *inFile = fopen(in, "rb");
     if (!inFile)
@@ -165,7 +168,7 @@ static void copy_related(const char *inName, const char *outName,
         free(out);
         return;
     }
-    strncpy(out, outName, (name_len - old_len));
+    memcpy(out, outName, (name_len - old_len));
     strcpy(&out[(name_len - old_len)], new_ext);
 
     FILE *outFile = fopen(out, "wb");

@@ -94,7 +94,7 @@ char *asFileName(const char *fil, char *ext)
     /*	Note that files pulled from					*/
     /*	a PC to Unix with upper case filenames won't work!		*/
     /* -------------------------------------------------------------------- */
-    static char pszFullname[120];
+    static char pszFullname[256];
     sprintf(pszFullname, "%s.%s", pszBasename, ext);
 
     return pszFullname;
