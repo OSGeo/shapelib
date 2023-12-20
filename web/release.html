@@ -17,7 +17,7 @@ the project mailing list at https://lists.osgeo.org/pipermail/shapelib/.<p>
 <li>SAHooks: add a void *pvUserData member. ABI change</li>
 <li>SAHooks.FOpen and FClose callbacks: add a void *pvUserData parameter. API and ABI change</li>
 <li>SAHooks.FWrite: make first parameter a const void*. API change</li>
-<li>Do not distribute default COPYING and INSTALL</li>
+<li>Distribute LICENSE-LGPL and LICENSE-MIT files instead of COPYING file. Do not distribute INSTALL file</li>
 <li>Use standard integer data types</li>
 <li>Changes to allow building with cmake -DCMAKE_UNITY_BUILD=ON</li>
 <li>Polygon writing: avoid considering rings slightly overlapping as inner-outer rings of others (refs OSGeo/gdal#5315)</li>
@@ -38,11 +38,10 @@ the project mailing list at https://lists.osgeo.org/pipermail/shapelib/.<p>
 <li>Fix adding features in a .dbf without columns (fixes qgis/qgis#51247)</li>
 <li>Have matching SOVERSION for CMake and autotools</li>
 <li>Code reformatting</li>
-<li>Enable csv2shp build with MSVC</li>
+<li>Enable contrib/csv2shp build with MSVC</li>
 <li>Build contributed utilities via CMake</li>
-<li>fix mis-matching CMake arguments</li>
 <li>Use the the standard BUILD_TESTING CMake variable</li>
-<li>Remove double free() in contrib/shpsrt, issue #39</li>
+<li>Remove double free() in contrib/shpsrt (CVE-2022-0699)</li>
 <li>SHPRestoreSHX: fix for (64 bit) big endian</li>
 <li>Add config-style support for find_package(shapefile)</li>
 <li>Prevent no-op FSeeks writing dbf & shp records for network filesystem performance</li>
