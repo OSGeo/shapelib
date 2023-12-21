@@ -18,7 +18,7 @@ set(PROJECT_VERSION_MAJOR 1)
 set(PROJECT_VERSION_MINOR 6)
 set(PROJECT_VERSION_PATCH 0)
 set(shp_LIB_VERSIONINFO "4:0:0")
-set(PROJECT_VERSION 
+set(PROJECT_VERSION
   "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -26,6 +26,8 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # libraries are all shared by default.
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 
+# Option to build executables
+option(BUILD_SHAPELIB_EXECUTABLES "Build executables" ON)
 # Option to build contributed utilities
 option(BUILD_SHAPELIB_CONTRIB "Build utilities (from contrib)" ON)
 
@@ -154,16 +156,18 @@ install(TARGETS ${PACKAGE}
 )
 
 # executables to be built and installed.
-set(executables
-  shpcreate
-  shpadd
-  shpdump
-  shprewind
-  dbfcreate
-  dbfadd
-  dbfdump
-  shptreedump
-)
+if(BUILD_SHAPELIB_EXECUTABLES)
+  set(executables
+    shpcreate
+    shpadd
+    shpdump
+    shprewind
+    dbfcreate
+    dbfadd
+    dbfdump
+    shptreedump
+  )
+endif()
 
 if(MSVC)
   # TODO(schwehr): How to test on Windows?
