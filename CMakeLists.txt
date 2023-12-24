@@ -185,17 +185,13 @@ endif()
 if(MSVC)
   # TODO(schwehr): How to test on Windows?
   set(BUILD_TESTING OFF CACHE BOOL "")
-else()
-  # TODO(schwehr): Temporary work around.
-  cmake_policy(SET CMP0026 OLD)
 endif()
 
 find_program(BASH_EXECUTABLE bash)
-find_program(SED_EXECUTABLE sed)
-if(BASH_EXECUTABLE AND SED_EXECUTABLE)
+if(BASH_EXECUTABLE)
   set(BUILD_TESTING ON CACHE BOOL "")
 else()
-  message(STATUS "WARNING: sed or bash not available so disabling testing")
+  message(STATUS "WARNING: bash not available so disabling testing")
 endif()
 
 # For the first series of tests, the user needs to have downloaded
@@ -204,9 +200,7 @@ endif()
 # the cmake option, -DEG_DATA:PATH=whatever
 if(BUILD_TESTING)
   if(EG_DATA)
-    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/script.sed "s?/u/www/projects/shapelib/eg_data?${EG_DATA}?\n")
   else()
-    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/script.sed "")
     message(STATUS "WARNING: EG_DATA:PATH not set to point to downloaded eg_data directory so the eg_data part of testing will be ignored.")
   endif()
 endif()
@@ -231,10 +225,6 @@ foreach(executable ${executables})
     set_target_properties(${TOOLS} PROPERTIES
       INSTALL_RPATH "@loader_path/${RELATIVE_LIBDIR}")
   endif()
-  if(BUILD_TESTING)
-    get_target_property(${executable}_LOC ${executable} LOCATION)
-    file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/script.sed "s?\\./${executable}?${${executable}_LOC}?\n")
-  endif()
   if(NOT MSVC)
     target_compile_options(${executable} PRIVATE -Wall -Wextra)
   endif()
@@ -255,46 +245,40 @@ if(BUILD_TESTING)
   foreach(executable shptest shputils)
     add_executable(${executable} ${executable}.c)
     target_link_libraries(${executable} ${PACKAGE})
-    get_target_property(${executable}_LOC ${executable} LOCATION)
-    file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/script.sed "s?\\./${executable}?${${executable}_LOC}?\n")
   endforeach(executable shptest shputils)
 
-  # Write this as a shell script since execute_process cannot handle
-  # anything like redirection.
-  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/script.sh "${SED_EXECUTABLE} -f script.sed < $1 >| $2")
-  execute_process(
-    COMMAND
-    ${BASH_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/script.sh ${CMAKE_CURRENT_SOURCE_DIR}/tests/test1.sh ${CMAKE_CURRENT_BINARY_DIR}/sed_scripted_test1.sh
-  )
+  # Set environment variables defining path to executables being used
+  function(declare_test_executable TEST TARGETS)
+    foreach(TARGET ${TARGETS})
+      string(TOUPPER ${TARGET} NAME)
+      list(APPEND TEST_ENV ${NAME}=$<TARGET_FILE:${TARGET}>)
+    endforeach()
 
-  execute_process(
-    COMMAND
-    ${BASH_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/script.sh ${CMAKE_CURRENT_SOURCE_DIR}/tests/test2.sh ${CMAKE_CURRENT_BINARY_DIR}/sed_scripted_test2.sh
-  )
-
-  execute_process(
-    COMMAND
-    ${BASH_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/script.sh ${CMAKE_CURRENT_SOURCE_DIR}/tests/test3.sh ${CMAKE_CURRENT_BINARY_DIR}/sed_scripted_test3.sh
-  )
+    set_tests_properties(${TEST} PROPERTIES ENVIRONMENT "${TEST_ENV}")
+  endfunction()
 
   if(EG_DATA)
-    # These tests correspond to everything in test1.sh
     add_test(
       NAME test1
-      COMMAND ${BASH_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/sed_scripted_test1.sh
+      COMMAND
+        ${BASH_EXECUTABLE} ${PROJECT_SOURCE_DIR}/tests/test1.sh ${PROJECT_SOURCE_DIR}/tests/expect1.out ${EG_DATA}
     )
+    declare_test_executable(test1 "shpdump;dbfdump")
   endif()
-  # These tests correspond to everything in test2.sh
+
   add_test(
     NAME test2
-    COMMAND ${BASH_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/sed_scripted_test2.sh
+    COMMAND
+      ${BASH_EXECUTABLE} ${PROJECT_SOURCE_DIR}/tests/test2.sh ${PROJECT_SOURCE_DIR}/tests/expect2.out
   )
+  declare_test_executable(test2 "dbfadd;dbfcreate;dbfdump;shpadd;shpcreate;shpdump;shptest")
 
-  # These tests correspond to everything in test3.sh
   add_test(
     NAME test3
-    COMMAND ${BASH_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/sed_scripted_test3.sh
+    COMMAND
+      ${BASH_EXECUTABLE} ${PROJECT_SOURCE_DIR}/tests/test3.sh ${PROJECT_SOURCE_DIR}/tests/expect3.out
   )
+  declare_test_executable(test3 "dbfadd;dbfcreate;dbfdump;shpadd;shpcreate;shpdump")
 endif()
 
 include(cmake/contrib.cmake)
