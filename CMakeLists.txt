@@ -236,9 +236,6 @@ install(TARGETS ${executables}
 # Install header
 install(FILES shapefil.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
-# For compatibility with older installation
-install(FILES shapefil.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/shapelib)
-
 if(BUILD_TESTING)
   # Set up tests:
 
