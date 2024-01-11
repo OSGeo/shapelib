@@ -78,4 +78,4 @@ shptest_LDADD = $(top_builddir)/libshp.la
 # Tests
 TESTS_ENVIRONMENT = top_builddir=$(abs_top_builddir)
 # tests/test1.sh requires ftp://gdal.velocet.ca/pub/outgoing/shape_eg_data.zip
-TESTS = tests/test2.sh tests/test3.sh
+TESTS = tests/test1.sh tests/test2.sh tests/test3.sh

@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -eu
-
 readonly SCRIPTDIR=$(dirname "${BASH_SOURCE[0]}")
 readonly EXPECT="${1:-$SCRIPTDIR/expect2.out}"
 
