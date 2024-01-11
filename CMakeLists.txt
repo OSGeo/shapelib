@@ -21,9 +21,7 @@ set(shp_LIB_VERSIONINFO "4:0:0")
 set(PROJECT_VERSION
   "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
 
-set(EG_DATA ${CMAKE_CURRENT_BINARY_DIR}/shape_eg_data CACHE STRING "")
-set(EG_DATA_URI http://dl.maptools.org/dl/shapelib/shape_eg_data.zip)
-set(EG_DATA_SHA256 991d9c5ca5995245cbc9b94a70f01ca4ef689ad8ae44ea703765ea460b753ee9)
+set(EG_DATA ${CMAKE_CURRENT_BINARY_DIR}/tests/shape_eg_data CACHE STRING "")
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
@@ -196,31 +194,6 @@ if(BASH_EXECUTABLE)
   set(BUILD_TESTING ON CACHE BOOL "")
 else()
   message(STATUS "WARNING: bash not available so disabling testing")
-endif()
-
-# For the first series of tests, the user needs to have downloaded and unpacked
-# shape data from http://dl.maptools.org/dl/shapelib/shape_eg_data.zip.
-# The location to the unpacked files can be changed with the cmake option
-# -DEG_DATA:PATH=whatever. If this does not exists, the archive is being
-# downloaded and unpacked at configure time.
-if(BUILD_TESTING)
-  if(NOT IS_DIRECTORY ${EG_DATA})
-    message(STATUS "Downloading ${EG_DATA_URI}...")
-    file(DOWNLOAD ${EG_DATA_URI} shape_eg_data.zip
-      EXPECTED_HASH SHA256=${EG_DATA_SHA256}
-      TIMEOUT 60
-      STATUS DL_RESULT
-    )
-
-    if(DL_RESULT EQUAL 0)
-      file(ARCHIVE_EXTRACT
-        INPUT shape_eg_data.zip
-        DESTINATION ${EG_DATA}
-      )
-    else()
-      file(REMOVE shape_eg_data.zip)
-    endif()
-  endif()
 endif()
 
 if(NOT MSVC)
