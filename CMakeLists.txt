@@ -105,6 +105,7 @@ set(lib_SRC
   shptree.c
   sbnsearch.c
   shapefil.h
+  shapelib.def
 )
 
 add_library(${PACKAGE} ${lib_SRC})
