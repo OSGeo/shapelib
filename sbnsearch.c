@@ -139,13 +139,13 @@ SBNSearchHandle SBNOpenDiskTree(const char *pszSBNFilename,
     /* -------------------------------------------------------------------- */
     /*  Establish the byte order on this machine.                           */
     /* -------------------------------------------------------------------- */
-    bool bBigEndian;
+    bool _bBigEndian;
     {
         int i = 1;
         if (*REINTERPRET_CAST(unsigned char *, &i) == 1)
-            bBigEndian = false;
+            _bBigEndian = false;
         else
-            bBigEndian = true;
+            _bBigEndian = true;
     }
 
     /* -------------------------------------------------------------------- */
@@ -191,7 +191,7 @@ SBNSearchHandle SBNOpenDiskTree(const char *pszSBNFilename,
     memcpy(&hSBN->dfMaxX, abyHeader + 48, 8);
     memcpy(&hSBN->dfMaxY, abyHeader + 56, 8);
 
-    if (!bBigEndian)
+    if (!_bBigEndian)
     {
         SwapWord(8, &hSBN->dfMinX);
         SwapWord(8, &hSBN->dfMinY);
