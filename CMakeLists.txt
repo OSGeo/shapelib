@@ -115,7 +115,9 @@ target_include_directories(${PACKAGE}
     $<INSTALL_INTERFACE:include>
 )
 
-if(NOT MSVC)
+if(MSVC)
+  target_compile_options(${PACKAGE} PRIVATE /W4)
+else()
   target_compile_options(${PACKAGE} PRIVATE -Wall -Wextra -pedantic)
 endif()
 
