@@ -90,33 +90,36 @@ extern "C"
 
 #define LSB_ORDER (int)1
 
-    extern char *asFileName(const char *fil, char *ext);
+    extern char *asFileName(const char *fil, const char *ext);
 
     extern int SHPDimension(int SHPType);
 
-    extern double SHPArea_2d(SHPObject *psCShape);
-    extern int SHPRingDir_2d(SHPObject *psCShape, int Ring);
-    extern double SHPLength_2d(SHPObject *psCShape);
-    extern PT SHPCentrd_2d(SHPObject *psCShape);
-    extern PT SHPPointinPoly_2d(SHPObject *psCShape);
-    extern PT *SHPPointsinPoly_2d(SHPObject *psCShape);
+    extern double SHPArea_2d(const SHPObject *psCShape);
+    extern int SHPRingDir_2d(const SHPObject *psCShape, int Ring);
+    extern double SHPLength_2d(const SHPObject *psCShape);
+    extern PT SHPCentrd_2d(const SHPObject *psCShape);
+    extern PT SHPPointinPoly_2d(const SHPObject *psCShape);
+    extern PT *SHPPointsinPoly_2d(const SHPObject *psCShape);
 
-    extern int RingCentroid_2d(int nVertices, double *a, double *b, PT *C,
-                               double *Area);
-    extern double RingLength_2d(int nVertices, double *a, double *b);
-    extern int RingDir_2d(int nVertices, double *a, double *b);
-    extern double RingArea_2d(int nVertices, double *a, double *b);
+    extern int RingCentroid_2d(int nVertices, const double *a, const double *b,
+                               PT *C, double *Area);
+    extern double RingLength_2d(int nVertices, const double *a,
+                                const double *b);
+    extern double RingArea_2d(int nVertices, const double *a, const double *b);
 
-    extern SHPObject *SHPClone(SHPObject *psCShape, int lowPart, int highPart);
-    extern SHPObject *SHPUnCompound(SHPObject *psCShape, int *ringNumber);
-    extern SHPObject *SHPIntersect_2d(SHPObject *a, SHPObject *b);
+    extern SHPObject *SHPClone(const SHPObject *psCShape, int lowPart,
+                               int highPart);
+    extern SHPObject *SHPUnCompound(const SHPObject *psCShape, int *ringNumber);
+    extern SHPObject *SHPIntersect_2d(const SHPObject *a, const SHPObject *b);
 
-    extern int SHPWriteOGisWKB(WKBStreamObj *stream_obj, SHPObject *psCShape);
+    extern int SHPWriteOGisWKB(WKBStreamObj *stream_obj,
+                               const SHPObject *psCShape);
     extern SHPObject *SHPReadOGisWKB(WKBStreamObj *stream_obj);
 
-    int SHPWriteOGisPolygon(WKBStreamObj *stream_obj, SHPObject *psCShape);
-    int SHPWriteOGisLine(WKBStreamObj *stream_obj, SHPObject *psCShape);
-    int SHPWriteOGisPoint(WKBStreamObj *stream_obj, SHPObject *psCShape);
+    int SHPWriteOGisPolygon(WKBStreamObj *stream_obj,
+                            const SHPObject *psCShape);
+    int SHPWriteOGisLine(WKBStreamObj *stream_obj, const SHPObject *psCShape);
+    int SHPWriteOGisPoint(WKBStreamObj *stream_obj, const SHPObject *psCShape);
 
     SHPObject *SHPReadOGisPolygon(WKBStreamObj *stream_obj);
     SHPObject *SHPReadOGisLine(WKBStreamObj *stream_obj);
@@ -125,9 +128,9 @@ extern "C"
     extern int SHPClean(SHPObject *psCShape);
     extern int SHPOGisType(int GeomType, int toOGis);
 
-    void swapD(void *so, unsigned char *in, long bytes);
-    void swapW(void *so, unsigned char *in, long bytes);
-    void SwapG(void *so, void *in, int this_cnt, int this_size);
+    void swapD(void *so, const unsigned char *in, long bytes);
+    void swapW(void *so, const unsigned char *in, long bytes);
+    void SwapG(void *so, const void *in, int this_cnt, int this_size);
 
 #ifdef __cplusplus
 }

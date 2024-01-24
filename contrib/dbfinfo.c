@@ -47,8 +47,6 @@ int main(int argc, char **argv)
     /*	values. We make each field as wide as the field title+1, or 	*/
     /*	the field value + 1. 						*/
     /* -------------------------------------------------------------------- */
-    int *panWidth = (int *)malloc(DBFGetFieldCount(hDBF) * sizeof(int));
-
     char ftype[32];
     int nDecimals;
     int nWidth;
@@ -61,7 +59,6 @@ int main(int argc, char **argv)
         {
             case FTString:
                 strcpy(ftype, "string");
-                ;
                 break;
 
             case FTInteger:

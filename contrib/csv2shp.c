@@ -103,7 +103,7 @@ int strnchr(const char *s, char c)
 
 /* Returns a field given by column n (0-based) in a character-
    delimited string s */
-char *delimited_column(char *s, char delim, int n)
+char *delimited_column(const char *s, char delim, int n)
 {
     if (strnchr(s, delim) < n)
     {
@@ -229,7 +229,7 @@ int more_general_field_type(DBFFieldType t1, DBFFieldType t2)
     return 0;
 }
 
-void strip_crlf(char *line)
+void strip_crlf(const char *line)
 {
     /* remove trailing CR/LF */
 
@@ -246,7 +246,7 @@ void strip_crlf(char *line)
     }
 }
 
-static void IGNORE_FGETS_RET_VAL(char* s)
+static void IGNORE_FGETS_RET_VAL(char *s)
 {
     (void)s;
 }

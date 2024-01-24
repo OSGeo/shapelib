@@ -72,7 +72,7 @@
  * utility function, toss part of filename after last dot
  *
  * **************************************************************************/
-char *asFileName(const char *fil, char *ext)
+char *asFileName(const char *fil, const char *ext)
 {
     /* -------------------------------------------------------------------- */
     /*	Compute the base (layer) name.  If there is any extension	*/
@@ -184,7 +184,8 @@ int SHPOGisType(int GeomType, int toOGis)
  * Encapsulate entire SHPObject for use with Postgresql
  *
  * **************************************************************************/
-static int SHPWriteSHPStream(WKBStreamObj *stream_obj, SHPObject *psCShape)
+static int SHPWriteSHPStream(WKBStreamObj *stream_obj,
+                             const SHPObject *psCShape)
 {
     int need_swap = 1;
     need_swap = ((char *)(&need_swap))[0];
@@ -223,7 +224,8 @@ static int SHPWriteSHPStream(WKBStreamObj *stream_obj, SHPObject *psCShape)
  * Encapsulate entire SHPObject for use with Postgresql
  *
  * **************************************************************************/
-static int WKBStreamWrite(WKBStreamObj *wso, void *this, int tcount, int tsize)
+static int WKBStreamWrite(WKBStreamObj *wso, const void *this, int tcount,
+                          int tsize)
 {
     if (wso->NeedSwap)
         SwapG(&(wso->wStream[wso->StreamPos]), this, tcount, tsize);
@@ -304,7 +306,7 @@ SHPObject *SHPReadOGisWKB(WKBStreamObj *stream_obj)
  * Encapsulate entire SHPObject for use with Postgresql
  *
  * **************************************************************************/
-int SHPWriteOGisWKB(WKBStreamObj *stream_obj, SHPObject *psCShape)
+int SHPWriteOGisWKB(WKBStreamObj *stream_obj, const SHPObject *psCShape)
 {
     /* OGis WKB can handle either byte order, but if I get to choose I'd	*/
     /* rather have it predicatable system-to-system							*/
@@ -394,7 +396,7 @@ int SHPWriteOGisWKB(WKBStreamObj *stream_obj, SHPObject *psCShape)
  * Encapsulate entire SHPObject for use with Postgresql
  *
  * **************************************************************************/
-int SHPWriteOGisPolygon(WKBStreamObj *stream_obj, SHPObject *psCShape)
+int SHPWriteOGisPolygon(WKBStreamObj *stream_obj, const SHPObject *psCShape)
 {
     /* cannot have more than nParts complex objects in this object */
     SHPObject **ppsC = calloc(psCShape->nParts, sizeof(int));
@@ -465,7 +467,7 @@ int SHPWriteOGisPolygon(WKBStreamObj *stream_obj, SHPObject *psCShape)
  * Encapsulate entire SHPObject for use with Postgresql
  *
  * **************************************************************************/
-int SHPWriteOGisLine(WKBStreamObj *stream_obj, SHPObject *psCShape)
+int SHPWriteOGisLine(WKBStreamObj *stream_obj, const SHPObject *psCShape)
 {
     return (SHPWriteOGisPolygon(stream_obj, psCShape));
 }
@@ -479,7 +481,7 @@ int SHPWriteOGisLine(WKBStreamObj *stream_obj, SHPObject *psCShape)
  * Encapsulate entire SHPObject for use with Postgresql
  *
  * **************************************************************************/
-int SHPWriteOGisPoint(WKBStreamObj *stream_obj, SHPObject *psCShape)
+int SHPWriteOGisPoint(WKBStreamObj *stream_obj, const SHPObject *psCShape)
 {
     WKBStreamWrite(stream_obj, &(psCShape->nVertices), 1, sizeof(int));
 
@@ -730,7 +732,7 @@ int SHPDimension(int SHPType)
  * reject non area SHP Types
  *
  * **************************************************************************/
-PT SHPPointinPoly_2d(SHPObject *psCShape)
+PT SHPPointinPoly_2d(const SHPObject *psCShape)
 {
     PT rPT;
     if (!(SHPDimension(psCShape->nSHPType) & SHPD_AREA))
@@ -764,7 +766,7 @@ PT SHPPointinPoly_2d(SHPObject *psCShape)
  * reject non area SHP Types
  *
  * **************************************************************************/
-PT *SHPPointsinPoly_2d(SHPObject *psCShape)
+PT *SHPPointsinPoly_2d(const SHPObject *psCShape)
 {
     if (!(SHPDimension(psCShape->nSHPType) & SHPD_AREA))
         return NULL;
@@ -857,7 +859,7 @@ PT *SHPPointsinPoly_2d(SHPObject *psCShape)
  * reject non area SHP Types
  *
  * **************************************************************************/
-PT SHPCentrd_2d(SHPObject *psCShape)
+PT SHPCentrd_2d(const SHPObject *psCShape)
 {
     PT C;
     if (!(SHPDimension(psCShape->nSHPType) & SHPD_AREA))
@@ -920,7 +922,8 @@ PT SHPCentrd_2d(SHPObject *psCShape)
  * Return the mathematical / geometric centroid of a single closed ring
  *
  * **************************************************************************/
-int RingCentroid_2d(int nVertices, double *a, double *b, PT *C, double *Area)
+int RingCentroid_2d(int nVertices, const double *a, const double *b, PT *C,
+                    double *Area)
 {
     /* the centroid of a closed Ring is defined as
  *
@@ -985,14 +988,14 @@ int RingCentroid_2d(int nVertices, double *a, double *b, PT *C, double *Area)
  * return -1 for R-
  * return 0  for error
  * **************************************************************************/
-int SHPRingDir_2d(SHPObject *psCShape, int Ring)
+int SHPRingDir_2d(const SHPObject *psCShape, int Ring)
 {
     if (Ring >= psCShape->nParts)
         return (0);
 
     double tX = 0.0;
-    double *a = psCShape->padfX;
-    double *b = psCShape->padfY;
+    const double *a = psCShape->padfX;
+    const double *b = psCShape->padfY;
 
     int last_vtx;
     if (Ring >= psCShape->nParts - 1)
@@ -1071,7 +1074,7 @@ int SHPRingDir_2d(SHPObject *psCShape, int Ring)
  * Calculate the XY Area of Polygon ( can be compound / complex )
  *
  * **************************************************************************/
-double SHPArea_2d(SHPObject *psCShape)
+double SHPArea_2d(const SHPObject *psCShape)
 {
     if (!(SHPDimension(psCShape->nSHPType) & SHPD_AREA))
         return (-1);
@@ -1113,7 +1116,7 @@ double SHPArea_2d(SHPObject *psCShape)
  *    or Polyline ( can be compound ).  Length on Polygon is its Perimeter
  *
  * **************************************************************************/
-double SHPLength_2d(SHPObject *psCShape)
+double SHPLength_2d(const SHPObject *psCShape)
 {
     if (!(SHPDimension(psCShape->nSHPType) & (SHPD_AREA | SHPD_LINE)))
         return -1.0;
@@ -1146,7 +1149,7 @@ double SHPLength_2d(SHPObject *psCShape)
  *    or Polyline ( can be compound ).  Length of Polygon is its Perimeter
  *
  * **************************************************************************/
-double RingLength_2d(int nVertices, double *a, double *b)
+double RingLength_2d(int nVertices, const double *a, const double *b)
 {
     double Length = 0;
     // int j = 1;
@@ -1167,7 +1170,7 @@ double RingLength_2d(int nVertices, double *a, double *b)
  * Calculate the Planar Area of a single closed ring
  *
  * **************************************************************************/
-double RingArea_2d(int nVertices, double *a, double *b)
+double RingArea_2d(int nVertices, const double *a, const double *b)
 {
     const double x_base = a[0];
     const double y_base = b[0];
@@ -1215,7 +1218,7 @@ double RingArea_2d(int nVertices, double *a, double *b)
  * ignore complexity in Z dimension for now
  *
  * **************************************************************************/
-SHPObject *SHPUnCompound(SHPObject *psCShape, int *ringNumber)
+SHPObject *SHPUnCompound(const SHPObject *psCShape, int *ringNumber)
 {
     if (*ringNumber >= psCShape->nParts || *ringNumber == -1)
     {
@@ -1261,7 +1264,7 @@ SHPObject *SHPUnCompound(SHPObject *psCShape, int *ringNumber)
  * return object with lowest common dimensionality of objects
  *
  * **************************************************************************/
-SHPObject *SHPIntersect_2d(SHPObject *a, SHPObject *b)
+SHPObject *SHPIntersect_2d(const SHPObject *a, const SHPObject *b)
 {
     if ((SHPDimension(a->nSHPType) && SHPD_POINT) ||
         (SHPDimension(b->nSHPType) && SHPD_POINT))
@@ -1301,7 +1304,7 @@ int SHPClean(SHPObject *psCShape)
  * Clone a SHPObject, replicating all data
  *
  * **************************************************************************/
-SHPObject *SHPClone(SHPObject *psCShape, int lowPart, int highPart)
+SHPObject *SHPClone(const SHPObject *psCShape, int lowPart, int highPart)
 {
     if (highPart >= psCShape->nParts || highPart == -1)
         highPart = psCShape->nParts;
@@ -1402,7 +1405,7 @@ SHPObject *SHPClone(SHPObject *psCShape, int lowPart, int highPart)
 /*                                                                      */
 /*      Swap a 2, 4 or 8 byte word.                                     */
 /************************************************************************/
-void SwapG(void *so, void *in, int this_cnt, int this_size)
+void SwapG(void *so, const void *in, int this_cnt, int this_size)
 {
     // return to a new pointer otherwise it would invalidate existing data
     // as prevent further use of it
@@ -1423,7 +1426,7 @@ void SwapG(void *so, void *in, int this_cnt, int this_size)
  * need to change this over to shapelib, Frank Warmerdam's functions
  *
  * **************************************************************************/
-void swapW(void *so, unsigned char *in, long bytes)
+void swapW(void *so, const unsigned char *in, long bytes)
 {
     const unsigned char map[4] = {3, 2, 1, 0};
     unsigned char *out = so;
@@ -1439,7 +1442,7 @@ void swapW(void *so, unsigned char *in, long bytes)
  * need to change this over to shapelib, Frank Warmerdam's functions
  *
  * **************************************************************************/
-void swapD(void *so, unsigned char *in, long bytes)
+void swapD(void *so, const unsigned char *in, long bytes)
 {
     const unsigned char map[8] = {7, 6, 5, 4, 3, 2, 1, 0};
     unsigned char *out = so;
