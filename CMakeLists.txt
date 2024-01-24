@@ -119,7 +119,7 @@ target_include_directories(${PACKAGE}
 if(MSVC)
   target_compile_options(${PACKAGE} PRIVATE /W4)
 else()
-  target_compile_options(${PACKAGE} PRIVATE -Wall -Wextra -pedantic)
+  target_compile_options(${PACKAGE} PRIVATE -Wall -Wextra -Wformat-signedness -Wno-unknown-warning-option -pedantic)
 endif()
 
 if(WIN32 AND NOT CYGWIN)
