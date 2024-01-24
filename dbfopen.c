@@ -42,9 +42,6 @@
 #define snprintf _snprintf
 #endif
 #endif
-
-#define CPLsprintf sprintf
-#define CPLsnprintf snprintf
 #endif
 
 #ifndef FALSE
@@ -1322,8 +1319,8 @@ static bool DBFWriteAttribute(DBFHandle psDBF, int hEntity, int iField,
             char szFormat[20];
             snprintf(szFormat, sizeof(szFormat), "%%%d.%df", nWidth,
                      psDBF->panFieldDecimals[iField]);
-            CPLsnprintf(szSField, sizeof(szSField), szFormat,
-                        *STATIC_CAST(double *, pValue));
+            snprintf(szSField, sizeof(szSField), szFormat,
+                     *STATIC_CAST(double *, pValue));
             szSField[sizeof(szSField) - 1] = '\0';
             if (STATIC_CAST(int, strlen(szSField)) >
                 psDBF->panFieldSize[iField])

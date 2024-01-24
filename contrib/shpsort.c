@@ -144,8 +144,8 @@ static void copy_related(const char *inName, const char *outName,
     size_t name_len = strlen(inName);
     const size_t old_len = strlen(old_ext);
     const size_t new_len = strlen(new_ext);
-    
-    if( name_len < old_len )
+
+    if (name_len < old_len)
         return;
 
     char *in = malloc(name_len - old_len + new_len + 1);

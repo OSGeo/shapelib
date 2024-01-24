@@ -246,7 +246,7 @@ void strip_crlf(char *line)
     }
 }
 
-static void IGNORE_FGETS_RET_VAL(char* s)
+static void IGNORE_FGETS_RET_VAL(char *s)
 {
     (void)s;
 }
