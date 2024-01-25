@@ -818,9 +818,9 @@ int SHPAPI_CALL SHPRestoreSHX(const char *pszLayer, const char *pszAccess,
                 char szErrorMsg[200];
                 snprintf(szErrorMsg, sizeof(szErrorMsg),
                          "Error parsing .shp to restore .shx. "
-                         "Invalid record length = %d at record starting at "
+                         "Invalid record length = %u at record starting at "
                          "offset %u",
-                         nSHPType, nCurrentSHPOffset);
+                         nRecordLength, nCurrentSHPOffset);
                 psHooks->Error(szErrorMsg);
 
                 nRetCode = FALSE;
