@@ -212,7 +212,7 @@ int main(int argc, char **argv)
 /*                           EmitCoordinate()                           */
 /************************************************************************/
 
-static void EmitCoordinate(double *padfCoord, int nDimension)
+static void EmitCoordinate(const double *padfCoord, int nDimension)
 
 {
     const char *pszFormat;
@@ -362,8 +362,8 @@ static void SHPTreeNodeSearchAndDump(SHPTree *hTree, double *padfBoundsMin,
     /*      area of interest.                                               */
     /* -------------------------------------------------------------------- */
     int nShapeCount;
-    int *panHits = SHPTreeFindLikelyShapes(hTree, padfBoundsMin, padfBoundsMax,
-                                           &nShapeCount);
+    const int *panHits = SHPTreeFindLikelyShapes(hTree, padfBoundsMin,
+                                                 padfBoundsMax, &nShapeCount);
 
     /* -------------------------------------------------------------------- */
     /*      Read all of these shapes, and establish whether the shape's     */

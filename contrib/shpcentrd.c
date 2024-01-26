@@ -91,7 +91,7 @@ int main(int argc, char **argv)
     int byRing = 1;
     for (int i = 0; i < nEntities; i++)
     {
-        SHPObject *psCShape = SHPReadObject(old_SHP, i);
+        const SHPObject *psCShape = SHPReadObject(old_SHP, i);
 
         if (byRing == 1)
         {

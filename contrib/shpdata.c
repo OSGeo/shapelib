@@ -57,7 +57,6 @@ int main(int argc, char **argv)
     int nShapeType;
     SHPGetInfo(old_SHP, &nEntities, &nShapeType, NULL, NULL);
 
-    char *DBFRow = NULL;
     int byRing = 1;
     PT ringCentrd;
 

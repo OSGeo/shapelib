@@ -106,7 +106,7 @@ static void dxf_hdr(double x1, double y1, double x2, double y2, FILE *df)
     fprintf(df, "ENTITIES\r\n");
 }
 
-static void dxf_ent_preamble(int dxf_type, char *id, FILE *df)
+static void dxf_ent_preamble(int dxf_type, const char *id, FILE *df)
 {
     fprintf(df, "  0\r\n");
 
@@ -142,7 +142,7 @@ static void dxf_ent_preamble(int dxf_type, char *id, FILE *df)
     }
 }
 
-static void dxf_ent(char *id, double x, double y, double z, int dxf_type,
+static void dxf_ent(const char *id, double x, double y, double z, int dxf_type,
                     FILE *df)
 {
     if ((dxf_type == SHPT_ARC) || (dxf_type == SHPT_POLYGON))
@@ -313,8 +313,7 @@ int main(int argc, char **argv)
         SHPObject *shape = SHPReadObject(shp, recNum);
 
         const int nVertices = shape->nVertices;
-        const int nParts = shape->nParts;
-        int *panParts = shape->panPartStart;
+        const int *panParts = shape->panPartStart;
         int part = 0;
         for (int vrtx = 0; vrtx < nVertices; vrtx++)
         {
