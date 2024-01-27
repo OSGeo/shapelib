@@ -1,5 +1,15 @@
 repos:
-    -   repo: https://github.com/pre-commit/mirrors-clang-format
-        rev: 'v15.0.4'
-        hooks:
-        -   id: clang-format
+- repo: https://github.com/pre-commit/mirrors-clang-format
+  rev: 'v16.0.6'
+  hooks:
+  - id: clang-format
+
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.5.0
+  hooks:
+  - id: trailing-whitespace
+    files: ^(contrib\/.+\.[ch]|.+\.[ch])$
+  - id: end-of-file-fixer
+    files: ^(contrib\/.+\.[ch]|.+\.[ch])$
+  - id: fix-byte-order-marker
+    files: ^(contrib\/.+\.[ch]|.+\.[ch])$
