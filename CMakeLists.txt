@@ -116,6 +116,12 @@ target_include_directories(${PACKAGE}
     $<INSTALL_INTERFACE:include>
 )
 
+include(TestBigEndian)
+if(HAVE_BYTE_ORDER_BIG_ENDIAN)
+  # Define SHP_BIG_ENDIAN if the system is big-endian
+  add_definitions(-DSHP_BIG_ENDIAN=1)
+endif()
+
 if(MSVC)
   target_compile_options(${PACKAGE} PRIVATE /W4)
 else()
@@ -292,4 +298,4 @@ endif()
 
 include(cmake/contrib.cmake)
 
-add_subdirectory (cmake)
+add_subdirectory(cmake)
