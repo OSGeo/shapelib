@@ -381,7 +381,6 @@ extern "C"
     int SHPAPI_CALL SHPWriteTree(SHPTree *hTree, const char *pszFilename);
 
     int SHPAPI_CALL SHPTreeAddShapeId(SHPTree *hTree, SHPObject *psObject);
-    int SHPAPI_CALL SHPTreeRemoveShapeId(SHPTree *hTree, int nShapeId);
 
     void SHPAPI_CALL SHPTreeTrimExtraNodes(SHPTree *hTree);
 
