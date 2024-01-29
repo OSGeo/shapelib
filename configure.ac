@@ -9,6 +9,12 @@ AC_INIT(shapelib, shapelib_version_major.shapelib_version_minor.shapelib_version
 AC_CONFIG_MACRO_DIR(m4)
 AC_CONFIG_SRCDIR(shapefil.h)
 
+AC_C_BIGENDIAN
+if test "x$ac_cv_c_bigendian" = "xyes"; then
+  # Define SHP_BIG_ENDIAN if the system is big-endian
+  AC_DEFINE([SHP_BIG_ENDIAN], [1], [Define if the system is big-endian])
+fi
+
 AM_INIT_AUTOMAKE([foreign -Wall -Wextra])
 
 AM_SILENT_RULES([yes])

@@ -31,19 +31,6 @@
 #define FALSE 0
 #endif
 
-#ifndef bBigEndian
-#if defined(CPL_LSB)
-#define bBigEndian false
-#elif defined(CPL_MSB)
-#define bBigEndian true
-#else
-#ifndef static_var_bBigEndian_defined
-#define static_var_bBigEndian_defined
-static bool bBigEndian = false;
-#endif
-#endif
-#endif
-
 /* -------------------------------------------------------------------- */
 /*      If the following is 0.5, nodes will be split in half.  If it    */
 /*      is 0.6 then each subnode will contain 60% of the parent         */
@@ -965,19 +952,6 @@ int *SHPSearchDiskTreeEx(SHPTreeDiskHandle hDiskTree, double *padfBoundsMin,
     *pnShapeCount = 0;
 
     /* -------------------------------------------------------------------- */
-    /*	Establish the byte order on this machine.	  	        */
-    /* -------------------------------------------------------------------- */
-#if !defined(bBigEndian)
-    {
-        int i = 1;
-        if (*REINTERPRET_CAST(unsigned char *, &i) == 1)
-            bBigEndian = false;
-        else
-            bBigEndian = true;
-    }
-#endif
-
-    /* -------------------------------------------------------------------- */
     /*      Read the header.                                                */
     /* -------------------------------------------------------------------- */
     hDiskTree->sHooks.FSeek(hDiskTree->fpQIX, 0, SEEK_SET);
@@ -986,11 +960,11 @@ int *SHPSearchDiskTreeEx(SHPTreeDiskHandle hDiskTree, double *padfBoundsMin,
     if (memcmp(abyBuf, "SQT", 3) != 0)
         return SHPLIB_NULLPTR;
 
-    bool bNeedSwap;
-    if ((abyBuf[3] == 2 && bBigEndian) || (abyBuf[3] == 1 && !bBigEndian))
-        bNeedSwap = false;
-    else
-        bNeedSwap = true;
+#if defined(SHP_BIG_ENDIAN)
+    bool bNeedSwap = abyBuf[3] != 2;
+#else
+    bool bNeedSwap = abyBuf[3] != 1;
+#endif
 
     /* -------------------------------------------------------------------- */
     /*      Search through root node and its descendants.                   */
@@ -1133,27 +1107,15 @@ int SHPWriteTreeLL(SHPTree *tree, const char *filename, const SAHooks *psHooks)
     }
 
     /* -------------------------------------------------------------------- */
-    /*	Establish the byte order on this machine.	  	        */
-    /* -------------------------------------------------------------------- */
-#if !defined(bBigEndian)
-    {
-        int i = 1;
-        if (*REINTERPRET_CAST(unsigned char *, &i) == 1)
-            bBigEndian = false;
-        else
-            bBigEndian = true;
-    }
-#endif
-
-    /* -------------------------------------------------------------------- */
     /*      Write the header.                                               */
     /* -------------------------------------------------------------------- */
     memcpy(abyBuf + 0, signature, 3);
 
-    if (bBigEndian)
-        abyBuf[3] = 2; /* New MSB */
-    else
-        abyBuf[3] = 1; /* New LSB */
+#if defined(SHP_BIG_ENDIAN)
+    abyBuf[3] = 2; /* New MSB */
+#else
+    abyBuf[3] = 1; /* New LSB */
+#endif
 
     abyBuf[4] = 1; /* version */
     abyBuf[5] = 0; /* next 3 reserved */

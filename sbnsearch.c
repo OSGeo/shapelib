@@ -137,18 +137,6 @@ SBNSearchHandle SBNOpenDiskTree(const char *pszSBNFilename,
                                 const SAHooks *psHooks)
 {
     /* -------------------------------------------------------------------- */
-    /*  Establish the byte order on this machine.                           */
-    /* -------------------------------------------------------------------- */
-    bool _bBigEndian;
-    {
-        int i = 1;
-        if (*REINTERPRET_CAST(unsigned char *, &i) == 1)
-            _bBigEndian = false;
-        else
-            _bBigEndian = true;
-    }
-
-    /* -------------------------------------------------------------------- */
     /*      Initialize the handle structure.                                */
     /* -------------------------------------------------------------------- */
     SBNSearchHandle hSBN =
@@ -191,13 +179,12 @@ SBNSearchHandle SBNOpenDiskTree(const char *pszSBNFilename,
     memcpy(&hSBN->dfMaxX, abyHeader + 48, 8);
     memcpy(&hSBN->dfMaxY, abyHeader + 56, 8);
 
-    if (!_bBigEndian)
-    {
-        SwapWord(8, &hSBN->dfMinX);
-        SwapWord(8, &hSBN->dfMinY);
-        SwapWord(8, &hSBN->dfMaxX);
-        SwapWord(8, &hSBN->dfMaxY);
-    }
+#if !defined(SHP_BIG_ENDIAN)
+    SwapWord(8, &hSBN->dfMinX);
+    SwapWord(8, &hSBN->dfMinY);
+    SwapWord(8, &hSBN->dfMaxX);
+    SwapWord(8, &hSBN->dfMaxY);
+#endif
 
     if (hSBN->dfMinX > hSBN->dfMaxX || hSBN->dfMinY > hSBN->dfMaxY)
     {
