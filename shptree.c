@@ -941,8 +941,9 @@ int SHPAPI_CALL1(*) SHPSearchDiskTree(FILE *fp, double *padfBoundsMin,
 /*                       SHPSearchDiskTreeEx()                         */
 /************************************************************************/
 
-int *SHPSearchDiskTreeEx(SHPTreeDiskHandle hDiskTree, double *padfBoundsMin,
-                         double *padfBoundsMax, int *pnShapeCount)
+int SHPAPI_CALL1(*)
+    SHPSearchDiskTreeEx(SHPTreeDiskHandle hDiskTree, double *padfBoundsMin,
+                        double *padfBoundsMax, int *pnShapeCount)
 
 {
     int nBufferMax = 0;
