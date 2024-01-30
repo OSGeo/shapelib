@@ -105,6 +105,7 @@ set(lib_SRC
   shptree.c
   sbnsearch.c
   shapefil.h
+  shapefil_private.h
   shapelib.def
 )
 

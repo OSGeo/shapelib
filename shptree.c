@@ -13,7 +13,7 @@
  *
  */
 
-#include "shapefil.h"
+#include "shapefil_private.h"
 
 #include <math.h>
 #include <assert.h>
@@ -40,18 +40,6 @@
 /* -------------------------------------------------------------------- */
 
 #define SHP_SPLIT_RATIO 0.55
-
-#ifdef __cplusplus
-#define STATIC_CAST(type, x) static_cast<type>(x)
-#define REINTERPRET_CAST(type, x) reinterpret_cast<type>(x)
-#define CONST_CAST(type, x) const_cast<type>(x)
-#define SHPLIB_NULLPTR nullptr
-#else
-#define STATIC_CAST(type, x) ((type)(x))
-#define REINTERPRET_CAST(type, x) ((type)(x))
-#define CONST_CAST(type, x) ((type)(x))
-#define SHPLIB_NULLPTR NULL
-#endif
 
 /************************************************************************/
 /*                          SHPTreeNodeInit()                           */
@@ -677,22 +665,24 @@ void SHPAPI_CALL SHPTreeTrimExtraNodes(SHPTree *hTree)
 /************************************************************************/
 /*                              SwapWord()                              */
 /*                                                                      */
-/*      Swap a 2, 4 or 8 byte word.                                     */
+/*      Swap a 4 or 8 byte word.                                        */
 /************************************************************************/
 
 #ifndef SwapWord_defined
 #define SwapWord_defined
 static void SwapWord(int length, void *wordP)
-
 {
-    int i;
-
-    for (i = 0; i < length / 2; i++)
+    if (4 == length)
     {
-        unsigned char temp = STATIC_CAST(unsigned char *, wordP)[i];
-        STATIC_CAST(unsigned char *, wordP)
-        [i] = STATIC_CAST(unsigned char *, wordP)[length - i - 1];
-        STATIC_CAST(unsigned char *, wordP)[length - i - 1] = temp;
+        SHP_SWAP32(STATIC_CAST(uint32_t *, wordP));
+    }
+    else if (8 == length)
+    {
+        SHP_SWAP64(STATIC_CAST(uint64_t *, wordP));
+    }
+    else
+    {
+        assert(4 == length || 8 == length);
     }
 }
 #endif
