@@ -3,7 +3,7 @@
 SUBDIRS = . contrib
 
 ACLOCAL_AMFLAGS = -I m4
-AUTOMAKE_OPTIONS =      dist-zip
+AUTOMAKE_OPTIONS = dist-zip
 
 if PLATFORM_WIN32
 no_undefined = -no-undefined
@@ -37,6 +37,7 @@ pkgconfig_DATA = shapelib.pc
 lib_LTLIBRARIES = libshp.la
 libshp_la_includedir = $(includedir)
 libshp_la_include_HEADERS = shapefil.h
+noinst_HEADERS = shapefil_private.h
 libshp_la_SOURCES = shpopen.c dbfopen.c safileio.c shptree.c sbnsearch.c
 libshp_la_LDFLAGS = -version-info $(SHAPELIB_SO_VERSION) $(no_undefined) $(LIBM)
 

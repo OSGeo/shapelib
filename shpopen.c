@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: MIT OR LGPL-2.0-or-later
  ******************************************************************************/
 
-#include "shapefil.h"
+#include "shapefil_private.h"
 
 #include <assert.h>
 #include <errno.h>
@@ -46,30 +46,27 @@
 #endif
 #endif
 
-#ifdef __cplusplus
-#define STATIC_CAST(type, x) static_cast<type>(x)
-#define SHPLIB_NULLPTR nullptr
-#else
-#define STATIC_CAST(type, x) ((type)(x))
-#define SHPLIB_NULLPTR NULL
-#endif
-
 /************************************************************************/
 /*                              SwapWord()                              */
 /*                                                                      */
-/*      Swap a 2, 4 or 8 byte word.                                     */
+/*      Swap a 4 or 8 byte word.                                        */
 /************************************************************************/
 
 #ifndef SwapWord_defined
 #define SwapWord_defined
 static void SwapWord(int length, void *wordP)
 {
-    for (int i = 0; i < length / 2; i++)
+    if (4 == length)
     {
-        const unsigned char temp = STATIC_CAST(unsigned char *, wordP)[i];
-        STATIC_CAST(unsigned char *, wordP)
-        [i] = STATIC_CAST(unsigned char *, wordP)[length - i - 1];
-        STATIC_CAST(unsigned char *, wordP)[length - i - 1] = temp;
+        SHP_SWAP32(STATIC_CAST(uint32_t *, wordP));
+    }
+    else if (8 == length)
+    {
+        SHP_SWAP64(STATIC_CAST(uint64_t *, wordP));
+    }
+    else
+    {
+        assert(4 == length || 8 == length);
     }
 }
 #endif
