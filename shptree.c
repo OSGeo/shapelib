@@ -662,31 +662,6 @@ void SHPAPI_CALL SHPTreeTrimExtraNodes(SHPTree *hTree)
     SHPTreeNodeTrim(hTree->psRoot);
 }
 
-/************************************************************************/
-/*                              SwapWord()                              */
-/*                                                                      */
-/*      Swap a 4 or 8 byte word.                                        */
-/************************************************************************/
-
-#ifndef SwapWord_defined
-#define SwapWord_defined
-static void SwapWord(int length, void *wordP)
-{
-    if (4 == length)
-    {
-        SHP_SWAP32(STATIC_CAST(uint32_t *, wordP));
-    }
-    else if (8 == length)
-    {
-        SHP_SWAP64(STATIC_CAST(uint64_t *, wordP));
-    }
-    else
-    {
-        assert(4 == length || 8 == length);
-    }
-}
-#endif
-
 struct SHPDiskTreeInfo
 {
     SAHooks sHooks;
@@ -757,7 +732,7 @@ static bool SHPSearchDiskTreeNode(SHPTreeDiskHandle hDiskTree,
     nFReadAcc = STATIC_CAST(
         int, hDiskTree->sHooks.FRead(&offset, 4, 1, hDiskTree->fpQIX));
     if (bNeedSwap)
-        SwapWord(4, &offset);
+        SHP_SWAP32(STATIC_CAST(uint32_t *, STATIC_CAST(void *, &offset)));
 
     nFReadAcc += STATIC_CAST(int, hDiskTree->sHooks.FRead(adfNodeBoundsMin,
                                                           sizeof(double), 2,
@@ -767,16 +742,20 @@ static bool SHPSearchDiskTreeNode(SHPTreeDiskHandle hDiskTree,
                                                           hDiskTree->fpQIX));
     if (bNeedSwap)
     {
-        SwapWord(8, adfNodeBoundsMin + 0);
-        SwapWord(8, adfNodeBoundsMin + 1);
-        SwapWord(8, adfNodeBoundsMax + 0);
-        SwapWord(8, adfNodeBoundsMax + 1);
+        SHP_SWAP64(
+            STATIC_CAST(uint64_t *, STATIC_CAST(void *, adfNodeBoundsMin + 0)));
+        SHP_SWAP64(
+            STATIC_CAST(uint64_t *, STATIC_CAST(void *, adfNodeBoundsMin + 1)));
+        SHP_SWAP64(
+            STATIC_CAST(uint64_t *, STATIC_CAST(void *, adfNodeBoundsMax + 0)));
+        SHP_SWAP64(
+            STATIC_CAST(uint64_t *, STATIC_CAST(void *, adfNodeBoundsMax + 1)));
     }
 
     nFReadAcc += STATIC_CAST(
         int, hDiskTree->sHooks.FRead(&numshapes, 4, 1, hDiskTree->fpQIX));
     if (bNeedSwap)
-        SwapWord(4, &numshapes);
+        SHP_SWAP32(STATIC_CAST(uint32_t *, STATIC_CAST(void *, &numshapes)));
 
     /* Check that we could read all previous values */
     if (nFReadAcc != 1 + 2 + 2 + 1)
@@ -849,7 +828,9 @@ static bool SHPSearchDiskTreeNode(SHPTreeDiskHandle hDiskTree,
         if (bNeedSwap)
         {
             for (i = 0; i < numshapes; i++)
-                SwapWord(4, *ppanResultBuffer + *pnResultCount + i);
+                SHP_SWAP32(STATIC_CAST(
+                    uint32_t *, STATIC_CAST(void *, *ppanResultBuffer +
+                                                        *pnResultCount + i)));
         }
 
         *pnResultCount += numshapes;
@@ -864,7 +845,7 @@ static bool SHPSearchDiskTreeNode(SHPTreeDiskHandle hDiskTree,
         return false;
     }
     if (bNeedSwap)
-        SwapWord(4, &numsubnodes);
+        SHP_SWAP32(STATIC_CAST(uint32_t *, STATIC_CAST(void *, &numsubnodes)));
     if (numsubnodes > 0 && nRecLevel == 32)
     {
         hDiskTree->sHooks.Error("Shape tree is too deep");
