@@ -62,7 +62,17 @@
 
 #endif
 
-#define SHP_SWAP32(p) *STATIC_CAST(uint32_t *, p) = _SHP_SWAP32(*(p))
-#define SHP_SWAP64(p) *STATIC_CAST(uint64_t *, p) = _SHP_SWAP64(*(p))
-
+#define SHP_SWAP32(p)                                                          \
+    *STATIC_CAST(uint32_t *, p) = _SHP_SWAP32(*STATIC_CAST(uint32_t *, p))
+#define SHP_SWAP64(p)                                                          \
+    *STATIC_CAST(uint64_t *, p) = _SHP_SWAP64(*STATIC_CAST(uint64_t *, p))
+#define SHP_SWAPDOUBLE(x)                                                      \
+    do                                                                         \
+    {                                                                          \
+        uint64_t _n64;                                                         \
+        void *_lx = x;                                                         \
+        memcpy(&_n64, _lx, 8);                                                 \
+        _n64 = _SHP_SWAP64(_n64);                                              \
+        memcpy(_lx, &_n64, 8);                                                 \
+    } while (0)
 #endif /* ndef SHAPEFILE_PRIVATE_H_INCLUDED */

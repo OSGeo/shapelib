@@ -98,33 +98,6 @@ typedef struct
 } SearchStruct;
 
 /************************************************************************/
-/*                              SwapWord()                              */
-/*                                                                      */
-/*      Swap a 4 or 8 byte word.                                        */
-/************************************************************************/
-
-#if !defined(SHP_BIG_ENDIAN)
-#ifndef SwapWord_defined
-#define SwapWord_defined
-static void SwapWord(int length, void *wordP)
-{
-    if (4 == length)
-    {
-        SHP_SWAP32(STATIC_CAST(uint32_t *, wordP));
-    }
-    else if (8 == length)
-    {
-        SHP_SWAP64(STATIC_CAST(uint64_t *, wordP));
-    }
-    else
-    {
-        assert(4 == length || 8 == length);
-    }
-}
-#endif
-#endif
-
-/************************************************************************/
 /*                         SBNOpenDiskTree()                            */
 /************************************************************************/
 
@@ -175,10 +148,10 @@ SBNSearchHandle SBNOpenDiskTree(const char *pszSBNFilename,
     memcpy(&hSBN->dfMaxY, abyHeader + 56, 8);
 
 #if !defined(SHP_BIG_ENDIAN)
-    SwapWord(8, &hSBN->dfMinX);
-    SwapWord(8, &hSBN->dfMinY);
-    SwapWord(8, &hSBN->dfMaxX);
-    SwapWord(8, &hSBN->dfMaxY);
+    SHP_SWAPDOUBLE(&hSBN->dfMinX);
+    SHP_SWAPDOUBLE(&hSBN->dfMinY);
+    SHP_SWAPDOUBLE(&hSBN->dfMaxX);
+    SHP_SWAPDOUBLE(&hSBN->dfMaxY);
 #endif
 
     if (hSBN->dfMinX > hSBN->dfMaxX || hSBN->dfMinY > hSBN->dfMaxY)
