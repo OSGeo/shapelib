@@ -216,6 +216,13 @@ extern "C"
 
     typedef SHPInfo *SHPHandle;
 
+    typedef struct
+    {
+        int year;
+        int month;
+        int day;
+    } SHPDate;
+
 /* -------------------------------------------------------------------- */
 /*      Shape types (nSHPType)                                          */
 /* -------------------------------------------------------------------- */
@@ -544,6 +551,8 @@ extern "C"
         DBFReadStringAttribute(DBFHandle hDBF, int iShape, int iField);
     const char SHPAPI_CALL1(*)
         DBFReadLogicalAttribute(DBFHandle hDBF, int iShape, int iField);
+    SHPDate SHPAPI_CALL DBFReadDateAttribute(DBFHandle hDBF, int iShape,
+                                             int iField);
     int SHPAPI_CALL DBFIsAttributeNULL(DBFHandle hDBF, int iShape, int iField);
 
     int SHPAPI_CALL DBFWriteIntegerAttribute(DBFHandle hDBF, int iShape,
@@ -559,6 +568,9 @@ extern "C"
     int SHPAPI_CALL DBFWriteLogicalAttribute(DBFHandle hDBF, int iShape,
                                              int iField,
                                              const char lFieldValue);
+    int SHPAPI_CALL DBFWriteDateAttribute(DBFHandle hDBF, int iShape,
+                                          int iField,
+                                          const SHPDate *dateFieldValue);
     int SHPAPI_CALL DBFWriteAttributeDirectly(DBFHandle psDBF, int hEntity,
                                               int iField, const void *pValue);
     const char SHPAPI_CALL1(*) DBFReadTuple(DBFHandle psDBF, int hEntity);

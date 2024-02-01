@@ -12,6 +12,7 @@ EXPORTS
     DBFIsRecordDeleted
     DBFMarkRecordDeleted
     DBFOpen
+    DBFReadDateAttribute
     DBFReadDoubleAttribute
     DBFReadIntegerAttribute
     DBFReadLogicalAttribute
@@ -20,6 +21,7 @@ EXPORTS
     DBFSetLastModifiedDate
     DBFSetWriteEndOfFileChar
     DBFUpdateHeader
+    DBFWriteDateAttribute
     DBFWriteDoubleAttribute
     DBFWriteIntegerAttribute
     DBFWriteLogicalAttribute
