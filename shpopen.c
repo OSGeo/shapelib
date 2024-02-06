@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: MIT OR LGPL-2.0-or-later
  ******************************************************************************/
 
-#include "shapefil.h"
+#include "shapefil_private.h"
 
 #include <assert.h>
 #include <errno.h>
@@ -46,34 +46,6 @@
 #endif
 #endif
 
-#ifdef __cplusplus
-#define STATIC_CAST(type, x) static_cast<type>(x)
-#define SHPLIB_NULLPTR nullptr
-#else
-#define STATIC_CAST(type, x) ((type)(x))
-#define SHPLIB_NULLPTR NULL
-#endif
-
-/************************************************************************/
-/*                              SwapWord()                              */
-/*                                                                      */
-/*      Swap a 2, 4 or 8 byte word.                                     */
-/************************************************************************/
-
-#ifndef SwapWord_defined
-#define SwapWord_defined
-static void SwapWord(int length, void *wordP)
-{
-    for (int i = 0; i < length / 2; i++)
-    {
-        const unsigned char temp = STATIC_CAST(unsigned char *, wordP)[i];
-        STATIC_CAST(unsigned char *, wordP)
-        [i] = STATIC_CAST(unsigned char *, wordP)[length - i - 1];
-        STATIC_CAST(unsigned char *, wordP)[length - i - 1] = temp;
-    }
-}
-#endif
-
 /************************************************************************/
 /*                          SHPWriteHeader()                            */
 /*                                                                      */
@@ -100,65 +72,65 @@ void SHPAPI_CALL SHPWriteHeader(SHPHandle psSHP)
     uint32_t i32 = psSHP->nFileSize / 2; /* file size */
     ByteCopy(&i32, abyHeader + 24, 4);
 #if !defined(SHP_BIG_ENDIAN)
-    SwapWord(4, abyHeader + 24);
+    SHP_SWAP32(abyHeader + 24);
 #endif
 
     i32 = 1000; /* version */
     ByteCopy(&i32, abyHeader + 28, 4);
 #if defined(SHP_BIG_ENDIAN)
-    SwapWord(4, abyHeader + 28);
+    SHP_SWAP32(abyHeader + 28);
 #endif
 
     i32 = psSHP->nShapeType; /* shape type */
     ByteCopy(&i32, abyHeader + 32, 4);
 #if defined(SHP_BIG_ENDIAN)
-    SwapWord(4, abyHeader + 32);
+    SHP_SWAP32(abyHeader + 32);
 #endif
 
     double dValue = psSHP->adBoundsMin[0]; /* set bounds */
     ByteCopy(&dValue, abyHeader + 36, 8);
 #if defined(SHP_BIG_ENDIAN)
-    SwapWord(8, abyHeader + 36);
+    SHP_SWAP64(abyHeader + 36);
 #endif
     dValue = psSHP->adBoundsMin[1];
     ByteCopy(&dValue, abyHeader + 44, 8);
 #if defined(SHP_BIG_ENDIAN)
-    SwapWord(8, abyHeader + 44);
+    SHP_SWAP64(abyHeader + 44);
 #endif
     dValue = psSHP->adBoundsMax[0];
     ByteCopy(&dValue, abyHeader + 52, 8);
 #if defined(SHP_BIG_ENDIAN)
-    SwapWord(8, abyHeader + 52);
+    SHP_SWAP64(abyHeader + 52);
 #endif
 
     dValue = psSHP->adBoundsMax[1];
     ByteCopy(&dValue, abyHeader + 60, 8);
 #if defined(SHP_BIG_ENDIAN)
-    SwapWord(8, abyHeader + 60);
+    SHP_SWAP64(abyHeader + 60);
 #endif
 
     dValue = psSHP->adBoundsMin[2]; /* z */
     ByteCopy(&dValue, abyHeader + 68, 8);
 #if defined(SHP_BIG_ENDIAN)
-    SwapWord(8, abyHeader + 68);
+    SHP_SWAP64(abyHeader + 68);
 #endif
 
     dValue = psSHP->adBoundsMax[2];
     ByteCopy(&dValue, abyHeader + 76, 8);
 #if defined(SHP_BIG_ENDIAN)
-    SwapWord(8, abyHeader + 76);
+    SHP_SWAP64(abyHeader + 76);
 #endif
 
     dValue = psSHP->adBoundsMin[3]; /* m */
     ByteCopy(&dValue, abyHeader + 84, 8);
 #if defined(SHP_BIG_ENDIAN)
-    SwapWord(8, abyHeader + 84);
+    SHP_SWAP64(abyHeader + 84);
 #endif
 
     dValue = psSHP->adBoundsMax[3];
     ByteCopy(&dValue, abyHeader + 92, 8);
 #if defined(SHP_BIG_ENDIAN)
-    SwapWord(8, abyHeader + 92);
+    SHP_SWAP64(abyHeader + 92);
 #endif
 
     /* -------------------------------------------------------------------- */
@@ -182,7 +154,7 @@ void SHPAPI_CALL SHPWriteHeader(SHPHandle psSHP)
     i32 = (psSHP->nRecords * 2 * sizeof(uint32_t) + 100) / 2; /* file size */
     ByteCopy(&i32, abyHeader + 24, 4);
 #if !defined(SHP_BIG_ENDIAN)
-    SwapWord(4, abyHeader + 24);
+    SHP_SWAP32(abyHeader + 24);
 #endif
 
     if (psSHP->sHooks.FSeek(psSHP->fpSHX, 0, 0) != 0 ||
@@ -214,8 +186,8 @@ void SHPAPI_CALL SHPWriteHeader(SHPHandle psSHP)
         panSHX[i * 2] = psSHP->panRecOffset[i] / 2;
         panSHX[i * 2 + 1] = psSHP->panRecSize[i] / 2;
 #if !defined(SHP_BIG_ENDIAN)
-        SwapWord(4, panSHX + i * 2);
-        SwapWord(4, panSHX + i * 2 + 1);
+        SHP_SWAP32(panSHX + i * 2);
+        SHP_SWAP32(panSHX + i * 2 + 1);
 #endif
     }
 
@@ -453,49 +425,49 @@ SHPHandle SHPAPI_CALL SHPOpenLL(const char *pszLayer, const char *pszAccess,
     double dValue;
 
 #if defined(SHP_BIG_ENDIAN)
-    SwapWord(8, pabyBuf + 36);
+    SHP_SWAP64(pabyBuf + 36);
 #endif
     memcpy(&dValue, pabyBuf + 36, 8);
     psSHP->adBoundsMin[0] = dValue;
 
 #if defined(SHP_BIG_ENDIAN)
-    SwapWord(8, pabyBuf + 44);
+    SHP_SWAP64(pabyBuf + 44);
 #endif
     memcpy(&dValue, pabyBuf + 44, 8);
     psSHP->adBoundsMin[1] = dValue;
 
 #if defined(SHP_BIG_ENDIAN)
-    SwapWord(8, pabyBuf + 52);
+    SHP_SWAP64(pabyBuf + 52);
 #endif
     memcpy(&dValue, pabyBuf + 52, 8);
     psSHP->adBoundsMax[0] = dValue;
 
 #if defined(SHP_BIG_ENDIAN)
-    SwapWord(8, pabyBuf + 60);
+    SHP_SWAP64(pabyBuf + 60);
 #endif
     memcpy(&dValue, pabyBuf + 60, 8);
     psSHP->adBoundsMax[1] = dValue;
 
 #if defined(SHP_BIG_ENDIAN)
-    SwapWord(8, pabyBuf + 68); /* z */
+    SHP_SWAP64(pabyBuf + 68); /* z */
 #endif
     memcpy(&dValue, pabyBuf + 68, 8);
     psSHP->adBoundsMin[2] = dValue;
 
 #if defined(SHP_BIG_ENDIAN)
-    SwapWord(8, pabyBuf + 76);
+    SHP_SWAP64(pabyBuf + 76);
 #endif
     memcpy(&dValue, pabyBuf + 76, 8);
     psSHP->adBoundsMax[2] = dValue;
 
 #if defined(SHP_BIG_ENDIAN)
-    SwapWord(8, pabyBuf + 84); /* z */
+    SHP_SWAP64(pabyBuf + 84); /* z */
 #endif
     memcpy(&dValue, pabyBuf + 84, 8);
     psSHP->adBoundsMin[3] = dValue;
 
 #if defined(SHP_BIG_ENDIAN)
-    SwapWord(8, pabyBuf + 92);
+    SHP_SWAP64(pabyBuf + 92);
 #endif
     memcpy(&dValue, pabyBuf + 92, 8);
     psSHP->adBoundsMax[3] = dValue;
@@ -589,13 +561,13 @@ SHPHandle SHPAPI_CALL SHPOpenLL(const char *pszLayer, const char *pszAccess,
         unsigned int nOffset;
         memcpy(&nOffset, pabyBuf + i * 8, 4);
 #if !defined(SHP_BIG_ENDIAN)
-        SwapWord(4, &nOffset);
+        SHP_SWAP32(&nOffset);
 #endif
 
         unsigned int nLength;
         memcpy(&nLength, pabyBuf + i * 8 + 4, 4);
 #if !defined(SHP_BIG_ENDIAN)
-        SwapWord(4, &nLength);
+        SHP_SWAP32(&nLength);
 #endif
 
         if (nOffset > STATIC_CAST(unsigned int, INT_MAX))
@@ -782,16 +754,16 @@ int SHPAPI_CALL SHPRestoreSHX(const char *pszLayer, const char *pszAccess,
             unsigned int nRecordOffsetBE = nRecordOffset;
 
 #if !defined(SHP_BIG_ENDIAN)
-            SwapWord(4, &nRecordOffsetBE);
+            SHP_SWAP32(&nRecordOffsetBE);
 #endif
             memcpy(abyReadRecord, &nRecordOffsetBE, 4);
             memcpy(abyReadRecord + 4, &nRecordLength, 4);
 
 #if !defined(SHP_BIG_ENDIAN)
-            SwapWord(4, &nRecordLength);
+            SHP_SWAP32(&nRecordLength);
 #endif
 #if defined(SHP_BIG_ENDIAN)
-            SwapWord(4, &nSHPType);
+            SHP_SWAP32(&nSHPType);
 #endif
 
             // Sanity check on record length
@@ -864,7 +836,7 @@ int SHPAPI_CALL SHPRestoreSHX(const char *pszLayer, const char *pszAccess,
 
     nRealSHXContentSize /= 2;  // Bytes counted -> WORDs
 #if !defined(SHP_BIG_ENDIAN)
-    SwapWord(4, &nRealSHXContentSize);
+    SHP_SWAP32(&nRealSHXContentSize);
 #endif
 
     psHooks->FSeek(fpSHX, 24, 0);
@@ -1047,19 +1019,19 @@ SHPHandle SHPAPI_CALL SHPCreateLL(const char *pszLayer, int nShapeType,
     uint32_t i32 = 50; /* file size */
     ByteCopy(&i32, abyHeader + 24, 4);
 #if !defined(SHP_BIG_ENDIAN)
-    SwapWord(4, abyHeader + 24);
+    SHP_SWAP32(abyHeader + 24);
 #endif
 
     i32 = 1000; /* version */
     ByteCopy(&i32, abyHeader + 28, 4);
 #if defined(SHP_BIG_ENDIAN)
-    SwapWord(4, abyHeader + 28);
+    SHP_SWAP32(abyHeader + 28);
 #endif
 
     i32 = nShapeType; /* shape type */
     ByteCopy(&i32, abyHeader + 32, 4);
 #if defined(SHP_BIG_ENDIAN)
-    SwapWord(4, abyHeader + 32);
+    SHP_SWAP32(abyHeader + 32);
 #endif
 
     double dValue = 0.0; /* set bounds */
@@ -1092,7 +1064,7 @@ SHPHandle SHPAPI_CALL SHPCreateLL(const char *pszLayer, int nShapeType,
     i32 = 50; /* file size */
     ByteCopy(&i32, abyHeader + 24, 4);
 #if !defined(SHP_BIG_ENDIAN)
-    SwapWord(4, abyHeader + 24);
+    SHP_SWAP32(abyHeader + 24);
 #endif
 
     if (psHooks->FWrite(abyHeader, 100, 1, fpSHX) != 1)
@@ -1156,10 +1128,10 @@ static void _SHPSetBounds(unsigned char *pabyRec, const SHPObject *psShape)
     ByteCopy(&(psShape->dfYMax), pabyRec + 24, 8);
 
 #if defined(SHP_BIG_ENDIAN)
-    SwapWord(8, pabyRec + 0);
-    SwapWord(8, pabyRec + 8);
-    SwapWord(8, pabyRec + 16);
-    SwapWord(8, pabyRec + 24);
+    SHP_SWAP64(pabyRec + 0);
+    SHP_SWAP64(pabyRec + 8);
+    SHP_SWAP64(pabyRec + 16);
+    SHP_SWAP64(pabyRec + 24);
 #endif
 }
 
@@ -1440,8 +1412,8 @@ int SHPAPI_CALL SHPWriteObject(SHPHandle psSHP, int nShapeId,
         _SHPSetBounds(pabyRec + 12, psObject);
 
 #if defined(SHP_BIG_ENDIAN)
-        SwapWord(4, &nPoints);
-        SwapWord(4, &nParts);
+        SHP_SWAP32(&nPoints);
+        SHP_SWAP32(&nParts);
 #endif
 
         ByteCopy(&nPoints, pabyRec + 40 + 8, 4);
@@ -1457,7 +1429,7 @@ int SHPAPI_CALL SHPWriteObject(SHPHandle psSHP, int nShapeId,
         for (int i = 0; i < psObject->nParts; i++)
         {
 #if defined(SHP_BIG_ENDIAN)
-            SwapWord(4, pabyRec + 44 + 8 + 4 * i);
+            SHP_SWAP32(pabyRec + 44 + 8 + 4 * i);
 #endif
             nRecordSize += 4;
         }
@@ -1472,7 +1444,7 @@ int SHPAPI_CALL SHPWriteObject(SHPHandle psSHP, int nShapeId,
             for (int i = 0; i < psObject->nParts; i++)
             {
 #if defined(SHP_BIG_ENDIAN)
-                SwapWord(4, pabyRec + nRecordSize);
+                SHP_SWAP32(pabyRec + nRecordSize);
 #endif
                 nRecordSize += 4;
             }
@@ -1487,8 +1459,8 @@ int SHPAPI_CALL SHPWriteObject(SHPHandle psSHP, int nShapeId,
             ByteCopy(psObject->padfY + i, pabyRec + nRecordSize + 8, 8);
 
 #if defined(SHP_BIG_ENDIAN)
-            SwapWord(8, pabyRec + nRecordSize);
-            SwapWord(8, pabyRec + nRecordSize + 8);
+            SHP_SWAP64(pabyRec + nRecordSize);
+            SHP_SWAP64(pabyRec + nRecordSize + 8);
 #endif
 
             nRecordSize += 2 * 8;
@@ -1503,13 +1475,13 @@ int SHPAPI_CALL SHPWriteObject(SHPHandle psSHP, int nShapeId,
         {
             ByteCopy(&(psObject->dfZMin), pabyRec + nRecordSize, 8);
 #if defined(SHP_BIG_ENDIAN)
-            SwapWord(8, pabyRec + nRecordSize);
+            SHP_SWAP64(pabyRec + nRecordSize);
 #endif
             nRecordSize += 8;
 
             ByteCopy(&(psObject->dfZMax), pabyRec + nRecordSize, 8);
 #if defined(SHP_BIG_ENDIAN)
-            SwapWord(8, pabyRec + nRecordSize);
+            SHP_SWAP64(pabyRec + nRecordSize);
 #endif
             nRecordSize += 8;
 
@@ -1517,7 +1489,7 @@ int SHPAPI_CALL SHPWriteObject(SHPHandle psSHP, int nShapeId,
             {
                 ByteCopy(psObject->padfZ + i, pabyRec + nRecordSize, 8);
 #if defined(SHP_BIG_ENDIAN)
-                SwapWord(8, pabyRec + nRecordSize);
+                SHP_SWAP64(pabyRec + nRecordSize);
 #endif
                 nRecordSize += 8;
             }
@@ -1537,13 +1509,13 @@ int SHPAPI_CALL SHPWriteObject(SHPHandle psSHP, int nShapeId,
         {
             ByteCopy(&(psObject->dfMMin), pabyRec + nRecordSize, 8);
 #if defined(SHP_BIG_ENDIAN)
-            SwapWord(8, pabyRec + nRecordSize);
+            SHP_SWAP64(pabyRec + nRecordSize);
 #endif
             nRecordSize += 8;
 
             ByteCopy(&(psObject->dfMMax), pabyRec + nRecordSize, 8);
 #if defined(SHP_BIG_ENDIAN)
-            SwapWord(8, pabyRec + nRecordSize);
+            SHP_SWAP64(pabyRec + nRecordSize);
 #endif
             nRecordSize += 8;
 
@@ -1551,7 +1523,7 @@ int SHPAPI_CALL SHPWriteObject(SHPHandle psSHP, int nShapeId,
             {
                 ByteCopy(psObject->padfM + i, pabyRec + nRecordSize, 8);
 #if defined(SHP_BIG_ENDIAN)
-                SwapWord(8, pabyRec + nRecordSize);
+                SHP_SWAP64(pabyRec + nRecordSize);
 #endif
                 nRecordSize += 8;
             }
@@ -1570,7 +1542,7 @@ int SHPAPI_CALL SHPWriteObject(SHPHandle psSHP, int nShapeId,
         _SHPSetBounds(pabyRec + 12, psObject);
 
 #if defined(SHP_BIG_ENDIAN)
-        SwapWord(4, &nPoints);
+        SHP_SWAP32(&nPoints);
 #endif
         ByteCopy(&nPoints, pabyRec + 44, 4);
 
@@ -1580,8 +1552,8 @@ int SHPAPI_CALL SHPWriteObject(SHPHandle psSHP, int nShapeId,
             ByteCopy(psObject->padfY + i, pabyRec + 48 + i * 16 + 8, 8);
 
 #if defined(SHP_BIG_ENDIAN)
-            SwapWord(8, pabyRec + 48 + i * 16);
-            SwapWord(8, pabyRec + 48 + i * 16 + 8);
+            SHP_SWAP64(pabyRec + 48 + i * 16);
+            SHP_SWAP64(pabyRec + 48 + i * 16 + 8);
 #endif
         }
 
@@ -1591,13 +1563,13 @@ int SHPAPI_CALL SHPWriteObject(SHPHandle psSHP, int nShapeId,
         {
             ByteCopy(&(psObject->dfZMin), pabyRec + nRecordSize, 8);
 #if defined(SHP_BIG_ENDIAN)
-            SwapWord(8, pabyRec + nRecordSize);
+            SHP_SWAP64(pabyRec + nRecordSize);
 #endif
             nRecordSize += 8;
 
             ByteCopy(&(psObject->dfZMax), pabyRec + nRecordSize, 8);
 #if defined(SHP_BIG_ENDIAN)
-            SwapWord(8, pabyRec + nRecordSize);
+            SHP_SWAP64(pabyRec + nRecordSize);
 #endif
             nRecordSize += 8;
 
@@ -1605,7 +1577,7 @@ int SHPAPI_CALL SHPWriteObject(SHPHandle psSHP, int nShapeId,
             {
                 ByteCopy(psObject->padfZ + i, pabyRec + nRecordSize, 8);
 #if defined(SHP_BIG_ENDIAN)
-                SwapWord(8, pabyRec + nRecordSize);
+                SHP_SWAP64(pabyRec + nRecordSize);
 #endif
                 nRecordSize += 8;
             }
@@ -1617,13 +1589,13 @@ int SHPAPI_CALL SHPWriteObject(SHPHandle psSHP, int nShapeId,
         {
             ByteCopy(&(psObject->dfMMin), pabyRec + nRecordSize, 8);
 #if defined(SHP_BIG_ENDIAN)
-            SwapWord(8, pabyRec + nRecordSize);
+            SHP_SWAP64(pabyRec + nRecordSize);
 #endif
             nRecordSize += 8;
 
             ByteCopy(&(psObject->dfMMax), pabyRec + nRecordSize, 8);
 #if defined(SHP_BIG_ENDIAN)
-            SwapWord(8, pabyRec + nRecordSize);
+            SHP_SWAP64(pabyRec + nRecordSize);
 #endif
             nRecordSize += 8;
 
@@ -1631,7 +1603,7 @@ int SHPAPI_CALL SHPWriteObject(SHPHandle psSHP, int nShapeId,
             {
                 ByteCopy(psObject->padfM + i, pabyRec + nRecordSize, 8);
 #if defined(SHP_BIG_ENDIAN)
-                SwapWord(8, pabyRec + nRecordSize);
+                SHP_SWAP64(pabyRec + nRecordSize);
 #endif
                 nRecordSize += 8;
             }
@@ -1649,8 +1621,8 @@ int SHPAPI_CALL SHPWriteObject(SHPHandle psSHP, int nShapeId,
         ByteCopy(psObject->padfY, pabyRec + 20, 8);
 
 #if defined(SHP_BIG_ENDIAN)
-        SwapWord(8, pabyRec + 12);
-        SwapWord(8, pabyRec + 20);
+        SHP_SWAP64(pabyRec + 12);
+        SHP_SWAP64(pabyRec + 20);
 #endif
 
         nRecordSize = 28;
@@ -1659,7 +1631,7 @@ int SHPAPI_CALL SHPWriteObject(SHPHandle psSHP, int nShapeId,
         {
             ByteCopy(psObject->padfZ, pabyRec + nRecordSize, 8);
 #if defined(SHP_BIG_ENDIAN)
-            SwapWord(8, pabyRec + nRecordSize);
+            SHP_SWAP64(pabyRec + nRecordSize);
 #endif
             nRecordSize += 8;
         }
@@ -1669,7 +1641,7 @@ int SHPAPI_CALL SHPWriteObject(SHPHandle psSHP, int nShapeId,
         {
             ByteCopy(psObject->padfM, pabyRec + nRecordSize, 8);
 #if defined(SHP_BIG_ENDIAN)
-            SwapWord(8, pabyRec + nRecordSize);
+            SHP_SWAP64(pabyRec + nRecordSize);
 #endif
             nRecordSize += 8;
         }
@@ -1735,19 +1707,19 @@ int SHPAPI_CALL SHPWriteObject(SHPHandle psSHP, int nShapeId,
     uint32_t i32 =
         (nShapeId < 0) ? psSHP->nRecords + 1 : nShapeId + 1; /* record # */
 #if !defined(SHP_BIG_ENDIAN)
-    SwapWord(4, &i32);
+    SHP_SWAP32(&i32);
 #endif
     ByteCopy(&i32, pabyRec, 4);
 
     i32 = (nRecordSize - 8) / 2; /* record size */
 #if !defined(SHP_BIG_ENDIAN)
-    SwapWord(4, &i32);
+    SHP_SWAP32(&i32);
 #endif
     ByteCopy(&i32, pabyRec + 4, 4);
 
     i32 = psObject->nSHPType; /* shape type */
 #if defined(SHP_BIG_ENDIAN)
-    SwapWord(4, &i32);
+    SHP_SWAP32(&i32);
 #endif
     ByteCopy(&i32, pabyRec + 8, 4);
 
@@ -1941,8 +1913,8 @@ SHPObject SHPAPI_CALL1(*) SHPReadObject(SHPHandle psSHP, int hEntity)
             return SHPLIB_NULLPTR;
         }
 #if !defined(SHP_BIG_ENDIAN)
-        SwapWord(4, &nOffset);
-        SwapWord(4, &nLength);
+        SHP_SWAP32(&nOffset);
+        SHP_SWAP32(&nLength);
 #endif
 
         if (nOffset > STATIC_CAST(unsigned int, INT_MAX))
@@ -2076,7 +2048,7 @@ SHPObject SHPAPI_CALL1(*) SHPReadObject(SHPHandle psSHP, int hEntity)
         int nSHPContentLength;
         memcpy(&nSHPContentLength, psSHP->pabyRec + 4, 4);
 #if !defined(SHP_BIG_ENDIAN)
-        SwapWord(4, &(nSHPContentLength));
+        SHP_SWAP32(&(nSHPContentLength));
 #endif
         if (nSHPContentLength < 0 || nSHPContentLength > INT_MAX / 2 - 4 ||
             2 * nSHPContentLength + 8 != nBytesRead)
@@ -2123,7 +2095,7 @@ SHPObject SHPAPI_CALL1(*) SHPReadObject(SHPHandle psSHP, int hEntity)
     memcpy(&nSHPType, psSHP->pabyRec + 8, 4);
 
 #if defined(SHP_BIG_ENDIAN)
-    SwapWord(4, &(nSHPType));
+    SHP_SWAP32(&(nSHPType));
 #endif
 
     /* -------------------------------------------------------------------- */
@@ -2173,16 +2145,16 @@ SHPObject SHPAPI_CALL1(*) SHPReadObject(SHPHandle psSHP, int hEntity)
         /* -------------------------------------------------------------------- */
         /*      Get the X/Y bounds.                                             */
         /* -------------------------------------------------------------------- */
-        memcpy(&(psShape->dfXMin), psSHP->pabyRec + 8 + 4, 8);
-        memcpy(&(psShape->dfYMin), psSHP->pabyRec + 8 + 12, 8);
-        memcpy(&(psShape->dfXMax), psSHP->pabyRec + 8 + 20, 8);
-        memcpy(&(psShape->dfYMax), psSHP->pabyRec + 8 + 28, 8);
-
 #if defined(SHP_BIG_ENDIAN)
-        SwapWord(8, &(psShape->dfXMin));
-        SwapWord(8, &(psShape->dfYMin));
-        SwapWord(8, &(psShape->dfXMax));
-        SwapWord(8, &(psShape->dfYMax));
+        SHP_SWAPDOUBLE_CPY(&psShape->dfXMin, psSHP->pabyRec + 8 + 4);
+        SHP_SWAPDOUBLE_CPY(&psShape->dfYMin, psSHP->pabyRec + 8 + 12);
+        SHP_SWAPDOUBLE_CPY(&psShape->dfXMax, psSHP->pabyRec + 8 + 20);
+        SHP_SWAPDOUBLE_CPY(&psShape->dfYMax, psSHP->pabyRec + 8 + 28);
+#else
+        memcpy(&psShape->dfXMin, psSHP->pabyRec + 8 + 4, 8);
+        memcpy(&psShape->dfYMin, psSHP->pabyRec + 8 + 12, 8);
+        memcpy(&psShape->dfXMax, psSHP->pabyRec + 8 + 20, 8);
+        memcpy(&psShape->dfYMax, psSHP->pabyRec + 8 + 28, 8);
 #endif
 
         /* -------------------------------------------------------------------- */
@@ -2195,8 +2167,8 @@ SHPObject SHPAPI_CALL1(*) SHPReadObject(SHPHandle psSHP, int hEntity)
         memcpy(&nParts, psSHP->pabyRec + 36 + 8, 4);
 
 #if defined(SHP_BIG_ENDIAN)
-        SwapWord(4, &nPoints);
-        SwapWord(4, &nParts);
+        SHP_SWAP32(&nPoints);
+        SHP_SWAP32(&nParts);
 #endif
 
         /* nPoints and nParts are unsigned */
@@ -2296,7 +2268,7 @@ SHPObject SHPAPI_CALL1(*) SHPReadObject(SHPHandle psSHP, int hEntity)
         for (int i = 0; STATIC_CAST(uint32_t, i) < nParts; i++)
         {
 #if defined(SHP_BIG_ENDIAN)
-            SwapWord(4, psShape->panPartStart + i);
+            SHP_SWAP32(psShape->panPartStart + i);
 #endif
 
             /* We check that the offset is inside the vertex array */
@@ -2343,7 +2315,7 @@ SHPObject SHPAPI_CALL1(*) SHPReadObject(SHPHandle psSHP, int hEntity)
             for (int i = 0; STATIC_CAST(uint32_t, i) < nParts; i++)
             {
 #if defined(SHP_BIG_ENDIAN)
-                SwapWord(4, psShape->panPartType + i);
+                SHP_SWAP32(psShape->panPartType + i);
 #endif
             }
 
@@ -2355,14 +2327,15 @@ SHPObject SHPAPI_CALL1(*) SHPReadObject(SHPHandle psSHP, int hEntity)
         /* -------------------------------------------------------------------- */
         for (int i = 0; STATIC_CAST(uint32_t, i) < nPoints; i++)
         {
+#if defined(SHP_BIG_ENDIAN)
+            SHP_SWAPDOUBLE_CPY(psShape->padfX + i,
+                               psSHP->pabyRec + nOffset + i * 16);
+            SHP_SWAPDOUBLE_CPY(psShape->padfY + i,
+                               psSHP->pabyRec + nOffset + i * 16 + 8);
+#else
             memcpy(psShape->padfX + i, psSHP->pabyRec + nOffset + i * 16, 8);
-
             memcpy(psShape->padfY + i, psSHP->pabyRec + nOffset + i * 16 + 8,
                    8);
-
-#if defined(SHP_BIG_ENDIAN)
-            SwapWord(8, psShape->padfX + i);
-            SwapWord(8, psShape->padfY + i);
 #endif
         }
 
@@ -2375,20 +2348,23 @@ SHPObject SHPAPI_CALL1(*) SHPReadObject(SHPHandle psSHP, int hEntity)
             psShape->nSHPType == SHPT_ARCZ ||
             psShape->nSHPType == SHPT_MULTIPATCH)
         {
-            memcpy(&(psShape->dfZMin), psSHP->pabyRec + nOffset, 8);
-            memcpy(&(psShape->dfZMax), psSHP->pabyRec + nOffset + 8, 8);
-
 #if defined(SHP_BIG_ENDIAN)
-            SwapWord(8, &(psShape->dfZMin));
-            SwapWord(8, &(psShape->dfZMax));
+            SHP_SWAPDOUBLE_CPY(&psShape->dfZMin, psSHP->pabyRec + nOffset);
+            SHP_SWAPDOUBLE_CPY(&psShape->dfZMax, psSHP->pabyRec + nOffset + 8);
+#else
+            memcpy(&psShape->dfZMin, psSHP->pabyRec + nOffset, 8);
+            memcpy(&psShape->dfZMax, psSHP->pabyRec + nOffset + 8, 8);
+
 #endif
 
             for (int i = 0; STATIC_CAST(uint32_t, i) < nPoints; i++)
             {
+#if defined(SHP_BIG_ENDIAN)
+                SHP_SWAPDOUBLE_CPY(psShape->padfZ + i,
+                                   psSHP->pabyRec + nOffset + 16 + i * 8);
+#else
                 memcpy(psShape->padfZ + i,
                        psSHP->pabyRec + nOffset + 16 + i * 8, 8);
-#if defined(SHP_BIG_ENDIAN)
-                SwapWord(8, psShape->padfZ + i);
 #endif
             }
 
@@ -2407,20 +2383,22 @@ SHPObject SHPAPI_CALL1(*) SHPReadObject(SHPHandle psSHP, int hEntity)
         /* -------------------------------------------------------------------- */
         if (nEntitySize >= STATIC_CAST(int, nOffset + 16 + 8 * nPoints))
         {
-            memcpy(&(psShape->dfMMin), psSHP->pabyRec + nOffset, 8);
-            memcpy(&(psShape->dfMMax), psSHP->pabyRec + nOffset + 8, 8);
-
 #if defined(SHP_BIG_ENDIAN)
-            SwapWord(8, &(psShape->dfMMin));
-            SwapWord(8, &(psShape->dfMMax));
+            SHP_SWAPDOUBLE_CPY(&psShape->dfMMin, psSHP->pabyRec + nOffset);
+            SHP_SWAPDOUBLE_CPY(&psShape->dfMMax, psSHP->pabyRec + nOffset + 8);
+#else
+            memcpy(&psShape->dfMMin, psSHP->pabyRec + nOffset, 8);
+            memcpy(&psShape->dfMMax, psSHP->pabyRec + nOffset + 8, 8);
 #endif
 
             for (int i = 0; STATIC_CAST(uint32_t, i) < nPoints; i++)
             {
+#if defined(SHP_BIG_ENDIAN)
+                SHP_SWAPDOUBLE_CPY(psShape->padfM + i,
+                                   psSHP->pabyRec + nOffset + 16 + i * 8);
+#else
                 memcpy(psShape->padfM + i,
                        psSHP->pabyRec + nOffset + 16 + i * 8, 8);
-#if defined(SHP_BIG_ENDIAN)
-                SwapWord(8, psShape->padfM + i);
 #endif
             }
             psShape->bMeasureIsUsed = TRUE;
@@ -2453,7 +2431,7 @@ SHPObject SHPAPI_CALL1(*) SHPReadObject(SHPHandle psSHP, int hEntity)
         memcpy(&nPoints, psSHP->pabyRec + 44, 4);
 
 #if defined(SHP_BIG_ENDIAN)
-        SwapWord(4, &nPoints);
+        SHP_SWAP32(&nPoints);
 #endif
 
         /* nPoints is unsigned */
@@ -2527,12 +2505,14 @@ SHPObject SHPAPI_CALL1(*) SHPReadObject(SHPHandle psSHP, int hEntity)
 
         for (int i = 0; STATIC_CAST(uint32_t, i) < nPoints; i++)
         {
+#if defined(SHP_BIG_ENDIAN)
+            SHP_SWAPDOUBLE_CPY(psShape->padfX + i,
+                               psSHP->pabyRec + 48 + 16 * i);
+            SHP_SWAPDOUBLE_CPY(psShape->padfY + i,
+                               psSHP->pabyRec + 48 + 16 * i + 8);
+#else
             memcpy(psShape->padfX + i, psSHP->pabyRec + 48 + 16 * i, 8);
             memcpy(psShape->padfY + i, psSHP->pabyRec + 48 + 16 * i + 8, 8);
-
-#if defined(SHP_BIG_ENDIAN)
-            SwapWord(8, psShape->padfX + i);
-            SwapWord(8, psShape->padfY + i);
 #endif
         }
 
@@ -2541,16 +2521,16 @@ SHPObject SHPAPI_CALL1(*) SHPReadObject(SHPHandle psSHP, int hEntity)
         /* -------------------------------------------------------------------- */
         /*      Get the X/Y bounds.                                             */
         /* -------------------------------------------------------------------- */
-        memcpy(&(psShape->dfXMin), psSHP->pabyRec + 8 + 4, 8);
-        memcpy(&(psShape->dfYMin), psSHP->pabyRec + 8 + 12, 8);
-        memcpy(&(psShape->dfXMax), psSHP->pabyRec + 8 + 20, 8);
-        memcpy(&(psShape->dfYMax), psSHP->pabyRec + 8 + 28, 8);
-
 #if defined(SHP_BIG_ENDIAN)
-        SwapWord(8, &(psShape->dfXMin));
-        SwapWord(8, &(psShape->dfYMin));
-        SwapWord(8, &(psShape->dfXMax));
-        SwapWord(8, &(psShape->dfYMax));
+        SHP_SWAPDOUBLE_CPY(&psShape->dfXMin, psSHP->pabyRec + 8 + 4);
+        SHP_SWAPDOUBLE_CPY(&psShape->dfYMin, psSHP->pabyRec + 8 + 12);
+        SHP_SWAPDOUBLE_CPY(&psShape->dfXMax, psSHP->pabyRec + 8 + 20);
+        SHP_SWAPDOUBLE_CPY(&psShape->dfYMax, psSHP->pabyRec + 8 + 28);
+#else
+        memcpy(&psShape->dfXMin, psSHP->pabyRec + 8 + 4, 8);
+        memcpy(&psShape->dfYMin, psSHP->pabyRec + 8 + 12, 8);
+        memcpy(&psShape->dfXMax, psSHP->pabyRec + 8 + 20, 8);
+        memcpy(&psShape->dfYMax, psSHP->pabyRec + 8 + 28, 8);
 #endif
 
         /* -------------------------------------------------------------------- */
@@ -2558,20 +2538,22 @@ SHPObject SHPAPI_CALL1(*) SHPReadObject(SHPHandle psSHP, int hEntity)
         /* -------------------------------------------------------------------- */
         if (psShape->nSHPType == SHPT_MULTIPOINTZ)
         {
-            memcpy(&(psShape->dfZMin), psSHP->pabyRec + nOffset, 8);
-            memcpy(&(psShape->dfZMax), psSHP->pabyRec + nOffset + 8, 8);
-
 #if defined(SHP_BIG_ENDIAN)
-            SwapWord(8, &(psShape->dfZMin));
-            SwapWord(8, &(psShape->dfZMax));
+            SHP_SWAPDOUBLE_CPY(&psShape->dfZMin, psSHP->pabyRec + nOffset);
+            SHP_SWAPDOUBLE_CPY(&psShape->dfZMax, psSHP->pabyRec + nOffset + 8);
+#else
+            memcpy(&psShape->dfZMin, psSHP->pabyRec + nOffset, 8);
+            memcpy(&psShape->dfZMax, psSHP->pabyRec + nOffset + 8, 8);
 #endif
 
             for (int i = 0; STATIC_CAST(uint32_t, i) < nPoints; i++)
             {
+#if defined(SHP_BIG_ENDIAN)
+                SHP_SWAPDOUBLE_CPY(psShape->padfZ + i,
+                                   psSHP->pabyRec + nOffset + 16 + i * 8);
+#else
                 memcpy(psShape->padfZ + i,
                        psSHP->pabyRec + nOffset + 16 + i * 8, 8);
-#if defined(SHP_BIG_ENDIAN)
-                SwapWord(8, psShape->padfZ + i);
 #endif
             }
 
@@ -2588,20 +2570,22 @@ SHPObject SHPAPI_CALL1(*) SHPReadObject(SHPHandle psSHP, int hEntity)
         /* -------------------------------------------------------------------- */
         if (nEntitySize >= STATIC_CAST(int, nOffset + 16 + 8 * nPoints))
         {
-            memcpy(&(psShape->dfMMin), psSHP->pabyRec + nOffset, 8);
-            memcpy(&(psShape->dfMMax), psSHP->pabyRec + nOffset + 8, 8);
-
 #if defined(SHP_BIG_ENDIAN)
-            SwapWord(8, &(psShape->dfMMin));
-            SwapWord(8, &(psShape->dfMMax));
+            SHP_SWAPDOUBLE_CPY(&psShape->dfMMin, psSHP->pabyRec + nOffset);
+            SHP_SWAPDOUBLE_CPY(&psShape->dfMMax, psSHP->pabyRec + nOffset + 8);
+#else
+            memcpy(&psShape->dfMMin, psSHP->pabyRec + nOffset, 8);
+            memcpy(&psShape->dfMMax, psSHP->pabyRec + nOffset + 8, 8);
 #endif
 
             for (int i = 0; STATIC_CAST(uint32_t, i) < nPoints; i++)
             {
+#if defined(SHP_BIG_ENDIAN)
+                SHP_SWAPDOUBLE_CPY(psShape->padfM + i,
+                                   psSHP->pabyRec + nOffset + 16 + i * 8);
+#else
                 memcpy(psShape->padfM + i,
                        psSHP->pabyRec + nOffset + 16 + i * 8, 8);
-#if defined(SHP_BIG_ENDIAN)
-                SwapWord(8, psShape->padfM + i);
 #endif
             }
             psShape->bMeasureIsUsed = TRUE;
@@ -2646,12 +2630,12 @@ SHPObject SHPAPI_CALL1(*) SHPReadObject(SHPHandle psSHP, int hEntity)
             SHPDestroyObject(psShape);
             return SHPLIB_NULLPTR;
         }
+#if defined(SHP_BIG_ENDIAN)
+        SHP_SWAPDOUBLE_CPY(psShape->padfX, psSHP->pabyRec + 12);
+        SHP_SWAPDOUBLE_CPY(psShape->padfY, psSHP->pabyRec + 20);
+#else
         memcpy(psShape->padfX, psSHP->pabyRec + 12, 8);
         memcpy(psShape->padfY, psSHP->pabyRec + 20, 8);
-
-#if defined(SHP_BIG_ENDIAN)
-        SwapWord(8, psShape->padfX);
-        SwapWord(8, psShape->padfY);
 #endif
 
         int nOffset = 20 + 8;
@@ -2661,10 +2645,10 @@ SHPObject SHPAPI_CALL1(*) SHPReadObject(SHPHandle psSHP, int hEntity)
         /* -------------------------------------------------------------------- */
         if (psShape->nSHPType == SHPT_POINTZ)
         {
-            memcpy(psShape->padfZ, psSHP->pabyRec + nOffset, 8);
-
 #if defined(SHP_BIG_ENDIAN)
-            SwapWord(8, psShape->padfZ);
+            SHP_SWAPDOUBLE_CPY(psShape->padfZ, psSHP->pabyRec + nOffset);
+#else
+            memcpy(psShape->padfZ, psSHP->pabyRec + nOffset, 8);
 #endif
 
             nOffset += 8;
@@ -2678,10 +2662,10 @@ SHPObject SHPAPI_CALL1(*) SHPReadObject(SHPHandle psSHP, int hEntity)
         /* -------------------------------------------------------------------- */
         if (nEntitySize >= nOffset + 8)
         {
-            memcpy(psShape->padfM, psSHP->pabyRec + nOffset, 8);
-
 #if defined(SHP_BIG_ENDIAN)
-            SwapWord(8, psShape->padfM);
+            SHP_SWAPDOUBLE_CPY(psShape->padfM, psSHP->pabyRec + nOffset);
+#else
+            memcpy(psShape->padfM, psSHP->pabyRec + nOffset, 8);
 #endif
             psShape->bMeasureIsUsed = TRUE;
         }

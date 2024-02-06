@@ -105,6 +105,7 @@ set(lib_SRC
   shptree.c
   sbnsearch.c
   shapefil.h
+  shapefil_private.h
   shapelib.def
 )
 
@@ -125,7 +126,7 @@ endif()
 if(MSVC)
   target_compile_options(${PACKAGE} PRIVATE /W4)
 else()
-  target_compile_options(${PACKAGE} PRIVATE -Wall -Wextra -Wformat-signedness -Wno-unknown-warning-option -pedantic)
+  target_compile_options(${PACKAGE} PRIVATE -Wall -Wextra -Wformat-signedness -pedantic -Wno-unknown-warning-option)
 endif()
 
 if(WIN32 AND NOT CYGWIN)

@@ -13,7 +13,7 @@
  *
  */
 
-#include "shapefil.h"
+#include "shapefil_private.h"
 
 #include <math.h>
 #include <assert.h>
@@ -40,18 +40,6 @@
 /* -------------------------------------------------------------------- */
 
 #define SHP_SPLIT_RATIO 0.55
-
-#ifdef __cplusplus
-#define STATIC_CAST(type, x) static_cast<type>(x)
-#define REINTERPRET_CAST(type, x) reinterpret_cast<type>(x)
-#define CONST_CAST(type, x) const_cast<type>(x)
-#define SHPLIB_NULLPTR nullptr
-#else
-#define STATIC_CAST(type, x) ((type)(x))
-#define REINTERPRET_CAST(type, x) ((type)(x))
-#define CONST_CAST(type, x) ((type)(x))
-#define SHPLIB_NULLPTR NULL
-#endif
 
 /************************************************************************/
 /*                          SHPTreeNodeInit()                           */
@@ -674,29 +662,6 @@ void SHPAPI_CALL SHPTreeTrimExtraNodes(SHPTree *hTree)
     SHPTreeNodeTrim(hTree->psRoot);
 }
 
-/************************************************************************/
-/*                              SwapWord()                              */
-/*                                                                      */
-/*      Swap a 2, 4 or 8 byte word.                                     */
-/************************************************************************/
-
-#ifndef SwapWord_defined
-#define SwapWord_defined
-static void SwapWord(int length, void *wordP)
-
-{
-    int i;
-
-    for (i = 0; i < length / 2; i++)
-    {
-        unsigned char temp = STATIC_CAST(unsigned char *, wordP)[i];
-        STATIC_CAST(unsigned char *, wordP)
-        [i] = STATIC_CAST(unsigned char *, wordP)[length - i - 1];
-        STATIC_CAST(unsigned char *, wordP)[length - i - 1] = temp;
-    }
-}
-#endif
-
 struct SHPDiskTreeInfo
 {
     SAHooks sHooks;
@@ -767,7 +732,7 @@ static bool SHPSearchDiskTreeNode(SHPTreeDiskHandle hDiskTree,
     nFReadAcc = STATIC_CAST(
         int, hDiskTree->sHooks.FRead(&offset, 4, 1, hDiskTree->fpQIX));
     if (bNeedSwap)
-        SwapWord(4, &offset);
+        SHP_SWAP32(&offset);
 
     nFReadAcc += STATIC_CAST(int, hDiskTree->sHooks.FRead(adfNodeBoundsMin,
                                                           sizeof(double), 2,
@@ -777,16 +742,16 @@ static bool SHPSearchDiskTreeNode(SHPTreeDiskHandle hDiskTree,
                                                           hDiskTree->fpQIX));
     if (bNeedSwap)
     {
-        SwapWord(8, adfNodeBoundsMin + 0);
-        SwapWord(8, adfNodeBoundsMin + 1);
-        SwapWord(8, adfNodeBoundsMax + 0);
-        SwapWord(8, adfNodeBoundsMax + 1);
+        SHP_SWAPDOUBLE(adfNodeBoundsMin + 0);
+        SHP_SWAPDOUBLE(adfNodeBoundsMin + 1);
+        SHP_SWAPDOUBLE(adfNodeBoundsMax + 0);
+        SHP_SWAPDOUBLE(adfNodeBoundsMax + 1);
     }
 
     nFReadAcc += STATIC_CAST(
         int, hDiskTree->sHooks.FRead(&numshapes, 4, 1, hDiskTree->fpQIX));
     if (bNeedSwap)
-        SwapWord(4, &numshapes);
+        SHP_SWAP32(&numshapes);
 
     /* Check that we could read all previous values */
     if (nFReadAcc != 1 + 2 + 2 + 1)
@@ -859,7 +824,7 @@ static bool SHPSearchDiskTreeNode(SHPTreeDiskHandle hDiskTree,
         if (bNeedSwap)
         {
             for (i = 0; i < numshapes; i++)
-                SwapWord(4, *ppanResultBuffer + *pnResultCount + i);
+                SHP_SWAP32(*ppanResultBuffer + *pnResultCount + i);
         }
 
         *pnResultCount += numshapes;
@@ -874,7 +839,7 @@ static bool SHPSearchDiskTreeNode(SHPTreeDiskHandle hDiskTree,
         return false;
     }
     if (bNeedSwap)
-        SwapWord(4, &numsubnodes);
+        SHP_SWAP32(&numsubnodes);
     if (numsubnodes > 0 && nRecLevel == 32)
     {
         hDiskTree->sHooks.Error("Shape tree is too deep");
