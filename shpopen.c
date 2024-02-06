@@ -2145,16 +2145,16 @@ SHPObject SHPAPI_CALL1(*) SHPReadObject(SHPHandle psSHP, int hEntity)
         /* -------------------------------------------------------------------- */
         /*      Get the X/Y bounds.                                             */
         /* -------------------------------------------------------------------- */
+#if defined(SHP_BIG_ENDIAN)
+        SHP_SWAPDOUBLE_CPY(&psShape->dfXMin, psSHP->pabyRec + 8 + 4);
+        SHP_SWAPDOUBLE_CPY(&psShape->dfYMin, psSHP->pabyRec + 8 + 12);
+        SHP_SWAPDOUBLE_CPY(&psShape->dfXMax, psSHP->pabyRec + 8 + 20);
+        SHP_SWAPDOUBLE_CPY(&psShape->dfYMax, psSHP->pabyRec + 8 + 28);
+#else
         memcpy(&psShape->dfXMin, psSHP->pabyRec + 8 + 4, 8);
         memcpy(&psShape->dfYMin, psSHP->pabyRec + 8 + 12, 8);
         memcpy(&psShape->dfXMax, psSHP->pabyRec + 8 + 20, 8);
         memcpy(&psShape->dfYMax, psSHP->pabyRec + 8 + 28, 8);
-
-#if defined(SHP_BIG_ENDIAN)
-        SHP_SWAPDOUBLE(&psShape->dfXMin);
-        SHP_SWAPDOUBLE(&psShape->dfYMin);
-        SHP_SWAPDOUBLE(&psShape->dfXMax);
-        SHP_SWAPDOUBLE(&psShape->dfYMax);
 #endif
 
         /* -------------------------------------------------------------------- */
@@ -2327,14 +2327,15 @@ SHPObject SHPAPI_CALL1(*) SHPReadObject(SHPHandle psSHP, int hEntity)
         /* -------------------------------------------------------------------- */
         for (int i = 0; STATIC_CAST(uint32_t, i) < nPoints; i++)
         {
+#if defined(SHP_BIG_ENDIAN)
+            SHP_SWAPDOUBLE_CPY(psShape->padfX + i,
+                               psSHP->pabyRec + nOffset + i * 16);
+            SHP_SWAPDOUBLE_CPY(psShape->padfY + i,
+                               psSHP->pabyRec + nOffset + i * 16 + 8);
+#else
             memcpy(psShape->padfX + i, psSHP->pabyRec + nOffset + i * 16, 8);
-
             memcpy(psShape->padfY + i, psSHP->pabyRec + nOffset + i * 16 + 8,
                    8);
-
-#if defined(SHP_BIG_ENDIAN)
-            SHP_SWAPDOUBLE(psShape->padfX + i);
-            SHP_SWAPDOUBLE(psShape->padfY + i);
 #endif
         }
 
@@ -2347,20 +2348,23 @@ SHPObject SHPAPI_CALL1(*) SHPReadObject(SHPHandle psSHP, int hEntity)
             psShape->nSHPType == SHPT_ARCZ ||
             psShape->nSHPType == SHPT_MULTIPATCH)
         {
+#if defined(SHP_BIG_ENDIAN)
+            SHP_SWAPDOUBLE_CPY(&psShape->dfZMin, psSHP->pabyRec + nOffset);
+            SHP_SWAPDOUBLE_CPY(&psShape->dfZMax, psSHP->pabyRec + nOffset + 8);
+#else
             memcpy(&psShape->dfZMin, psSHP->pabyRec + nOffset, 8);
             memcpy(&psShape->dfZMax, psSHP->pabyRec + nOffset + 8, 8);
 
-#if defined(SHP_BIG_ENDIAN)
-            SHP_SWAPDOUBLE(&psShape->dfZMin);
-            SHP_SWAPDOUBLE(&psShape->dfZMax);
 #endif
 
             for (int i = 0; STATIC_CAST(uint32_t, i) < nPoints; i++)
             {
+#if defined(SHP_BIG_ENDIAN)
+                SHP_SWAPDOUBLE_CPY(psShape->padfZ + i,
+                                   psSHP->pabyRec + nOffset + 16 + i * 8);
+#else
                 memcpy(psShape->padfZ + i,
                        psSHP->pabyRec + nOffset + 16 + i * 8, 8);
-#if defined(SHP_BIG_ENDIAN)
-                SHP_SWAPDOUBLE(psShape->padfZ + i);
 #endif
             }
 
@@ -2379,20 +2383,22 @@ SHPObject SHPAPI_CALL1(*) SHPReadObject(SHPHandle psSHP, int hEntity)
         /* -------------------------------------------------------------------- */
         if (nEntitySize >= STATIC_CAST(int, nOffset + 16 + 8 * nPoints))
         {
+#if defined(SHP_BIG_ENDIAN)
+            SHP_SWAPDOUBLE_CPY(&psShape->dfMMin, psSHP->pabyRec + nOffset);
+            SHP_SWAPDOUBLE_CPY(&psShape->dfMMax, psSHP->pabyRec + nOffset + 8);
+#else
             memcpy(&psShape->dfMMin, psSHP->pabyRec + nOffset, 8);
             memcpy(&psShape->dfMMax, psSHP->pabyRec + nOffset + 8, 8);
-
-#if defined(SHP_BIG_ENDIAN)
-            SHP_SWAPDOUBLE(&psShape->dfMMin);
-            SHP_SWAPDOUBLE(&psShape->dfMMax);
 #endif
 
             for (int i = 0; STATIC_CAST(uint32_t, i) < nPoints; i++)
             {
+#if defined(SHP_BIG_ENDIAN)
+                SHP_SWAPDOUBLE_CPY(psShape->padfM + i,
+                                   psSHP->pabyRec + nOffset + 16 + i * 8);
+#else
                 memcpy(psShape->padfM + i,
                        psSHP->pabyRec + nOffset + 16 + i * 8, 8);
-#if defined(SHP_BIG_ENDIAN)
-                SHP_SWAPDOUBLE(psShape->padfM + i);
 #endif
             }
             psShape->bMeasureIsUsed = TRUE;
@@ -2499,12 +2505,14 @@ SHPObject SHPAPI_CALL1(*) SHPReadObject(SHPHandle psSHP, int hEntity)
 
         for (int i = 0; STATIC_CAST(uint32_t, i) < nPoints; i++)
         {
+#if defined(SHP_BIG_ENDIAN)
+            SHP_SWAPDOUBLE_CPY(psShape->padfX + i,
+                               psSHP->pabyRec + 48 + 16 * i);
+            SHP_SWAPDOUBLE_CPY(psShape->padfY + i,
+                               psSHP->pabyRec + 48 + 16 * i + 8);
+#else
             memcpy(psShape->padfX + i, psSHP->pabyRec + 48 + 16 * i, 8);
             memcpy(psShape->padfY + i, psSHP->pabyRec + 48 + 16 * i + 8, 8);
-
-#if defined(SHP_BIG_ENDIAN)
-            SHP_SWAPDOUBLE(psShape->padfX + i);
-            SHP_SWAPDOUBLE(psShape->padfY + i);
 #endif
         }
 
@@ -2513,16 +2521,16 @@ SHPObject SHPAPI_CALL1(*) SHPReadObject(SHPHandle psSHP, int hEntity)
         /* -------------------------------------------------------------------- */
         /*      Get the X/Y bounds.                                             */
         /* -------------------------------------------------------------------- */
+#if defined(SHP_BIG_ENDIAN)
+        SHP_SWAPDOUBLE_CPY(&psShape->dfXMin, psSHP->pabyRec + 8 + 4);
+        SHP_SWAPDOUBLE_CPY(&psShape->dfYMin, psSHP->pabyRec + 8 + 12);
+        SHP_SWAPDOUBLE_CPY(&psShape->dfXMax, psSHP->pabyRec + 8 + 20);
+        SHP_SWAPDOUBLE_CPY(&psShape->dfYMax, psSHP->pabyRec + 8 + 28);
+#else
         memcpy(&psShape->dfXMin, psSHP->pabyRec + 8 + 4, 8);
         memcpy(&psShape->dfYMin, psSHP->pabyRec + 8 + 12, 8);
         memcpy(&psShape->dfXMax, psSHP->pabyRec + 8 + 20, 8);
         memcpy(&psShape->dfYMax, psSHP->pabyRec + 8 + 28, 8);
-
-#if defined(SHP_BIG_ENDIAN)
-        SHP_SWAPDOUBLE(&psShape->dfXMin);
-        SHP_SWAPDOUBLE(&psShape->dfYMin);
-        SHP_SWAPDOUBLE(&psShape->dfXMax);
-        SHP_SWAPDOUBLE(&psShape->dfYMax);
 #endif
 
         /* -------------------------------------------------------------------- */
@@ -2530,20 +2538,22 @@ SHPObject SHPAPI_CALL1(*) SHPReadObject(SHPHandle psSHP, int hEntity)
         /* -------------------------------------------------------------------- */
         if (psShape->nSHPType == SHPT_MULTIPOINTZ)
         {
+#if defined(SHP_BIG_ENDIAN)
+            SHP_SWAPDOUBLE_CPY(&psShape->dfZMin, psSHP->pabyRec + nOffset);
+            SHP_SWAPDOUBLE_CPY(&psShape->dfZMax, psSHP->pabyRec + nOffset + 8);
+#else
             memcpy(&psShape->dfZMin, psSHP->pabyRec + nOffset, 8);
             memcpy(&psShape->dfZMax, psSHP->pabyRec + nOffset + 8, 8);
-
-#if defined(SHP_BIG_ENDIAN)
-            SHP_SWAPDOUBLE(&psShape->dfZMin);
-            SHP_SWAPDOUBLE(&psShape->dfZMax);
 #endif
 
             for (int i = 0; STATIC_CAST(uint32_t, i) < nPoints; i++)
             {
+#if defined(SHP_BIG_ENDIAN)
+                SHP_SWAPDOUBLE_CPY(psShape->padfZ + i,
+                                   psSHP->pabyRec + nOffset + 16 + i * 8);
+#else
                 memcpy(psShape->padfZ + i,
                        psSHP->pabyRec + nOffset + 16 + i * 8, 8);
-#if defined(SHP_BIG_ENDIAN)
-                SHP_SWAPDOUBLE(psShape->padfZ + i);
 #endif
             }
 
@@ -2560,20 +2570,22 @@ SHPObject SHPAPI_CALL1(*) SHPReadObject(SHPHandle psSHP, int hEntity)
         /* -------------------------------------------------------------------- */
         if (nEntitySize >= STATIC_CAST(int, nOffset + 16 + 8 * nPoints))
         {
+#if defined(SHP_BIG_ENDIAN)
+            SHP_SWAPDOUBLE_CPY(&psShape->dfMMin, psSHP->pabyRec + nOffset);
+            SHP_SWAPDOUBLE_CPY(&psShape->dfMMax, psSHP->pabyRec + nOffset + 8);
+#else
             memcpy(&psShape->dfMMin, psSHP->pabyRec + nOffset, 8);
             memcpy(&psShape->dfMMax, psSHP->pabyRec + nOffset + 8, 8);
-
-#if defined(SHP_BIG_ENDIAN)
-            SHP_SWAPDOUBLE(&psShape->dfMMin);
-            SHP_SWAPDOUBLE(&psShape->dfMMax);
 #endif
 
             for (int i = 0; STATIC_CAST(uint32_t, i) < nPoints; i++)
             {
+#if defined(SHP_BIG_ENDIAN)
+                SHP_SWAPDOUBLE_CPY(psShape->padfM + i,
+                                   psSHP->pabyRec + nOffset + 16 + i * 8);
+#else
                 memcpy(psShape->padfM + i,
                        psSHP->pabyRec + nOffset + 16 + i * 8, 8);
-#if defined(SHP_BIG_ENDIAN)
-                SHP_SWAPDOUBLE(psShape->padfM + i);
 #endif
             }
             psShape->bMeasureIsUsed = TRUE;
@@ -2618,12 +2630,12 @@ SHPObject SHPAPI_CALL1(*) SHPReadObject(SHPHandle psSHP, int hEntity)
             SHPDestroyObject(psShape);
             return SHPLIB_NULLPTR;
         }
+#if defined(SHP_BIG_ENDIAN)
+        SHP_SWAPDOUBLE_CPY(psShape->padfX, psSHP->pabyRec + 12);
+        SHP_SWAPDOUBLE_CPY(psShape->padfY, psSHP->pabyRec + 20);
+#else
         memcpy(psShape->padfX, psSHP->pabyRec + 12, 8);
         memcpy(psShape->padfY, psSHP->pabyRec + 20, 8);
-
-#if defined(SHP_BIG_ENDIAN)
-        SHP_SWAPDOUBLE(psShape->padfX);
-        SHP_SWAPDOUBLE(psShape->padfY);
 #endif
 
         int nOffset = 20 + 8;
@@ -2633,10 +2645,10 @@ SHPObject SHPAPI_CALL1(*) SHPReadObject(SHPHandle psSHP, int hEntity)
         /* -------------------------------------------------------------------- */
         if (psShape->nSHPType == SHPT_POINTZ)
         {
-            memcpy(psShape->padfZ, psSHP->pabyRec + nOffset, 8);
-
 #if defined(SHP_BIG_ENDIAN)
-            SHP_SWAPDOUBLE(psShape->padfZ);
+            SHP_SWAPDOUBLE_CPY(psShape->padfZ, psSHP->pabyRec + nOffset);
+#else
+            memcpy(psShape->padfZ, psSHP->pabyRec + nOffset, 8);
 #endif
 
             nOffset += 8;
@@ -2650,10 +2662,10 @@ SHPObject SHPAPI_CALL1(*) SHPReadObject(SHPHandle psSHP, int hEntity)
         /* -------------------------------------------------------------------- */
         if (nEntitySize >= nOffset + 8)
         {
-            memcpy(psShape->padfM, psSHP->pabyRec + nOffset, 8);
-
 #if defined(SHP_BIG_ENDIAN)
-            SHP_SWAPDOUBLE(psShape->padfM);
+            SHP_SWAPDOUBLE_CPY(psShape->padfM, psSHP->pabyRec + nOffset);
+#else
+            memcpy(psShape->padfM, psSHP->pabyRec + nOffset, 8);
 #endif
             psShape->bMeasureIsUsed = TRUE;
         }

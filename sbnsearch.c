@@ -142,16 +142,16 @@ SBNSearchHandle SBNOpenDiskTree(const char *pszSBNFilename,
     /*      Read shapes bounding box.                                       */
     /* -------------------------------------------------------------------- */
 
+#if !defined(SHP_BIG_ENDIAN)
+    SHP_SWAPDOUBLE_CPY(&hSBN->dfMinX, abyHeader + 32);
+    SHP_SWAPDOUBLE_CPY(&hSBN->dfMinY, abyHeader + 40);
+    SHP_SWAPDOUBLE_CPY(&hSBN->dfMaxX, abyHeader + 48);
+    SHP_SWAPDOUBLE_CPY(&hSBN->dfMaxY, abyHeader + 56);
+#else
     memcpy(&hSBN->dfMinX, abyHeader + 32, 8);
     memcpy(&hSBN->dfMinY, abyHeader + 40, 8);
     memcpy(&hSBN->dfMaxX, abyHeader + 48, 8);
     memcpy(&hSBN->dfMaxY, abyHeader + 56, 8);
-
-#if !defined(SHP_BIG_ENDIAN)
-    SHP_SWAPDOUBLE(&hSBN->dfMinX);
-    SHP_SWAPDOUBLE(&hSBN->dfMinY);
-    SHP_SWAPDOUBLE(&hSBN->dfMaxX);
-    SHP_SWAPDOUBLE(&hSBN->dfMaxY);
 #endif
 
     if (hSBN->dfMinX > hSBN->dfMaxX || hSBN->dfMinY > hSBN->dfMaxY)
