@@ -292,13 +292,13 @@ extern "C"
     SHPHandle SHPAPI_CALL SHPCreate(const char *pszShapeFile, int nShapeType);
     SHPHandle SHPAPI_CALL SHPCreateLL(const char *pszShapeFile, int nShapeType,
                                       const SAHooks *psHooks);
-    void SHPAPI_CALL SHPGetInfo(SHPHandle hSHP, int *pnEntities,
+    void SHPAPI_CALL SHPGetInfo(const SHPHandle hSHP, int *pnEntities,
                                 int *pnShapeType, double *padfMinBound,
                                 double *padfMaxBound);
 
-    SHPObject SHPAPI_CALL1(*) SHPReadObject(SHPHandle hSHP, int iShape);
+    SHPObject SHPAPI_CALL1(*) SHPReadObject(const SHPHandle hSHP, int iShape);
     int SHPAPI_CALL SHPWriteObject(SHPHandle hSHP, int iShape,
-                                   SHPObject *psObject);
+                                   const SHPObject *psObject);
 
     void SHPAPI_CALL SHPDestroyObject(SHPObject *psObject);
     void SHPAPI_CALL SHPComputeExtents(SHPObject *psObject);
@@ -311,7 +311,7 @@ extern "C"
         SHPCreateSimpleObject(int nSHPType, int nVertices, const double *padfX,
                               const double *padfY, const double *padfZ);
 
-    int SHPAPI_CALL SHPRewindObject(SHPHandle hSHP, SHPObject *psObject);
+    int SHPAPI_CALL SHPRewindObject(const SHPHandle hSHP, SHPObject *psObject);
 
     void SHPAPI_CALL SHPClose(SHPHandle hSHP);
     void SHPAPI_CALL SHPWriteHeader(SHPHandle hSHP);
@@ -369,7 +369,7 @@ extern "C"
     void SHPAPI_CALL SHPTreeTrimExtraNodes(SHPTree *hTree);
 
     int SHPAPI_CALL1(*)
-        SHPTreeFindLikelyShapes(SHPTree *hTree, double *padfBoundsMin,
+        SHPTreeFindLikelyShapes(const SHPTree *hTree, double *padfBoundsMin,
                                 double *padfBoundsMax, int *);
     int SHPAPI_CALL SHPCheckBoundsOverlap(const double *, const double *,
                                           const double *, const double *, int);
@@ -386,8 +386,9 @@ extern "C"
     void SHPAPI_CALL SHPCloseDiskTree(SHPTreeDiskHandle hDiskTree);
 
     int SHPAPI_CALL1(*)
-        SHPSearchDiskTreeEx(SHPTreeDiskHandle hDiskTree, double *padfBoundsMin,
-                            double *padfBoundsMax, int *pnShapeCount);
+        SHPSearchDiskTreeEx(const SHPTreeDiskHandle hDiskTree,
+                            double *padfBoundsMin, double *padfBoundsMax,
+                            int *pnShapeCount);
 
     int SHPAPI_CALL SHPWriteTreeLL(SHPTree *hTree, const char *pszFilename,
                                    const SAHooks *psHooks);
@@ -404,12 +405,14 @@ extern "C"
     void SHPAPI_CALL SBNCloseDiskTree(SBNSearchHandle hSBN);
 
     int SHPAPI_CALL1(*)
-        SBNSearchDiskTree(SBNSearchHandle hSBN, const double *padfBoundsMin,
+        SBNSearchDiskTree(const SBNSearchHandle hSBN,
+                          const double *padfBoundsMin,
                           const double *padfBoundsMax, int *pnShapeCount);
 
     int SHPAPI_CALL1(*)
-        SBNSearchDiskTreeInteger(SBNSearchHandle hSBN, int bMinX, int bMinY,
-                                 int bMaxX, int bMaxY, int *pnShapeCount);
+        SBNSearchDiskTreeInteger(const SBNSearchHandle hSBN, int bMinX,
+                                 int bMinY, int bMaxX, int bMaxY,
+                                 int *pnShapeCount);
 
     void SHPAPI_CALL SBNSearchFreeIds(int *panShapeId);
 
@@ -497,8 +500,8 @@ extern "C"
                                       const char *pszCodePage,
                                       const SAHooks *psHooks);
 
-    int SHPAPI_CALL DBFGetFieldCount(DBFHandle psDBF);
-    int SHPAPI_CALL DBFGetRecordCount(DBFHandle psDBF);
+    int SHPAPI_CALL DBFGetFieldCount(const DBFHandle psDBF);
+    int SHPAPI_CALL DBFGetRecordCount(const DBFHandle psDBF);
     int SHPAPI_CALL DBFAddField(DBFHandle hDBF, const char *pszFieldName,
                                 DBFFieldType eType, int nWidth, int nDecimals);
 
@@ -514,11 +517,12 @@ extern "C"
                                       const char *pszFieldName, char chType,
                                       int nWidth, int nDecimals);
 
-    DBFFieldType SHPAPI_CALL DBFGetFieldInfo(DBFHandle psDBF, int iField,
+    DBFFieldType SHPAPI_CALL DBFGetFieldInfo(const DBFHandle psDBF, int iField,
                                              char *pszFieldName, int *pnWidth,
                                              int *pnDecimals);
 
-    int SHPAPI_CALL DBFGetFieldIndex(DBFHandle psDBF, const char *pszFieldName);
+    int SHPAPI_CALL DBFGetFieldIndex(const DBFHandle psDBF,
+                                     const char *pszFieldName);
 
     int SHPAPI_CALL DBFReadIntegerAttribute(DBFHandle hDBF, int iShape,
                                             int iField);
@@ -530,7 +534,8 @@ extern "C"
         DBFReadLogicalAttribute(DBFHandle hDBF, int iShape, int iField);
     SHPDate SHPAPI_CALL DBFReadDateAttribute(DBFHandle hDBF, int iShape,
                                              int iField);
-    int SHPAPI_CALL DBFIsAttributeNULL(DBFHandle hDBF, int iShape, int iField);
+    int SHPAPI_CALL DBFIsAttributeNULL(const DBFHandle hDBF, int iShape,
+                                       int iField);
 
     int SHPAPI_CALL DBFWriteIntegerAttribute(DBFHandle hDBF, int iShape,
                                              int iField, int nFieldValue);
@@ -554,18 +559,18 @@ extern "C"
     int SHPAPI_CALL DBFWriteTuple(DBFHandle psDBF, int hEntity,
                                   const void *pRawTuple);
 
-    int SHPAPI_CALL DBFIsRecordDeleted(DBFHandle psDBF, int iShape);
+    int SHPAPI_CALL DBFIsRecordDeleted(const DBFHandle psDBF, int iShape);
     int SHPAPI_CALL DBFMarkRecordDeleted(DBFHandle psDBF, int iShape,
                                          int bIsDeleted);
 
-    DBFHandle SHPAPI_CALL DBFCloneEmpty(DBFHandle psDBF,
+    DBFHandle SHPAPI_CALL DBFCloneEmpty(const DBFHandle psDBF,
                                         const char *pszFilename);
 
     void SHPAPI_CALL DBFClose(DBFHandle hDBF);
     void SHPAPI_CALL DBFUpdateHeader(DBFHandle hDBF);
-    char SHPAPI_CALL DBFGetNativeFieldType(DBFHandle hDBF, int iField);
+    char SHPAPI_CALL DBFGetNativeFieldType(const DBFHandle hDBF, int iField);
 
-    const char SHPAPI_CALL1(*) DBFGetCodePage(DBFHandle psDBF);
+    const char SHPAPI_CALL1(*) DBFGetCodePage(const DBFHandle psDBF);
 
     void SHPAPI_CALL DBFSetLastModifiedDate(DBFHandle psDBF, int nYYSince1900,
                                             int nMM, int nDD);
