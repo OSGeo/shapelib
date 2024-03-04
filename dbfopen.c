@@ -1544,7 +1544,7 @@ int SHPAPI_CALL DBFWriteDateAttribute(DBFHandle psDBF, int iRecord, int iField,
     char dateValue[9]; /* "yyyyMMdd\0" */
     snprintf(dateValue, sizeof(dateValue), "%04d%02d%02d", lValue->year,
              lValue->month, lValue->day);
-    return (DBFWriteStringAttribute(psDBF, iRecord, iField, dateValue));
+    return (DBFWriteAttributeDirectly(psDBF, iRecord, iField, dateValue));
 }
 
 /************************************************************************/
