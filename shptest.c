@@ -111,12 +111,12 @@ static void Test_WriteArcPoly(int nSHPType, const char *pszFilename)
     {
         x[0] = 1.0;
         y[0] = 1.0 + iShape * 3;
-        x[1] = 2.0;
-        y[1] = 1.0 + iShape * 3;
+        x[1] = 1.0;
+        y[1] = 2.0 + iShape * 3;
         x[2] = 2.0;
         y[2] = 2.0 + iShape * 3;
-        x[3] = 1.0;
-        y[3] = 2.0 + iShape * 3;
+        x[3] = 2.0;
+        y[3] = 1.0 + iShape * 3;
         x[4] = 1.0;
         y[4] = 1.0 + iShape * 3;
 
