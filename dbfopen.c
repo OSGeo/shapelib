@@ -1091,7 +1091,8 @@ const char SHPAPI_CALL1(*)
 SHPDate SHPAPI_CALL DBFReadDateAttribute(DBFHandle psDBF, int iRecord,
                                          int iField)
 {
-    const char *pdateValue = DBFReadStringAttribute(psDBF, iRecord, iField);
+    const char *pdateValue = STATIC_CAST(
+        const char *, DBFReadAttribute(psDBF, iRecord, iField, 'D'));
 
     SHPDate date;
 
