@@ -11,42 +11,34 @@ To use this build system on Unix or MinGW/MSYS/Windows:
 
 (1) (Optional) Download eg_data from the location above.
 
-(2) Download shapelib-1.3.0.tar.gz from http://download.osgeo.org/shapelib
+(2) Download shapelib-1.6.0.tar.gz from http://download.osgeo.org/shapelib
 and unpack it
 
 (3) Copy the CMakeLists.txt file into the top-level of the unpacked
-shapelib-1.3.0 source tree.
+shapelib-1.6.0 source tree.
 
-(4) Apply shapelib.patch (which optionally quiets error messages when
-shapelib is unable to open shapefiles).  First change directory
-to the top-level of the shapelib-1.3.0 source tree, then
-
-patch -p1 < <full path to shapelib.patch>
-
-(5) Create a separate empty build tree and use it to configure, build,
+(4) Create a separate empty build tree and use it to configure, build,
 install and test shapelib.  For example (you will need to tailor the
 compiler, compile options, install prefix, eg_data location, and source tree location to your own
 needs):
-
-mkdir build_dir
-cd build_dir
 
 # Configure with the compiler and compiler options of your choice.
 # N.B. the gcc -fvisibility=hidden option not (yet) supported by shapelib.
 env CC=gcc CFLAGS="-O3 -Wuninitialized" \
 cmake \
+-S /path/to/shapelib-1.6.0
+-B build_dir
 -G "Unix Makefiles" \
 -DCMAKE_INSTALL_PREFIX=/home/software/shapelib/install \
--DEG_DATA:PATH=/home/software/shapefile/eg_data/ \
-../shapelib-1.3.0 >& cmake.out
+-DEG_DATA=/path/to/eg_data/
 
 # Build and install
-make VERBOSE=1 -j4 install >& install.out
+cmake --build build_dir -- VERBOSE=1 -j4 install
 
 # Test
-ctest
+ctest --test-dir build_dir
 
-The -DEG_DATA:PATH option is optional, but if you don't specify
+The -DEG_DATA option is optional, but if you don't specify
 the eg_data directory that way the stream1 tests will be dropped.
 
 Note the above procedure is what you should do on a Unix platform like
