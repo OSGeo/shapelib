@@ -9,10 +9,16 @@ AC_INIT(shapelib, shapelib_version_major.shapelib_version_minor.shapelib_version
 AC_CONFIG_MACRO_DIR(m4)
 AC_CONFIG_SRCDIR(shapefil.h)
 
-AC_C_BIGENDIAN
-if test "x$ac_cv_c_bigendian" = "xyes"; then
+AC_C_BIGENDIAN([ENDIAN="big"], [ENDIAN="little"], [ENDIAN="unknown"], [ENDIAN="universal_endianness"])
+if test "x$ENDIAN" = "xbig"; then
   # Define SHP_BIG_ENDIAN if the system is big-endian
   AC_DEFINE([SHP_BIG_ENDIAN], [1], [Define if the system is big-endian])
+fi
+if test "x$ENDIAN" = "xunknown"; then
+  AC_MSG_WARN([Unknown endian considered as little-endian])
+fi
+if test "x$ENDIAN" = "xuniversal_endianness"; then
+  AC_MSG_ERROR([Building with both big-endian and little-endian is not supported])
 fi
 
 AM_INIT_AUTOMAKE([foreign -Wall -Wextra])
