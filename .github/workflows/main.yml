@@ -75,7 +75,7 @@ jobs:
       - name: Configure (${{ matrix.configuration }})
         run: |
           if [ "${{ matrix.toolchain }}" == "windows-msvc-shared" ]; then
-            cmake -S . -Bbuild -DCMAKE_UNITY_BUILD=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DBUILD_SHARED_LIBS=ON
+            cmake -S . -Bbuild -DCMAKE_UNITY_BUILD=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=ON
           elif [ "${{ matrix.toolchain }}" == "windows-msvc-static" ]; then
             cmake -S . -Bbuild -DCMAKE_UNITY_BUILD=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DBUILD_TESTING=ON -DBASH_EXECUTABLE="C:/Program Files/Git/bin/bash.exe" -DBUILD_SHARED_LIBS=OFF
           else
