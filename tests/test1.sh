@@ -34,7 +34,7 @@ echo -------------------------------------------------------------------------
 } > s1.out
 
 
-if result=$(diff "$EXPECT" "s1.out"); then
+if result=$(diff --strip-trailing-cr "$EXPECT" "s1.out"); then
 	echo "******* Stream 1 Succeeded *********"
 	exit 0
 else

@@ -27,7 +27,7 @@ readonly EXPECT="${1:-$SCRIPTDIR/expect3.out}"
 "${DBFDUMP:-./dbfdump}" test.dbf
 } > s3.out
 
-if result=$(diff "$EXPECT" "s3.out"); then
+if result=$(diff --strip-trailing-cr "$EXPECT" "s3.out"); then
 	echo "******* Stream 3 Succeeded *********"
 	exit 0
 else
