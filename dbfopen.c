@@ -14,11 +14,20 @@
 #include "shapefil_private.h"
 
 #include <math.h>
+#include <time.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+
+/* Check for POSIX in unistd.h */
+#if defined(__unix__) || defined(__linux__) || defined(__APPLE_CC__)
+#include <unistd.h>
+#endif
+#if !defined(_POSIX_) && defined(_POSIX_VERSION)
+#define _POSIX_ 1
+#endif
 
 #ifdef USE_CPL
 #include "cpl_string.h"
@@ -289,6 +298,30 @@ void SHPAPI_CALL DBFSetLastModifiedDate(DBFHandle psDBF, int nYYSince1900,
     psDBF->nUpdateYearSince1900 = nYYSince1900;
     psDBF->nUpdateMonth = nMM;
     psDBF->nUpdateDay = nDD;
+}
+
+/************************************************************************/
+/*                    DBFSetLastModifiedDateToday()                     */
+/************************************************************************/
+
+static void DBFSetLastModifiedDateToday(DBFHandle psDBF)
+{
+    struct tm *tlocal;
+    time_t calendarTime;
+#if defined(_POSIX_) || (defined(_MSC_VER) && _MSC_VER >= 1400)
+    struct tm tres;
+#endif
+    time(&calendarTime);
+#if defined(_POSIX_)
+    tlocal = localtime_r(&calendarTime, &tres);
+#elif defined(_MSC_VER) && _MSC_VER >= 1400
+    localtime_s(&tres, &calendarTime);
+    tlocal = &tres;
+#else
+    tlocal = localtime(&calendarTime);
+#endif
+    DBFSetLastModifiedDate(psDBF, tlocal->tm_year, tlocal->tm_mon + 1,
+                           tlocal->tm_mday);
 }
 
 /************************************************************************/
@@ -699,7 +732,7 @@ DBFHandle SHPAPI_CALL DBFCreateLL(const char *pszFilename,
             STATIC_CAST(char *, malloc(strlen(pszCodePage) + 1));
         strcpy(psDBF->pszCodePage, pszCodePage);
     }
-    DBFSetLastModifiedDate(psDBF, 95, 7, 26); /* dummy date */
+    DBFSetLastModifiedDateToday(psDBF);
 
     DBFSetWriteEndOfFileChar(psDBF, TRUE);
 
