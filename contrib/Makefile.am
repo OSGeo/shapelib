@@ -1,7 +1,7 @@
 CONTRIB_CFLAGS = -I$(top_srcdir) -DDEBUG -DDEBUG2
 
 # Extra files to distribute in the source tarball
-EXTRA_DIST = makefile.vc tests/shpproj.sh doc/Shape_PointInPoly_README.txt doc/shpsort.txt ShapeFileII.pas
+EXTRA_DIST = makefile.vc tests/expect.out tests/shpproj.sh doc/Shape_PointInPoly_README.txt doc/shpsort.txt ShapeFileII.pas
 
 # Installed executables
 bin_PROGRAMS = csv2shp dbfcat dbfinfo shpcat shpdxf shpfix shpsort Shape_PointInPoly shpcentrd shpdata shpinfo shpwkb
@@ -57,3 +57,6 @@ shpwkb_LDADD = $(top_builddir)/libshp.la -lm
 # Tests
 TESTS_ENVIRONMENT = top_builddir=$(abs_top_builddir)
 TESTS = tests/shpproj.sh
+
+clean-local:
+	-rm -f test.*
