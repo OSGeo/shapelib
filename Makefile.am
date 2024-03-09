@@ -16,7 +16,7 @@ EXTRA_DIST = makefile.vc CMakeLists.txt autogen.sh \
 		cmake/project-config-version.cmake.in \
 		cmake/project-config.cmake.in \
 		tests/test1.sh tests/test2.sh tests/test3.sh \
-		tests/stream1.out tests/stream1.out tests/stream1.out \
+		tests/stream1.out tests/stream2.out tests/stream3.out \
 		web/maptools.css \
 		web/codepage.html \
 		web/index.html \
