@@ -45,7 +45,8 @@ jobs:
         toolchain:
           - linux-gcc
           - macos-clang
-          - windows-msvc
+          - windows-msvc-shared
+          - windows-msvc-static
 
         configuration:
           - Release
@@ -59,7 +60,11 @@ jobs:
             os: macos-latest
             compiler: clang
 
-          - toolchain: windows-msvc
+          - toolchain: windows-msvc-shared
+            os: windows-latest
+            compiler: msvc
+
+          - toolchain: windows-msvc-static
             os: windows-latest
             compiler: msvc
 
@@ -69,8 +74,10 @@ jobs:
 
     - name: Configure (${{ matrix.configuration }})
       run: |
-        if [ "${{ matrix.compiler }}" == "msvc" ]; then
-          cmake -S . -Bbuild -DCMAKE_UNITY_BUILD=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DBUILD_TESTING=ON -DBASH_EXECUTABLE="C:/Program Files/Git/bin/bash.exe"
+        if [ "${{ matrix.toolchain }}" == "windows-msvc-shared" ]; then
+          cmake -S . -Bbuild -DCMAKE_UNITY_BUILD=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DBUILD_SHARED_LIBS=ON
+        elif [ "${{ matrix.toolchain }}" == "windows-msvc-static" ]; then
+          cmake -S . -Bbuild -DCMAKE_UNITY_BUILD=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DBUILD_TESTING=ON -DBASH_EXECUTABLE="C:/Program Files/Git/bin/bash.exe" -DBUILD_SHARED_LIBS=OFF
         else
           cmake -S . -Bbuild -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DCMAKE_UNITY_BUILD=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DBUILD_TESTING=ON
         fi
