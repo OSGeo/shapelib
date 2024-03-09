@@ -20,7 +20,7 @@ readonly SCRIPTDIR=$(dirname "${BASH_SOURCE[0]}")
 "${SHPDUMP:-$top_builddir/shpdump}" -precision 8 "test" > "test.out"
 
 
-if result=$(diff "$SCRIPTDIR/expect.out" "test.out"); then
+if result=$(diff --strip-trailing-cr "$SCRIPTDIR/expect.out" "test.out"); then
 	echo "******* Test Succeeded *********"
 	exit 0
 else
