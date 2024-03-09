@@ -1436,17 +1436,17 @@ int SHPAPI_CALL DBFWriteAttributeDirectly(DBFHandle psDBF, int hEntity,
         /*      Assign all the record fields.                                   */
         /* -------------------------------------------------------------------- */
         int j;
-        if (STATIC_CAST(int, strlen(STATIC_CAST(char *, pValue))) >
+        if (STATIC_CAST(int, strlen(STATIC_CAST(const char *, pValue))) >
             psDBF->panFieldSize[iField])
             j = psDBF->panFieldSize[iField];
         else
         {
             memset(pabyRec + psDBF->panFieldOffset[iField], ' ',
                    psDBF->panFieldSize[iField]);
-            j = STATIC_CAST(int, strlen(STATIC_CAST(char *, pValue)));
+            j = STATIC_CAST(int, strlen(STATIC_CAST(const char *, pValue)));
         }
 
-        strncpy(
+        memcpy(
             REINTERPRET_CAST(char *, pabyRec + psDBF->panFieldOffset[iField]),
             STATIC_CAST(const char *, pValue), j);
     }
@@ -1533,7 +1533,7 @@ int SHPAPI_CALL DBFWriteLogicalAttribute(DBFHandle psDBF, int iRecord,
 int SHPAPI_CALL DBFWriteDateAttribute(DBFHandle psDBF, int iRecord, int iField,
                                       const SHPDate *lValue)
 {
-    if (NULL == lValue)
+    if (SHPLIB_NULLPTR == lValue)
         return false;
     /* check for supported digit range, but do not check for valid date */
     if (lValue->year < 0 || lValue->year > 9999)
