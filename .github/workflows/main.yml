@@ -5,6 +5,10 @@ on:
   pull_request:
   workflow_dispatch:
 
+defaults:
+  run:
+    shell: bash
+    
 jobs:
   build-autoconf:
     name: linux-autoconf
@@ -64,10 +68,20 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Configure (${{ matrix.configuration }})
-      run: cmake -S . -Bbuild -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DCMAKE_UNITY_BUILD=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON
+      run: |
+        if [ "${{ matrix.compiler }}" == "msvc" ]; then
+          cmake -S . -Bbuild -DCMAKE_UNITY_BUILD=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DBUILD_TESTING=ON -DBASH_EXECUTABLE="C:/Program Files/Git/bin/bash.exe"
+        else
+          cmake -S . -Bbuild -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DCMAKE_UNITY_BUILD=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DBUILD_TESTING=ON
+        fi
 
     - name: Build with ${{ matrix.compiler }}
-      run: cmake --build build
+      run: |
+        if [ "${{ matrix.compiler }}" == "msvc" ]; then
+          cmake --build build --config ${{ matrix.configuration }}
+        else
+          cmake --build build
+        fi
 
     - name: Test
-      run: cd build && ctest -V .
+      run: ctest --test-dir build --build-config ${{ matrix.configuration }} --verbose
