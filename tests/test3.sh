@@ -5,34 +5,33 @@
 #	should display in ARCView II.
 #
 
-testdir="$(dirname "$(readlink -f $0)")"
+set -eu
 
-(
-cd "$top_builddir"
-./shpcreate test polygon
-./dbfcreate test.dbf -s Description 30 -n TestInt 6 0 -n TestDouble 16 5
+readonly SCRIPTDIR=$(dirname "${BASH_SOURCE[0]}")
+readonly EXPECT="${1:-$SCRIPTDIR/expect3.out}"
 
-./shpadd test 0 0 100 0 100 100 0 100 0 0 + 20 20 20 30 30 30 20 20
-./dbfadd test.dbf "Square with triangle missing" 1.4 2.5
+{
+"${SHPCREATE:-./shpcreate}" test polygon
+"${DBFCREATE:-./dbfcreate}" test.dbf -s Description 30 -n TestInt 6 0 -n TestDouble 16 5
 
-./shpadd test 150 150 160 150 180 170 150 150
-./dbfadd test.dbf "Smaller triangle" 100 1000.25
+"${SHPADD:-./shpadd}" test 0 0 100 0 100 100 0 100 0 0 + 20 20 20 30 30 30 20 20
+"${DBFADD:-./dbfadd}" test.dbf "Square with triangle missing" 1.4 2.5
 
-./shpadd test 150 150 160 150 180 170 150 150
-./dbfadd test.dbf "" "" ""
+"${SHPADD:-./shpadd}" test 150 150 160 150 180 170 150 150
+"${DBFADD:-./dbfadd}" test.dbf "Smaller triangle" 100 1000.25
 
-./shpdump test.shp
-./dbfdump test.dbf
-) > "$testdir/s3.out"
+"${SHPADD:-./shpadd}" test 150 150 160 150 180 170 150 150
+"${DBFADD:-./dbfadd}" test.dbf "" "" ""
 
-result=$(diff "$testdir/s3.out" "$testdir/stream3.out")
-if [ "$result" == "" ]; then
+"${SHPDUMP:-./shpdump}" test.shp
+"${DBFDUMP:-./dbfdump}" test.dbf
+} > s3.out
+
+if result=$(diff "$EXPECT" "s3.out"); then
 	echo "******* Stream 3 Succeeded *********"
-	rm "$testdir/s3.out"
 	exit 0
 else
 	echo "******* Stream 3 Failed *********"
 	echo "$result"
-	rm "$testdir/s3.out"
 	exit 1
 fi

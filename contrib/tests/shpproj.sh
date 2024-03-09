@@ -1,33 +1,30 @@
 #!/bin/bash
 
-testdir="$(dirname "$(readlink -f $0)")"
+readonly SCRIPTDIR=$(dirname "${BASH_SOURCE[0]}")
 
-rm -f "$testdir/test*"
-$top_builddir/shpcreate "$testdir/test" point
+"${SHPCREATE:-$top_builddir/shpcreate}" "test" point
 
-$top_builddir/shpadd "$testdir/test" -83.54949956              34.992401
-$top_builddir/shpadd "$testdir/test" -83.52162155              34.99276748
-$top_builddir/shpadd "$testdir/test" -84.01681518              34.67275985
-$top_builddir/shpadd "$testdir/test" -84.15596023              34.64862437
-$top_builddir/shpadd "$testdir/test" -83.61951463              34.54927047
+"${SHPADD:-$top_builddir/shpadd}" "test" -83.54949956              34.992401
+"${SHPADD:-$top_builddir/shpadd}" "test" -83.52162155              34.99276748
+"${SHPADD:-$top_builddir/shpadd}" "test" -84.01681518              34.67275985
+"${SHPADD:-$top_builddir/shpadd}" "test" -84.15596023              34.64862437
+"${SHPADD:-$top_builddir/shpadd}" "test" -83.61951463              34.54927047
 
-$top_builddir/dbfcreate "$testdir/test" -s fd 30
-$top_builddir/dbfadd "$testdir/test" "1"
-$top_builddir/dbfadd "$testdir/test" "2"
-$top_builddir/dbfadd "$testdir/test" "3"
-$top_builddir/dbfadd "$testdir/test" "4"
-$top_builddir/dbfadd "$testdir/test" "5"
+"${DBFCREATE:-$top_builddir/dbfcreate}" "test" -s fd 30
+"${DBFADD:-$top_builddir/dbfadd}" "test" "1"
+"${DBFADD:-$top_builddir/dbfadd}" "test" "2"
+"${DBFADD:-$top_builddir/dbfadd}" "test" "3"
+"${DBFADD:-$top_builddir/dbfadd}" "test" "4"
+"${DBFADD:-$top_builddir/dbfadd}" "test" "5"
 
-$top_builddir/shpdump -precision 8 "$testdir/test"    > "$testdir/test.out"
+"${SHPDUMP:-$top_builddir/shpdump}" -precision 8 "test" > "test.out"
 
-result="$(diff "$testdir/test.out")"
-if [ "$result" == "" ]; then
+
+if result=$(diff "$SCRIPTDIR/expect.out" "test.out"); then
 	echo "******* Test Succeeded *********"
-	rm -f "$testdir/test*"
 	exit 0
 else
 	echo "******* Test Failed *********"
 	echo "$result"
-	rm -f "$testdir/test*"
 	exit 1
 fi

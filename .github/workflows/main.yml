@@ -29,6 +29,9 @@ jobs:
       - name: Check
         run: make check
 
+      - name: Distribution check
+        run: make distcheck
+
   build-cmake:
     name: ${{ matrix.toolchain }}
     runs-on: ${{ matrix.os }}

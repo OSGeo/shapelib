@@ -16,7 +16,73 @@ EXTRA_DIST = makefile.vc CMakeLists.txt autogen.sh \
 		cmake/project-config-version.cmake.in \
 		cmake/project-config.cmake.in \
 		tests/test1.sh tests/test2.sh tests/test3.sh \
-		tests/stream1.out tests/stream2.out tests/stream3.out \
+		tests/expect1.out tests/expect2.out tests/expect3.out \
+		tests/shape_eg_data/3dpoints.dbf \
+		tests/shape_eg_data/3dpoints.shp \
+		tests/shape_eg_data/3dpoints.shx \
+		tests/shape_eg_data/anno.aux \
+		tests/shape_eg_data/anno.dbf \
+		tests/shape_eg_data/anno.shp \
+		tests/shape_eg_data/anno.shx \
+		tests/shape_eg_data/brklinz.dbf \
+		tests/shape_eg_data/brklinz.shp \
+		tests/shape_eg_data/brklinz.shx \
+		tests/shape_eg_data/mexico/cities.dbf \
+		tests/shape_eg_data/mexico/cities.sbn \
+		tests/shape_eg_data/mexico/cities.sbx \
+		tests/shape_eg_data/mexico/cities.shp \
+		tests/shape_eg_data/mexico/cities.shx \
+		tests/shape_eg_data/csah.dbf \
+		tests/shape_eg_data/csah.shp \
+		tests/shape_eg_data/csah.shx \
+		tests/shape_eg_data/mexico/drainage.dbf \
+		tests/shape_eg_data/mexico/drainage.sbn \
+		tests/shape_eg_data/mexico/drainage.sbx \
+		tests/shape_eg_data/mexico/drainage.shp \
+		tests/shape_eg_data/mexico/drainage.shx \
+		tests/shape_eg_data/mexico/lakes.dbf \
+		tests/shape_eg_data/mexico/lakes.sbn \
+		tests/shape_eg_data/mexico/lakes.sbx \
+		tests/shape_eg_data/mexico/lakes.shp \
+		tests/shape_eg_data/mexico/lakes.shx \
+		tests/shape_eg_data/masspntz.dbf \
+		tests/shape_eg_data/masspntz.shp \
+		tests/shape_eg_data/masspntz.shx \
+		tests/shape_eg_data/mpatch3.dbf \
+		tests/shape_eg_data/mpatch3.shp \
+		tests/shape_eg_data/mpatch3.shx \
+		tests/shape_eg_data/multipatch.dbf \
+		tests/shape_eg_data/multipatch.shp \
+		tests/shape_eg_data/multipatch.shx \
+		tests/shape_eg_data/multipnt.dbf \
+		tests/shape_eg_data/multipnt.shp \
+		tests/shape_eg_data/multipnt.shx \
+		tests/shape_eg_data/pline.dbf \
+		tests/shape_eg_data/pline.shp \
+		tests/shape_eg_data/pline.shx \
+		tests/shape_eg_data/polygon.dbf \
+		tests/shape_eg_data/polygon.shp \
+		tests/shape_eg_data/polygon.shx \
+		tests/shape_eg_data/mexico/rivers.dbf \
+		tests/shape_eg_data/mexico/rivers.sbn \
+		tests/shape_eg_data/mexico/rivers.sbx \
+		tests/shape_eg_data/mexico/rivers.shp \
+		tests/shape_eg_data/mexico/rivers.shx \
+		tests/shape_eg_data/mexico/roads.dbf \
+		tests/shape_eg_data/mexico/roads.sbn \
+		tests/shape_eg_data/mexico/roads.sbx \
+		tests/shape_eg_data/mexico/roads.shp \
+		tests/shape_eg_data/mexico/roads.shx \
+		tests/shape_eg_data/mexico/roads_rt.dbf \
+		tests/shape_eg_data/mexico/roads_rt.sbn \
+		tests/shape_eg_data/mexico/roads_rt.sbx \
+		tests/shape_eg_data/mexico/roads_rt.shp \
+		tests/shape_eg_data/mexico/roads_rt.shx \
+		tests/shape_eg_data/mexico/states.dbf \
+		tests/shape_eg_data/mexico/states.sbn \
+		tests/shape_eg_data/mexico/states.sbx \
+		tests/shape_eg_data/mexico/states.shp \
+		tests/shape_eg_data/mexico/states.shx \
 		web/maptools.css \
 		web/codepage.html \
 		web/index.html \
@@ -79,4 +145,7 @@ shptest_LDADD = $(top_builddir)/libshp.la
 # Tests
 TESTS_ENVIRONMENT = top_builddir=$(abs_top_builddir)
 # tests/test1.sh requires ftp://gdal.velocet.ca/pub/outgoing/shape_eg_data.zip
-TESTS = tests/test2.sh tests/test3.sh
+TESTS = tests/test1.sh tests/test2.sh tests/test3.sh
+
+clean-local:
+	-rm -f test*.* s*.out
