@@ -107,7 +107,7 @@ double xshift = 0, yshift = 0; /* NO SHIFT */
 /* -------------------------------------------------------------------- */
 void setext(char *pt, const char *ext)
 {
-    int i = strlen(pt) - 1;
+    int i = (int)(strlen(pt) - 1);
     for (; i > 0 && pt[i] != '.' && pt[i] != '/' && pt[i] != '\\'; i--)
     {
     }
@@ -278,7 +278,7 @@ void mergefields()
 int strncasecmp2(char *s1, char *s2, int n)
 {
     if (n < 1)
-        n = strlen(s1) + 1;
+        n = (int)(strlen(s1) + 1);
 
     for (int i = 0; i < n; i++)
     {
