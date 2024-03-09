@@ -35,15 +35,15 @@ if(BUILD_SHAPELIB_CONTRIB)
   target_link_libraries(shpcentrd shp)
   set_target_properties(shpcentrd PROPERTIES FOLDER "contrib")
 
-  add_executable(shpdata ${PROJECT_SOURCE_DIR}/contrib/shpcentrd.c ${PROJECT_SOURCE_DIR}/contrib/shpgeo.c ${PROJECT_SOURCE_DIR}/contrib/shpgeo.h)
+  add_executable(shpdata ${PROJECT_SOURCE_DIR}/contrib/shpdata.c ${PROJECT_SOURCE_DIR}/contrib/shpgeo.c ${PROJECT_SOURCE_DIR}/contrib/shpgeo.h)
   target_link_libraries(shpdata shp)
   set_target_properties(shpdata PROPERTIES FOLDER "contrib")
 
-  add_executable(shpinfo ${PROJECT_SOURCE_DIR}/contrib/shpcentrd.c ${PROJECT_SOURCE_DIR}/contrib/shpgeo.c ${PROJECT_SOURCE_DIR}/contrib/shpgeo.h)
+  add_executable(shpinfo ${PROJECT_SOURCE_DIR}/contrib/shpinfo.c ${PROJECT_SOURCE_DIR}/contrib/shpgeo.c ${PROJECT_SOURCE_DIR}/contrib/shpgeo.h)
   target_link_libraries(shpinfo shp)
   set_target_properties(shpinfo PROPERTIES FOLDER "contrib")
 
-  add_executable(shpwkb ${PROJECT_SOURCE_DIR}/contrib/shpcentrd.c ${PROJECT_SOURCE_DIR}/contrib/shpgeo.c ${PROJECT_SOURCE_DIR}/contrib/shpgeo.h)
+  add_executable(shpwkb ${PROJECT_SOURCE_DIR}/contrib/shpwkb.c ${PROJECT_SOURCE_DIR}/contrib/shpgeo.c ${PROJECT_SOURCE_DIR}/contrib/shpgeo.h)
   target_link_libraries(shpwkb shp)
   set_target_properties(shpwkb PROPERTIES FOLDER "contrib")
 
