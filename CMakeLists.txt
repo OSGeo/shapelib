@@ -25,9 +25,6 @@ set(EG_DATA ${PROJECT_SOURCE_DIR}/tests/shape_eg_data CACHE STRING "")
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 # libraries are all shared by default.
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 
@@ -225,7 +222,52 @@ install(TARGETS ${executables}
 # Install header
 install(FILES shapefil.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
-include(cmake/test.cmake)
+if(BUILD_TESTING)
+  # Set up tests:
+
+  enable_testing()
+
+  # Other executables to be built to facilitate tests.
+  foreach(executable shptest shputils)
+    add_executable(${executable} ${executable}.c)
+    target_link_libraries(${executable} PRIVATE ${PACKAGE})
+  endforeach()
+
+  # Set environment variables defining path to executables being used
+  function(declare_test_executable TEST TARGETS)
+    foreach(TARGET ${TARGETS})
+      string(TOUPPER ${TARGET} NAME)
+      list(APPEND TEST_ENV ${NAME}=$<TARGET_FILE:${TARGET}>)
+    endforeach()
+
+    set_tests_properties(${TEST} PROPERTIES ENVIRONMENT "${TEST_ENV}")
+  endfunction()
+
+  if(EG_DATA)
+    add_test(
+      NAME test1
+      COMMAND
+        ${BASH_EXECUTABLE} ${PROJECT_SOURCE_DIR}/tests/test1.sh ${PROJECT_SOURCE_DIR}/tests/expect1.out ${EG_DATA}
+    )
+    declare_test_executable(test1 "shpdump;dbfdump")
+  endif()
+
+  add_test(
+    NAME test2
+    COMMAND
+      ${BASH_EXECUTABLE} ${PROJECT_SOURCE_DIR}/tests/test2.sh ${PROJECT_SOURCE_DIR}/tests/expect2.out
+  )
+  declare_test_executable(test2 "dbfadd;dbfcreate;dbfdump;shpadd;shpcreate;shpdump;shptest")
+
+  add_test(
+    NAME test3
+    COMMAND
+      ${BASH_EXECUTABLE} ${PROJECT_SOURCE_DIR}/tests/test3.sh ${PROJECT_SOURCE_DIR}/tests/expect3.out
+  )
+  declare_test_executable(test3 "dbfadd;dbfcreate;dbfdump;shpadd;shpcreate;shpdump")
+endif()
+
 include(cmake/contrib.cmake)
 
 add_subdirectory(cmake)
+add_subdirectory(tests)
