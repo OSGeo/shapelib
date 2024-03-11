@@ -265,9 +265,12 @@ if(BUILD_TESTING)
       ${BASH_EXECUTABLE} ${PROJECT_SOURCE_DIR}/tests/test3.sh ${PROJECT_SOURCE_DIR}/tests/expect3.out
   )
   declare_test_executable(test3 "dbfadd;dbfcreate;dbfdump;shpadd;shpcreate;shpdump")
+
+  include(CTest)
+
+  add_subdirectory(tests)
 endif()
 
 include(cmake/contrib.cmake)
 
 add_subdirectory(cmake)
-add_subdirectory(tests)
