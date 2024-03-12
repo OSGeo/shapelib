@@ -8,7 +8,7 @@ on:
 defaults:
   run:
     shell: bash
-    
+
 jobs:
   build-autoconf:
     name: linux-autoconf
@@ -69,26 +69,67 @@ jobs:
             compiler: msvc
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
+  
+      - name: Configure (${{ matrix.configuration }})
+        run: |
+          if [ "${{ matrix.toolchain }}" == "windows-msvc-shared" ]; then
+            cmake -S . -Bbuild -DCMAKE_UNITY_BUILD=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DBUILD_SHARED_LIBS=ON
+          elif [ "${{ matrix.toolchain }}" == "windows-msvc-static" ]; then
+            cmake -S . -Bbuild -DCMAKE_UNITY_BUILD=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DBUILD_TESTING=ON -DBASH_EXECUTABLE="C:/Program Files/Git/bin/bash.exe" -DBUILD_SHARED_LIBS=OFF
+          else
+            cmake -S . -Bbuild -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DCMAKE_UNITY_BUILD=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DBUILD_TESTING=ON
+          fi
+  
+      - name: Build with ${{ matrix.compiler }}
+        run: |
+          if [ "${{ matrix.compiler }}" == "msvc" ]; then
+            cmake --build build --config ${{ matrix.configuration }}
+          else
+            cmake --build build
+          fi
+  
+      - name: Test
+        run: ctest --test-dir build --build-config ${{ matrix.configuration }} --verbose
 
-    - name: Configure (${{ matrix.configuration }})
-      run: |
-        if [ "${{ matrix.toolchain }}" == "windows-msvc-shared" ]; then
-          cmake -S . -Bbuild -DCMAKE_UNITY_BUILD=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DBUILD_SHARED_LIBS=ON
-        elif [ "${{ matrix.toolchain }}" == "windows-msvc-static" ]; then
-          cmake -S . -Bbuild -DCMAKE_UNITY_BUILD=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DBUILD_TESTING=ON -DBASH_EXECUTABLE="C:/Program Files/Git/bin/bash.exe" -DBUILD_SHARED_LIBS=OFF
-        else
-          cmake -S . -Bbuild -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DCMAKE_UNITY_BUILD=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DBUILD_TESTING=ON
-        fi
+  build-cmake-cygwin:
+    name: windows-cygwin
+    runs-on: windows-latest
 
-    - name: Build with ${{ matrix.compiler }}
-      run: |
-        if [ "${{ matrix.compiler }}" == "msvc" ]; then
-          cmake --build build --config ${{ matrix.configuration }}
-        else
+    steps:
+      - name: Set git to use LF
+        run: git config --global core.autocrlf input
+  
+      - name: Checkout Code
+        uses: actions/checkout@v4
+  
+      - name: Setup cygwin
+        uses: cygwin/cygwin-install-action@master
+        with:
+          packages: >-
+            cmake
+            gcc-core
+            gcc-g++
+            make
+            ninja
+  
+      - name: Configure (Release)
+        run: |
+          export PATH=/usr/bin:$PATH
+          cmake -S . -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_UNITY_BUILD=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DBUILD_TESTING=ON -G Ninja
+        shell: C:\cygwin\bin\bash.exe -eo pipefail -o igncr '{0}'
+        env:
+          CYGWIN_NOWINPATH: 1
+  
+      - name: Build with gcc
+        run: |
+          export PATH=/usr/bin:$PATH
           cmake --build build
-        fi
-
-    - name: Test
-      run: ctest --test-dir build --build-config ${{ matrix.configuration }} --verbose
+        shell: C:\cygwin\bin\bash.exe -eo pipefail -o igncr '{0}'
+  
+      - name: Test
+        run: |
+          export PATH=/usr/bin:$PATH
+          ctest --test-dir build --build-config Release --verbose
+        shell: C:\cygwin\bin\bash.exe -eo pipefail -o igncr '{0}'
