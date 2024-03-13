@@ -4,7 +4,7 @@
 #include <string>
 #include <string_view>
 
-#include <catch2/catch_all.hpp>
+#include <gtest/gtest.h>
 #include "shapefil.h"
 
 namespace fs = std::filesystem;
@@ -14,7 +14,7 @@ namespace
 
 static const auto kTestData = fs::path{"shape_eg_data"};
 
-bool SetContents(const fs::path &file_name, std::string_view content)
+static bool SetContents(const fs::path &file_name, std::string_view content)
 {
     std::ofstream file(file_name);
     if (!file.is_open())
@@ -24,67 +24,67 @@ bool SetContents(const fs::path &file_name, std::string_view content)
     return true;
 }
 
-TEST_CASE("DBFOpen", "[dbfopen]")
+TEST(DBFOpenTest, OpenDoesNotExist_rb)
 {
-    SECTION("Open does not exist - rb")
-    {
-        const auto handle = DBFOpen("/does/not/exist.dbf", "rb");
-        REQUIRE(handle == nullptr);
-    }
-
-    SECTION("Open does not exist - rb+")
-    {
-        const auto handle = DBFOpen("/does/not/exist2.dbf", "rb+");
-        REQUIRE(handle == nullptr);
-    }
-
-    SECTION("Open unexpected format")
-    {
-        const auto filename = kTestData / "README.md";
-        const auto handle = DBFOpen(filename.string().c_str(), "rb");
-        REQUIRE(handle == nullptr);
-    }
-
-    SECTION("Open existing")
-    {
-        const auto filename = kTestData / "anno.dbf";
-        const auto handle = DBFOpen(filename.string().c_str(), "rb");
-        REQUIRE(handle != nullptr);
-        DBFClose(handle);
-    }
+    const auto handle = DBFOpen("/does/not/exist.dbf", "rb");
+    EXPECT_EQ(nullptr, handle);
 }
 
-TEST_CASE("DBFCreate", "[dbfcreate]")
+TEST(DBFOpenTest, OpenDoesNotExist_rb_plus)
 {
-    SECTION("Create does not exist")
-    {
-        const auto handle = DBFCreate("/does/not/exist");
-        REQUIRE(nullptr == handle);
-    }
+    const auto handle = DBFOpen("/does/not/exist2.dbf", "rb+");
+    EXPECT_EQ(nullptr, handle);
+}
 
-    SECTION("Create already existing")
-    {
-        const auto filename = kTestData / "in-the-way.dbf";
-        fs::copy(kTestData / "anno.dbf", filename);
-        REQUIRE(SetContents(filename, "some content"));
-        const auto handle = DBFCreate(filename.string().c_str());
-        // TODO(schwehr): Seems like a bug to overwrite an existing.
-        REQUIRE(nullptr != handle);
-        DBFClose(handle);
-        const auto size = fs::file_size(filename);
-        REQUIRE(34 == size);
-        fs::remove(filename);
-    }
+TEST(DBFOpenTest, OpenUnexpectedFormat)
+{
+    const auto filename = kTestData / "README.md";
+    const auto handle = DBFOpen(filename.string().c_str(), "rb");
+    EXPECT_EQ(nullptr, handle);
+}
 
-    SECTION("Create and close")
-    {
-        const auto filename = kTestData / "empty.dbf";
-        const auto handle = DBFCreate(filename.string().c_str());
-        DBFClose(handle);
-        const auto size = fs::file_size(filename);
-        REQUIRE(34 == size);
-        fs::remove(filename);
-    }
+TEST(DBFOpenTest, OpenExisting)
+{
+    const auto filename = kTestData / "anno.dbf";
+    const auto handle = DBFOpen(filename.string().c_str(), "rb");
+    EXPECT_NE(nullptr, handle);
+    DBFClose(handle);
+}
+
+TEST(DBFCreateTest, CreateDoesNotExist)
+{
+    const auto handle = DBFCreate("/does/not/exist");
+    EXPECT_EQ(nullptr, handle);
+}
+
+TEST(DBFCreateTest, CreateAlreadyExisting)
+{
+    const auto filename = kTestData / "in-the-way.dbf";
+    fs::copy(kTestData / "anno.dbf", filename);
+    EXPECT_TRUE(SetContents(filename, "some content"));
+    const auto handle = DBFCreate(filename.string().c_str());
+    // TODO(schwehr): Seems like a bug to overwrite an existing.
+    EXPECT_NE(nullptr, handle);
+    DBFClose(handle);
+    const auto size = fs::file_size(filename);
+    EXPECT_EQ(34, size);
+    fs::remove(filename);
+}
+
+TEST(DBFCreateTest, CreateAndClose)
+{
+    const auto filename = kTestData / "empty.dbf";
+    const auto handle = DBFCreate(filename.string().c_str());
+    DBFClose(handle);
+    const auto size = fs::file_size(filename);
+    EXPECT_EQ(34, size);
+    fs::remove(filename);
 }
 
 }  // namespace
+
+int main(int argc, char **argv)
+{
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
+}
