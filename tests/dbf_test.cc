@@ -18,9 +18,9 @@ namespace
 
 static const auto kTestData = fs::path{"shape_eg_data"};
 
-static bool SetContents(const fs::path &file_name, std::string_view content)
+static bool SetContents(const fs::path &filename, std::string_view content)
 {
-    std::ofstream file(file_name);
+    std::ofstream file(filename);
     if (!file.is_open())
         return false;
     file << content;
@@ -31,27 +31,27 @@ static bool SetContents(const fs::path &file_name, std::string_view content)
 TEST(DBFOpenTest, OpenDoesNotExist_rb)
 {
     const auto handle = DBFOpen("/does/not/exist.dbf", "rb");
-    EXPECT_EQ(nullptr, handle);
+    ASSERT_EQ(nullptr, handle);
 }
 
 TEST(DBFOpenTest, OpenDoesNotExist_rb_plus)
 {
     const auto handle = DBFOpen("/does/not/exist2.dbf", "rb+");
-    EXPECT_EQ(nullptr, handle);
+    ASSERT_EQ(nullptr, handle);
 }
 
 TEST(DBFOpenTest, OpenUnexpectedFormat)
 {
     const auto filename = kTestData / "README.md";
     const auto handle = DBFOpen(filename.string().c_str(), "rb");
-    EXPECT_EQ(nullptr, handle);
+    ASSERT_EQ(nullptr, handle);
 }
 
 TEST(DBFOpenTest, OpenExisting)
 {
     const auto filename = kTestData / "anno.dbf";
     const auto handle = DBFOpen(filename.string().c_str(), "rb");
-    EXPECT_NE(nullptr, handle);
+    ASSERT_NE(nullptr, handle);
     DBFClose(handle);
 }
 
@@ -68,7 +68,7 @@ TEST(DBFCreateTest, CreateAlreadyExisting)
     EXPECT_TRUE(SetContents(filename, "some content"));
     const auto handle = DBFCreate(filename.string().c_str());
     // TODO(schwehr): Seems like a bug to overwrite an existing.
-    EXPECT_NE(nullptr, handle);
+    ASSERT_NE(nullptr, handle);
     DBFClose(handle);
     const auto size = fs::file_size(filename);
     EXPECT_EQ(34, size);
@@ -86,7 +86,7 @@ TEST(DBFCreateTest, CreateAndClose)
 }
 
 static auto WriteDate(const fs::path &filename,
-                      const std::unique_ptr<const SHPDate> &date) -> auto
+                      const std::unique_ptr<const SHPDate> &date)
 {
     const auto handle = DBFCreate(filename.string().c_str());
     ASSERT_NE(nullptr, handle);
@@ -102,7 +102,7 @@ static auto WriteDate(const fs::path &filename,
 static auto ReadDate(const fs::path &filename) -> auto
 {
     const auto handle = DBFOpen(filename.string().c_str(), "rb");
-    ASSERT_NE(nullptr, handle);
+    EXPECT_NE(nullptr, handle);
     const auto fieldcount = DBFGetFieldCount(handle);
     EXPECT_EQ(1, fieldcount);
     const auto fieldname =
