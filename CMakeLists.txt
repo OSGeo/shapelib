@@ -7,8 +7,8 @@
 #
 # See README.CMake
 
-# Version 3.7 or above of cmake is currently required for all platforms.
-cmake_minimum_required(VERSION 3.7)
+# Version 3.11 or above of cmake is currently required for all platforms.
+cmake_minimum_required(VERSION 3.11)
 project(shapelib C CXX)
 
 message(STATUS "CMake version = ${CMAKE_VERSION}")
@@ -184,11 +184,6 @@ if(BUILD_APPS)
   )
 endif()
 
-if(MSVC)
-  # TODO(schwehr): How to test on Windows?
-  set(BUILD_TESTING OFF CACHE BOOL "")
-endif()
-
 find_program(BASH_EXECUTABLE bash)
 if(BASH_EXECUTABLE)
   set(BUILD_TESTING ON CACHE BOOL "")
@@ -235,8 +230,8 @@ if(BUILD_TESTING)
   # Other executables to be built to facilitate tests.
   foreach(executable shptest shputils)
     add_executable(${executable} ${executable}.c)
-    target_link_libraries(${executable} ${PACKAGE})
-  endforeach(executable shptest shputils)
+    target_link_libraries(${executable} PRIVATE ${PACKAGE})
+  endforeach()
 
   # Set environment variables defining path to executables being used
   function(declare_test_executable TEST TARGETS)
@@ -270,6 +265,10 @@ if(BUILD_TESTING)
       ${BASH_EXECUTABLE} ${PROJECT_SOURCE_DIR}/tests/test3.sh ${PROJECT_SOURCE_DIR}/tests/expect3.out
   )
   declare_test_executable(test3 "dbfadd;dbfcreate;dbfdump;shpadd;shpcreate;shpdump")
+
+  include(CTest)
+
+  add_subdirectory(tests)
 endif()
 
 include(cmake/contrib.cmake)

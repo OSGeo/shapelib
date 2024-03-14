@@ -15,6 +15,8 @@ EXTRA_DIST = makefile.vc CMakeLists.txt autogen.sh \
 		cmake/contrib.cmake \
 		cmake/project-config-version.cmake.in \
 		cmake/project-config.cmake.in \
+		tests/CMakeLists.txt \
+		tests/dbf_test.cc \
 		tests/test1.sh tests/test2.sh tests/test3.sh \
 		tests/expect1.out tests/expect2.out tests/expect3.out \
 		tests/shape_eg_data/3dpoints.dbf \
