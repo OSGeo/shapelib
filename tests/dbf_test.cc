@@ -89,7 +89,7 @@ static auto WriteDate(const fs::path &filename,
                       const std::unique_ptr<const SHPDate> &date) -> auto
 {
     const auto handle = DBFCreate(filename.string().c_str());
-    EXPECT_NE(nullptr, handle);
+    ASSERT_NE(nullptr, handle);
     const auto fid = DBFAddField(handle, "date", FTDate, 8, 0);
     EXPECT_GE(fid, 0);
     const auto success = DBFWriteDateAttribute(handle, 0, fid, date.get());
