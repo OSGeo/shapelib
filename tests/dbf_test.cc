@@ -85,6 +85,43 @@ TEST(DBFCreateTest, CreateAndClose)
     fs::remove(filename);
 }
 
+static auto GenerateUniqueFilename(std::string_view ext) -> auto
+{
+    const auto now = std::chrono::system_clock::now();
+    const auto timestamp =
+        std::chrono::duration_cast<std::chrono::milliseconds>(
+            now.time_since_epoch())
+            .count();
+    std::ostringstream oss;
+    oss << "test_" << timestamp << ext;
+    return oss.str();
+}
+
+TEST(DBFCreateTest, CloneEmpty)
+{
+    const auto filename =
+        fs::temp_directory_path() / GenerateUniqueFilename(".clone.dbf");
+    const auto handle = [&]
+    {
+        const auto handle =
+            DBFOpen(fs::path(kTestData / "anno.dbf").string().c_str(), "rb");
+        EXPECT_NE(nullptr, handle);
+        const auto clonedhandle =
+            DBFCloneEmpty(handle, filename.string().c_str());
+        DBFClose(handle);
+        return clonedhandle;
+    }();
+    ASSERT_NE(nullptr, handle);
+    const auto fieldcount = DBFGetFieldCount(handle);
+    EXPECT_EQ(10, fieldcount);
+    const auto recordcount = DBFGetRecordCount(handle);
+    EXPECT_EQ(0, recordcount);
+    DBFClose(handle);
+    const auto size = fs::file_size(filename);
+    EXPECT_EQ(354, size);
+    fs::remove(filename);
+}
+
 static auto WriteDate(const fs::path &filename,
                       const std::unique_ptr<const SHPDate> &date)
 {
@@ -119,18 +156,6 @@ static auto ReadDate(const fs::path &filename) -> auto
     const auto date = DBFReadDateAttribute(handle, 0, 0);
     DBFClose(handle);
     return std::make_unique<const SHPDate>(date);
-}
-
-static auto GenerateUniqueFilename(std::string_view ext) -> auto
-{
-    const auto now = std::chrono::system_clock::now();
-    const auto timestamp =
-        std::chrono::duration_cast<std::chrono::milliseconds>(
-            now.time_since_epoch())
-            .count();
-    std::ostringstream oss;
-    oss << "test_" << timestamp << ext;
-    return oss.str();
 }
 
 TEST(DBFFieldTest, SetAndGetDateToday)
