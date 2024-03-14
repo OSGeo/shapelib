@@ -102,7 +102,7 @@ static auto WriteDate(const fs::path &filename,
 static auto ReadDate(const fs::path &filename) -> auto
 {
     const auto handle = DBFOpen(filename.string().c_str(), "rb");
-    EXPECT_NE(nullptr, handle);
+    ASSERT_NE(nullptr, handle);
     const auto fieldcount = DBFGetFieldCount(handle);
     EXPECT_EQ(1, fieldcount);
     const auto fieldname =
