@@ -17,6 +17,7 @@ EXTRA_DIST = makefile.vc CMakeLists.txt autogen.sh \
 		cmake/project-config.cmake.in \
 		tests/CMakeLists.txt \
 		tests/dbf_test.cc \
+		tests/sbn_test.cc \
 		tests/test1.sh tests/test2.sh tests/test3.sh \
 		tests/expect1.out tests/expect2.out tests/expect3.out \
 		tests/shape_eg_data/3dpoints.dbf \
@@ -85,6 +86,13 @@ EXTRA_DIST = makefile.vc CMakeLists.txt autogen.sh \
 		tests/shape_eg_data/mexico/states.sbx \
 		tests/shape_eg_data/mexico/states.shp \
 		tests/shape_eg_data/mexico/states.shx \
+		tests/shape_eg_data/CoHI_GCS12.dbf \
+		tests/shape_eg_data/CoHI_GCS12.prj \
+		tests/shape_eg_data/CoHI_GCS12_README.txt \
+		tests/shape_eg_data/CoHI_GCS12.sbn \
+		tests/shape_eg_data/CoHI_GCS12.sbx \
+		tests/shape_eg_data/CoHI_GCS12.shp \
+		tests/shape_eg_data/CoHI_GCS12.shx \
 		web/maptools.css \
 		web/codepage.html \
 		web/index.html \
