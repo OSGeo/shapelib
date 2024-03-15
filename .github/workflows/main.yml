@@ -34,7 +34,14 @@ jobs:
         run: make check
 
       - name: Distribution check
-        run: make distcheck
+        run: |
+            make distcheck
+            tar xvzf shapelib-*.tar.gz
+            rm -f shapelib-*.tar.gz shapelib-*.zip
+            cd shapelib-*
+            cmake .
+            cmake --build . -j$(nproc)
+            ctest --test-dir . --verbose
 
   build-cmake:
     name: ${{ matrix.toolchain }}

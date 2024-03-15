@@ -19,7 +19,7 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(googletest)
 
-foreach(executable dbf_test)
+foreach(executable dbf_test sbn_test)
   add_executable(${executable} ${PROJECT_SOURCE_DIR}/${executable}.cc)
   target_link_libraries(${executable} PRIVATE ${PACKAGE} gtest)
   add_test(
