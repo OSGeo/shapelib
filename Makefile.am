@@ -11,6 +11,7 @@ endif
 
 # Extra files to distribute in the source tarball
 EXTRA_DIST = makefile.vc CMakeLists.txt autogen.sh \
+		shapelib.def \
 		cmake/CMakeLists.txt \
 		cmake/contrib.cmake \
 		cmake/project-config-version.cmake.in \
