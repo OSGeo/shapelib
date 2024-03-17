@@ -64,7 +64,7 @@ int main(int argc, char **argv)
     }
 
     /* -------------------------------------------------------------------- */
-    /*	If there is no data in this file let the user know.		*/
+    /*  If there is no data in this file let the user know.                 */
     /* -------------------------------------------------------------------- */
     if (DBFGetFieldCount(hDBF) == 0)
     {
@@ -74,9 +74,9 @@ int main(int argc, char **argv)
     }
 
     /* -------------------------------------------------------------------- */
-    /*	Dump header definitions.					*/
+    /*  Dump header definitions.                                            */
     /* -------------------------------------------------------------------- */
-    char szTitle[12];
+    char szTitle[XBASE_FLDNAME_LEN_READ + 1];
     int nWidth;
     int nDecimals;
 
@@ -95,9 +95,12 @@ int main(int argc, char **argv)
                 pszTypeName = "Integer";
             else if (eType == FTDouble)
                 pszTypeName = "Double";
-            else if (eType == FTInvalid)
+            else if (eType == FTLogical)
+                pszTypeName = "Logical";
+            else if (eType == FTDate)
+                pszTypeName = "Date";
+            else
                 pszTypeName = "Invalid";
-            // TODO(schwehr): else?
 
             printf("Field %d: Type=%c/%s, Title=`%s', Width=%d, Decimals=%d\n",
                    i, chNativeType, pszTypeName, szTitle, nWidth, nDecimals);
@@ -105,9 +108,9 @@ int main(int argc, char **argv)
     }
 
     /* -------------------------------------------------------------------- */
-    /*	Compute offsets to use when printing each of the field 		*/
-    /*	values. We make each field as wide as the field title+1, or 	*/
-    /*	the field value + 1. 						*/
+    /*  Compute offsets to use when printing each of the field              */
+    /*  values. We make each field as wide as the field title+1, or         */
+    /*  the field value + 1.                                                */
     /* -------------------------------------------------------------------- */
     int *panWidth = (int *)malloc(DBFGetFieldCount(hDBF) * sizeof(int));
     char szFormat[32];
@@ -131,7 +134,7 @@ int main(int argc, char **argv)
     printf("\n");
 
     /* -------------------------------------------------------------------- */
-    /*	Read all the records 						*/
+    /*  Read all the records                                                */
     /* -------------------------------------------------------------------- */
     for (int iRecord = 0; iRecord < DBFGetRecordCount(hDBF); iRecord++)
     {
@@ -168,6 +171,7 @@ int main(int argc, char **argv)
                     switch (eType)
                     {
                         case FTString:
+                        case FTDate:
                             sprintf(szFormat, "%%-%ds", nWidth);
                             printf(szFormat,
                                    DBFReadStringAttribute(hDBF, iRecord, i));
@@ -183,6 +187,12 @@ int main(int argc, char **argv)
                             sprintf(szFormat, "%%%d.%dlf", nWidth, nDecimals);
                             printf(szFormat,
                                    DBFReadDoubleAttribute(hDBF, iRecord, i));
+                            break;
+
+                        case FTLogical:
+                            sprintf(szFormat, "%%-%ds", nWidth);
+                            printf(szFormat,
+                                   DBFReadLogicalAttribute(hDBF, iRecord, i));
                             break;
 
                         default:
