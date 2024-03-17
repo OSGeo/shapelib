@@ -36,16 +36,16 @@ int main(int argc, char **argv)
     printf("Info for %s\n", argv[1]);
 
     /* -------------------------------------------------------------------- */
-    /*	If there is no data in this file let the user know.		*/
+    /*  If there is no data in this file let the user know.                 */
     /* -------------------------------------------------------------------- */
     const int iCount = DBFGetFieldCount(hDBF);
     printf("%d Columns,  %d Records in file\n", iCount,
            DBFGetRecordCount(hDBF));
 
     /* -------------------------------------------------------------------- */
-    /*	Compute offsets to use when printing each of the field 		*/
-    /*	values. We make each field as wide as the field title+1, or 	*/
-    /*	the field value + 1. 						*/
+    /*  Compute offsets to use when printing each of the field              */
+    /*  values. We make each field as wide as the field title+1, or         */
+    /*  the field value + 1.                                                */
     /* -------------------------------------------------------------------- */
     char ftype[32];
     int nDecimals;
@@ -53,7 +53,7 @@ int main(int argc, char **argv)
 
     for (int i = 0; i < DBFGetFieldCount(hDBF); i++)
     {
-        char szTitle[12];
+        char szTitle[XBASE_FLDNAME_LEN_READ + 1];
 
         switch (DBFGetFieldInfo(hDBF, i, szTitle, &nWidth, &nDecimals))
         {
@@ -67,6 +67,14 @@ int main(int argc, char **argv)
 
             case FTDouble:
                 strcpy(ftype, "float");
+                break;
+
+            case FTLogical:
+                strcpy(ftype, "logical");
+                break;
+
+            case FTDate:
+                strcpy(ftype, "date");
                 break;
 
             case FTInvalid:
