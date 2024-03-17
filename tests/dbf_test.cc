@@ -123,17 +123,15 @@ TEST(DBFCreateTest, CloneEmpty)
 }
 
 static auto WriteDate(const fs::path &filename,
-                      const std::unique_ptr<const SHPDate> &date)
+                      const std::unique_ptr<const SHPDate> &date) -> auto
 {
     const auto handle = DBFCreate(filename.string().c_str());
-    ASSERT_NE(nullptr, handle);
+    EXPECT_NE(nullptr, handle);
     const auto fid = DBFAddField(handle, "date", FTDate, 8, 0);
     EXPECT_GE(fid, 0);
     const auto success = DBFWriteDateAttribute(handle, 0, fid, date.get());
-    EXPECT_TRUE(success);
-    const auto recordcount = DBFGetRecordCount(handle);
-    EXPECT_EQ(1, recordcount);
     DBFClose(handle);
+    return success;
 }
 
 static auto ReadDate(const fs::path &filename) -> auto
@@ -158,6 +156,39 @@ static auto ReadDate(const fs::path &filename) -> auto
     return std::make_unique<const SHPDate>(date);
 }
 
+static auto WriteLogical(const fs::path &filename, const char logical) -> auto
+{
+    const auto handle = DBFCreate(filename.string().c_str());
+    EXPECT_NE(nullptr, handle);
+    const auto fid = DBFAddField(handle, "logical", FTLogical, 1, 0);
+    EXPECT_GE(fid, 0);
+    const auto success = DBFWriteLogicalAttribute(handle, 0, fid, logical);
+    DBFClose(handle);
+    return success;
+}
+
+static auto ReadLogical(const fs::path &filename) -> auto
+{
+    const auto handle = DBFOpen(filename.string().c_str(), "rb");
+    EXPECT_NE(nullptr, handle);
+    const auto fieldcount = DBFGetFieldCount(handle);
+    EXPECT_EQ(1, fieldcount);
+    const auto fieldname =
+        std::make_unique<std::array<char, XBASE_FLDNAME_LEN_READ + 1>>();
+    int width, decimals;
+    const auto fieldtype =
+        DBFGetFieldInfo(handle, 0, fieldname->data(), &width, &decimals);
+    EXPECT_EQ(FTLogical, fieldtype);
+    EXPECT_EQ(0, std::strcmp("logical", fieldname->data()));
+    EXPECT_EQ(1, width);
+    EXPECT_EQ(0, decimals);
+    const auto recordcount = DBFGetRecordCount(handle);
+    EXPECT_EQ(1, recordcount);
+    const auto logical = std::string(DBFReadLogicalAttribute(handle, 0, 0));
+    DBFClose(handle);
+    return logical;
+}
+
 TEST(DBFFieldTest, SetAndGetDateToday)
 {
     const auto filename =
@@ -170,7 +201,8 @@ TEST(DBFFieldTest, SetAndGetDateToday)
         return std::make_unique<const SHPDate>(SHPDate{
             1900 + tlocal->tm_year, tlocal->tm_mon + 1, tlocal->tm_mday});
     }();
-    WriteDate(filename, today);
+    const auto success = WriteDate(filename, today);
+    EXPECT_TRUE(success);
     const auto size = fs::file_size(filename);
     EXPECT_EQ(75, size);
     const auto date = ReadDate(filename);
@@ -184,13 +216,49 @@ TEST(DBFFieldTest, SetAndGetDateInvalid)
 {
     const auto filename =
         fs::temp_directory_path() / GenerateUniqueFilename(".dbf");
-    WriteDate(filename, std::make_unique<const SHPDate>());
+    const auto success = WriteDate(filename, std::make_unique<const SHPDate>());
+    EXPECT_TRUE(success);
     const auto size = fs::file_size(filename);
     EXPECT_EQ(75, size);
     const auto date = ReadDate(filename);
     EXPECT_EQ(0, date->year);
     EXPECT_EQ(0, date->month);
     EXPECT_EQ(0, date->day);
+    fs::remove(filename);
+}
+
+TEST(DBFFieldTest, SetAndGetLogicalTrue)
+{
+    const auto filename =
+        fs::temp_directory_path() / GenerateUniqueFilename(".dbf");
+    const auto success = WriteLogical(filename, 'T');
+    EXPECT_TRUE(success);
+    const auto size = fs::file_size(filename);
+    EXPECT_EQ(68, size);
+    const auto logical = ReadLogical(filename);
+    EXPECT_EQ(std::string("T"), logical);
+    fs::remove(filename);
+}
+
+TEST(DBFFieldTest, SetAndGetLogicalFalse)
+{
+    const auto filename =
+        fs::temp_directory_path() / GenerateUniqueFilename(".dbf");
+    const auto success = WriteLogical(filename, 'F');
+    EXPECT_TRUE(success);
+    const auto size = fs::file_size(filename);
+    EXPECT_EQ(68, size);
+    const auto logical = ReadLogical(filename);
+    EXPECT_EQ(std::string("F"), logical);
+    fs::remove(filename);
+}
+
+TEST(DBFFieldTest, SetAndGetLogicalInvalid)
+{
+    const auto filename =
+        fs::temp_directory_path() / GenerateUniqueFilename(".dbf");
+    const auto success = WriteLogical(filename, '0');
+    EXPECT_FALSE(success);
     fs::remove(filename);
 }
 

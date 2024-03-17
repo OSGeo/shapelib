@@ -1355,8 +1355,14 @@ static bool DBFWriteAttribute(DBFHandle psDBF, int hEntity, int iField,
             if (psDBF->panFieldSize[iField] >= 1 &&
                 (*STATIC_CAST(char *, pValue) == 'F' ||
                  *STATIC_CAST(char *, pValue) == 'T'))
+            {
                 *(pabyRec + psDBF->panFieldOffset[iField]) =
                     *STATIC_CAST(char *, pValue);
+            }
+            else
+            {
+                nRetResult = false;
+            }
             break;
 
         default:
