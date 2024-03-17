@@ -55,37 +55,41 @@ int main(int argc, char **argv)
     if (cDBF == NULL)
     {
         printf("DBFOpen(%s.dbf,\"rb+\") failed for To_DBF.\n", tfile);
+        DBFClose(hDBF);
         exit(2);
     }
 
-    if (DBFGetFieldCount(hDBF) == 0)
+    const int hflds = DBFGetFieldCount(hDBF);
+    if (hflds == 0)
     {
         printf("There are no fields in this table!\n");
+        DBFClose(hDBF);
+        DBFClose(cDBF);
         exit(3);
     }
 
-    const int hflds = DBFGetFieldCount(hDBF);
     const int cflds = DBFGetFieldCount(cDBF);
 
     int matches = 0;
     int mismatch = 0;
 
-    DBFFieldType hType;
     int nWidth;
     int nDecimals;
     char fld_m[256];
     int cnWidth;
     int cnDecimals;
-    const char type_names[4][15] = {"integer", "string", "double", "double"};
+    const char type_names[6][15] = {"string",  "integer", "double",
+                                    "logical", "date",    "invalid"};
     char nTitle[32];
     char cTitle[32];
 
     for (int i = 0; i < hflds; i++)
     {
-        char szTitle[18];
-        hType = DBFGetFieldInfo(hDBF, i, szTitle, &nWidth, &nDecimals);
+        char szTitle[XBASE_FLDNAME_LEN_READ + 1];
+        const DBFFieldType hType =
+            DBFGetFieldInfo(hDBF, i, szTitle, &nWidth, &nDecimals);
 
-        char cname[18];
+        char cname[XBASE_FLDNAME_LEN_READ + 1];
         fld_m[i] = -1;
         for (int j = 0; j < cflds; j++)
         {
@@ -117,12 +121,16 @@ int main(int argc, char **argv)
     {
         printf("ERROR: No field names match for tables, cannot proceed\n   use "
                "-f to force processing using blank records\n");
+        DBFClose(hDBF);
+        DBFClose(cDBF);
         exit(-1);
     }
     if (mismatch && !force)
     {
         printf("ERROR: field type mismatch cannot proceed\n    use -f to force "
                "processing using attempted conversions\n");
+        DBFClose(hDBF);
+        DBFClose(cDBF);
         exit(-1);
     }
 
@@ -137,7 +145,6 @@ int main(int argc, char **argv)
             {
                 const DBFFieldType cType =
                     DBFGetFieldInfo(cDBF, ci, cTitle, &cnWidth, &cnDecimals);
-                hType = DBFGetFieldInfo(hDBF, i, nTitle, &nWidth, &nDecimals);
 
                 switch (cType)
                 {
@@ -156,9 +163,6 @@ int main(int argc, char **argv)
                         break;
 
                     case FTDouble:
-                        /*	        cf = DBFReadDoubleAttribute( hDBF, iRecord, i );
-	        printf ("%s <-  %s (%f)\n", cTitle, nTitle, cf);
-*/
                         DBFWriteDoubleAttribute(
                             cDBF, ciRecord, ci,
                             (double)DBFReadDoubleAttribute(hDBF, iRecord, i));
