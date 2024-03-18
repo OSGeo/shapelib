@@ -37,24 +37,17 @@ int main(int argc, char **argv)
         verbose = 1;
     }
 
-    char tfile[160];
-    strcpy(tfile, argv[1 + shift]);
-    strcat(tfile, ".dbf");
-
-    DBFHandle hDBF = DBFOpen(tfile, "rb");
+    DBFHandle hDBF = DBFOpen(argv[1 + shift], "rb");
     if (hDBF == NULL)
     {
-        printf("DBFOpen(%s.dbf,\"r\") failed for From_DBF.\n", tfile);
+        printf("DBFOpen(%s,\"r\") failed for From_DBF.\n", argv[1 + shift]);
         exit(2);
     }
 
-    strcpy(tfile, argv[2 + shift]);
-    strcat(tfile, ".dbf");
-
-    DBFHandle cDBF = DBFOpen(tfile, "rb+");
+    DBFHandle cDBF = DBFOpen(argv[2 + shift], "rb+");
     if (cDBF == NULL)
     {
-        printf("DBFOpen(%s.dbf,\"rb+\") failed for To_DBF.\n", tfile);
+        printf("DBFOpen(%s,\"rb+\") failed for To_DBF.\n", argv[2 + shift]);
         DBFClose(hDBF);
         exit(2);
     }
@@ -80,8 +73,6 @@ int main(int argc, char **argv)
     int cnDecimals;
     const char type_names[6][15] = {"string",  "integer", "double",
                                     "logical", "date",    "invalid"};
-    char nTitle[32];
-    char cTitle[32];
 
     for (int i = 0; i < hflds; i++)
     {
@@ -99,9 +90,9 @@ int main(int argc, char **argv)
             {
                 if (hType != cType)
                 {
-                    printf("Incompatible fields %s(%s) != %s(%s),\n",
-                           type_names[hType], nTitle, type_names[cType],
-                           cTitle);
+                    fprintf(stderr, "Incompatible fields %s(%s) != %s(%s),\n",
+                            type_names[hType], szTitle, type_names[cType],
+                            cname);
                     mismatch = 1;
                 }
                 fld_m[i] = j;
@@ -119,53 +110,67 @@ int main(int argc, char **argv)
 
     if ((matches == 0) && !force)
     {
-        printf("ERROR: No field names match for tables, cannot proceed\n   use "
-               "-f to force processing using blank records\n");
+        fprintf(
+            stderr,
+            "ERROR: No field names match for tables, cannot proceed\n   use "
+            "-f to force processing using blank records\n");
         DBFClose(hDBF);
         DBFClose(cDBF);
         exit(-1);
     }
     if (mismatch && !force)
     {
-        printf("ERROR: field type mismatch cannot proceed\n    use -f to force "
-               "processing using attempted conversions\n");
+        fprintf(
+            stderr,
+            "ERROR: field type mismatch cannot proceed\n    use -f to force "
+            "processing using attempted conversions\n");
         DBFClose(hDBF);
         DBFClose(cDBF);
         exit(-1);
     }
 
-    int iRecord = 0;
-    for (; iRecord < DBFGetRecordCount(hDBF); iRecord++)
+    const int nRecords = DBFGetRecordCount(cDBF);
+    for (int iRecord = 0; iRecord < DBFGetRecordCount(hDBF); iRecord++)
     {
+        if (DBFIsRecordDeleted(hDBF, iRecord))
+        {
+            continue;
+        }
         const int ciRecord = DBFGetRecordCount(cDBF);
         for (int i = 0; i < hflds; i++)
         {
             const int ci = fld_m[i];
             if (ci != -1)
             {
+                char cTitle[XBASE_FLDNAME_LEN_READ + 1];
                 const DBFFieldType cType =
                     DBFGetFieldInfo(cDBF, ci, cTitle, &cnWidth, &cnDecimals);
 
                 switch (cType)
                 {
                     case FTString:
-                    case FTLogical:
-                    case FTDate:
                         DBFWriteStringAttribute(
                             cDBF, ciRecord, ci,
-                            (char *)DBFReadStringAttribute(hDBF, iRecord, i));
+                            DBFReadStringAttribute(hDBF, iRecord, i));
+                        break;
+
+                    case FTLogical:
+                    case FTDate:
+                        DBFWriteAttributeDirectly(
+                            cDBF, ciRecord, ci,
+                            DBFReadStringAttribute(hDBF, iRecord, i));
                         break;
 
                     case FTInteger:
                         DBFWriteIntegerAttribute(
                             cDBF, ciRecord, ci,
-                            (int)DBFReadIntegerAttribute(hDBF, iRecord, i));
+                            DBFReadIntegerAttribute(hDBF, iRecord, i));
                         break;
 
                     case FTDouble:
                         DBFWriteDoubleAttribute(
                             cDBF, ciRecord, ci,
-                            (double)DBFReadDoubleAttribute(hDBF, iRecord, i));
+                            DBFReadDoubleAttribute(hDBF, iRecord, i));
                         break;
 
                     case FTInvalid:
@@ -177,7 +182,9 @@ int main(int argc, char **argv)
 
     if (verbose)
     {
-        printf(" %d records appended \n\n", iRecord);
+        const int ncRecords = DBFGetRecordCount(cDBF) - nRecords;
+        printf(" %u record%s appended\n\n", ncRecords,
+               ncRecords == 1 ? "" : "s");
     }
     DBFClose(hDBF);
     DBFClose(cDBF);
