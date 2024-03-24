@@ -2,9 +2,6 @@
 
 project(${CMAKE_PROJECT_NAME}Tests CXX)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 # Set up GoogleTest
 include(FetchContent)
 
@@ -27,5 +24,6 @@ foreach(executable dbf_test sbn_test)
     COMMAND ${executable}
     WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
   )
-  set_target_properties(${executable} PROPERTIES FOLDER "tests")
+  target_compile_features(${executable} PUBLIC cxx_std_17)
+  set_target_properties(${executable} PROPERTIES FOLDER "tests" CXX_EXTENSIONS OFF)
 endforeach()
