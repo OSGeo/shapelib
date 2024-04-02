@@ -129,11 +129,13 @@ jobs:
       - name: Build with gcc
         run: |
           export PATH=/usr/bin:$PATH
-          cmake --build build --target install
+          cmake --build build
         shell: C:\cygwin\bin\bash.exe -eo pipefail -o igncr '{0}'
 
       - name: Test
         run: |
           export PATH=/usr/bin:/usr/local/bin:$PATH
+          cp ./build/*.dll ./build/tests/
+          cp ./build/bin/*.dll ./build/tests/
           ctest --test-dir build --build-config Release --verbose
         shell: C:\cygwin\bin\bash.exe -eo pipefail -o igncr '{0}'
