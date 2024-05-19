@@ -14,6 +14,12 @@ FetchContent_Declare(
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
+# Disable building GMock
+set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
+
+# Do not install GTest 
+set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
+
 FetchContent_MakeAvailable(googletest)
 
 foreach(executable dbf_test sbn_test)
