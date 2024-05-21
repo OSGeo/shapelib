@@ -185,7 +185,7 @@ static void copy_related(const char *inName, const char *outName,
 }
 
 #ifdef DEBUG
-static void PrintDataStruct(struct DataStruct *data)
+static void PrintDataStruct(const struct DataStruct *data)
 {
     for (int i = 0; i < nShapes; i++)
     {

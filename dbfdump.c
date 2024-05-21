@@ -26,7 +26,7 @@ int main(int argc, char **argv)
     bool bHeader = false;
     bool bRaw = false;
     bool bMultiLine = false;
-    char *pszFilename = NULL;
+    const char *pszFilename = NULL;
 
     for (int i = 1; i < argc; i++)
     {
