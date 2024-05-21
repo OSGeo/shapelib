@@ -72,8 +72,8 @@ static loopDir LoopDirection(DPoint2d *vertices, int vertsize)
 
 static DPoint2d CreatePointInPoly(SHPObject *psShape, int quality)
 {
-    int i, j, k, end, vert, pointpos;
-    double part, dx, xmin, xmax, ymin, ymax, y, x3, x4, y3, y4, len, maxlen = 0;
+    int i, j, k, end, vert;
+    double part, dx, xmin, xmax, ymin, ymax, x3, x4, y3, y4, len, maxlen = 0;
     DPoint2d *vertices;
     loopDir direction;
     IntersectPoint mp1, mp2, point1, point2, points[MAXINTERSECTIONPOINTS];
@@ -86,8 +86,8 @@ static DPoint2d CreatePointInPoly(SHPObject *psShape, int quality)
     dx = xmax - xmin;
     for (i = 0; i < quality; i++)
     {
-        y = ymin + part * (i + 1);
-        pointpos = 0;
+        const double y = ymin + part * (i + 1);
+        int pointpos = 0;
         for (j = 0; j < psShape->nParts; j++)
         {
             if (j == psShape->nParts - 1)
@@ -196,7 +196,6 @@ int main(int argc, char *argv[])
 
     int i, nEntities, quality;
     SHPHandle hSHP;
-    SHPObject *psShape;
     DPoint2d pt;
     quality = atoi(argv[2]);
     hSHP = SHPOpen(argv[1], "rb");
@@ -205,7 +204,7 @@ int main(int argc, char *argv[])
     printf("PointInPoly v1.0, by Marko Podgorsek\n----------------\n");
     for (i = 0; i < nEntities; i++)
     {
-        psShape = SHPReadObject(hSHP, i);
+        SHPObject *psShape = SHPReadObject(hSHP, i);
         if (psShape->nSHPType == SHPT_POLYGON)
         {
             pt = CreatePointInPoly(psShape, quality);

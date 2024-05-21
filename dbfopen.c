@@ -481,7 +481,7 @@ DBFHandle SHPAPI_CALL DBFOpenLL(const char *pszFilename, const char *pszAccess,
 
     for (int iField = 0; iField < nFields; iField++)
     {
-        unsigned char *pabyFInfo = pabyBuf + iField * XBASE_FLDHDR_SZ;
+        const unsigned char *pabyFInfo = pabyBuf + iField * XBASE_FLDHDR_SZ;
         if (pabyFInfo[0] == HEADER_RECORD_TERMINATOR)
         {
             psDBF->nFields = iField;

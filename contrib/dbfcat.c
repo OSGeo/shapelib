@@ -183,7 +183,7 @@ int main(int argc, char **argv)
     if (verbose)
     {
         const int ncRecords = DBFGetRecordCount(cDBF) - nRecords;
-        printf(" %u record%s appended\n\n", ncRecords,
+        printf(" %d record%s appended\n\n", ncRecords,
                ncRecords == 1 ? "" : "s");
     }
     DBFClose(hDBF);
