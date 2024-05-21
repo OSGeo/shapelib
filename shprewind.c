@@ -58,7 +58,7 @@ int main(int argc, char **argv)
     }
 
     /* -------------------------------------------------------------------- */
-    /*	Skim over the list of shapes, printing all the vertices.	*/
+    /*  Skim over the list of shapes, printing all the vertices.            */
     /* -------------------------------------------------------------------- */
     int nInvalidCount = 0;
 

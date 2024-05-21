@@ -54,7 +54,7 @@ struct IntersectPoint
     loopDir loopdirection;
 };
 
-loopDir LoopDirection(DPoint2d *vertices, int vertsize)
+static loopDir LoopDirection(DPoint2d *vertices, int vertsize)
 {
     int i;
     double sum = 0.0;
@@ -70,7 +70,7 @@ loopDir LoopDirection(DPoint2d *vertices, int vertsize)
         return kExterior;
 }
 
-DPoint2d CreatePointInPoly(SHPObject *psShape, int quality)
+static DPoint2d CreatePointInPoly(SHPObject *psShape, int quality)
 {
     int i, j, k, end, vert, pointpos;
     double part, dx, xmin, xmax, ymin, ymax, y, x3, x4, y3, y4, len, maxlen = 0;

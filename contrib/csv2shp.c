@@ -86,7 +86,7 @@ typedef struct column_t
 } column;
 
 /* counts the number of occurrences of the character in the string */
-int strnchr(const char *s, char c)
+static int strnchr(const char *s, char c)
 {
     int n = 0;
 
@@ -103,7 +103,7 @@ int strnchr(const char *s, char c)
 
 /* Returns a field given by column n (0-based) in a character-
    delimited string s */
-char *delimited_column(const char *s, char delim, int n)
+static char *delimited_column(const char *s, char delim, int n)
 {
     if (strnchr(s, delim) < n)
     {
@@ -137,7 +137,7 @@ char *delimited_column(const char *s, char delim, int n)
 }
 
 /* returns the number of decimals in a real number given as a string s */
-int str_to_ndecimals(const char *s)
+static int str_to_ndecimals(const char *s)
 {
     if (s == NULL)
     {
@@ -175,7 +175,7 @@ int str_to_ndecimals(const char *s)
 
 /* Determines the most specific column type.
    The most specific types from most to least are integer, float, string.  */
-DBFFieldType str_to_fieldtype(const char *s)
+static DBFFieldType str_to_fieldtype(const char *s)
 {
     size_t len = strlen(s);
 
@@ -198,7 +198,7 @@ DBFFieldType str_to_fieldtype(const char *s)
 }
 
 /* returns the field width */
-int str_to_nwidth(const char *s, DBFFieldType eType)
+static int str_to_nwidth(const char *s, DBFFieldType eType)
 {
     switch (eType)
     {
@@ -214,7 +214,7 @@ int str_to_nwidth(const char *s, DBFFieldType eType)
 }
 
 /* returns true if f1 is more general than f2, otherwise false */
-int more_general_field_type(DBFFieldType t1, DBFFieldType t2)
+static int more_general_field_type(DBFFieldType t1, DBFFieldType t2)
 {
     if (FTInteger == t2 && t1 != FTInteger)
     {
@@ -229,7 +229,7 @@ int more_general_field_type(DBFFieldType t1, DBFFieldType t2)
     return 0;
 }
 
-void strip_crlf(const char *line)
+static void strip_crlf(const char *line)
 {
     /* remove trailing CR/LF */
 
