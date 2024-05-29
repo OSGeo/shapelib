@@ -231,7 +231,7 @@ extern "C"
 #define SHPP_RING 5
 
     /* -------------------------------------------------------------------- */
-    /*      SHPObject - represents on shape (without attributes) read       */
+    /*      SHPObject - represents one shape (without attributes) read      */
     /*      from the .shp file.                                             */
     /* -------------------------------------------------------------------- */
     struct tagSHPObject
