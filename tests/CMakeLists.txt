@@ -22,7 +22,7 @@ set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(googletest)
 
-foreach(executable dbf_test sbn_test)
+foreach(executable dbf_test sbn_test shp_test)
   add_executable(${executable} ${PROJECT_SOURCE_DIR}/${executable}.cc)
   target_link_libraries(${executable} PRIVATE ${PACKAGE} gtest)
   add_test(
