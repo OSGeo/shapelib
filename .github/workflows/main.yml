@@ -82,11 +82,11 @@ jobs:
       - name: Configure (${{ matrix.configuration }})
         run: |
           if [ "${{ matrix.toolchain }}" == "windows-msvc-shared" ]; then
-            cmake -S . -Bbuild -DCMAKE_UNITY_BUILD=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=ON
+            cmake -S . -Bbuild -DCMAKE_UNITY_BUILD=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=~/install
           elif [ "${{ matrix.toolchain }}" == "windows-msvc-static" ]; then
-            cmake -S . -Bbuild -DCMAKE_UNITY_BUILD=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DBUILD_TESTING=ON -DBASH_EXECUTABLE="C:/Program Files/Git/bin/bash.exe" -DBUILD_SHARED_LIBS=OFF
+            cmake -S . -Bbuild -DCMAKE_UNITY_BUILD=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DBUILD_TESTING=ON -DBASH_EXECUTABLE="C:/Program Files/Git/bin/bash.exe" -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=~/install
           else
-            cmake -S . -Bbuild -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DCMAKE_UNITY_BUILD=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DBUILD_TESTING=ON
+            cmake -S . -Bbuild -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DCMAKE_UNITY_BUILD=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DBUILD_TESTING=ON -DCMAKE_INSTALL_PREFIX=~/install
           fi
 
       - name: Build with ${{ matrix.compiler }}
@@ -99,6 +99,14 @@ jobs:
 
       - name: Test
         run: ctest --test-dir build --build-config ${{ matrix.configuration }} --verbose
+
+      - name: Install
+        run: |
+          if [ "${{ matrix.compiler }}" == "msvc" ]; then
+            cmake --build build --target install --config ${{ matrix.configuration }}
+          else
+            cmake --build build --target install
+          fi
 
   build-cmake-cygwin:
     name: windows-cygwin
