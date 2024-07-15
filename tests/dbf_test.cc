@@ -134,7 +134,8 @@ static auto WriteDate(const fs::path &filename,
     return success;
 }
 
-static auto ReadDate(const fs::path &filename) -> auto
+static auto ReadDate(const fs::path &filename, int expectIsNull,
+                     int expectWidth) -> auto
 {
     const auto handle = DBFOpen(filename.string().c_str(), "rb");
     EXPECT_NE(nullptr, handle);
@@ -147,8 +148,10 @@ static auto ReadDate(const fs::path &filename) -> auto
         DBFGetFieldInfo(handle, 0, fieldname->data(), &width, &decimals);
     EXPECT_EQ(FTDate, fieldtype);
     EXPECT_EQ(0, std::strcmp("date", fieldname->data()));
-    EXPECT_EQ(8, width);
+    EXPECT_EQ(expectWidth, width);
     EXPECT_EQ(0, decimals);
+    const auto isNull = DBFIsAttributeNULL(handle, 0, 0);
+    EXPECT_EQ(expectIsNull, isNull);
     const auto recordcount = DBFGetRecordCount(handle);
     EXPECT_EQ(1, recordcount);
     const auto date = DBFReadDateAttribute(handle, 0, 0);
@@ -205,14 +208,14 @@ TEST(DBFFieldTest, SetAndGetDateToday)
     EXPECT_TRUE(success);
     const auto size = fs::file_size(filename);
     EXPECT_EQ(75, size);
-    const auto date = ReadDate(filename);
+    const auto date = ReadDate(filename, 0, 8);
     EXPECT_EQ(today->year, date->year);
     EXPECT_EQ(today->month, date->month);
     EXPECT_EQ(today->day, date->day);
     fs::remove(filename);
 }
 
-TEST(DBFFieldTest, SetAndGetDateInvalid)
+TEST(DBFFieldTest, SetAndGetDateEmpty)
 {
     const auto filename =
         fs::temp_directory_path() / GenerateUniqueFilename(".dbf");
@@ -220,7 +223,60 @@ TEST(DBFFieldTest, SetAndGetDateInvalid)
     EXPECT_TRUE(success);
     const auto size = fs::file_size(filename);
     EXPECT_EQ(75, size);
-    const auto date = ReadDate(filename);
+    const auto date = ReadDate(filename, 1, 8);
+    EXPECT_EQ(0, date->year);
+    EXPECT_EQ(0, date->month);
+    EXPECT_EQ(0, date->day);
+    fs::remove(filename);
+}
+
+TEST(DBFFieldTest, SetAndGetDateNull)
+{
+    const auto filename =
+        fs::temp_directory_path() / GenerateUniqueFilename(".dbf");
+    for (int width = 1; width <= XBASE_FLD_MAX_WIDTH; ++width)
+    {
+        const auto success = [&filename, &width]
+        {
+            const auto handle = DBFCreate(filename.string().c_str());
+            EXPECT_NE(nullptr, handle);
+            const auto fid = DBFAddField(handle, "date", FTDate, width, 0);
+            EXPECT_GE(fid, 0);
+            const auto success = DBFWriteNULLAttribute(handle, 0, 0);
+            DBFClose(handle);
+            return success;
+        }();
+        EXPECT_TRUE(success);
+        const auto size = fs::file_size(filename);
+        EXPECT_EQ(67 + width, size);
+        const auto date = ReadDate(filename, 1, width);
+        EXPECT_EQ(0, date->year);
+        EXPECT_EQ(0, date->month);
+        EXPECT_EQ(0, date->day);
+        fs::remove(filename);
+    }
+}
+
+TEST(DBFFieldTest, SetAndGetDateEmptyString)
+{
+    const auto filename =
+        fs::temp_directory_path() / GenerateUniqueFilename(".dbf");
+    const auto success = [&filename]
+    {
+        const auto handle = DBFCreate(filename.string().c_str());
+        EXPECT_NE(nullptr, handle);
+        const auto fid = DBFAddField(handle, "date", FTDate, 8, 0);
+        EXPECT_GE(fid, 0);
+        constexpr const auto emptyString = "";
+        const auto success =
+            DBFWriteAttributeDirectly(handle, 0, 0, emptyString);
+        DBFClose(handle);
+        return success;
+    }();
+    EXPECT_TRUE(success);
+    const auto size = fs::file_size(filename);
+    EXPECT_EQ(75, size);
+    const auto date = ReadDate(filename, 1, 8);
     EXPECT_EQ(0, date->year);
     EXPECT_EQ(0, date->month);
     EXPECT_EQ(0, date->day);
