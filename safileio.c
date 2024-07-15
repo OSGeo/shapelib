@@ -6,6 +6,7 @@
  *
  ******************************************************************************
  * Copyright (c) 2007, Frank Warmerdam
+ * Copyright (c) 2016-2024, Even Rouault <even dot rouault at spatialys.com>
  *
  * SPDX-License-Identifier: MIT OR LGPL-2.0-or-later
  ******************************************************************************
