@@ -234,7 +234,7 @@ TEST(DBFFieldTest, SetAndGetDateNull)
 {
     const auto filename =
         fs::temp_directory_path() / GenerateUniqueFilename(".dbf");
-    for (int width = 1; width <= 8; ++width)
+    for (int width = 1; width <= XBASE_FLD_MAX_WIDTH; ++width)
     {
         const auto success = [&filename, &width]
         {
