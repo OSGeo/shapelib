@@ -79,6 +79,18 @@ file(RELATIVE_PATH RELATIVE_LIBDIR
 
 message(STATUS "CMAKE_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR}")
 
+set(prefix "${CMAKE_INSTALL_PREFIX}")
+set(exec_prefix "\${prefix}")
+if(IS_ABSOLUTE "${CMAKE_INSTALL_LIBDIR}")
+  set(libdir "${CMAKE_INSTALL_LIBDIR}")
+else()
+  set(libdir "\${exec_prefix}/${CMAKE_INSTALL_LIBDIR}")
+endif()
+if(IS_ABSOLUTE "${CMAKE_INSTALL_INCLUDEDIR}")
+  set(includedir "${CMAKE_INSTALL_INCLUDEDIR}")
+else()
+  set(includedir "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
+endif()
 set(SHAPELIB_PC ${CMAKE_CURRENT_BINARY_DIR}/shapelib.pc)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/shapelib.pc.cmake.in
   ${SHAPELIB_PC} @ONLY
