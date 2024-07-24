@@ -147,3 +147,17 @@ jobs:
           cp ./build/bin/*.dll ./build/tests/
           ctest --test-dir build --build-config Release --verbose
         shell: C:\cygwin\bin\bash.exe -eo pipefail -o igncr '{0}'
+
+  build-nmake:
+    name: windows-makefile
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Make
+        shell: cmd
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
+          nmake /f makefile.vc
