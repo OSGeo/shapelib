@@ -133,7 +133,7 @@ add_library(${PACKAGE} ${lib_SRC})
 target_include_directories(${PACKAGE}
   INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-    $<INSTALL_INTERFACE:include>
+    $<INSTALL_INTERFACE:${includedir}>
 )
 
 include(TestBigEndian)
