@@ -449,8 +449,8 @@ int SHPWriteOGisPolygon(WKBStreamObj *stream_obj, const SHPObject *psCShape)
                 WKBStreamWrite(stream_obj, &(psC->padfX[j]), 1, sizeof(double));
                 WKBStreamWrite(stream_obj, &(psC->padfY[j]), 1, sizeof(double));
             } /* for each vertex */
-        }     /* for each ring */
-    }         /* for each complex part */
+        } /* for each ring */
+    } /* for each complex part */
 
 #ifdef DEBUG2
     printf("(SHPWriteOGisPolygon) outta here \n");
@@ -561,7 +561,7 @@ SHPObject *SHPReadOGisPolygon(WKBStreamObj *stream_obj)
             } /* for each vertex */
             rPart += rVertices;
         } /* for each ring */
-    }     /* for each complex part */
+    } /* for each complex part */
 
     return (psC);
 }
@@ -633,7 +633,7 @@ SHPObject *SHPReadOGisLine(WKBStreamObj *stream_obj)
             } /* for each vertex */
             rPart += rVertices;
         } /* for each ring */
-    }     /* for each complex part */
+    } /* for each complex part */
 
     return (psC);
 }

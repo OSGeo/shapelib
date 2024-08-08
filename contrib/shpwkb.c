@@ -96,7 +96,7 @@ int main(int argc, char **argv)
                 SHPDestroyObject(psO);
                 printf("(shpdata) End Ring\n");
             }  // (ring) [0,nParts
-        }      // by ring
+        }  // by ring
 
         printf("gonna build a wkb\n");
         // const int res =

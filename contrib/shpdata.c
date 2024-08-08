@@ -96,7 +96,7 @@ int main(int argc, char **argv)
                 SHPDestroyObject(psO);
                 printf("(shpdata) End Ring \n");
             } /* (ring) [0,nParts  */
-        }     /* by ring   */
+        } /* by ring   */
 
         const double oArea = SHPArea_2d(psCShape);
         const double oLen = SHPLength_2d(psCShape);
