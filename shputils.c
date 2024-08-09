@@ -584,7 +584,7 @@ int clip_boundary()
             return (1); /** WRITE RECORD **/
         else
             return (0); /** SKIP  RECORD **/
-    }                   /** End TOUCH **/
+    } /** End TOUCH **/
 
     if (icut)
     { /** CUT **/
@@ -638,7 +638,7 @@ int clip_boundary()
         // if (i2 == 0) return(0); /** SKIP  RECORD **/
         // else
         return (1); /** WRITE RECORD **/
-    }               /** End CUT **/
+    } /** End CUT **/
 
     return 0;
 }
