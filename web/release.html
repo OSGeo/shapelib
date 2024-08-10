@@ -10,6 +10,41 @@
 To get notification of new releases of Shapelib <i>subscribe</i> to
 the project mailing list at https://lists.osgeo.org/pipermail/shapelib/.<p>
 
+<b>Release 1.6.1</b>:
+<ul>
+<li>DBFIsValueNULL(): accept empty string as NULL Date (https://github.com/OSGeo/gdal/issues/10405)</li>
+<li>DBFIsValueNULL(): Accept string containing of width times "0" as NULL Date</li>
+<li>Only test for _WIN32 for Windows detection</li>
+<li>Windows: Fix UTF8 hook functions</li>
+<li>Various compiler warning fixes</li>
+<li>contrib/csv2shp.c: fix resource leaks (#86)</li>
+<li>Detect byte order at compile time</li>
+<li>shapefil.h: various const-correctness improvements</li>
+<li>shapefil.h: Remove SHPTreeRemoveShapeId not being implemented</li>
+<li>shapefil.h: Fix API call of SHPSearchDiskTreeEx</li>
+<li>Add API functions for read/write of date attributes: DBFReadDateAttribute/DBFWriteDateAttribute</li>
+<li>DBFWriteAttribute/DBFWriteLogicalAttribute: no longer silently accpets invalid input, but returns false</li>
+<li>DBFCloneEmpty: consider the SAHooks</li>
+<li>Move endian defines to shapefil_private.h (#99)</li>
+<li>Fix test execution by complete refactoring.</li>
+<li>Add C++ unit testing (#113)</li>
+<li>SBNOpenDiskTree(): make it work with node descriptors with non-increasing nBinStart
+    Fixes https://github.com/OSGeo/shapelib/issues/106 / https://github.com/OSGeo/gdal/issues/9430
+<li>
+<li>sbnsearch.c: avoid potential integer overflows on corrupted files</li>
+<li>dbfdump: dump date and logical fields</li>
+<li>dbfinfo: print date and logical fields</li>
+<li>dbfcat: various fixes</li>
+<li>Fix -Werror=calloc-transposed-args with gcc 14</li>
+<li>SHPOpenLL(): avoid GDAL specific error message when .shx is missing (#129)</li>
+<li>CMake: generate pkg-config file (#135)</li>
+<li>CMake: Fix install interface include dir (#134)</li>
+<li>CMake: Make building executables optional with CMake (set BUILD_APPS to OFF) (#78)</li>
+<li>CMake: Remove duplicated shapefil.h installation in include_dir/shapelib (#80)</li>
+<li>CMake: Remove INSTALL_NAME_DIR from target (#49)</li>
+<li>CMake: Fix contrib.cmake</li>
+</ul>
+
 <b>Release 1.6.0</b>:
 <ul>
 <li>shapefil.h: add SHAPELIB_VERSION_MAJOR/MINOR/MICRO, SHAPELIB_VERSION_NUMBER, and SHAPELIB_AT_LEAST macros</li>

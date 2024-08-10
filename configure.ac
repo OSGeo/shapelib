@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 m4_define(shapelib_version_major, 1)
 m4_define(shapelib_version_minor, 6)
-m4_define(shapelib_version_micro, 0)
+m4_define(shapelib_version_micro, 1)
 
 AC_PREREQ(2.62)
 AC_INIT(shapelib, shapelib_version_major.shapelib_version_minor.shapelib_version_micro)
@@ -28,7 +28,7 @@ AM_SILENT_RULES([yes])
 m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 
 dnl See http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
-AC_SUBST([SHAPELIB_SO_VERSION], [4:0:0])
+AC_SUBST([SHAPELIB_SO_VERSION], [5:0:1])
 
 AC_PROG_CC
 AC_PROG_CXX
