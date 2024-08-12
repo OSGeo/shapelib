@@ -250,7 +250,7 @@ if(BUILD_TESTING)
   foreach(executable shptest shputils)
     add_executable(${executable} ${executable}.c)
     target_link_libraries(${executable} PRIVATE ${PACKAGE})
-    if (WIN32 OR CYGWIN)
+    if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.21" AND (WIN32 OR CYGWIN))
       add_custom_command(
         TARGET ${executable} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:${executable}> $<TARGET_FILE_DIR:${executable}>
