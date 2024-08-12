@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+	<GoogleTestAdapterSettings>
+		<SolutionSettings>
+			<Settings>
+				<WorkingDir>@PROJECT_SOURCE_DIR@</WorkingDir>
+			</Settings>
+		</SolutionSettings>
+	</GoogleTestAdapterSettings>
+</RunSettings>
