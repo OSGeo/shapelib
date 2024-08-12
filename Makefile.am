@@ -16,6 +16,7 @@ EXTRA_DIST = makefile.vc CMakeLists.txt autogen.sh \
 		cmake/contrib.cmake \
 		cmake/project-config-version.cmake.in \
 		cmake/project-config.cmake.in \
+		cmake/shapelib.gta.runsettings.in \
 		cmake/shapelib.pc.cmake.in \
 		tests/CMakeLists.txt \
 		tests/dbf_test.cc \

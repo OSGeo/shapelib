@@ -33,3 +33,9 @@ foreach(executable dbf_test sbn_test shp_test)
   target_compile_features(${executable} PUBLIC cxx_std_17)
   set_target_properties(${executable} PROPERTIES FOLDER "tests" CXX_EXTENSIONS OFF)
 endforeach()
+
+configure_file(
+  ${CMAKE_SOURCE_DIR}/cmake/shapelib.gta.runsettings.in
+  ${CMAKE_BINARY_DIR}/shapelib.gta.runsettings
+  @ONLY
+)
