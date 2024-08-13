@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 #
 #	Use example programs to create a very simple dataset that
@@ -7,7 +7,7 @@
 
 set -eu
 
-readonly SCRIPTDIR=$(dirname "${BASH_SOURCE[0]}")
+readonly SCRIPTDIR=$(dirname "$0")
 readonly EXPECT="${1:-$SCRIPTDIR/expect3.out}"
 
 {
