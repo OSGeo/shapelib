@@ -21,12 +21,12 @@ readonly SCRIPTDIR=$(dirname "$0")
 
 "${SHPDUMP:-$top_builddir/shpdump}" -precision 8 "test" > "test.out"
 
-is_windows() {
-	[ -n "$WINDIR" ] || uname | grep -q "MINGW"
+supports_strip_trailing_cr() {
+	diff --help 2>/dev/null | grep -q -- '--strip-trailing-cr'
 }
 
 run_diff() {
-	if is_windows; then
+	if supports_strip_trailing_cr; then
 		diff --strip-trailing-cr "$SCRIPTDIR/expect.out" "test.out"
 	else
 		diff "$SCRIPTDIR/expect.out" "test.out"
