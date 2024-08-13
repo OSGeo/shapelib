@@ -21,8 +21,19 @@ readonly SCRIPTDIR=$(dirname "$0")
 
 "${SHPDUMP:-$top_builddir/shpdump}" -precision 8 "test" > "test.out"
 
+is_windows() {
+	[ -n "$WINDIR" ] || uname | grep -q "MINGW"
+}
 
-if result=$(diff --strip-trailing-cr "$SCRIPTDIR/expect.out" "test.out"); then
+run_diff() {
+	if is_windows; then
+		diff --strip-trailing-cr "$SCRIPTDIR/expect.out" "test.out"
+	else
+		diff "$SCRIPTDIR/expect.out" "test.out"
+	fi
+}
+
+if result=$(run_diff); then
 	echo "******* Test Succeeded *********"
 	exit 0
 else
