@@ -175,9 +175,5 @@ int main(int argc, char **argv)
         printf("%d object has invalid ring orderings.\n", nInvalidCount);
     }
 
-#ifdef USE_DBMALLOC
-    malloc_dump(2);
-#endif
-
     exit(0);
 }
