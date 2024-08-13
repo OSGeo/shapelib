@@ -41,7 +41,7 @@ jobs:
             cd shapelib-*
             cmake .
             cmake --build . -j$(nproc)
-            ctest --test-dir . --verbose
+            ctest --no-tests=error --test-dir . --verbose
 
   build-cmake:
     name: ${{ matrix.toolchain }}
@@ -52,8 +52,7 @@ jobs:
         toolchain:
           - linux-gcc
           - macos-clang
-          - windows-msvc-shared
-          - windows-msvc-static
+          - windows-msvc
 
         configuration:
           - Release
@@ -67,11 +66,7 @@ jobs:
             os: macos-latest
             compiler: clang
 
-          - toolchain: windows-msvc-shared
-            os: windows-latest
-            compiler: msvc
-
-          - toolchain: windows-msvc-static
+          - toolchain: windows-msvc
             os: windows-latest
             compiler: msvc
 
@@ -81,10 +76,8 @@ jobs:
 
       - name: Configure (${{ matrix.configuration }})
         run: |
-          if [ "${{ matrix.toolchain }}" == "windows-msvc-shared" ]; then
-            cmake -S . -Bbuild -DCMAKE_UNITY_BUILD=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=~/install
-          elif [ "${{ matrix.toolchain }}" == "windows-msvc-static" ]; then
-            cmake -S . -Bbuild -DCMAKE_UNITY_BUILD=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DBUILD_TESTING=ON -DBASH_EXECUTABLE="C:/Program Files/Git/bin/bash.exe" -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=~/install
+          if [ "${{ matrix.toolchain }}" == "windows-msvc" ]; then
+            cmake -S . -Bbuild -DCMAKE_UNITY_BUILD=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DBUILD_TESTING=ON -DCMAKE_INSTALL_PREFIX=~/install
           else
             cmake -S . -Bbuild -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DCMAKE_UNITY_BUILD=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DBUILD_TESTING=ON -DCMAKE_INSTALL_PREFIX=~/install
           fi
@@ -98,7 +91,7 @@ jobs:
           fi
 
       - name: Test
-        run: ctest --test-dir build --build-config ${{ matrix.configuration }} --verbose
+        run: ctest --no-tests=error --test-dir build --build-config ${{ matrix.configuration }} --verbose
 
       - name: Install
         run: |
@@ -143,9 +136,7 @@ jobs:
       - name: Test
         run: |
           export PATH=/usr/bin:/usr/local/bin:$PATH
-          cp ./build/*.dll ./build/tests/
-          cp ./build/bin/*.dll ./build/tests/
-          ctest --test-dir build --build-config Release --verbose
+          ctest --no-tests=error --test-dir build --build-config Release --verbose
         shell: C:\cygwin\bin\bash.exe -eo pipefail -o igncr '{0}'
 
   build-nmake:

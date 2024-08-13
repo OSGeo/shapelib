@@ -45,7 +45,7 @@ endif()
 
 # In windows all created dlls are gathered in the dll directory
 # if you add this directory to your PATH all shared libraries are available
-if(BUILD_SHARED_LIBS AND WIN32 AND NOT CYGWIN)
+if(BUILD_SHARED_LIBS AND (WIN32 OR CYGWIN))
   set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/dll)
 endif()
 
@@ -250,6 +250,13 @@ if(BUILD_TESTING)
   foreach(executable shptest shputils)
     add_executable(${executable} ${executable}.c)
     target_link_libraries(${executable} PRIVATE ${PACKAGE})
+    if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.21" AND (WIN32 OR CYGWIN))
+      add_custom_command(
+        TARGET ${executable} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:${executable}> $<TARGET_FILE_DIR:${executable}>
+        COMMAND_EXPAND_LISTS
+      )
+    endif()
   endforeach()
 
   # Set environment variables defining path to executables being used
