@@ -1,8 +1,8 @@
-#!/bin/bash
+#!/bin/sh
 
 set -eu
 
-readonly SCRIPTDIR=$(dirname "${BASH_SOURCE[0]}")
+readonly SCRIPTDIR=$(dirname "$0")
 readonly EXPECT="${1:-$SCRIPTDIR/expect1.out}"
 readonly EG_DATA="${2:-$SCRIPTDIR/shape_eg_data}"
 

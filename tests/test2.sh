@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/bin/sh
 
-readonly SCRIPTDIR=$(dirname "${BASH_SOURCE[0]}")
+readonly SCRIPTDIR=$(dirname "$0")
 readonly EXPECT="${1:-$SCRIPTDIR/expect2.out}"
 
 for i in 0 1 2 3 4 5 6 7 8 9 10 11 12 13; do

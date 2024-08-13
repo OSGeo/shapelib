@@ -1,6 +1,8 @@
-#!/bin/bash
+#!/bin/sh
 
-readonly SCRIPTDIR=$(dirname "${BASH_SOURCE[0]}")
+set -eu
+
+readonly SCRIPTDIR=$(dirname "$0")
 
 "${SHPCREATE:-$top_builddir/shpcreate}" "test" point
 
