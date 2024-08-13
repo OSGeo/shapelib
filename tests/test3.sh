@@ -27,7 +27,20 @@ readonly EXPECT="${1:-$SCRIPTDIR/expect3.out}"
 "${DBFDUMP:-./dbfdump}" test.dbf
 } > s3.out
 
-if result=$(diff --strip-trailing-cr "$EXPECT" "s3.out"); then
+
+supports_strip_trailing_cr() {
+	diff --help 2>/dev/null | grep -q -- '--strip-trailing-cr'
+}
+
+run_diff() {
+	if supports_strip_trailing_cr; then
+		diff --strip-trailing-cr "$EXPECT" "s3.out"
+	else
+		diff "$EXPECT" "s3.out"
+	fi
+}
+
+if result=$(run_diff); then
 	echo "******* Stream 3 Succeeded *********"
 	exit 0
 else
