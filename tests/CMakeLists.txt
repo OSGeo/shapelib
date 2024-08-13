@@ -32,7 +32,7 @@ foreach(executable dbf_test sbn_test shp_test)
   )
   target_compile_features(${executable} PUBLIC cxx_std_17)
   set_target_properties(${executable} PROPERTIES FOLDER "tests" CXX_EXTENSIONS OFF)
-  if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.21" AND (WIN32 OR CYGWIN))
+  if (BUILD_SHARED_LIBS AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.21" AND (WIN32 OR CYGWIN))
     add_custom_command(
       TARGET ${executable} POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:${executable}> $<TARGET_FILE_DIR:${executable}>
