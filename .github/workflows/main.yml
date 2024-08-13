@@ -14,6 +14,20 @@ jobs:
     name: linux-autoconf
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        shared_libs:
+          - yes
+          - no
+
+        static_libs:
+          - yes
+          - no
+          
+        exclude:
+          - shared_libs: no
+            static_libs: no
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -25,7 +39,7 @@ jobs:
         run: ./autogen.sh
 
       - name: Configure
-        run: ./configure
+        run: ./configure --enable-shared=${{ matrix.shared_libs }} --enable-static=${{ matrix.static_libs }}
 
       - name: Make
         run: make
@@ -44,7 +58,7 @@ jobs:
             ctest --no-tests=error --test-dir . --verbose
 
   build-cmake:
-    name: ${{ matrix.toolchain }}
+    name: ${{ matrix.toolchain }} (${{ matrix.configuration }}, ${{ matrix.shared_libs }})
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -56,6 +70,10 @@ jobs:
 
         configuration:
           - Release
+          
+        shared_libs:
+          - ON
+          - OFF
 
         include:
           - toolchain: linux-gcc
@@ -76,10 +94,10 @@ jobs:
 
       - name: Configure (${{ matrix.configuration }})
         run: |
-          if [ "${{ matrix.toolchain }}" == "windows-msvc" ]; then
-            cmake -S . -Bbuild -DCMAKE_UNITY_BUILD=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DBUILD_TESTING=ON -DCMAKE_INSTALL_PREFIX=~/install
+          if [ "${{ matrix.compiler }}" == "msvc" ]; then
+            cmake -S . -Bbuild -DCMAKE_UNITY_BUILD=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DBUILD_TESTING=ON -DBUILD_SHARED_LIBS=${{ matrix.shared_libs }} -DCMAKE_INSTALL_PREFIX=~/install
           else
-            cmake -S . -Bbuild -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DCMAKE_UNITY_BUILD=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DBUILD_TESTING=ON -DCMAKE_INSTALL_PREFIX=~/install
+            cmake -S . -Bbuild -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DCMAKE_UNITY_BUILD=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DBUILD_TESTING=ON -DBUILD_SHARED_LIBS=${{ matrix.shared_libs }} -DCMAKE_INSTALL_PREFIX=~/install
           fi
 
       - name: Build with ${{ matrix.compiler }}
@@ -105,6 +123,15 @@ jobs:
     name: windows-cygwin
     runs-on: windows-latest
 
+    strategy:
+      matrix:
+        configuration:
+          - Release
+          
+        shared_libs:
+          - ON
+          - OFF
+
     steps:
       - name: Set git to use LF
         run: git config --global core.autocrlf input
@@ -121,10 +148,10 @@ jobs:
             make
             ninja
 
-      - name: Configure (Release)
+      - name: Configure (${{ matrix.configuration }})
         run: |
           export PATH=/usr/bin:$PATH
-          cmake -S . -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_UNITY_BUILD=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DBUILD_TESTING=ON -G Ninja
+          cmake -S . -Bbuild -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DCMAKE_UNITY_BUILD=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DBUILD_TESTING=ON -DBUILD_SHARED_LIBS=${{ matrix.shared_libs }} -G Ninja
         shell: C:\cygwin\bin\bash.exe -eo pipefail -o igncr '{0}'
 
       - name: Build with gcc
@@ -136,7 +163,7 @@ jobs:
       - name: Test
         run: |
           export PATH=/usr/bin:/usr/local/bin:$PATH
-          ctest --no-tests=error --test-dir build --build-config Release --verbose
+          ctest --no-tests=error --test-dir build --build-config ${{ matrix.configuration }} --verbose
         shell: C:\cygwin\bin\bash.exe -eo pipefail -o igncr '{0}'
 
   build-nmake:
