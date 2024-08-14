@@ -12,7 +12,20 @@ for i in 0 1 2 3 4 5 6 7 8 9 10 11 12 13; do
   "${SHPDUMP:-./shpdump}" test${i}.shp
 done > "s2.out"
 
-if result=$(diff --strip-trailing-cr "$EXPECT" "s2.out"); then
+
+supports_strip_trailing_cr() {
+	diff --help 2>/dev/null | grep -q -- '--strip-trailing-cr'
+}
+
+run_diff() {
+	if supports_strip_trailing_cr; then
+		diff --strip-trailing-cr "$EXPECT" "s2.out"
+	else
+		diff "$EXPECT" "s2.out"
+	fi
+}
+
+if result=$(run_diff); then
 	echo "******* Stream 2 Succeeded *********"
 	exit 0
 else

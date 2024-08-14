@@ -34,7 +34,19 @@ echo -------------------------------------------------------------------------
 } > s1.out
 
 
-if result=$(diff --strip-trailing-cr "$EXPECT" "s1.out"); then
+supports_strip_trailing_cr() {
+	diff --help 2>/dev/null | grep -q -- '--strip-trailing-cr'
+}
+
+run_diff() {
+	if supports_strip_trailing_cr; then
+		diff --strip-trailing-cr "$EXPECT" "s1.out"
+	else
+		diff "$EXPECT" "s1.out"
+	fi
+}
+
+if result=$(run_diff); then
 	echo "******* Stream 1 Succeeded *********"
 	exit 0
 else
