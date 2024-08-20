@@ -1,20 +1,27 @@
+#include <array>
 #include <filesystem>
 
 #include <benchmark/benchmark.h>
 #include "shapefil.h"
 
 namespace fs = std::filesystem;
+namespace bm = benchmark;
 
 namespace
 {
 
 static const auto kTestData = fs::path{"shape_eg_data"};
 
-template <int fastMode> static void Benchmark_ReadAll(benchmark::State &state)
+constexpr static auto filenames = std::array<const char *, 11>{
+    "3dpoints.shp", "anno.shp",     "brklinz.shp", "CoHI_GCS12.shp",
+    "csah.shp",     "masspntz.shp", "mpatch3.shp", "multipatch.shp",
+    "multipnt.shp", "pline.shp",    "polygon.shp"};
+
+static void Benchmark_ReadAll(bm::State &state)
 {
-    const auto filename = kTestData / "mpatch3.shp";
+    const auto filename = kTestData / filenames[state.range(1)];
     const auto handle = SHPOpen(filename.string().c_str(), "rb");
-    SHPSetFastModeReadObject(handle, fastMode);
+    SHPSetFastModeReadObject(handle, static_cast<int>(state.range(0)));
     int nEntities;
     SHPGetInfo(handle, &nEntities, nullptr, nullptr, nullptr);
     for (auto _ : state)
@@ -25,14 +32,14 @@ template <int fastMode> static void Benchmark_ReadAll(benchmark::State &state)
             SHPDestroyObject(obj);
         }
     }
+    state.SetItemsProcessed(state.iterations() * nEntities);
     SHPClose(handle);
 }
 
-constexpr auto Benchmark_ReadAllSlow = Benchmark_ReadAll<0>;
-constexpr auto Benchmark_ReadAllFast = Benchmark_ReadAll<1>;
-
-BENCHMARK(Benchmark_ReadAllSlow);
-BENCHMARK(Benchmark_ReadAllFast);
+BENCHMARK(Benchmark_ReadAll)
+    ->ArgsProduct({{0, 1}, bm::CreateDenseRange(0, filenames.size() - 1, 1)})
+    ->ArgNames({"fastMode", "fileId"})
+    ->Unit(bm::kMicrosecond);
 
 }  // namespace
 
