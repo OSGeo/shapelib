@@ -318,6 +318,57 @@ TEST(DBFFieldTest, SetAndGetLogicalInvalid)
     fs::remove(filename);
 }
 
+static auto WriteDuplicateFields(const fs::path &filename) -> auto
+{
+    const auto handle = DBFCreate(filename.string().c_str());
+    EXPECT_NE(nullptr, handle);
+    const auto fid1 = DBFAddField(handle, "field", FTDate, 8, 0);
+    EXPECT_GE(fid1, 0);
+    const auto fid2 = DBFAddField(handle, "field", FTDate, 8, 0);
+    EXPECT_GE(fid2, 0);
+    const auto fid3 = DBFAddField(handle, "field", FTDouble, 8, 5);
+    EXPECT_GE(fid3, 0);
+    const auto fid4 = DBFAddField(handle, "field", FTDouble, 8, 10);
+    EXPECT_GE(fid4, 0);
+    const auto fid5 = DBFAddField(handle, "field", FTInteger, 8, 0);
+    EXPECT_GE(fid5, 0);
+    const auto fid6 = DBFAddField(handle, "field", FTInteger, 8, 0);
+    EXPECT_GE(fid6, 0);
+    const auto fid7 = DBFAddField(handle, "field", FTLogical, 1, 0);
+    EXPECT_GE(fid7, 0);
+    const auto fid8 = DBFAddField(handle, "field", FTLogical, 1, 0);
+    EXPECT_GE(fid8, 0);
+    const auto fid9 = DBFAddField(handle, "field", FTString, 5, 0);
+    EXPECT_GE(fid9, 0);
+    const auto fid0 = DBFAddField(handle, "field", FTString, 10, 0);
+    EXPECT_GE(fid0, 0);
+    const auto nFields = DBFGetFieldCount(handle);
+    EXPECT_EQ(nFields, 10);
+    DBFClose(handle);
+}
+
+static auto ReadDuplicateFields(const fs::path &filename) -> auto
+{
+    const auto handle = DBFOpen(filename.string().c_str(), "r");
+    EXPECT_NE(nullptr, handle);
+    const auto nFields = DBFGetFieldCount(handle);
+    EXPECT_EQ(nFields, 10);
+    const auto fid = DBFGetFieldIndex(handle, "field");
+    EXPECT_EQ(fid, 0);
+    DBFClose(handle);
+}
+
+TEST(DBFFieldTest, AddDuplicateField)
+{
+    const auto filename =
+        fs::temp_directory_path() / GenerateUniqueFilename(".dbf");
+    WriteDuplicateFields(filename);
+    const auto size = fs::file_size(filename);
+    EXPECT_EQ(354, size);
+    ReadDuplicateFields(filename);
+    fs::remove(filename);
+}
+
 }  // namespace
 
 int main(int argc, char **argv)
