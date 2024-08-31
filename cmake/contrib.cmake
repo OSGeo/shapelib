@@ -70,7 +70,7 @@ if(BUILD_SHAPELIB_CONTRIB)
     add_test(
       NAME contrib
       COMMAND
-        ${BASH_EXECUTABLE} ${PROJECT_SOURCE_DIR}/contrib/tests/shpproj.sh ${PROJECT_SOURCE_DIR}/contrib/tests/expect.out
+        ${SH_EXECUTABLE} ${PROJECT_SOURCE_DIR}/contrib/tests/shpproj.sh ${PROJECT_SOURCE_DIR}/contrib/tests/expect.out
     )
     declare_test_executable(contrib "dbfadd;dbfcreate;shpadd;shpcreate;shpdump")
   endif()
