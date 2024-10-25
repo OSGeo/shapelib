@@ -292,8 +292,6 @@ if(BUILD_TESTING)
   )
   declare_test_executable(test3 "dbfadd;dbfcreate;dbfdump;shpadd;shpcreate;shpdump")
 
-  include(CTest)
-
   add_subdirectory(tests)
 endif()
 

@@ -1,4 +1,4 @@
-# CMake configuration for SHP C++ unit tests
+# CMake configuration for C++ unit tests
 
 project(${CMAKE_PROJECT_NAME}Tests CXX)
 
