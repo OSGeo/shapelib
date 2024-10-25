@@ -43,8 +43,6 @@ else()
   option(USE_RPATH "Use -rpath when linking libraries, executables" ON)
 endif()
 
-option(BUILD_TESTING "Build the testing tree." ON)
-
 # In windows all created dlls are gathered in the dll directory
 # if you add this directory to your PATH all shared libraries are available
 if(BUILD_SHARED_LIBS AND (WIN32 OR CYGWIN))
@@ -204,7 +202,7 @@ endif()
 
 find_program(BASH_EXECUTABLE bash)
 if(BASH_EXECUTABLE)
-  set(BUILD_TESTING ON CACHE BOOL "")
+  set(BUILD_TESTING ON CACHE BOOL "Build the testing tree.")
 else()
   message(STATUS "WARNING: bash not available so disabling testing")
 endif()
