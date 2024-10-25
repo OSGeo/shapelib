@@ -43,6 +43,8 @@ else()
   option(USE_RPATH "Use -rpath when linking libraries, executables" ON)
 endif()
 
+option(BUILD_TESTING "Build the testing tree." ON)
+
 # In windows all created dlls are gathered in the dll directory
 # if you add this directory to your PATH all shared libraries are available
 if(BUILD_SHARED_LIBS AND (WIN32 OR CYGWIN))
