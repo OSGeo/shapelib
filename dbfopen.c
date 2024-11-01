@@ -2236,7 +2236,6 @@ int SHPAPI_CALL DBFAlterFieldDefn(DBFHandle psDBF, int iField,
 
         if (!psDBF_realloc_ptr)
         {
-            psDBF->nFields--;
             assert(false);
             return FALSE;
         }
