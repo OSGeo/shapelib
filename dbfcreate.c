@@ -23,7 +23,9 @@ int main(int argc, char **argv)
     if (argc < 2)
     {
         printf("dbfcreate xbase_file [[-s field_name width], "
-               "[-n field_name width decimals]]...\n");
+               "[-n field_name width decimals], "
+               "[-d field_name], "
+               "[-l field_name]]...\n");
         return 1;
     }
 
