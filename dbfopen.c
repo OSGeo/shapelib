@@ -1781,11 +1781,7 @@ int SHPAPI_CALL DBFMarkRecordDeleted(DBFHandle psDBF, int iShape,
     /* -------------------------------------------------------------------- */
     /*      Assign value, marking record as dirty if it changes.            */
     /* -------------------------------------------------------------------- */
-    char chNewFlag;
-    if (bIsDeleted)
-        chNewFlag = '*';
-    else
-        chNewFlag = ' ';
+    const char chNewFlag = bIsDeleted ? '*' : ' ';
 
     if (psDBF->pszCurrentRecord[0] != chNewFlag)
     {
@@ -2296,7 +2292,7 @@ int SHPAPI_CALL DBFAlterFieldDefn(DBFHandle psDBF, int iField,
 
         if (!errorAbort && psDBF->bWriteEndOfFileChar)
         {
-            char ch = END_OF_FILE_CHARACTER;
+            const char ch = END_OF_FILE_CHARACTER;
 
             SAOffset nRecordOffset =
                 psDBF->nRecordLength * STATIC_CAST(SAOffset, psDBF->nRecords) +
