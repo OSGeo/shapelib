@@ -8,7 +8,8 @@ include(FetchContent)
 FetchContent_Declare(
   benchmark
   GIT_REPOSITORY https://github.com/google/benchmark.git
-  GIT_TAG c19cfee61e136effb05a7fc8a037b0db3b13bd4c
+  GIT_TAG v1.9.1
+  GIT_SHALLOW TRUE
 )
 
 FetchContent_Declare(
