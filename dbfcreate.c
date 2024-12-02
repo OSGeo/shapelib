@@ -23,7 +23,9 @@ int main(int argc, char **argv)
     if (argc < 2)
     {
         printf("dbfcreate xbase_file [[-s field_name width], "
-               "[-n field_name width decimals]]...\n");
+               "[-n field_name width decimals], "
+               "[-d field_name], "
+               "[-l field_name]]...\n");
         return 1;
     }
 
@@ -64,6 +66,32 @@ int main(int argc, char **argv)
                 return 4;
             }
             i += 3;
+        }
+        else if (i < argc - 1 && strcmp(argv[i], "-d") == 0)
+        {
+            const char *field = argv[i + 1];
+            const int width = 8;
+            const int decimals = 0;
+            if (DBFAddField(hDBF, field, FTDate, width, decimals) == -1)
+            {
+                printf("DBFAddField(%s,FTDate,%d,0) failed.\n", field, width);
+                DBFClose(hDBF);
+                return 4;
+            }
+            i += 1;
+        }
+        else if (i < argc - 1 && strcmp(argv[i], "-l") == 0)
+        {
+            const char *field = argv[i + 1];
+            const int width = 1;
+            const int decimals = 0;
+            if (DBFAddField(hDBF, field, FTLogical, width, decimals) == -1)
+            {
+                printf("DBFAddField(%s,FTLogical,%d,0) failed.\n", field, width);
+                DBFClose(hDBF);
+                return 4;
+            }
+            i += 1;
         }
         else
         {

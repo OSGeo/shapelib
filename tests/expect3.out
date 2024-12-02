@@ -31,7 +31,7 @@ Shape:2 (Polygon)  nVertices=4, nParts=1
      (160,150, 0)  
      (180,170, 0)  
      (150,150, 0)  
-Descriptio                     TestInt       TestDouble 
-Square with triangle missing        1           2.50000 
-Smaller triangle                  100        1000.25000 
-(NULL)                         (NULL)            (NULL) 
+Descriptio                     TestInt       TestDouble TestDate TestBool 
+Square with triangle missing        1           2.50000 20241102 T        
+Smaller triangle                  100        1000.25000 20241102 F        
+(NULL)                         (NULL)            (NULL)   (NULL) (NULL)        
