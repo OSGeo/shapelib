@@ -87,7 +87,8 @@ int main(int argc, char **argv)
             const int decimals = 0;
             if (DBFAddField(hDBF, field, FTLogical, width, decimals) == -1)
             {
-                printf("DBFAddField(%s,FTLogical,%d,0) failed.\n", field, width);
+                printf("DBFAddField(%s,FTLogical,%d,0) failed.\n", field,
+                       width);
                 DBFClose(hDBF);
                 return 4;
             }

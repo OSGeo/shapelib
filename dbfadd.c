@@ -43,10 +43,10 @@ int main(int argc, char **argv)
     }
 
     const int iRecord = DBFGetRecordCount(hDBF);
-    
+
     SHPDate date;
     char bool;
-    
+
     // Loop assigning the new field values.
     for (int i = 0; i < DBFGetFieldCount(hDBF); i++)
     {
@@ -61,15 +61,16 @@ int main(int argc, char **argv)
             {
                 DBFWriteDateAttribute(hDBF, iRecord, i, &date);
             }
-         }
+        }
         else if (DBFGetFieldInfo(hDBF, i, NULL, NULL, NULL) == FTLogical)
         {
-            if (1 == sscanf(argv[i + 2], "%c", &bool)) {
+            if (1 == sscanf(argv[i + 2], "%c", &bool))
+            {
                 DBFWriteLogicalAttribute(hDBF, iRecord, i, bool);
             }
         }
         else
-            
+
             DBFWriteDoubleAttribute(hDBF, iRecord, i, atof(argv[i + 2]));
     }
 
