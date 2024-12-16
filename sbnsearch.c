@@ -38,6 +38,7 @@
                       ((ptr)[1] << 16) | ((ptr)[2] << 8) | (ptr)[3]))
 
 typedef int coord;
+
 /*typedef unsigned char coord;*/
 
 typedef struct
@@ -127,6 +128,8 @@ SBNSearchHandle SBNOpenDiskTree(const char *pszSBNFilename,
     /* -------------------------------------------------------------------- */
     SBNSearchHandle hSBN =
         STATIC_CAST(SBNSearchHandle, calloc(1, sizeof(struct SBNSearchInfo)));
+    if (!hSBN)
+        return SHPLIB_NULLPTR;
 
     if (psHooks == SHPLIB_NULLPTR)
         SASetupDefaultHooks(&(hSBN->sHooks));
