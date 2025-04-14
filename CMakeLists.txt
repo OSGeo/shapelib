@@ -206,8 +206,9 @@ endif()
 
 find_program(BASH_EXECUTABLE bash)
 if(BASH_EXECUTABLE)
-  set(BUILD_TESTING ON CACHE BOOL "Build the testing tree.")
+  option(BUILD_TESTING "Build tests"  ON)
 else()
+  set(BUILD_TESTING OFF CACHE BOOL "Disable tests")
   message(STATUS "WARNING: bash not available so disabling testing")
 endif()
 
