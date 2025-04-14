@@ -7,6 +7,11 @@
 #
 # See README.CMake
 
+set(PACKAGE shp)
+if (TARGET ${PACKAGE})
+  return ()
+endif ()
+
 # Version 3.11 or above of cmake is currently required for all platforms.
 cmake_minimum_required(VERSION 3.11)
 project(shapelib C CXX)
@@ -49,7 +54,6 @@ if(BUILD_SHARED_LIBS AND (WIN32 OR CYGWIN))
   set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/dll)
 endif()
 
-set(PACKAGE shp)
 
 # Set up install locations.
 set(
@@ -202,8 +206,9 @@ endif()
 
 find_program(BASH_EXECUTABLE bash)
 if(BASH_EXECUTABLE)
-  set(BUILD_TESTING ON CACHE BOOL "Build the testing tree.")
+  option(BUILD_TESTING "Build tests"  ON)
 else()
+  set(BUILD_TESTING OFF CACHE BOOL "Disable tests")
   message(STATUS "WARNING: bash not available so disabling testing")
 endif()
 
