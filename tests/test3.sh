@@ -9,22 +9,29 @@ set -eu
 
 readonly SCRIPTDIR=$(dirname "$0")
 readonly EXPECT="${1:-$SCRIPTDIR/expect3.out}"
+readonly TESTDIR=`mktemp -d -p "$(pwd)"`
+
+# check if tmp dir was created
+if [[ ! "$TESTDIR" || ! -d "$TESTDIR" ]]; then
+  echo "Could not create temp dir"
+  exit 1
+fi
 
 {
-"${SHPCREATE:-./shpcreate}" test polygon
-"${DBFCREATE:-./dbfcreate}" test.dbf -s Description 30 -n TestInt 6 0 -n TestDouble 16 5 -d TestDate -l TestBool
+"${SHPCREATE:-./shpcreate}" "${TESTDIR:-.}"/test polygon
+"${DBFCREATE:-./dbfcreate}" "${TESTDIR:-.}"/test.dbf -s Description 30 -n TestInt 6 0 -n TestDouble 16 5 -d TestDate -l TestBool
 
-"${SHPADD:-./shpadd}" test 0 0 100 0 100 100 0 100 0 0 + 20 20 20 30 30 30 20 20
-"${DBFADD:-./dbfadd}" test.dbf "Square with triangle missing" 1.4 2.5 20241102 T
+"${SHPADD:-./shpadd}" "${TESTDIR:-.}"/test 0 0 100 0 100 100 0 100 0 0 + 20 20 20 30 30 30 20 20
+"${DBFADD:-./dbfadd}" "${TESTDIR:-.}"/test.dbf "Square with triangle missing" 1.4 2.5 20241102 T
 
-"${SHPADD:-./shpadd}" test 150 150 160 150 180 170 150 150
-"${DBFADD:-./dbfadd}" test.dbf "Smaller triangle" 100 1000.25 20241102 F
+"${SHPADD:-./shpadd}" "${TESTDIR:-.}"/test 150 150 160 150 180 170 150 150
+"${DBFADD:-./dbfadd}" "${TESTDIR:-.}"/test.dbf "Smaller triangle" 100 1000.25 20241102 F
 
-"${SHPADD:-./shpadd}" test 150 150 160 150 180 170 150 150
-"${DBFADD:-./dbfadd}" test.dbf "" "" "" "" ""
+"${SHPADD:-./shpadd}" "${TESTDIR:-.}"/test 150 150 160 150 180 170 150 150
+"${DBFADD:-./dbfadd}" "${TESTDIR:-.}"/test.dbf "" "" "" "" ""
 
-"${SHPDUMP:-./shpdump}" test.shp
-"${DBFDUMP:-./dbfdump}" test.dbf
+"${SHPDUMP:-./shpdump}" "${TESTDIR:-.}"/test.shp
+"${DBFDUMP:-./dbfdump}" "${TESTDIR:-.}"/test.dbf
 } > s3.out
 
 
