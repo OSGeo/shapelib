@@ -309,12 +309,35 @@ TEST(DBFFieldTest, SetAndGetLogicalFalse)
     fs::remove(filename);
 }
 
-TEST(DBFFieldTest, SetAndGetLogicalInvalid)
+TEST(DBFFieldTest, SetLogicalInvalid)
 {
     const auto filename =
         fs::temp_directory_path() / GenerateUniqueFilename(".dbf");
     const auto success = WriteLogical(filename, '0');
     EXPECT_FALSE(success);
+    fs::remove(filename);
+}
+
+TEST(DBFFieldTest, SetAndGetDouble)
+{
+    const auto filename =
+        fs::temp_directory_path() / GenerateUniqueFilename(".dbf");
+    constexpr const double value = 1623819823.809;
+    {
+        const auto handle = DBFCreate(filename.string().c_str());
+        EXPECT_NE(nullptr, handle);
+        const auto fid = DBFAddField(handle, "double", FTDouble, 14, 4);
+        EXPECT_GE(fid, 0);
+        const auto success = DBFWriteDoubleAttribute(handle, 0, 0, value);
+        EXPECT_TRUE(success);
+        DBFClose(handle);
+    }
+    {
+        const auto handle = DBFOpen(filename.string().c_str(), "r");
+        EXPECT_NE(nullptr, handle);
+        EXPECT_EQ(value, DBFReadDoubleAttribute(handle, 0, 0));
+        DBFClose(handle);
+    }
     fs::remove(filename);
 }
 
