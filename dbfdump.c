@@ -59,7 +59,7 @@ int main(int argc, char **argv)
     DBFHandle hDBF = DBFOpen(pszFilename, "rb");
     if (hDBF == NULL)
     {
-        printf("DBFOpen(%s,\"r\") failed.\n", argv[1]);
+        printf("DBFOpen(%s,\"r\") failed.\n", pszFilename);
         exit(2);
     }
 
