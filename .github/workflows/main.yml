@@ -30,7 +30,7 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup
         run: sudo apt-get install build-essential libtool-bin
@@ -90,7 +90,7 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Configure (${{ matrix.configuration }})
         run: |
@@ -137,7 +137,7 @@ jobs:
         run: git config --global core.autocrlf input
 
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup cygwin
         uses: cygwin/cygwin-install-action@master
@@ -172,7 +172,7 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Make
         shell: cmd
