@@ -2,7 +2,7 @@
  *
  * Project:  Shapelib
  * Purpose:  Application for generating sample Shapefiles of various types.
- *           Used by the stream2.sh test script.
+ *           Used by the test2.sh test script.
  * Author:   Frank Warmerdam, warmerdam@pobox.com
  *
  ******************************************************************************
