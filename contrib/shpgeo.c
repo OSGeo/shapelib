@@ -1485,12 +1485,12 @@ SHPObject *SHPUnCompound(const SHPObject *psCShape, int *ringNumber)
         *ringNumber = -1;
     else
         *ringNumber = ring;
-    /*    I am strictly assuming that all R- parts of a complex object
- *	   directly follow their R+, so when we hit a new R+ its a
- *	   new part of a compound object
- *         a SHPClean may be needed to enforce this as it is not part
- *	   of ESRI's definition of a SHPfile
- */
+        /*    I am strictly assuming that all R- parts of a complex object
+         *    directly follow their R+, so when we hit a new R+ its a
+         *    new part of a compound object
+         *    a SHPClean may be needed to enforce this as it is not part
+         *    of ESRI's definition of a SHPfile
+         */
 
 #ifdef DEBUG2
     printf("(SHPUnCompound) asked for ring %d, lastring is %d \n", lRing, ring);

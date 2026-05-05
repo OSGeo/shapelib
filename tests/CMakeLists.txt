@@ -108,6 +108,29 @@ if (BUILD_SHARED_LIBS AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.21" AND (WIN
   )
 endif()
 
+add_executable(
+  shputils_test
+  ${PROJECT_SOURCE_DIR}/shputils_test.cc
+  ${CMAKE_SOURCE_DIR}/shputils.c
+)
+target_include_directories(shputils_test PRIVATE ${CMAKE_SOURCE_DIR})
+target_compile_definitions(shputils_test PRIVATE SHPUTILS_NO_MAIN)
+target_link_libraries(shputils_test PRIVATE ${PACKAGE} gtest benchmark)
+add_test(
+  NAME shputils_test
+  COMMAND shputils_test
+  WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+)
+target_compile_features(shputils_test PUBLIC cxx_std_17)
+set_target_properties(shputils_test PROPERTIES FOLDER tests CXX_EXTENSIONS OFF)
+if (BUILD_SHARED_LIBS AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.21" AND (WIN32 OR CYGWIN))
+  add_custom_command(
+    TARGET shputils_test POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:shputils_test> $<TARGET_FILE_DIR:shputils_test>
+    COMMAND_EXPAND_LISTS
+  )
+endif()
+
 configure_file(
   ${CMAKE_SOURCE_DIR}/cmake/shapelib.gta.runsettings.in
   ${CMAKE_BINARY_DIR}/shapelib.gta.runsettings

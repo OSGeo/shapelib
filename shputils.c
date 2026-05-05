@@ -32,6 +32,7 @@
 
 #include "shapefil.h"
 
+#include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -515,6 +516,182 @@ void check_theme_bnd()
         puts("WARNING: Theme is outside the clip area."); /** SKIP THEME  **/
 }
 
+/* -------------------------------------------------------------------- */
+/*      Compute where a line segment (x0,y0)-(x1,y1) first crosses     */
+/*      the axis-aligned clip rectangle.  Returns true if an            */
+/*      intersection was found, storing it in (*xi, *yi).               */
+/* -------------------------------------------------------------------- */
+bool compute_clip_intersection(double x0, double y0, double x1, double y1,
+                               double clipxmin, double clipymin,
+                               double clipxmax, double clipymax, double *xi,
+                               double *yi)
+{
+    const double dx = x1 - x0;
+    const double dy = y1 - y0;
+    double tmin = 2.0; /* > 1 means no valid intersection yet */
+    double best_xi = 0, best_yi = 0;
+
+    /* Left edge (x = clipxmin) */
+    if (dx != 0.0)
+    {
+        const double t = (clipxmin - x0) / dx;
+        if (t > 0.0 && t < 1.0)
+        {
+            const double y = y0 + t * dy;
+            if (y >= clipymin && y <= clipymax && t < tmin)
+            {
+                tmin = t;
+                best_xi = clipxmin;
+                best_yi = y;
+            }
+        }
+    }
+
+    /* Right edge (x = clipxmax) */
+    if (dx != 0.0)
+    {
+        const double t = (clipxmax - x0) / dx;
+        if (t > 0.0 && t < 1.0)
+        {
+            const double y = y0 + t * dy;
+            if (y >= clipymin && y <= clipymax && t < tmin)
+            {
+                tmin = t;
+                best_xi = clipxmax;
+                best_yi = y;
+            }
+        }
+    }
+
+    /* Bottom edge (y = clipymin) */
+    if (dy != 0.0)
+    {
+        const double t = (clipymin - y0) / dy;
+        if (t > 0.0 && t < 1.0)
+        {
+            const double x = x0 + t * dx;
+            if (x >= clipxmin && x <= clipxmax && t < tmin)
+            {
+                tmin = t;
+                best_xi = x;
+                best_yi = clipymin;
+            }
+        }
+    }
+
+    /* Top edge (y = clipymax) */
+    if (dy != 0.0)
+    {
+        const double t = (clipymax - y0) / dy;
+        if (t > 0.0 && t < 1.0)
+        {
+            const double x = x0 + t * dx;
+            if (x >= clipxmin && x <= clipxmax && t < tmin)
+            {
+                tmin = t;
+                best_xi = x;
+                best_yi = clipymax;
+            }
+        }
+    }
+
+    if (tmin <= 1.0)
+    {
+        *xi = best_xi;
+        *yi = best_yi;
+        return true;
+    }
+    return false;
+}
+
+/* -------------------------------------------------------------------- */
+/*      Sutherland-Hodgman polygon clipping against a single edge.      */
+/*      edge_code: 0=left, 1=right, 2=bottom, 3=top                    */
+/*      Returns the new vertex count.                                   */
+/* -------------------------------------------------------------------- */
+static int sh_clip_edge(const double *inX, const double *inY, const double *inZ,
+                        const double *inM, int nIn, double *outX, double *outY,
+                        double *outZ, double *outM, int edge_code,
+                        double edge_val)
+{
+    int nOut = 0;
+    for (int i = 0; i < nIn; i++)
+    {
+        const int j = (i + 1) % nIn;
+        double si, sj; /* signed distance to edge */
+
+        switch (edge_code)
+        {
+            case 0:
+                si = inX[i] - edge_val;
+                sj = inX[j] - edge_val;
+                break; /* left:  inside when x >= val */
+            case 1:
+                si = edge_val - inX[i];
+                sj = edge_val - inX[j];
+                break; /* right: inside when x <= val */
+            case 2:
+                si = inY[i] - edge_val;
+                sj = inY[j] - edge_val;
+                break; /* bottom: inside when y >= val */
+            case 3:
+                si = edge_val - inY[i];
+                sj = edge_val - inY[j];
+                break; /* top: inside when y <= val */
+            default:
+                return 0;
+        }
+
+        const bool i_in = (si >= 0);
+        const bool j_in = (sj >= 0);
+
+        if (i_in && j_in)
+        {
+            /* Both inside -> output j */
+            outX[nOut] = inX[j];
+            outY[nOut] = inY[j];
+            if (outZ)
+                outZ[nOut] = inZ[j];
+            if (outM)
+                outM[nOut] = inM[j];
+            nOut++;
+        }
+        else if (i_in && !j_in)
+        {
+            /* Leaving -> output intersection */
+            const double t = si / (si - sj);
+            outX[nOut] = inX[i] + t * (inX[j] - inX[i]);
+            outY[nOut] = inY[i] + t * (inY[j] - inY[i]);
+            if (outZ)
+                outZ[nOut] = inZ[i] + t * (inZ[j] - inZ[i]);
+            if (outM)
+                outM[nOut] = inM[i] + t * (inM[j] - inM[i]);
+            nOut++;
+        }
+        else if (!i_in && j_in)
+        {
+            /* Entering -> output intersection, then j */
+            const double t = si / (si - sj);
+            outX[nOut] = inX[i] + t * (inX[j] - inX[i]);
+            outY[nOut] = inY[i] + t * (inY[j] - inY[i]);
+            if (outZ)
+                outZ[nOut] = inZ[i] + t * (inZ[j] - inZ[i]);
+            if (outM)
+                outM[nOut] = inM[i] + t * (inM[j] - inM[i]);
+            nOut++;
+            outX[nOut] = inX[j];
+            outY[nOut] = inY[j];
+            if (outZ)
+                outZ[nOut] = inZ[j];
+            if (outM)
+                outM[nOut] = inM[j];
+            nOut++;
+        }
+        /* else both outside -> nothing */
+    }
+    return nOut;
+}
+
 int clip_boundary()
 {
     /*** FIRST check the boundary of the feature ***/
@@ -588,55 +765,311 @@ int clip_boundary()
 
     if (icut)
     { /** CUT **/
-        /*** Check each vertex in the feature with the Boundary and "CUT" ***/
-        /*** THIS CODE WAS NOT COMPLETED!  READ NOTE AT THE BOTTOM ***/
-        int i2 = 0;
-        bool prev_outside = false;
-        for (int j2 = 0; j2 < psCShape->nVertices; j2++)
+        const bool is_polygon = (psCShape->nSHPType == SHPT_POLYGON ||
+                                 psCShape->nSHPType == SHPT_POLYGONZ ||
+                                 psCShape->nSHPType == SHPT_POLYGONM);
+
+        if (is_polygon && !ierase)
         {
-            bool inside =
+            const int nParts = psCShape->nParts > 0 ? psCShape->nParts : 1;
+            const int totalOrig = psCShape->nVertices;
+            /* Worst case: each ring gains a few vertices from clipping */
+            const int maxTotal = totalOrig * 3 + nParts * 10;
+
+            double *outX = (double *)malloc(maxTotal * sizeof(double));
+            double *outY = (double *)malloc(maxTotal * sizeof(double));
+            double *outZ = psCShape->padfZ
+                               ? (double *)malloc(maxTotal * sizeof(double))
+                               : NULL;
+            double *outM = psCShape->padfM
+                               ? (double *)malloc(maxTotal * sizeof(double))
+                               : NULL;
+            int *outParts = (int *)malloc(nParts * sizeof(int));
+            int outNParts = 0;
+            int outTotal = 0;
+
+            for (int p = 0; p < nParts; p++)
+            {
+                /* Determine ring range */
+                const int ringStart =
+                    psCShape->panPartStart ? psCShape->panPartStart[p] : 0;
+                const int ringEnd = (p + 1 < nParts && psCShape->panPartStart)
+                                        ? psCShape->panPartStart[p + 1]
+                                        : totalOrig;
+                int nRing = ringEnd - ringStart;
+
+                /* Strip closing vertex if present */
+                if (nRing >= 4 &&
+                    psCShape->padfX[ringStart] ==
+                        psCShape->padfX[ringStart + nRing - 1] &&
+                    psCShape->padfY[ringStart] ==
+                        psCShape->padfY[ringStart + nRing - 1])
+                    nRing--;
+
+                if (nRing < 3)
+                    continue;
+
+                /* Allocate SH ping-pong buffers for this ring */
+                const int maxRing = (nRing + 4) * 2 + 2;
+                double *bufX[2], *bufY[2], *bufZ[2], *bufM[2];
+                for (int b = 0; b < 2; b++)
+                {
+                    bufX[b] = (double *)malloc(maxRing * sizeof(double));
+                    bufY[b] = (double *)malloc(maxRing * sizeof(double));
+                    bufZ[b] = psCShape->padfZ
+                                  ? (double *)malloc(maxRing * sizeof(double))
+                                  : NULL;
+                    bufM[b] = psCShape->padfM
+                                  ? (double *)malloc(maxRing * sizeof(double))
+                                  : NULL;
+                }
+
+                memcpy(bufX[0], psCShape->padfX + ringStart,
+                       nRing * sizeof(double));
+                memcpy(bufY[0], psCShape->padfY + ringStart,
+                       nRing * sizeof(double));
+                if (psCShape->padfZ)
+                    memcpy(bufZ[0], psCShape->padfZ + ringStart,
+                           nRing * sizeof(double));
+                if (psCShape->padfM)
+                    memcpy(bufM[0], psCShape->padfM + ringStart,
+                           nRing * sizeof(double));
+
+                int nCur = nRing;
+                int src = 0;
+
+                /* Clip against 4 edges: left, right, bottom, top */
+                const int edges[] = {0, 1, 2, 3};
+                const double vals[] = {cxmin, cxmax, cymin, cymax};
+                for (int e = 0; e < 4 && nCur > 0; e++)
+                {
+                    const int dst = 1 - src;
+                    nCur =
+                        sh_clip_edge(bufX[src], bufY[src], bufZ[src], bufM[src],
+                                     nCur, bufX[dst], bufY[dst], bufZ[dst],
+                                     bufM[dst], edges[e], vals[e]);
+                    src = dst;
+                }
+
+                if (nCur >= 3)
+                {
+                    /* Record part start */
+                    outParts[outNParts++] = outTotal;
+
+                    /* Copy clipped ring + closing vertex */
+                    memcpy(outX + outTotal, bufX[src], nCur * sizeof(double));
+                    memcpy(outY + outTotal, bufY[src], nCur * sizeof(double));
+                    if (outZ)
+                        memcpy(outZ + outTotal, bufZ[src],
+                               nCur * sizeof(double));
+                    if (outM)
+                        memcpy(outM + outTotal, bufM[src],
+                               nCur * sizeof(double));
+                    outTotal += nCur;
+
+                    /* Close the ring */
+                    outX[outTotal] = outX[outTotal - nCur];
+                    outY[outTotal] = outY[outTotal - nCur];
+                    if (outZ)
+                        outZ[outTotal] = outZ[outTotal - nCur];
+                    if (outM)
+                        outM[outTotal] = outM[outTotal - nCur];
+                    outTotal++;
+                }
+
+                for (int b = 0; b < 2; b++)
+                {
+                    free(bufX[b]);
+                    free(bufY[b]);
+                    free(bufZ[b]);
+                    free(bufM[b]);
+                }
+            }
+
+            if (outNParts > 0)
+            {
+                free(psCShape->padfX);
+                free(psCShape->padfY);
+                psCShape->padfX = outX;
+                psCShape->padfY = outY;
+                if (psCShape->padfZ)
+                {
+                    free(psCShape->padfZ);
+                    psCShape->padfZ = outZ;
+                }
+                if (psCShape->padfM)
+                {
+                    free(psCShape->padfM);
+                    psCShape->padfM = outM;
+                }
+                free(psCShape->panPartStart);
+                psCShape->panPartStart = outParts;
+                psCShape->nParts = outNParts;
+                psCShape->nVertices = outTotal;
+                return (1); /** WRITE RECORD **/
+            }
+
+            free(outX);
+            free(outY);
+            free(outZ);
+            free(outM);
+            free(outParts);
+            return (0); /** SKIP RECORD **/
+        }
+
+        const int nOrig = psCShape->nVertices;
+        const int maxVerts = nOrig * 3 + 2;
+        double *newX = (double *)malloc(maxVerts * sizeof(double));
+        double *newY = (double *)malloc(maxVerts * sizeof(double));
+        double *newZ = psCShape->padfZ
+                           ? (double *)malloc(maxVerts * sizeof(double))
+                           : NULL;
+        double *newM = psCShape->padfM
+                           ? (double *)malloc(maxVerts * sizeof(double))
+                           : NULL;
+        int i2 = 0;
+
+        for (int j2 = 0; j2 < nOrig; j2++)
+        {
+            bool cur_inside =
                 psCShape->padfX[j2] >= cxmin && psCShape->padfX[j2] <= cxmax &&
                 psCShape->padfY[j2] >= cymin && psCShape->padfY[j2] <= cymax;
-
             if (ierase)
-                inside = !inside;
-            if (inside)
+                cur_inside = !cur_inside;
+
+            if (j2 > 0)
             {
-                if (i2 != j2)
+                bool prev_inside = psCShape->padfX[j2 - 1] >= cxmin &&
+                                   psCShape->padfX[j2 - 1] <= cxmax &&
+                                   psCShape->padfY[j2 - 1] >= cymin &&
+                                   psCShape->padfY[j2 - 1] <= cymax;
+                if (ierase)
+                    prev_inside = !prev_inside;
+
+                if (cur_inside != prev_inside)
                 {
-                    if (prev_outside)
+                    double xi, yi;
+                    if (compute_clip_intersection(
+                            psCShape->padfX[j2 - 1], psCShape->padfY[j2 - 1],
+                            psCShape->padfX[j2], psCShape->padfY[j2], cxmin,
+                            cymin, cxmax, cymax, &xi, &yi))
                     {
-                        /*** AddIntersection(i2); ***/ /*** Add intersection ***/
-                        prev_outside = false;
+                        newX[i2] = xi;
+                        newY[i2] = yi;
+                        if (newZ || newM)
+                        {
+                            const double dx =
+                                psCShape->padfX[j2] - psCShape->padfX[j2 - 1];
+                            const double dy =
+                                psCShape->padfY[j2] - psCShape->padfY[j2 - 1];
+                            const double t =
+                                (fabs(dx) > fabs(dy))
+                                    ? (xi - psCShape->padfX[j2 - 1]) / dx
+                                    : (yi - psCShape->padfY[j2 - 1]) / dy;
+                            if (newZ)
+                                newZ[i2] = psCShape->padfZ[j2 - 1] +
+                                           t * (psCShape->padfZ[j2] -
+                                                psCShape->padfZ[j2 - 1]);
+                            if (newM)
+                                newM[i2] = psCShape->padfM[j2 - 1] +
+                                           t * (psCShape->padfM[j2] -
+                                                psCShape->padfM[j2 - 1]);
+                        }
+                        i2++;
                     }
-                    psCShape->padfX[i2] =
-                        psCShape->padfX[j2]; /** move vertex **/
-                    psCShape->padfY[i2] = psCShape->padfY[j2];
                 }
-                i2++;
-            }
-            else
-            {
-                if ((!prev_outside) && (j2 > 0))
+                else if (!cur_inside && !prev_inside)
                 {
-                    /*** AddIntersection(i2); ***/ /*** Add intersection (Watch out for j2==i2-1) ***/
-                    /*** Also a polygon may overlap twice and will split into a several parts  ***/
-                    prev_outside = true;
+                    /* Both outside: check if segment crosses through box */
+                    double xi1, yi1, xi2, yi2;
+                    if (compute_clip_intersection(
+                            psCShape->padfX[j2 - 1], psCShape->padfY[j2 - 1],
+                            psCShape->padfX[j2], psCShape->padfY[j2], cxmin,
+                            cymin, cxmax, cymax, &xi1, &yi1) &&
+                        compute_clip_intersection(
+                            psCShape->padfX[j2], psCShape->padfY[j2],
+                            psCShape->padfX[j2 - 1], psCShape->padfY[j2 - 1],
+                            cxmin, cymin, cxmax, cymax, &xi2, &yi2))
+                    {
+                        newX[i2] = xi1;
+                        newY[i2] = yi1;
+                        if (newZ || newM)
+                        {
+                            const double dx =
+                                psCShape->padfX[j2] - psCShape->padfX[j2 - 1];
+                            const double dy =
+                                psCShape->padfY[j2] - psCShape->padfY[j2 - 1];
+                            const double t =
+                                (fabs(dx) > fabs(dy))
+                                    ? (xi1 - psCShape->padfX[j2 - 1]) / dx
+                                    : (yi1 - psCShape->padfY[j2 - 1]) / dy;
+                            if (newZ)
+                                newZ[i2] = psCShape->padfZ[j2 - 1] +
+                                           t * (psCShape->padfZ[j2] -
+                                                psCShape->padfZ[j2 - 1]);
+                            if (newM)
+                                newM[i2] = psCShape->padfM[j2 - 1] +
+                                           t * (psCShape->padfM[j2] -
+                                                psCShape->padfM[j2 - 1]);
+                        }
+                        i2++;
+                        newX[i2] = xi2;
+                        newY[i2] = yi2;
+                        if (newZ || newM)
+                        {
+                            const double dx =
+                                psCShape->padfX[j2] - psCShape->padfX[j2 - 1];
+                            const double dy =
+                                psCShape->padfY[j2] - psCShape->padfY[j2 - 1];
+                            const double t =
+                                (fabs(dx) > fabs(dy))
+                                    ? (xi2 - psCShape->padfX[j2 - 1]) / dx
+                                    : (yi2 - psCShape->padfY[j2 - 1]) / dy;
+                            if (newZ)
+                                newZ[i2] = psCShape->padfZ[j2 - 1] +
+                                           t * (psCShape->padfZ[j2] -
+                                                psCShape->padfZ[j2 - 1]);
+                            if (newM)
+                                newM[i2] = psCShape->padfM[j2 - 1] +
+                                           t * (psCShape->padfM[j2] -
+                                                psCShape->padfM[j2 - 1]);
+                        }
+                        i2++;
+                    }
                 }
+            }
+
+            if (cur_inside)
+            {
+                newX[i2] = psCShape->padfX[j2];
+                newY[i2] = psCShape->padfY[j2];
+                if (newZ)
+                    newZ[i2] = psCShape->padfZ[j2];
+                if (newM)
+                    newM[i2] = psCShape->padfM[j2];
+                i2++;
             }
         }
 
-        printf("Vertices:%d   OUT:%d   Number of Parts:%d\n",
-               psCShape->nVertices, i2, psCShape->nParts);
-
+        free(psCShape->padfX);
+        free(psCShape->padfY);
+        psCShape->padfX = newX;
+        psCShape->padfY = newY;
+        if (psCShape->padfZ)
+        {
+            free(psCShape->padfZ);
+            psCShape->padfZ = newZ;
+        }
+        if (psCShape->padfM)
+        {
+            free(psCShape->padfM);
+            psCShape->padfM = newM;
+        }
         psCShape->nVertices = i2;
 
         if (i2 < 2)
             return (0); /** SKIP RECORD **/
-        /*** (WE ARE NOT CREATING INTERSECTIONS and some lines could be reduced to one point) **/
 
-        // if (i2 == 0) return(0); /** SKIP  RECORD **/
-        // else
         return (1); /** WRITE RECORD **/
     } /** End CUT **/
 
@@ -667,6 +1100,88 @@ double findunit(char *unit)
             unitfactor = unitkeytab[j].value;
     }
     return (unitfactor);
+}
+
+/* -------------------------------------------------------------------- */
+/*      Parse comma-separated integer selection values from a string.   */
+/*      Returns the number of values parsed.                            */
+/* -------------------------------------------------------------------- */
+long int parse_select_values(const char *input, long int *values,
+                             int max_values)
+{
+    long int count = 0;
+    const char *cp = input;
+    long int val = atol(cp);
+    while (val > 0 && count < max_values)
+    {
+        values[count] = val;
+        while (*cp >= '0' && *cp <= '9')
+            cp++;
+        while (*cp > '\0' && (*cp < '0' || *cp > '9'))
+            cp++;
+        val = atol(cp);
+        count++;
+    }
+    return count;
+}
+
+/* -------------------------------------------------------------------- */
+/*      Apply factor and shift to the coordinates of a shape object.    */
+/* -------------------------------------------------------------------- */
+void transform_coordinates(SHPObject *psShape, double dfFactor, double dfXShift,
+                           double dfYShift)
+{
+    for (int j = 0; j < psShape->nVertices; j++)
+    {
+        psShape->padfX[j] = psShape->padfX[j] * dfFactor + dfXShift;
+        psShape->padfY[j] = psShape->padfY[j] * dfFactor + dfYShift;
+    }
+}
+
+/* -------------------------------------------------------------------- */
+/*      Copy one DBF record from hDBFin(iRecord) to hDBFout(jRecord)    */
+/*      using the field mapping in fieldmap[].                          */
+/*      Returns true on success, false if any write fails.              */
+/* -------------------------------------------------------------------- */
+bool copy_dbf_record(DBFHandle hDBFin, int iRecord, DBFHandle hDBFout,
+                     int jRecord, const int *fieldmap, int nFields)
+{
+    int w, d;
+    for (int i = 0; i < nFields; i++)
+    {
+        if (fieldmap[i] < 0)
+            continue;
+        switch (DBFGetFieldInfo(hDBFin, i, NULL, &w, &d))
+        {
+            case FTString:
+            case FTLogical:
+            case FTDate:
+            {
+                const char *val = DBFReadStringAttribute(hDBFin, iRecord, i);
+                if (val == NULL)
+                    return false;
+                if (!DBFWriteStringAttribute(hDBFout, jRecord, fieldmap[i],
+                                             val))
+                    return false;
+                break;
+            }
+            case FTInteger:
+                if (!DBFWriteIntegerAttribute(
+                        hDBFout, jRecord, fieldmap[i],
+                        DBFReadIntegerAttribute(hDBFin, iRecord, i)))
+                    return false;
+                break;
+            case FTDouble:
+                if (!DBFWriteDoubleAttribute(
+                        hDBFout, jRecord, fieldmap[i],
+                        DBFReadDoubleAttribute(hDBFin, iRecord, i)))
+                    return false;
+                break;
+            case FTInvalid:
+                break;
+        }
+    }
+    return true;
 }
 
 /* -------------------------------------------------------------------- */
@@ -722,75 +1237,18 @@ void error()
         "   { <CLIP|ERASE>   <xmin> <ymin> <xmax> <ymax> <TOUCH|INSIDE|CUT> }");
     puts(
         "   { <CLIP|ERASE>   <theme>      <BOUNDARY>     <TOUCH|INSIDE|CUT> }");
-    puts("     Note: CUT is not complete and does not create intersections.");
-    puts("           For more information read programmer comment.");
-
-    /****   Clip functions for Polygon and Cut is not supported
-            There are several web pages that describe methods of doing this function.
-            It seem easy to implement until you start writing code.  I don't have the
-            time to add these functions but a did leave a simple cut routine in the
-            program that can be called by using CUT instead of TOUCH in the
-            CLIP or ERASE functions.  It does not add the intersection of the line and
-            the clip box, so polygons could look incomplete and lines will come up short.
-
-            Information about clipping lines with a box:
-            http://www.csclub.uwaterloo.ca/u/mpslager/articles/sutherland/wr.html
-            Information about finding the intersection of two lines:
-            http://www.whisqu.se/per/docs/math28.htm
-
-            THE CODE LOOKS LIKE THIS:
-            ********************************************************
-            void Intersect_Lines(float x0,float y0,float x1,float y1,
-            float x2,float y2,float x3,float y3,
-            float *xi,float *yi)
-            {
-//  this function computes the intersection of the sent lines
-//  and returns the intersection point, note that the function assumes
-//  the lines intersect. the function can handle vertical as well
-//  as horizontal lines. note the function isn't very clever, it simply
-//  applies the math, but we don't need speed since this is a
-//  pre-processing step
-//  The Intersect_lines program came from (http://www.whisqu.se/per/docs/math28.htm)
-
-float a1,b1,c1, // constants of linear equations
-a2,b2,c2,
-det_inv,  // the inverse of the determinant of the coefficientmatrix
-m1,m2;    // the slopes of each line
-
-// compute slopes, note the cludge for infinity, however, this will
-// be close enough
-if ((x1-x0)!=0)
-m1 = (y1-y0)/(x1-x0);
-else
-m1 = (float)1e+10;  // close enough to infinity
-
-
-if ((x3-x2)!=0)
-m2 = (y3-y2)/(x3-x2);
-else
-m2 = (float)1e+10;  // close enough to infinity
-
-// compute constants
-a1 = m1;
-a2 = m2;
-b1 = -1;
-b2 = -1;
-c1 = (y0-m1*x0);
-c2 = (y2-m2*x2);
-// compute the inverse of the determinate
-det_inv = 1/(a1*b2 - a2*b1);
-// use Kramers rule to compute xi and yi
-*xi=((b1*c2 - b2*c1)*det_inv);
-*yi=((a2*c1 - a1*c2)*det_inv);
-} // end Intersect_Lines
-    **********************************************************/
+    puts("     Note: CUT clips lines, polylines, and polygons to the");
+    puts("           boundary box (Sutherland-Hodgman algorithm).");
 
     exit(1);
 }
 
-int main(int argc, char **argv)
+/* -------------------------------------------------------------------- */
+/*      Parse command-line arguments into global state.                 */
+/*      Calls error()/exit(1) on invalid arguments.                     */
+/* -------------------------------------------------------------------- */
+void parse_arguments(int argc, char **argv)
 {
-    // Check command line usage.
     if (argc < 2)
         error();
     snprintf(infile, sizeof(infile), "%s", argv[1]);
@@ -798,13 +1256,9 @@ int main(int argc, char **argv)
     {
         snprintf(outfile, sizeof(outfile), "%s", argv[2]);
         if (strncasecmp2(outfile, "LIST", 0) == 0)
-        {
             ilist = true;
-        }
         if (strncasecmp2(outfile, "ALL", 0) == 0)
-        {
             iall = true;
-        }
     }
     if (ilist || iall || argc == 2)
     {
@@ -813,7 +1267,6 @@ int main(int argc, char **argv)
         outfile[0] = '\0';
     }
 
-    // Look for other functions on the command line. (SELECT, UNIT)
     for (int i = 3; i < argc; i++)
     {
         if ((strncasecmp2(argv[i], "SEL", 3) == 0) ||
@@ -828,23 +1281,9 @@ int main(int argc, char **argv)
             i++;
             if (i >= argc)
                 error();
-            selcount = 0;
-            snprintf(temp, sizeof(temp), "%s", argv[i]);
-            cpt = temp;
-            tj = atoi(cpt);
-            ti = 0;
-            while (tj > 0)
-            {
-                selectvalues[selcount] = tj;
-                while (*cpt >= '0' && *cpt <= '9')
-                    cpt++;
-                while (*cpt > '\0' && (*cpt < '0' || *cpt > '9'))
-                    cpt++;
-                tj = atoi(cpt);
-                selcount++;
-            }
+            selcount = parse_select_values(argv[i], selectvalues, 150);
             iselect = true;
-        } /*** End SEL & UNSEL ***/
+        }
         else if ((strncasecmp2(argv[i], "CLIP", 4) == 0) ||
                  (strncasecmp2(argv[i], "ERASE", 5) == 0))
         {
@@ -877,7 +1316,7 @@ int main(int argc, char **argv)
                        cymin, cxmax, cymax);
             }
             else
-            { /*** xmin,ymin,xmax,ymax ***/
+            {
                 sscanf(argv[i], "%lf", &cymin);
                 i++;
                 if (i >= argc)
@@ -902,7 +1341,7 @@ int main(int argc, char **argv)
             else
                 error();
             iclip = true;
-        } /*** End CLIP & ERASE ***/
+        }
         else if (strncasecmp2(argv[i], "FACTOR", 0) == 0)
         {
             i++;
@@ -934,7 +1373,7 @@ int main(int argc, char **argv)
             }
             printf("Output file coordinate values will be factored by %lg\n",
                    factor);
-        } /*** End FACTOR ***/
+        }
         else if (strncasecmp2(argv[i], "SHIFT", 5) == 0)
         {
             i++;
@@ -947,34 +1386,86 @@ int main(int argc, char **argv)
             sscanf(argv[i], "%lf", &yshift);
             iunit = true;
             printf("X Shift: %lg   Y Shift: %lg\n", xshift, yshift);
-        } /*** End SHIFT ***/
+        }
         else
         {
             printf("ERROR: Unknown function %s\n", argv[i]);
             error();
         }
     }
+}
 
-    // If there is no data in this file let the user know.
-    openfiles(); /* Open the infile and the outfile for shape and dbf. */
+/* -------------------------------------------------------------------- */
+/*      Process all records: select, clip, copy DBF fields,             */
+/*      transform coordinates, and write shapes.                        */
+/* -------------------------------------------------------------------- */
+void process_records(void)
+{
+    int jRecord = DBFGetRecordCount(hDBFappend);
+    const int nFields = DBFGetFieldCount(hDBF);
+
+    for (int iRecord = 0; iRecord < nEntities; iRecord++)
+    {
+        if (iselect && selectrec(iRecord) == 0)
+        {
+            psCShape = NULL;
+            continue;
+        }
+
+        psCShape = SHPReadObject(hSHP, iRecord);
+        if (psCShape == NULL)
+        {
+            fprintf(stderr, "ERROR: Unable to read shape %d\n", iRecord);
+            continue;
+        }
+
+        if (iclip && clip_boundary() == 0)
+        {
+            SHPDestroyObject(psCShape);
+            psCShape = NULL;
+            continue;
+        }
+
+        if (!copy_dbf_record(hDBF, iRecord, hDBFappend, jRecord, pt, nFields))
+        {
+            fprintf(stderr, "Warning: Failed to copy DBF record %d\n", iRecord);
+        }
+        jRecord++;
+
+        if (iunit)
+            transform_coordinates(psCShape, factor, xshift, yshift);
+
+        SHPComputeExtents(psCShape);
+        SHPWriteObject(hSHPappend, -1, psCShape);
+
+        SHPDestroyObject(psCShape);
+        psCShape = NULL;
+    }
+}
+
+#ifndef SHPUTILS_NO_MAIN
+int main(int argc, char **argv)
+{
+    parse_arguments(argc, argv);
+
+    openfiles();
     if (DBFGetFieldCount(hDBF) == 0)
     {
         puts("There are no fields in this table!");
         exit(1);
     }
 
-    // Print out the file bounds.
+    /* Print out the file bounds. */
     {
         const int iRecord = DBFGetRecordCount(hDBF);
         SHPGetInfo(hSHP, NULL, NULL, adfBoundsMin, adfBoundsMax);
-
         printf(
             "Input Bounds:  (%lg,%lg) - (%lg,%lg)   Entities: %d   DBF: %d\n",
             adfBoundsMin[0], adfBoundsMin[1], adfBoundsMax[0], adfBoundsMax[1],
             nEntities, iRecord);
 
         if (strcmp(outfile, "") == 0)
-        { /* Describe the shapefile; No other functions */
+        {
             ti = DBFGetFieldCount(hDBF);
             showitems();
             exit(0);
@@ -995,115 +1486,24 @@ int main(int argc, char **argv)
                 adfBoundsMin[0], adfBoundsMin[1], adfBoundsMax[0],
                 adfBoundsMax[1], nEntitiesAppend, jRecord);
     }
-    /* -------------------------------------------------------------------- */
-    /*	Find matching fields in the append file or add new items.       */
-    /* -------------------------------------------------------------------- */
+
     mergefields();
-    /* -------------------------------------------------------------------- */
-    /*	Find selection field if needed.                                 */
-    /* -------------------------------------------------------------------- */
+
     if (iselect)
         findselect();
 
-    /* -------------------------------------------------------------------- */
-    /*  Read all the records 						*/
-    /* -------------------------------------------------------------------- */
-    int jRecord = DBFGetRecordCount(hDBFappend);
-    for (int iRecord = 0; iRecord < nEntities;
-         iRecord++) /** DBFGetRecordCount(hDBF) **/
+    process_records();
+
+    /* Print out the # of Entities and the file bounds. */
     {
-        /* -------------------------------------------------------------------- */
-        /*      SELECT for values if needed. (Can the record be skipped.)       */
-        /* -------------------------------------------------------------------- */
-        if (iselect)
-            if (selectrec(iRecord) == 0)
-                goto SKIP_RECORD; /** SKIP RECORD **/
-
-        /* -------------------------------------------------------------------- */
-        /*      Read a Shape record                                             */
-        /* -------------------------------------------------------------------- */
-        psCShape = SHPReadObject(hSHP, iRecord);
-
-        /* -------------------------------------------------------------------- */
-        /*      Clip coordinates of shapes if needed.                           */
-        /* -------------------------------------------------------------------- */
-        if (iclip)
-            if (clip_boundary() == 0)
-                goto SKIP_RECORD; /** SKIP RECORD **/
-
-        /* -------------------------------------------------------------------- */
-        /*      Read a DBF record and copy each field.                          */
-        /* -------------------------------------------------------------------- */
-        for (int i = 0; i < DBFGetFieldCount(hDBF); i++)
-        {
-            /* -------------------------------------------------------------------- */
-            /*      Store the record according to the type and formatting           */
-            /*      information implicit in the DBF field description.              */
-            /* -------------------------------------------------------------------- */
-            if (pt[i] > -1) /* if the current field exists in output file */
-            {
-                switch (DBFGetFieldInfo(hDBF, i, NULL, &iWidth, &iDecimals))
-                {
-                    case FTString:
-                    case FTLogical:
-                    case FTDate:
-                        DBFWriteStringAttribute(
-                            hDBFappend, jRecord, pt[i],
-                            (DBFReadStringAttribute(hDBF, iRecord, i)));
-                        break;
-
-                    case FTInteger:
-                        DBFWriteIntegerAttribute(
-                            hDBFappend, jRecord, pt[i],
-                            (DBFReadIntegerAttribute(hDBF, iRecord, i)));
-                        break;
-
-                    case FTDouble:
-                        DBFWriteDoubleAttribute(
-                            hDBFappend, jRecord, pt[i],
-                            (DBFReadDoubleAttribute(hDBF, iRecord, i)));
-                        break;
-
-                    case FTInvalid:
-                        break;
-                }
-            }
-        }
-        jRecord++;
-        /* -------------------------------------------------------------------- */
-        /*      Change FACTOR and SHIFT coordinates of shapes if needed.        */
-        /* -------------------------------------------------------------------- */
-        if (iunit)
-        {
-            for (int j = 0; j < psCShape->nVertices; j++)
-            {
-                psCShape->padfX[j] = psCShape->padfX[j] * factor + xshift;
-                psCShape->padfY[j] = psCShape->padfY[j] * factor + yshift;
-            }
-        }
-
-        /* -------------------------------------------------------------------- */
-        /*      Write the Shape record after recomputing current extents.       */
-        /* -------------------------------------------------------------------- */
-        SHPComputeExtents(psCShape);
-        SHPWriteObject(hSHPappend, -1, psCShape);
-
-    SKIP_RECORD:
-        SHPDestroyObject(psCShape);
-        psCShape = NULL;
-        // j=0;
+        const int jRecord = DBFGetRecordCount(hDBFappend);
+        SHPGetInfo(hSHPappend, &nEntitiesAppend, &nShapeTypeAppend,
+                   adfBoundsMin, adfBoundsMax);
+        printf(
+            "Output Bounds: (%lg,%lg) - (%lg,%lg)   Entities: %d  DBF: %d\n\n",
+            adfBoundsMin[0], adfBoundsMin[1], adfBoundsMax[0], adfBoundsMax[1],
+            nEntitiesAppend, jRecord);
     }
-
-    /* -------------------------------------------------------------------- */
-    /*      Print out the # of Entities and the file bounds.                */
-    /* -------------------------------------------------------------------- */
-    jRecord = DBFGetRecordCount(hDBFappend);
-    SHPGetInfo(hSHPappend, &nEntitiesAppend, &nShapeTypeAppend, adfBoundsMin,
-               adfBoundsMax);
-
-    printf("Output Bounds: (%lg,%lg) - (%lg,%lg)   Entities: %d  DBF: %d\n\n",
-           adfBoundsMin[0], adfBoundsMin[1], adfBoundsMax[0], adfBoundsMax[1],
-           nEntitiesAppend, jRecord);
 
     SHPClose(hSHP);
     SHPClose(hSHPappend);
@@ -1123,3 +1523,4 @@ int main(int argc, char **argv)
 
     return 0;
 }
+#endif
