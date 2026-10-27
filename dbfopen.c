@@ -1789,6 +1789,10 @@ DBFHandle SHPAPI_CALL DBFCloneEmpty(const DBFHandle psDBF,
     DBFClose(newDBF);
 
     newDBF = DBFOpen(pszFilename, "rb+");
+    if (newDBF == SHPLIB_NULLPTR)
+    {
+        return SHPLIB_NULLPTR;
+    }
     newDBF->bWriteEndOfFileChar = psDBF->bWriteEndOfFileChar;
 
     return (newDBF);
