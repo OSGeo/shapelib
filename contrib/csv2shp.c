@@ -229,19 +229,19 @@ static int more_general_field_type(DBFFieldType t1, DBFFieldType t2)
     return 0;
 }
 
-static void strip_crlf(const char *line)
+static void strip_crlf(char *line)
 {
     /* remove trailing CR/LF */
 
-    if (strchr(line, 0x0D))
+    char *pszline = strchr(line, 0x0D);
+    if (pszline)
     {
-        char *pszline = strchr(line, 0x0D);
         pszline[0] = '\0';
     }
 
-    if (strchr(line, 0x0A))
+    pszline = strchr(line, 0x0A);
+    if (pszline)
     {
-        char *pszline = strchr(line, 0x0A);
         pszline[0] = '\0';
     }
 }
