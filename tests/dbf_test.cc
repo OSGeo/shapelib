@@ -122,6 +122,38 @@ TEST(DBFCreateTest, CloneEmpty)
     fs::remove(filename);
 }
 
+TEST(DBFCreateTest, CloneEmptyReopenFails)
+{
+    // A .dbf whose header length claims two field descriptors, but whose
+    // second descriptor is the 0x0D header terminator.  DBFOpen() accepts it
+    // with one field.  DBFCloneEmpty() copies the original header length but
+    // writes only one field descriptor, so the re-open of the clone fails.
+    // https://github.com/OSGeo/shapelib/issues/196
+    std::string content(97, '\0');
+    content[0] = 0x03;       // dBASE III
+    content[8] = 97;         // Header length: 32 + 2 * 32 + 1
+    content[10] = 6;         // Record length
+    content[32] = 'A';       // Field name
+    content[32 + 11] = 'C';  // Field type
+    content[32 + 16] = 5;    // Field width
+    content[64] = 0x0D;      // Header terminator in place of field 2
+    content[96] = 0x0D;
+    const auto srcname =
+        fs::temp_directory_path() / GenerateUniqueFilename(".clone-src.dbf");
+    ASSERT_TRUE(SetContents(srcname, content));
+    const auto clonename =
+        fs::temp_directory_path() / GenerateUniqueFilename(".clone-dst.dbf");
+    const auto handle = DBFOpen(srcname.string().c_str(), "rb");
+    ASSERT_NE(nullptr, handle);
+    EXPECT_EQ(1, DBFGetFieldCount(handle));
+    const auto clonedhandle = DBFCloneEmpty(handle, clonename.string().c_str());
+    EXPECT_EQ(nullptr, clonedhandle);
+    DBFClose(clonedhandle);
+    DBFClose(handle);
+    fs::remove(srcname);
+    fs::remove(clonename);
+}
+
 static auto WriteDate(const fs::path &filename,
                       const std::unique_ptr<const SHPDate> &date) -> auto
 {
