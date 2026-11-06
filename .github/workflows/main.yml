@@ -23,14 +23,14 @@ jobs:
         static_libs:
           - yes
           - no
-          
+
         exclude:
           - shared_libs: no
             static_libs: no
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Setup
         run: sudo apt-get install build-essential libtool-bin
@@ -70,7 +70,7 @@ jobs:
 
         configuration:
           - Release
-          
+
         shared_libs:
           - ON
           - OFF
@@ -90,7 +90,7 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Configure (${{ matrix.configuration }})
         run: |
@@ -127,7 +127,7 @@ jobs:
       matrix:
         configuration:
           - Release
-          
+
         shared_libs:
           - ON
           - OFF
@@ -137,7 +137,7 @@ jobs:
         run: git config --global core.autocrlf input
 
       - name: Checkout Code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Setup cygwin
         uses: cygwin/cygwin-install-action@master
@@ -172,10 +172,11 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Make
         shell: cmd
         run: |
-          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
+          for /f "usebackq delims=" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -property installationPath`) do call "%%i\VC\Auxiliary\Build\vcvarsall.bat" x64
+          if not defined VCToolsInstallDir (echo ERROR: Visual Studio C++ tools not found & exit /b 1)
           nmake /f makefile.vc
